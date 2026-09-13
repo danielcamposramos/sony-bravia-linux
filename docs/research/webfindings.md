@@ -163,6 +163,12 @@ notes as reported by the research agents.
    also a soft pressure/awareness channel.
 3. Test unixtract against our sony_dtv bins (one cheap experiment).
 4. Differential analysis across the six-package corpus (same platform,
+   different regions/versions) — NOTE after partner review: against
+   CBC/CTR-class whole-file encryption this has little cryptanalytic
+   value and no plaintext oracle exists (zip CRC-32 covers the encrypted
+   bytes; the filename hex field is a platform ID, not a hash). Keep the
+   corpus for *after* any decryption breakthrough: patch-diffing PKG
+   builds then reveals which flaws Sony fixed.
    different regions/versions).
 5. CERS register (visible dialog) → full IRCC remote control from LAN.
 6. Probe 9784 protocol on the EX725 (only open port beyond CERS/UPnP).

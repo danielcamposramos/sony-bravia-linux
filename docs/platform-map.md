@@ -130,8 +130,13 @@ same portal whose tarballs for our exact model groups are now deleted
 Whole-file encrypted (flat 7.9998-bit entropy, zero duplicate 16-byte
 blocks → CBC/CTR-class, not ECB), sizes 95,079,200 / 68,295,040 bytes,
 no plaintext structure anywhere. No public decryptor for this generation.
-Six-image regional corpus in `firmware/` for differential work. Zip CRC-32
-values give correctness oracles for any future key-guess attempt.
+Six-image regional corpus in `firmware/` for differential work. NOTE
+(corrected after partner review, 2026-09-13): the zip CRC-32 values are
+computed over the **encrypted** bytes as stored — they verify container
+integrity, NOT plaintext correctness. The filename 8-hex field is a platform
+ID (constant across regions), not a plaintext hash. There is therefore **no
+known correctness oracle** for decryption key guesses, and against
+CBC/CTR-class encryption the corpus has little cryptanalytic value.
 
 ## 7. What is NOT documented anywhere we looked
 

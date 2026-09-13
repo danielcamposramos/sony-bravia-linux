@@ -19,56 +19,104 @@ reversible. It is also the fallback if the hardware tracks stall.
 
 ## Track B — getting in (root without breaking anything)
 
+**Hands-on rules (from partner review):** experiment on the EX725 or a
+cheap donor main board, never the HX855 (it is the workstation's monitor);
+treat opening a mains-powered set as the real risk step it is (ground
+reference, isolation); photograph the board before probing.
+
 | Step | What | Depends on |
 |---|---|---|
-| B1 | **Find UARTA (LOG) pads on the BAP board.** The service manual gives the signal names but no locations. Board tracing / high-res photos of our own board. 3.3 V TTL USB adapter. | hands-on session |
-| B2 | Capture boot log; determine whether an ABK-Monitor-class boot monitor exists on AZ3F (precedent: LX900 CN5502). If yes: memory dump → NAND flash dump → root console | B1 |
-| B3 | From a flash dump: locate the named keyring (commonkey, kkey, frzkey…) and the update-decryption path; optionally decrypt our six-image corpus (CRC-32 oracles available) | B2 |
+| B0 | **Inventory ("Stage −1") on first root access**: `lsmod` (are decoder/display/tuner drivers binary `.ko`?), `/proc/cpuinfo` (core, FPU), `/proc/mtd`, `dmesg` reserved-memory, `/proc/config.gz` if present. These answers set the Stage 2 go/no-go. | any root |
+| B1 | **UART hunt**: (a) probe the BAP end of the BAP–H harness `RF Rx`/`RF Tx`/`RF_UART_SEL` (pins 14/16/18) — likely the muxed missing UART; (b) logic-analyzer boot capture on candidates (sigrok + fx2 clone; 115200/57600/38400/9600; check idle voltage — 1.8 V possible); (c) high-res board photos, unpopulated footprints, do-not-populate resistors on RX lines; (d) TL-JIG jig connector as likely debug breakout. UARTA first, UARTC next, JTAG (JTAGenum/OpenOCD+EJTAG) only as fallback. | hands-on session |
+| B2 | Capture boot log; determine whether an ABK-Monitor-class boot monitor exists on AZ3F (banner before kernel messages; try Space/Enter/Ctrl-C in the first 2 s). If yes: memory dump → **full NAND flash dump incl. OOB (the first thing to save)** → root console. **This is the "unbrickable" gate** — until confirmed, no custom-kernel boot without touching flash. | B1 |
+| B3 | With root: rootfs RE for the middleware player API (decoder path, see Track C). Keyring extraction **dropped by decision** — the keyring sits next to PlayReady/Marlin/CI+ keys; we will not extract or publish those, and per-device keys are redacted from any shared dump. | B2 |
 | B4 | Test `unixtract` (Rust, MTK PKG formats) against our `sony_dtv0FA1/0FA2` bins — one cheap experiment, likely negative | nothing (can run today) |
-| B5 | Sony OSS inquiry form → request the exact 2.6.35-era kernel tarballs for both model groups (GPL obligation). Parallel: pull the archived sibling `kernel2635.tar.gz` (92 MB) from Wayback | nothing (can run today) |
+| B5 | Sony OSS inquiry form → request the exact 2.6.35-era kernel tarballs for both model groups (GPL obligation). Parallel: pull the archived sibling `kernel2635.tar.gz` (92 MB) from Wayback and check whether the AV/decoder drivers are even in it (download in progress) | nothing (can run today) |
 | B6 | Probe EX725 port 9784 (unknown tcpwrapped service) | nothing |
 
-No step in Track B modifies the TVs. Everything is read-only observation
-of hardware we own.
+### Track B-alt — the exploit chain (no soldering; owner's addition)
+
+Leverage the era's known flaws as an alternate entry:
+
+1. **Foothold**: memory-safety bug in reachable 2011-era userspace — the
+   Opera Presto 2.10/HbbTV engine (Nimue issue #4 territory, never
+   audited), CERS HTTP handlers (80), UPnP stack (52323), or the unknown
+   9784 service. These services have never faced an audit.
+2. **Privesc**: a stock 2.6.35 kernel falls to a decade of public LPEs
+   (Dirty COW and the whole 2010+ set) from any local code execution.
+3. **Caveats**: Sony's PKG updates may have patched some of this
+   (patch-diffing our multiple same-platform builds, if decryption ever
+   happens, would show exactly which); the attack surface may be thinner
+   than it looks (custom minimal handlers, not full servers). Crash risk
+   is watchdog resets, generally recoverable. **Guardian is known now**
+   (`drivers/mod_guardian/guardian.c` — see
+   `docs/research/kernel2635-survey.md`): the stock LSM only blocks
+   `mount -o remount,rw` of the rootfs; it does NOT block USB mounts,
+   `pivot_root`, `chroot`, or module loading — so the entire Stage-0
+   userland plan works with guardian active, and root additionally gets
+   `rmmod guardian` as an option.
+4. **Scope**: our own sets on our own LAN. Findings stay in this repo.
+
+No step in Track B (main) modifies the TVs' flash. Read-only observation
+of hardware we own; the caveat about powering/opening the set applies from
+B1 onward.
 
 ## Track C — modernization ladder (the "newer than 2012" goal)
 
-**Stage 0 — newer userspace on the stock kernel (no risk to the TV).**
-Build a mipsel toolchain and a self-contained modern-ish userland
-(glibc ~2.17-era, busybox, dropbear, mpd/ffmpeg CLI), ship it on a USB
-stick, and run it via chroot/pivot from whatever shell Track B yields.
-The stock 2.6.35-era kernel ABI is enough for userspace of that vintage.
-This alone turns the set into a controllable Linux box.
+**Gate — "Stage −1" inventory (B0)**: from the first root shell, `lsmod`
+and friends decide everything below. If the AV (decoder/panel/tuner)
+drivers are binary `.ko` modules — the era-typical case — there is no
+forward-port to 3.x that keeps a picture; the ladder then ends at
+"backports on the stock kernel".
 
-**Stage 1 — rebuild the stock kernel from GPL sources (unbrickable).**
-Once B5 delivers sources: build the *exact* stock kernel first, boot it via
-the ABK/TFTP path (over UART/LAN — the internal flash is never touched), and
-verify it matches. This validates the whole toolchain while the TV's own
-boot remains intact: a failed experiment just means power-cycle and boot
-the internal image again. This is the "training wheels" stage.
+**Stage 1 — toolchain + bootable custom kernel + initramfs (the new
+first step).** Build a mipsel toolchain (crosstool-ng/Buildroot; static
+musl/uClibc-ng soft-float userland, or glibc ≤ 2.26 since 2.26 needs
+kernel 3.2; QEMU user-mode test everything before touching hardware).
+Then build the *exact* stock kernel from GPL sources and TFTP-boot it via
+the ABK path. The exact source is already on disk: the archived
+`kernel2635.tar.gz` is **Linux 2.6.35.14** — BUT it is a "common"
+release with no board/SoC platform files (see
+`docs/research/kernel2635-survey.md`); whether a bootable kernel can be
+assembled from it + on-device module extraction is a Stage-1 experiment,
+and the gap is itself GPL-compliance evidence for the B5 packet. Brick risks to manage: `CONFIG_MODVERSIONS` symbol CRCs
+(pass test = "stock `.ko` modules load AND the panel shows a picture", not
+"it boots"); keep internal flash unmounted or read-only (UBI/JFFS2 mounts
+**write**) — rootfs on USB/NFS; feed the watchdogs (HOST_WDT, PEM_WDT) or
+get reset loops that look like crashes. Until the ABK/TFTP gate (B2) is
+confirmed, custom-kernel experiments write flash and are NOT unbrickable.
 
-**Stage 2 — forward-port the kernel.** Port Sony's out-of-tree CXD4727GB/
-Atreyu drivers (panel/PEM, tuner/demod, NAND, USB glue, ethernet) forward to
-a 3.x/4.x kernel, starting from the closest mainline equivalents. Precedent:
-DuckBox/STLinux communities did exactly this for other TV SoCs. Each ported
-driver is one small, testable, publishable unit — ideal FULU/repair.wiki
-material. Realistic target: 3.x–4.x, not 6.x; the value is newer ath9k_htc,
-newer filesystem/networking, modern buildroot, and long-term maintainability,
-not latest-and-greatest.
+**Stage 0 — pivot the modern userland into the initramfs (the new second
+step).** The modern userland is built *for the custom initramfs*, then
+used from whatever shell root yields. Risk wording: "no risk to internal
+flash" — a wedged userland can still hang the running system, and RAM is
+the real ceiling (killing Sony's main app risks watchdog trips).
 
-**The independent hard problem — HW video decode.** VLC-class *useful*
-playback needs the Atreyu hardware decoder. No public documentation exists;
-the SamyGO experience says software decode of HD on a TV-class MIPS core
-does not work. Options in order of likely effort:
-1. Talk to Sony's middleware player API from our own process (needs root +
-   rootfs RE — Stage 0/1 deliverables).
-2. Reverse the decoder's kernel driver interface from the recovered GPL
-   sources and reuse the DSP firmware blobs from the flash dump.
-3. Accept SW decode for SD/720p content only, use DLNA/HW player for HD.
+**Stage 2 — backports on the stock kernel (default), forward-port only if
+the inventory allows.** Default plan: compat-wireless/backports for newer
+ath9k_htc on the stock 2.6.35 + the Stage 0 userland gives most of the
+"newer" value. A true forward-port (DuckBox-style, to a 3.10/3.14-class
+LTS) only proceeds if the GPL sources show the AV drivers are
+source-available — expect headless-first (network/USB), panel/tuner last,
+and treat it as a multi-year research track, not a linear step.
 
-A newer kernel does NOT unlock the decoder — but the GPL sources are the
-only place the driver interface is written down, which is why B5 is on the
-critical path for both Stage 1 and the decoder.
+**The decoder — reframed (partner consensus).** The stock renderer is
+already a decoder API:
+1. **No root needed**: UPnP `SetAVTransportURI` + (HX855) CERS
+   `sendContentUrl` driven by a LAN **remux** proxy (MKV → TS container,
+   no transcode, no quality loss) → HD hardware decode in days.
+2. **After root**: drive the same renderer from localhost (our own UI +
+   HTTP server in the chroot; the stock player decodes).
+3. **Middleware hooking** (LD_PRELOAD / strace / ltrace into the player,
+   SamyGO exeDSP-style) for seek/subtitles/tracks. GPL sources help here
+   mainly by pinning exact glibc/DirectFB versions for ABI matching.
+4. **Kernel-driver RE of the decoder**: **answered 2026-09-13 — the GPL
+   tarball contains no SoC/decoder/panel drivers at all** (see
+   `docs/research/kernel2635-survey.md`): the AV path ships as binary
+   `.ko` modules outside the release. This option is last resort /
+   likely impossible from GPL sources alone.
+5. **Software decode**: audio (mpd) and SD content only; "720p" removed —
+   not realistic on this core class.
 
 ## Milestones worth sharing externally
 
