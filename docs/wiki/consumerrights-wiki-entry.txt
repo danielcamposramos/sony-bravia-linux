@@ -10,6 +10,12 @@
 #      fits before creating.
 #   4. Paste the markup below (everything after this header block).
 #
+# CATEGORY NOTE (on-wiki search, 2026-09-13): Category:Sony exists (used
+# by e.g. "Sony BRAVIA firmware update breaks recent televisions"); no
+# existing entry covers the pre-Android Linux generation, so this is a new
+# page. Of the four categories in the draft, only "Sony" is confirmed —
+# keep only the ones that exist on-site before saving.
+#
 # Tone is deliberately neutral/wiki-voice: the article documents the
 # product and the rights issues, with the owner's research as cited fact.
 # No first person, no personal biography in the body.
@@ -81,7 +87,13 @@ hardware.
 * Serviio forum thread:
   [https://forum.serviio.org/viewtopic.php?f=7&t=31269 forum.serviio.org]
 
-[[Category:Abandoned products]]
+# Confirmed via on-wiki search (2026-09-13): Category:Sony exists (used by
+# e.g. "Sony BRAVIA firmware update breaks recent televisions"). No existing
+# entry covers the pre-Android Linux generation, so this is a new page, not
+# an extension. Check which other categories exist on-site and adjust the
+# block below before saving.
+
 [[Category:Sony]]
+[[Category:Abandoned products]]
 [[Category:Televisions]]
 [[Category:Revoked functionality]]

@@ -1,0 +1,89 @@
+# MediaWiki source for the repair.wiki (Repair Preservation Group) technique
+# page. Different shape from the consumerrights.wiki entry: that one is the
+# rights STORY; this one is the REPAIR — how a future owner-repairer fixes
+# the symptom on their own set.
+#
+# HOW TO PUBLISH:
+#   1. Register a free account at repair.wiki; read RepairWiki:Guidelines
+#      first, and search for an existing Sony TV page to avoid duplicates.
+#   2. Suggested title: "Sony BRAVIA 2011-2012 - Restore 3D auto-detection
+#      over DLNA (frame-packing SEI)".
+#   3. Paste the markup below (everything after this header block).
+#   4. repair.wiki returned HTTP 403 to our automated fetches, so category
+#      names could not be verified — check existing categories on-site
+#      before saving.
+#
+# Wiki-voice, symptom-first: the reader arrives with "my 3D movies play
+# flat over DLNA", not with the platform story. Link the consumerrights.wiki
+# entry as companion background once it is live.
+#
+# MEDIAWIKI FORMATTING NOTE: every list item and indented block is a single
+# line — MediaWiki renders a leading-space continuation line as a <pre>
+# block, so wrapped items must not be re-wrapped when pasting.
+
+This page documents a software technique for restoring automatic 3D detection on the 2011&ndash;2012 (pre-Android, Linux-based) generation of Sony BRAVIA 3D televisions during DLNA media playback. It requires no hardware repair, no disassembly, and no modification of the television itself &mdash; the fix runs entirely on the media-server side of the LAN.
+
+== Symptom ==
+
+A side-by-side or top-and-bottom 3D video file (e.g. a Matroska '''.mkv''' rip with a StereoMode flag) plays in 2D &mdash; flat, with no 3D option auto-engaging &mdash; when streamed to the TV over DLNA. The same file plays as 3D on the TV from a USB drive ''if'' the player application exposes a manual 3D mode. The panel, glasses and 3D emitter are fine: the set is fully capable of displaying the content; it never receives the signal that tells it to engage 3D.
+
+== Affected hardware ==
+
+* '''Confirmed:''' KDL-46EX725 (2011, AZ2-F chassis) and KDL-46HX855 (2012, AZ3 chassis) &mdash; the entry and high ends of the generation.
+* '''Plausible, untested:''' other 2011&ndash;2012 3D-capable BRAVIA Linux sets (EX/HX 7xx/8xx series), and possibly other manufacturers' era 3D DLNA renderers. The mechanism is standard H.264 stereoscopic syntax, not Sony-proprietary. Community test results are collected in the [https://github.com/danielcamposramos/sony-bravia-linux/discussions/1 GitHub discussion].
+
+== Cause ==
+
+These TVs auto-engage 3D from exactly one signal: a '''frame_packing_arrangement SEI''' message (H.264 D.2.4, payload type 45) embedded in the H.264 elementary stream. They ignore the Matroska '''StereoMode''' container tag &mdash; which is the only 3D flag that standard rip files carry. Every mainstream DLNA server therefore serves 3D rips without any signal the set can read, and playback is flat.
+
+Two playback paths break in two different ways:
+
+* '''Re-encode paths''' (transcoding): the encoder is never told to emit frame-packing, so the SEI is absent from the output stream.
+* '''Remux / video-copy paths''' (bit-exact copy of the video elementary stream): the original stream simply has no SEI in it, and copying bit-exact preserves that.
+
+== Verification (confirm your set behaves this way) ==
+
+# Serve a known-good side-by-side 3D file to the TV over DLNA with an unmodified server configuration &mdash; playback is flat.
+# Re-serve the same file through the fixed configuration below &mdash; the set auto-engages 3D within seconds of playback start.
+
+A single-variable change between the two runs is what isolates the cause.
+
+== Fix part 1 &mdash; re-encode paths (fully automatic, on the fly) ==
+
+Applies when the server would transcode the video anyway: non-h264 codecs (MPEG4 AVI/MOV, VC-1/WMV, MSMPEG4, MJPEG, DV&hellip;), HEVC, 10-bit, H.264 above Level 4.1, widths above 1920, burned-in subtitles, and online feeds.
+
+Steps, on stock '''Serviio 2.5''' (free):
+
+# Install the renderer profile "Sony Bravia EX7xx/HX8xx (3D Enhanced)" (extends the stock sony2011 profile; one profile covers both lines) as Serviio's <code>user-profiles.xml</code>. It targets H.264 (which can carry frame-packing) instead of MPEG-2 video (which cannot) for re-encodes, with MPEG-TS + AC-3 output.
+# Install the ffmpeg wrapper (<code>ffmpeg-3d-wrapper.sh</code>) on the Serviio host. It detects Serviio's re-encode invocations of 3D-flagged inputs and appends <code>-x264-params frame-packing=3|4</code> (3 = side-by-side, 4 = top-and-bottom) to the encoder command line.
+# Restart Serviio and play &mdash; 3D engages automatically.
+
+Files and per-model details: [https://github.com/danielcamposramos/sony-bravia-linux/tree/main/tools/serviio tools/serviio/ in the research repository].
+
+== Fix part 2 &mdash; remux paths (one-time pre-processing) ==
+
+Applies when the video elementary stream is copied bit-exact, where nothing can be injected in flight: H.264 at or below Level 4.1, 8-bit, up to 1920 wide, with AC-3 audio (pure remux), and H.264 with any other audio (video copied, audio transcoded).
+
+For these files the SEI is inserted into the file itself, '''once''', with a lossless bitstream tool (<code>bravia_sei3d.py</code>):
+
+# Copy the file and run the injector on the copy.
+# The tool inserts the 16-byte SEI before every IDR access unit &mdash; no re-encode: every video bit is untouched, and file size grows by roughly 0.002%.
+# The operation is idempotent (safe to re-run), and the result has been verified in place on live sets.
+
+After injection, the file plays 3D from any DLNA server that remuxes it unchanged &mdash; forever.
+
+== Known decoder limitation (2011 models) ==
+
+The 2011 EX7xx H.264 decoder cannot decode streams with <code>weighted_pred_flag = 1</code> or <code>weighted_bipred_idc = 2</code> (common on post-2015 WEB-DL rips, where x264 enables weighted prediction by default). Symptom: black screen with working audio. Such files must be re-encoded (fix part 1) with weighted prediction disabled (<code>weightp=0:weightb=0</code>) rather than SEI-injected. The 2012 HX8xx decodes them fine.
+
+== Scope / legality ==
+
+The technique adds standard H.264 stereoscopic signalling metadata (ITU-T H.264 annex D) to media files the user owns, on the user's own network. No DRM, copy-protection or conditional-access mechanism (PlayReady, Marlin, CI+) is involved, circumvented or affected. Nothing on the television is modified.
+
+== Documentation ==
+
+* Research repository, profile, wrapper and injector: [https://github.com/danielcamposramos/sony-bravia-linux github.com/danielcamposramos/sony-bravia-linux]
+* Evidence base and community testing ask: [https://github.com/danielcamposramos/sony-bravia-linux/discussions/1 Discussion #1]
+* Serviio forum thread: [https://forum.serviio.org/viewtopic.php?f=7&t=31269 forum.serviio.org]
+* Consumer-rights background on the platform's withdrawal: [https://www.consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012) consumerrights.wiki entry]
+<!-- UPDATE after creating the entry: replace the last link with the actual URL. -->
