@@ -1,0 +1,7 @@
+# Redundant: this is the uncompressed duplicate of sony_tvupdate_2012_2120_bra_auth.zip
+firmware/extracted/
+
+# Scratch
+/tmp/
+*.log
+__pycache__/
