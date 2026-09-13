@@ -101,7 +101,45 @@ TV has the bundles cached locally and is just revalidating).
 - Whether the HX855 (.21) does the same dance — capture when we do the
   firmware-check round.
 
-## Next steps queued
+## Capture 2 — the actual firmware OTA check (same rig, fresh window)
+
+Owner triggered the firmware update check via **"Suporte ao Produto" →
+"Atualização do Software" → "Atualizar o software da TV"** on the EX725.
+
+**Result: byte-for-byte identical traffic to the internet-content
+update.** Same DNS (4× `ssm.internet.sony.tv`), same plain-HTTP
+`GET /DTV/index.xml` (4×, 113-byte request, same
+`SONY DTV/2010; PKG4…` UA, same headers), same TLS-1.0 auth sessions
+on :443 (76 packets), same tombstone manifest back (200 OK ×4), and
+NOT ONE other endpoint touched.
+
+Conclusions:
+
+1. **One shared client/service path serves both menus** — "ssm" is
+   Sony's service endpoint for software AND content. There is no
+   separate firmware-update server to find.
+2. **The firmware OTA check is permanently dead** — it reads the same
+   tombstone. No future update can ever be offered to this TV unless
+   Sony restores the manifest. This wire-proves the owner's earlier
+   statement that the installed PKGs are the final ones.
+3. For the DNS-override experiment: a single Unbound host override on
+   `ssm.internet.sony.tv` controls what BOTH menus see. Standing rule
+   applies with force: while overridden, the firmware path must never
+   be steered toward a download (no flash writes, no staging of fake
+   packages) — the override serves content/applet experiments only,
+   and the firmware menu stays untouched during any spoofed window.
+
+Artifacts: `ota-firmware-wan.pcap` (38 KB, complete after buffer
+flush — see ops note below); `ota-internetcontent-wan.pcap` replaced
+with the complete 304 KB capture (the first committed copy was a
+128 KB buffer-prefix of the same session).
+
+**Ops note (firewall capture procedure):** `TaskStop` on the local ssh
+kills only the ssh client — the remote tcpdump keeps running with its
+buffer in memory and the pcap file stays at 0 bytes. Correct teardown:
+`ssh root@fw 'kill -TERM <remote tcpdump pids>'` → graceful flush →
+then fetch. Also: tcpdump `-w` writes in ~128 KB buffer blocks, so
+mid-run reads of the file see only a prefix.
 
 - Capture 2: the firmware update check (same rig, fresh window).
 - Idle-window capture on the firewall (settles autonomous polling).
