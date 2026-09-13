@@ -134,6 +134,25 @@ flush — see ops note below); `ota-internetcontent-wan.pcap` replaced
 with the complete 304 KB capture (the first committed copy was a
 128 KB buffer-prefix of the same session).
 
+## Device identity (Suporte ao Produto screen, read by the owner)
+
+Model: KDL-46EX725 · Serial: **1009840** · Software: **PKG4.027BRA**
+(on-screen confirmation) · **Device ID: 30:F9:ED:4D:61:DB** = the MAC
+(cross-checks the dmr.xml UDN tail). The support screen also lists
+Sony websites/phone numbers.
+
+**Identity-binding analysis:** the plain-HTTP requests carry NO device
+identity — the UA is literally `SONY DTV/2010; PKG4` (113-byte GET,
+byte-counted; not even the full firmware string). Any binding to
+MAC/serial/model happens inside the encrypted TLS-1.0 auth sessions;
+the `Registration/XmbRegistration.png` BIVL icon marks a registration
+flow as the likely carrier. Implication for the override experiment:
+auth failure does not gate the content flow (the tombstone proves it —
+the TV declares success on dead Sony infrastructure), and a spoofed
+`ssm` either receives the registration/auth protocol in cleartext
+(HTTP fallback) or terminates it with a self-signed cert (era embedded
+clients often skipped validation) — both outcomes document it.
+
 **Ops note (firewall capture procedure):** `TaskStop` on the local ssh
 kills only the ssh client — the remote tcpdump keeps running with its
 buffer in memory and the pcap file stays at 0 bytes. Correct teardown:
