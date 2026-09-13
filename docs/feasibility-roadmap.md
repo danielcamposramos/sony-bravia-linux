@@ -5,6 +5,15 @@ internet content, and **update the kernel and userspace to newer versions —
 not current, but newer than 2011–2012**. This document is the honest ladder
 from zero to that goal, ordered by (risk × payoff).
 
+**Owner constraint (2026-09-13): the TVs will NOT be opened** — both are
+heavy and hard to open, and the owner is not comfortable doing so. All
+hardware work is therefore last-resort, and board documentation must come
+from *external* sources (parts-dealer photos of the same boards, other
+people's teardowns) rather than opening our own sets. Priority order:
+network/software avenues first (Track A, Track B-alt, LAN probing),
+published-documentation research second, opening a set only if everything
+else is exhausted AND on a donor board, not these two.
+
 ## Track A — zero-mod content paths (works today, no root needed)
 
 | Step | What | Status |
