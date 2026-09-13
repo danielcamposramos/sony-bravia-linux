@@ -1,5 +1,12 @@
 # 3D auto-detection on era Sony BRAVIA DLNA players — findings and a working fix
 
+> **AI-assistance disclaimer:** this investigation, the tooling, and this
+> write-up were produced with the assistance of an AI coding agent
+> (Claude Code CLI) running the **GLM 5.3** model, under the direction and
+> live on-hardware verification of the owner of the TVs involved. All
+> conclusions below were confirmed empirically on the actual sets — not by
+> the model alone.
+
 **Audience:** Serviio developers and community. We (a right-to-repair project,
 own hardware, own LAN) reverse-engineered why 2011–2012 3D-capable BRAVIA
 sets never auto-engage 3D over DLNA, then fixed it with **stock Serviio 2.5**
