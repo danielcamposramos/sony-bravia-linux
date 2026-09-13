@@ -578,3 +578,136 @@ common.key — the Kamaji-app loader, encrypted-JS + key pattern again),
 plus every bundle the digests named on the swept roots. With the
 ws-lane batch, the playstation-host widget estate is now archived to
 the limit of what the CDN still serves.
+
+## 3D native-recognition investigation — CLOSED (evening)
+
+Question: how does the TV's player recognize SBS natively? Scanned the 3D library
+(`/mnt/Backup/Vídeos/0 3D`, ~140 files incl. subfolders).
+
+**1. H.264 frame_packing_arrangement SEI (NAL 6, payload type 45): ABSENT.**
+trace_headers bsf over Monkey King head + 30:00/60:00 windows and Gravity 45:00:
+the only SEIs present are payload type 5 (user_data_unregistered = the x264
+encoder string, repeated at IDRs). No frame-packing SEI anywhere. The rips carry
+NO in-band 3D signaling — so the DLNA/MPEG-TS remux can't transport a 3D flag
+even if the TV could read one.
+
+**2. Matroska StereoMode container flag: PRESENT in MKVs, machine-readable.**
+ffprobe stream tag `TAG:stereo_mode` (or mkvinfo "Video stereo mode"): 43/44
+MKVs tagged — 42 `left_right` (mono SBS), 1 `top_bottom` (IMAX Hubble [Spanish]).
+The one .mk3d (Mad Max Fury Road, mkvmerge v98 remux) has NO flag. MP4/AVI have
+no standard stereo metadata.
+
+**3. Full-frame geometry (user's "exactly twice" rule): works, no false positives.**
+No 2D content is ever 2× a sane frame; only full 3D rips are:
+- FULL-SBS (width = 2× eye width): 6 files — baku2/3/5/6.avi + Broken.mp4
+  (2560×720, eye 1280×720), Coyote Falls.avi (3840×1080, eye 1920×1080)
+- FULL-TB (height = 2×): zero files in this library
+- Caveat: HALF-SBS (the majority: 1920×1080 / 1920×80x) is geometrically
+  identical to 2D 1080p/cinemascope — proportion cannot flag those. Half-TB and
+  half-SBS containers are both 16:9. Geometry is a high-precision/low-recall
+  detector; the MKV tag is the primary signal.
+
+**Conclusion**: the TV's DLNA player is 3D-signal-blind on this pipeline — no
+in-band SEI exists in the rips, the MKV flag is stripped by TS remux (and was
+live-proven ignored anyway: flagged Monkey King played flat until the IRCC menu
+engaged SBS). There is no DLNA-side 3D flag for the TV to read. The correct
+architecture is exactly what Daniel proposed: detect 3D on the SERVING side
+(MKV stereo_mode tag → full-frame geometry → `[3D].` filename rule → default
+SBS) and deliver via the proven IRCC actuation chain.
+
+### 3D detection cascade (design)
+1. `ffprobe TAG:stereo_mode`: left_right→SBS, top_bottom→T&B (authoritative)
+2. width ≥ 2048 & aspect ≥ 3.0 → SBS; height ≥ 1440 & portrait-ish → T&B
+3. filename tokens: `[3D].` = 3D; SBS/HSBS→SBS; TB/TAB/HOU→T&B
+4. default SBS (library is overwhelmingly SBS; few old T&B/interlaced)
+
+Delivery: watcher on .60 tails serviio.log → on 3D-flagged playback-start fires
+IRCC at the rendering TV (SBS: mode3d, down,down,confirm; T&B: mode3d,
+down,confirm; on stop: mode3d,confirm = selects "Não" = 3D off).
+
+### 3D SEI injection experiment — DEPLOYED (18:17)
+
+User recalled the TV auto-enabling 3D once (file lost). Since the rips carry no
+in-band signal, we synthesized one: x264 `--frame-packing 3` writes a genuine
+`frame_packing_arrangement` SEI (type 3 = side-by-side) into the ES.
+
+**ffmpeg behavior split (measured):**
+- workstation ffmpeg 9.0.1: AUTO-injects the SEI from Matroska stereo_mode side
+  data on any libx264 encode (no param needed). Suppression requires stripping
+  side data via an ffv1/nut intermediate.
+- Serviio box ffmpeg 6.1.6: NO auto-injection; explicit `-x264-params
+  frame-packing=3` DOES write it (verified via payload type 45 marker — 6.1's
+  trace_headers cannot dump the parsed section, only 9.x can: diagnostic gap,
+  not absence).
+
+**Deployed test pair** (same Monkey King 30:00–31:30 half-SBS scene, same
+encode params fast/crf21/High@L4.1/g48, AC-3 256k audio, MPEG-TS — direct-play,
+no Serviio transcode; ONLY variable = SEI; filenames carry no 3D tokens):
+- `[TESTE].A.sinal.ts` — WITH frame-packing SEI (auto-injected from the MKV
+  flag). TV title: "Mãos Rapper: A Harmonia Sinalizada do Hip Hop Surdo"
+- `[TESTE].B.controle.ts` — control, ZERO SEI (side data stripped through
+  ffv1/nut). TV title: "Baby Princess 3D Paradise Love"
+Both indexed after `POST /rest/action {"name":"forceLibraryRefresh"}` (console
+REST endpoint — /rest/actions 404s, /rest/action works).
+
+**Verdicts:** A auto-3Ds + B flat → TV reads SEI over DLNA → fix = re-encode 3D
+MKVs with frame-packing (remux can't carry it; needs transcode rule). Both flat
+→ DLNA player is SEI-blind → IRCC watcher design stands. Both auto-3D → TV
+detects by something else (geometry/filename) → investigate that.
+
+## 3D transcode path — PROVEN end-to-end (2026-09-13 18:48)
+
+The non-h264 lane (mpeg4/AVI, which cannot carry SEI and stock-serves as mpeg2 or
+half-parse AVI) now auto-3Ds too, via the deployed chain on .60:
+
+- `user-profiles.xml` profile `sony2011x` (extends stock sony2011; B4 rule:
+  non-h264 → h264+AC-3 re-encode) — deployed 18:44, parsed clean
+  ("Added profile 'Sony Bravia EX7xx/HX8xx (enhanced)' (id=sony2011x)").
+- ffmpeg wrapper `/usr/local/bin/ffmpeg` — appends `-x264-params frame-packing=3|4`
+  on libx264 encodes of 3D-flagged inputs.
+- REST profile assignment (NEW finding): `PUT /rest/status` with the full
+  renderers array (only the target's `profileId` changed) → 200; POST is 405.
+  No console clicking needed. `forcedprofile` DB flag is set server-side on
+  manual change, so the assignment survives re-detection.
+
+Test: `[3D].Coyote Falls.avi` (mpeg4-ASP full-SBS 3840x1080) on the EX725.
+Log evidence 18:47:49 renderer→sony2011x, 18:48:45 wrapper fired
+(frame-packing=3 why=name:[3D]), 18:48:48 playback under the enhanced profile.
+Control: same file at 17:48 on stock sony2011 → no 3D, stopped at 15%.
+User verdict: TV flipped to 3D unaided.
+
+=> Both delivery paths proven: lossless remux (SEI injection, batch tool) and
+server-side re-encode (profile + wrapper). Stock Serviio + these two add-ons
+makes era-BRAVIA 3D fully automatic; no paid server required.
+
+## HX855 proof + single-profile consolidation (2026-09-13 19:19–19:27)
+
+The 855-side A/B, run by the user on the live set:
+
+- 19:19:21 `[3D].Coyote Falls.avi` on .21 under **stock sony2012** ("Sony
+  Bravia TV (2012)") → stopped at 7%, **no 3D** — as predicted: stock's
+  generic fallback re-encodes AVI mpeg4 to mpeg2video, which cannot carry
+  frame-packing at all.
+- Console-assigned to our profile → 19:20:29 playback under
+  "Sony Bravia EX7xx (enhanced)" → **TV flipped to 3D**, watched to 100%
+  (19:23:32). Note: that was the *EX-named* profile force-assigned to an HX
+  set — the strongest possible single-profile proof: same profile body,
+  both silicon ends, both flip.
+
+Consolidation on user direction ("it's a single profile for both tvs here
+hx,ex and 7xx and 8xx series"): the sony2012x sibling was deleted;
+`sony2011x` (repo file renamed `user-profiles-3d.xml`, profile renamed
+"Sony Bravia EX7xx/HX8xx (3D Enhanced)") now carries the union detection
+regex `BRAVIA KDL-\d{2}([A-Z]X\d5(\d|G)|[A-Z]X\d2\d|CX400).*`. Rationale in
+the profile header: identical sink matrices; the 855's audio/mp4 wildcards
+are covered by the inherited mp4→LPCM rule (works on both); no track-UI on
+either set → MAT=false. Deployed 19:27:25, parsed clean, service active.
+DB assignments reference the profile **id** (sony2011x), so the restart and
+rename did not disturb either TV's assignment.
+
+New upstream-facing deliverable: `tools/serviio/serviio-3d-explainer.md` —
+mechanism, fix, on-the-fly vs pre-processing requirements table, and what
+Serviio could adopt (ffmpeg ≥ 9 auto-injects frame-packing on x264 encode;
+per-profile encoder params; remux-side SEI injection via bsf; the signal is
+standard H.264 so other era 3D renderer families plausibly auto-detect the
+same way — untested, flagged for the community).
