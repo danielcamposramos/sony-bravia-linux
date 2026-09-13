@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<response>
+    <header version="01">
+        <command>SSDgetDeviceInfo</command>
+        <code>0</code>
+    </header>
+    <sony>
+        <product id="DTV">
+            <referrer_id>30F9ED4D61DB</referrer_id>
+            <features>
+                <direct_url>true</direct_url>
+            </features>
+            <cers>
+                <x_unr_version>1.2</x_unr_version>
+                <x_cers_actionlist_url>http://192.168.0.22:80/cers/ActionList.xml</x_cers_actionlist_url>
+            </cers>
+            <ircc>
+                <x_ircc_version>1.0</x_ircc_version>
+                <scpd_url>http://192.168.0.22:80/IRCC/IRCCSCPD.xml</scpd_url>
+                <control_url>http://192.168.0.22:80/IRCC</control_url>
+                <event_sub_url></event_sub_url>
+            </ircc>
+            <iptv_params>
+                <build>PKG4.027BRA</build>
+                <language>pt</language>
+                <rating>21</rating>
+                <age_rating>21</age_rating>
+                <mpaa_rating>X</mpaa_rating>
+                <rating_country>BZL</rating_country>
+                <block_unrated>f</block_unrated>
+                <ui_type>0</ui_type>
+                <drm_types>MARLINBB,SSL,WMDRM10</drm_types>
+                <config_types>CAD,FLX</config_types>
+                <audio_types>AAC,AAC-LC,AC3,HE-AAv1,HE-AAv2,MP3,WMA</audio_types>
+                <stream_types>HTTP,HTTPLS,HTTPS</stream_types>
+                <video_types>AVC,MPEG2,WMV9</video_types>
+                <container_types>3GPP,ASF,MOV,MP3,MP4,MPEG2TS</container_types>
+                <display_types>2D,3D-FRMS,3D-SBS,3D-TB</display_types>
+                <metafile_types>M3U8</metafile_types>
+                <display_width>960</display_width>
+                <display_height>540</display_height>
+            </iptv_params>
+        </product>
+    </sony>
+</response>

@@ -154,6 +154,31 @@ notes as reported by the research agents.
   WMV9/VC-1, DivX AVI (SD), NO MKV — transcode MKV → MPEG2-TS/AVC-TS);
   xupnpd-style IPTV-over-DLNA; HbbTV 1.1.1 apps.
 
+## Additions from the non-invasive workflow (2026-09-13, full digest in
+## noninvasive-avenues.md)
+
+- AZ2-F / KDL-46EX725 service manuals are downloadable at Elektrotanya
+  (4 PDFs: dedicated `sony_kdl-46ex725_chassis_az2f_sm.pdf` 26.3 MB/160 pp;
+  multi-model AZ2-F VER.2.0 SEGM.3A-2 12.2 MB; VER.1.0 10.1 MB;
+  AZ2-F REV.0 LEVEL3 15.3 MB) — the missing primary sources for the BATV
+  board, no opening required. Elektrotanya download pages throttle
+  (one download per waiting period).
+- Port 9784 on the EX725: strongest hypothesis is Sony's proprietary
+  "Callisto Debug Server" renderer-push family (DMX-NV1 2007–2008,
+  unauthenticated HTTP `renderer.php?method=play&url=…`; open across the
+  whole 2010–2011 Linux BRAVIA generation, closed on our 2012 HX855 whose
+  CERS gen 1.1 gained sendContentUrl). No protocol docs, CVE, Shodan
+  banner, or Japanese-language source exists anywhere.
+- CVE-2012-2210 (Exploit-DB 18705): SYN-flood watchdog DoS on
+  KDL-32CX525 — the ONLY published attack against this platform
+  generation; full TCP port scans crashed 2010-era sets (one report:
+  1–46000 safe, 46001+ hard-crash) → never scan our TVs.
+- Negative results (verified against our own manuals/SM): no RS-232 or
+  external service jack on either set; TL-JIG is a bench fixture, not
+  externally reachable; hotel-mode lines are internal-harness only; no
+  Sony LAN service tool exists for this generation; no USB
+  adjustment-data save on AZ3F.
+
 ## Recommended next steps (from research)
 
 1. UART/console: find the ABK-monitor/debug connector on AZ2F/AZ3F boards

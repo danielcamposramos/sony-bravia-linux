@@ -20,8 +20,9 @@ else is exhausted AND on a donor board, not these two.
 |---|---|---|
 | A1 | DLNA transcoding server (Serviio/UMS/Jellyfin) on the LAN with Sony 2011/2012 BRAVIA profiles: MP4/H.264 ≤ L4.1, MPEG2-TS ≤ ~20–25 Mbps + AC3, WMV/VC-1; MKV → transcode. The owner already runs Serviio 2.5 at 192.168.0.3 | available now |
 | A2 | xupnpd-style IPTV-over-DLNA bridge → live internet streams appear as a DLNA channel list on the stock player | proven pattern in the SamyGO community |
-| A3 | CERS `register` + full IRCC remote control from scripts/home automation (one-time on-screen dialog on the TV) | API already documented; dialog deliberately not yet triggered |
+| A3 | **IRCC remote control from scripts — no registration needed** (live-proven 2026-09-13: `POST /IRCC` X_SendIRCC accepts arbitrary keypresses unauthenticated on both TVs; `/cers/command/MuteOn/MuteOff` URL commands also ungated). A registration (one-time on-screen dialog, EX725 first) only adds the full `getRemoteCommandList` code table + `getText/sendText`. See `docs/research/noninvasive-avenues.md` | control path proven; deliberate `register` still pending user OK |
 | A4 | HbbTV 1.1.1 apps: any HTTP page the stock Opera engine can render; also the (unexplored) Nimue-issue-#4 class of port-80 attack surface | research only |
+| A5 | **Ginga broadcast-chain content** (and code-execution candidate): locally-authored NCL/Lua app → OpenCaster ISDB-Tb → DSM-CC carousel → low-cost modulator → **coax injection** into the EX725 antenna input (standard Ginga developer methodology, no RF emission, no opening). Same gear unlocks HbbTV AIT injection into the Opera engine | research done; build the chain |
 
 Track A makes the TVs genuinely more useful this week and every step is
 reversible. It is also the fallback if the hardware tracks stall.
@@ -40,17 +41,41 @@ reference, isolation); photograph the board before probing.
 | B2 | Capture boot log; determine whether an ABK-Monitor-class boot monitor exists on AZ3F (banner before kernel messages; try Space/Enter/Ctrl-C in the first 2 s). If yes: memory dump → **full NAND flash dump incl. OOB (the first thing to save)** → root console. **This is the "unbrickable" gate** — until confirmed, no custom-kernel boot without touching flash. | B1 |
 | B3 | With root: rootfs RE for the middleware player API (decoder path, see Track C). Keyring extraction **dropped by decision** — the keyring sits next to PlayReady/Marlin/CI+ keys; we will not extract or publish those, and per-device keys are redacted from any shared dump. | B2 |
 | B4 | Test `unixtract` (Rust, MTK PKG formats) against our `sony_dtv0FA1/0FA2` bins — one cheap experiment, likely negative | nothing (can run today) |
-| B5 | Sony OSS inquiry form → request the exact 2.6.35-era kernel tarballs for both model groups (GPL obligation). Parallel: pull the archived sibling `kernel2635.tar.gz` (92 MB) from Wayback and check whether the AV/decoder drivers are even in it (download in progress) | nothing (can run today) |
-| B6 | Probe EX725 port 9784 (unknown tcpwrapped service) | nothing |
+| B5 | Sony OSS inquiry form → request the exact 2.6.35-era kernel tarballs for both model groups (GPL obligation; add evidence: the archived "common" kernel2635.tar.gz has NO board/SoC/decoder files → arguably incomplete corresponding source, and the binary `.ko` AV modules are absent too). Parallel: archived sibling tarball already surveyed (`docs/research/kernel2635-survey.md`) | nothing (can run today) |
+| B6 | **Probe EX725 port 9784** — now evidence-backed hypothesis: Sony "Callisto Debug Server" renderer-push family (DMX-NV1 2007–2008 precedent: unauthenticated HTTP `renderer.php?method=play&url=…`; EX725 = CERS gen 1.0 keeps 9784 open, HX855 gen 1.1 moved the function into CERS `sendContentUrl` and closed 9784). Safe probe ladder in `docs/research/noninvasive-avenues.md`: idle-timeout, half-close, DMX-era HTTP probes, probe-during-playback, **passive tcpdump during boot/CERS use**. Single-port, spaced ≥5 s, EX725 only | nothing |
+| B7 | Download the AZ2-F service manuals (Elektrotanya, 4 PDFs incl. a KDL-46EX725-specific SM) → BATV board connector views/parts lists without opening anything | nothing (can run today) |
 
 ### Track B-alt — the exploit chain (no soldering; owner's addition)
 
 Leverage the era's known flaws as an alternate entry:
 
-1. **Foothold**: memory-safety bug in reachable 2011-era userspace — the
-   Opera Presto 2.10/HbbTV engine (Nimue issue #4 territory, never
-   audited), CERS HTTP handlers (80), UPnP stack (52323), or the unknown
-   9784 service. These services have never faced an audit.
+1. **Foothold**: memory-safety bug in reachable 2011-era userspace —
+   ranked audit targets (2026-09-13 update, evidence in
+   `docs/research/noninvasive-avenues.md`):
+   - **CVE-2011-2628 / Exploit-DB 17936** — public Opera Presto RCE PoC
+     hitting the EX725's Presto 2.7.61 band exactly (heap spray at
+     0x0c0c0c0c; no-ASLR MIPS era favorable), plus post-freeze Presto
+     CVEs (2012-3561, 2012-6468/6465/6470, 2012-1003, 2013-1637/1638).
+     Crash-oracle rig: 8-blink Software Error state / service-mode error
+     history, **EX725 only — never the HX855 monitor**.
+   - **X_SendIRCC dispatch** (port 80) — unauthenticated (live-proven),
+     hand-rolled, proven-sloppy dispatch (mis-routes X_GetStatus to the
+     IRCC path; garbage base64 silently 200s), TWO independent
+     implementations across our TVs to diff-audit.
+   - **AVTransport `SetAVTransportURI` URI parser** (52323, unauthenticated
+     by DLNA design) — long attacker-controlled strings into the 2011-era
+     URI parser feeding the HW player.
+   - **UPnP SUBSCRIBE CALLBACK-URL parser** (CallStranger class) on
+     `/upnp/event/*`.
+   - **libmicrohttpd 0.4.6** (2008-era, in the GPL package list, never
+     audited) if it fronts CERS — confirm after root.
+   - **CERS `sendContentUrl`** URL handling (HX855, registration-gated) —
+     also the only network path to render our own HTML in the Opera
+     engine; test scheme acceptance (https, file://, oversized).
+   - Delivery into the engines without registration: HX855 via
+     `sendContentUrl` after one deliberate register; EX725 via DLNA
+     push + the broadcast chain (Ginga NCL/Lua app or HbbTV AIT
+     injection through coax — see Track A5).
 2. **Privesc**: a stock 2.6.35 kernel falls to a decade of public LPEs
    (Dirty COW and the whole 2010+ set) from any local code execution.
 3. **Caveats**: Sony's PKG updates may have patched some of this
