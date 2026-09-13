@@ -5,6 +5,19 @@ pre-Android, Linux-based BRAVIA platform (~2005–2015). Goal: understand the
 platform well enough to run third-party software on it (e.g. VLC) and unlock
 more internet content than the stock firmware allows.
 
+## Why bother (the right-to-repair angle)
+
+These late-KDL sets are phenomenal hardware — the KDL-46HX855 has
+X-Reality PRO with 12-bit color processing and active 3D, and picture
+quality that still embarrasses many modern budget panels. Sony EOL'd the
+platform: smart services shut down, firmware downloads removed (Jan
+2022), even the GPL source downloads were deleted from Sony's site. The
+owner is now the only party with any incentive to keep this hardware
+alive. This project is right-to-repair work: document, control, and
+eventually run owner-chosen software on owner-owned hardware. See
+[docs/right-to-repair.md](docs/right-to-repair.md) (includes the Louis
+Rossmann / repair.wiki / FULU Foundation sharing plan).
+
 ## Test hardware (both on the LAN, DHCP-pinned by MAC)
 
 | Model | Year | Chassis | LAN IP |
