@@ -175,12 +175,50 @@ Consequences:
    and everything else 403-at-origin is gone. A rescue sweep
    (every 403'd URL retried across 6 edge IPs) ran to recover any
    node-cached survivors; results in MANIFEST.tsv.
+   **Sweep closed 2026-09-13: 422 URLs × 6 edges → zero rescues.**
+   The 150 objects in `applicast-fetched/` are confirmed the last
+   retrievable copies — this repo's archive is the surviving record
+   of everything 403-at-origin.
 2. The TVs' consistent 403s vs our consistent 200s is a cache-node
    lottery weighted by client behavior (era clients hit the
    negative-cached entries) — not a deliberate anti-TV block. Either
    way the gallery is dead on live Sony infra for real TVs.
 3. For the spoof experiment nothing changes: we replace the whole
    host via DNS.
+
+## EX725 idle window — first facts (armed 16:36, firewall vantage)
+
+The 725 sat at the XMB home menu, untouched. Firewall writer
+(`/tmp/tv-ex725-idle.pcap`, `host .22 and not udp 7776 and not udp
+1900`) captured **zero packets in the first 7+ minutes** —
+independently confirmed by a direct 8 s live listen (only 2 ARP
+frames). Findings:
+
+- **True AZ2 idle is silent.** No ssm, no applicast, no DNS, no
+  icon revalidations from the home menu. This refines the 855's
+  "autonomous ~30 s XMB polling": that loop ran while the owner
+  was actively navigating menus (menu-state-independent, not
+  idle-independent). Genuine idle on AZ2 sends nothing.
+- **Consequence for the phone-home/update setting:** no
+  short-cycle check timer fires from the home menu — the update
+  check is powerup- and/or menu-triggered, not a minutes-scale
+  idle poll. A long-interval (hours) timer is not excluded.
+- **The UDP 7776 beacon STOPPED** (70 s listen, zero packets)
+  while the set is powered and displaying — the beacon is
+  state-dependent, not a simple "powered" indicator. It stopped
+  around the same time as the menu exit. Once the driving
+  condition is pinned down, this becomes a free remote
+  state/presence oracle (Track B-alt).
+- **The set exited the home menu on its own** — cause was HDMI-CEC,
+  not network: the connected Android TV box asserted active-source
+  (one-touch-play) and the TV switched to the HDMI input. The wire
+  showed zero inbound network activity that could have caused it.
+  Symmetry note: `ceccommandcontrol.js` proved widgets can *drive*
+  CEC from JS; this event is the same channel in reverse — CEC
+  moving the TV's UI state.
+- The TV's IP stack stays alive and active while otherwise silent
+  (it ARPed for the workstation, `.4` — likely CERS-controller
+  related, registration survives power cycles).
 
 ## HX855 round (same evening, 16:11–16:12 local, `hx855-menus-wan.pcap`)
 
@@ -257,3 +295,5 @@ New facts:
 - `applicast-fetched/` — the archival grab: four complete widget
   bundles, catalog/Gallery/Index XMLs, WidgetInfos, digests+sigs,
   MANIFEST.tsv (every URL, status, size), and the grab script
+  — per the closed rescue sweep, the last retrievable copies of
+  everything 403-at-origin
