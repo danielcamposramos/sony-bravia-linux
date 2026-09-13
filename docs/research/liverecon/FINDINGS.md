@@ -89,3 +89,14 @@ actions works). Both send `ACCESS-CONTROL-ALLOW-ORIGIN: *`.
 4. `sendContentUrl` (HX855) may allow pushing arbitrary content URLs —
    potential lever for serving our own content/apps if its URL schemes
    are permissive.
+5. **BROWSER DELIVERY LANE LIVE-PROVEN (2026-09-13,
+   `browser-lane-test.md`)**: the EX725's built-in "Navegador da
+   Internet" (Home → Aplicativos, URL entry via Options → Inserir URL)
+   + CERS `sendText` (GET, replaces focused-field text; 406 when no
+   field focused) + plain-HTTP LAN server = full HTML render **and JS
+   execution** in Presto. Live UA captured:
+   `Opera/9.80 (Linux mips; U; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL46EX725; CC/BRA; en) Presto/2.7.61 Version/11.00`
+   — first live UA of this set; no HbbTV token; Presto 2.7.61
+   self-declared. https URLs fail pre-flight with zero egress; JS gated
+   by Opera's standard "insecure code" accept prompt. Registration
+   survives power cycles.

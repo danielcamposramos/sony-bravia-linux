@@ -66,14 +66,28 @@ Leverage the era's known flaws as an alternate entry:
      MIPS and the deterministic no-ASLR mmap base is **0x2aaa8000**
      (TASK_SIZE/3, bottom-up); no NX on this kernel (no ROP needed) but
      I/D caches need a `cacheflush` (syscall 4147) stub; spray budget is
-     tens of MB on 512 MB RAM. Delivery lane #1 = HbbTV AIT over coax
-     (HTTP-tagged transport_protocol_descriptor: the TV fetches our page
-     from a LAN web server — no DSM-CC carousel strictly needed), GATED
-     on verifying our BRA firmware actually runs HbbTV wired to ISDB-Tb
-     (the only HbbTV/2.7.61 UA we hold is from an EUA sibling). Lane #2
-     = registered CERS sendText + IRCC InternetWidgets keys (no free-URL
-     browser known on this generation). Ladder: HbbTV-presence gate →
-     DoS signature → sled calibration → UDP-beacon canary. Post-freeze
+     tens of MB on 512 MB RAM. **Delivery SOLVED 2026-09-13 (evening):
+     lane #1 is now the built-in "Navegador da Internet" browser + CERS
+     sendText + plain-HTTP LAN server — LIVE-PROVEN end-to-end with JS
+     execution (`liverecon/browser-lane-test.md`); the live UA
+     self-declares Presto/2.7.61, no HbbTV token.** The HbbTV-over-coax
+     lane was killed the same day by a five-model partner review
+     (`research/partner-review-presto-kimi.md` + `-panel.md`): ISDB-Tb
+     firmware parses ARIB/Ginga signalling, not DVB AIT; zero dollars to
+     that lane (any future RF gear targets Ginga/NCL-Lua, the CPqD root
+     precedent). Panel-hardened ladder (replace the old one): positive-
+     control crash page to calibrate the oracle (HOST_WDT counts system
+     hangs, not process deaths; add ARP-ping loss + JS phase beacons as
+     real-time signals) → unmodified-trigger falsifier run served as
+     `application/xhtml+xml`, ≥3 unload mechanisms, quiescent windows,
+     WAN quarantine → measured spray ladder (Presto's own heap arenas
+     dominate the geometry — landing address from a /proc/self/maps
+     beacon, never from 0x2aaa8000+n arithmetic; no flash writes) →
+     UDP-beacon canary. Server-side hedges stockpiled: 2012-6468/3561
+     fire from any fetch we control, no URL-entry UI needed. JS in the
+     browser is gated by Opera's standard "insecure code" accept prompt
+     — fold the accept into the run procedure or find the settings
+     toggle. Post-freeze
      Presto CVEs 2012-3561/6465/6468/6470 and 2013-1637/1638 are
      band-plausible but introduction-unknown; 2012-1003 definitively
      excluded (typed arrays did not exist before Presto 2.10).
@@ -99,13 +113,15 @@ Leverage the era's known flaws as an alternate entry:
      `/upnp/event/*`.
    - **libmicrohttpd 0.4.6** (2008-era, in the GPL package list, never
      audited) if it fronts CERS — confirm after root.
-   - **CERS `sendContentUrl`** URL handling (HX855, registration-gated) —
-     also the only network path to render our own HTML in the Opera
-     engine; test scheme acceptance (https, file://, oversized).
-   - Delivery into the engines without registration: HX855 via
-     `sendContentUrl` after one deliberate register; EX725 via DLNA
-     push + the broadcast chain (Ginga NCL/Lua app or HbbTV AIT
-     injection through coax — see Track A5).
+   - **CERS `sendContentUrl`** URL handling (HX855, registration-gated)
+     — test scheme acceptance (https, file://, oversized). (No longer
+     framed as the HTML delivery path: the EX725 browser + `sendText`
+     lane is live-proven, and it may exist on the HX855 too — same
+     Home-menu browser family per the manuals.)
+   - Delivery into the engines without registration: IRCC keypresses
+     are unauthenticated (drive the browser + URL-entry UI the way we
+     did on the EX725; `sendText` itself is registration-gated);
+     EX725's proven chain documented in `liverecon/browser-lane-test.md`.
 2. **Privesc**: a stock 2.6.35 kernel falls to a decade of public LPEs
    (Dirty COW and the whole 2010+ set) from any local code execution.
 3. **Caveats**: Sony's PKG updates may have patched some of this
