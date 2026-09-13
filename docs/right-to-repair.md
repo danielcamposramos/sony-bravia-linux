@@ -43,7 +43,7 @@ endpoints, and eventually run owner-chosen software on it.
 
 ## The community we should share findings with
 
-- **Repair Preservation Group / repair.wiki** (Louis Rossmann's 501(c)(3))
+- **Repair Preservation Group / repair.wiki** (Louis Rossmann's 501(c)(3)) — concrete outreach plan now in [rossmann-outreach.md](rossmann-outreach.md) (verified contact paths, wiki entry points, archive handover offer)
   — https://repair.wiki — community-editable repair knowledge base;
   a good home for the board-level/service-mode findings
   (older mirror: https://old.repair.wiki)
