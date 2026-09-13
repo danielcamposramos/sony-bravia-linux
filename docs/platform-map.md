@@ -40,8 +40,13 @@ from primary source or live device), **[W]**eb-researched (secondary source),
   labels all verified **[C:SM+vision]**.
 - Part number **CXD4727GB** ("X-Reality Processor", IC9000) is attributed via
   board censuses of sibling models (KDL-46EX724, KDL-40HX853, KDL-55HX753) —
-  **medium confidence, not yet confirmed on our board** **[W]**. Verify by
-  photographing the BAP board / reading the chip marking.
+  **upgraded to medium-high confidence 2026-09-13**: the Russian repair DB
+  tel-spb.ru lists the same IC census for our **exact** board variant
+  1-885-388-52 (and the -51 sibling): CXD4727GB + K4B2G1646C-HCH9 DDR3 +
+  KFM4G16Q4B OneNAND + SIL9287BCNU + GL850G + D2826ER + TPA6138 + PS54425
+  (forum-derived source, so not full [C]; final confirmation = reading the
+  chip marking on the donor board or a photo). Board photo of the exact
+  board: `https://tel-spb.ru/remont-tv-lcd/main/1-885-388-52.jpg` **[W→W+]**.
 - CPU: **MIPS little-endian** — confirmed by the TVs' own Opera user agents
   (`Linux mips; … InettvBrowser/2.2 … SonyDTV115`) **[C:live]**. The manual
   states neither core count nor clock **[C:SM]**.
@@ -96,9 +101,16 @@ same portal whose tarballs for our exact model groups are now deleted
 
 - **UARTs on the SoC**: UARTA = main **LOG**, UARTC = **ECS/Hotel**,
   UARTD = PEM CTRL, plus UART_PEM_LOG; **JTAG** and a "TL-JIG" test-jig
-  reference also appear **[C:SM]**. The manual gives **no physical connector
-  or test-pad locations** — finding where UARTA lands on the BAP board is our
-  #1 hands-on task (board tracing or the service jig docs).
+  reference also appear **[C:SM]**. The manual's exploded views give **no
+  physical pad locations**, BUT section 4-2 CONNECTOR DIAGRAM
+  (SM pp.130-132, added 2026-09-13) gives pin-by-pin tables keyed to
+  **silkscreen designators**: **CN8001** (51-pin panel FFC to T-CON) pins
+  42/44 = FE_PEM_TX/FE_PEM_RX, pins 45/50 = PEM_LOG_TX/PEM_LOG_RX (SoC
+  UARTD/UART_PEM_LOG physically land here); the **BAP-H harness connector**
+  (SHLDP-40V-S(B), 1-819-538-11) pins 14/16/18 = RF Rx / RF Tx / RF
+  UART_SEL (the likely muxed 4th UART). DEBUG_LED1/2/3 nets exist on the
+  BAP board. Finding these on a board photo / the donor board is the #1
+  hands-on task.
 - Precedent: on the EMMA3TH-era LX900 the debug console was CN5502, 3.3 V
   TTL, with the plaintext **"ABK Monitor"** boot ROM (TFTP/ELF/S-record
   boot, memory tools, MIPS disassembler) reachable at boot **[W]**. Whether

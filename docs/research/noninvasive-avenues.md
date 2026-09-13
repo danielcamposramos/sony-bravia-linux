@@ -215,18 +215,121 @@ DLNA DMR SOAP on 52323 (by design), SSDP M-SEARCH.
   (4) libmicrohttpd 0.4.6 parsing if it fronts CERS; (5) sendContentUrl
   URL handling.
 
-### ext:board-photos — external board documentation
+### ext:board-photos — external board documentation (text-only lane, completed)
 
-*(Re-running with a text-only constraint after the first attempt failed on
-image input; results to be folded in.)*
+No teardown needed — photos of our **exact** boards exist online, and a
+Brazilian shop currently sells the exact HX855 main board as a donor:
+
+- **Exact HX855 board photo**: tel-spb.ru (Russian repair DB) has a
+  dedicated KDL-46HX855 page with the MainBoard photo of board
+  **1-885-388-52**: `https://tel-spb.ru/remont-tv-lcd/main/1-885-388-52.jpg`
+  (single overview shot, ~600–1000px). Sibling **1-885-388-51** photo at
+  `https://tel-spb.ru/remont-tv-lcd/main/1-885-388-51.jpg` (same AZ3F
+  chassis, same FQLR460LT01 46-inch panel as ours).
+- **SoC census upgrade**: tel-spb lists the MainBoard ICs for BOTH -52
+  (HX855) and -51 (HX853) as **CXD4727GB (X-Reality)** + K4B2G1646C-HCH9
+  DDR3, KFM4G16Q4B OneNAND, SIL9287BCNU, GL850G, D2826ER, TPA6138,
+  PS54425. This extends the census to our exact board variant, not just
+  proxies — medium-high confidence (forum-derived source).
+- **Donor board for sale (Brazil)**: GTVShop sells "Placa Principal para
+  TV KDL-46HX855 | 1-885-388-52", used/tested-working, **R$329.90, 1
+  unit**, 3-month warranty — the ideal bench unit for UART tracing so the
+  owner's HX855 is never opened. Mercado Livre has more -52/-51 listings
+  (bot-walled; browse manually).
+- **Highest-resolution photos**: Shopify part-sellers (ShortCircuitSolution,
+  TVPartsToday) have click-to-zoom CDN images (~2048px originals) of BAPS
+  boards A-1875-753-A / A-1868-413-A (both 1-885-388-51).
+- **EX725/BATV boards**: Control Telas (1-884-915-11, in stock, R$153.98,
+  5 images), GTVShop (1-883-753-72 / Y8287492A, R$179.90), Videoecia
+  (1-883-753-72, 5 images). **CN2903** is a known visible designator on
+  the 1-883-753-72 board (Brazilian repair forum) — a photo-matching
+  reference.
+- **T-CON flash dumps for our exact model** at televid-sib.org topic
+  110894 ("Sony KDL-46HX855 1-885-388-52 FQLR460LT01"): 551 KB RAR with
+  25Q32/25Q80/24C02 dumps — free registration required. Primary-source
+  artifact for T-CON work later.
+- **SM limitations confirmed**: the AZ3F SM exploded views (pp.137-145)
+  show the BAP board only as a part number (FX00A1701/1801/1901/2201) —
+  no pad locations; photos of a real board remain mandatory. BUT section
+  4-2 CONNECTOR DIAGRAM (pp.130-132) gives pin-by-pin tables keyed to
+  silkscreen designators: **CN8001 (51-pin panel FFC) pins 42/44 carry
+  FE_PEM_TX/FE_PEM_RX and pins 45/50 carry PEM_LOG_TX/PEM_LOG_RX** (SoC
+  UARTD/UART_PEM_LOG land here); **BAP-H harness (SHLDP-40V-S(B)) pins
+  14/16/18 carry RF Rx / RF Tx / RF UART_SEL** (the likely muxed 4th
+  UART); DEBUG_LED1/2/3 nets exist on the BAP board. A human with a good
+  photo can match designators to these tables.
+- **No boardview/schematic leaks exist** for this Sony TV generation in
+  indexed sources.
+
+### 9784 live probing — verdict (2026-09-13 session)
+
+Probes run (single-connection, spaced, EX725 only): idle-timeout ×3,
+single-byte ×2, DMX-era HTTP GET, POST+half-close, and the full set
+repeated **during active renderer playback** (UPnP-pushed clip, verified
+PLAYING). Packet-level results from tcpdump:
+
+- Idle connect → the TV sends a **graceful FIN ~10 ms after the 3-way
+  handshake** — without waiting to read anything.
+- Data sent → kernel ACKs it, then the TV **RSTs ~8 ms later** — the
+  handler closed without reading (close-with-pending-data → RST).
+- **No behavior change while the renderer was busy** (idle/busy identical).
+
+**Verdict**: the 9784 listener accepts, then the handler exits
+immediately without ever reading a byte — a stub or ACL-dead daemon
+(possibly the Callisto component stubbed when BIVL moved into the TV).
+Blind protocol probing is **provably useless** — no magic byte can help
+because nothing is ever parsed. Remaining identification routes:
+(a) after root: `ps`/`netstat` to name the daemon binary; (b) a used
+DMX-NV1 (~USD 20) as a live Callisto reference; (c) nothing else —
+de-prioritize 9784.
+
+### NEW discovery: UDP port 7776 beacon (EX725-only)
+
+Captured during the 2026-09-13 boot traffic session — **not in any
+earlier scan** (all previous scans were TCP-only):
+
+- The EX725 broadcasts **high-entropy binary payloads of random length
+  (6–15 bytes) to 255.255.255.255:7776 every ~1.25 s**, continuously from
+  boot onward (never stops).
+- **HX855 does not do this at all** (35-min passive check: zero packets)
+  — EX725/2011-generation-specific.
+- A single 4-byte UDP datagram probe produced **no reply and no ICMP
+  port-unreachable** (socket is bound) and did not disturb the beacon
+  cadence.
+- Publicly undocumented: the only trace anywhere is one German
+  Ubuntu-forum anecdote ("my Sony TV sends a few bytes every few seconds
+  to port 7776"). No protocol name, no service attribution.
+- Interpretation candidates: encrypted discovery/beacon of the
+  BIVL-era middleware, a pairing channel for a Sony phone-app of the
+  era, or RNG/telemetry leakage. The cadence (1.25 s) and random lengths
+  suggest a keep-alive with nonce.
+- **Next steps**: longer capture to check for periodicity/pattern in
+  lengths; correlate with CERS registration activity (does the beacon
+  change when a Media Remote app registers?); listen on 7776 from the
+  workstation during TV boot (does the TV *listen* for replies?);
+  identify the process after root (`netstat -ulnp`). New Track B-alt
+  surface: an undocumented UDP parser on the 2011 generation.
 
 ## What this changes in the roadmap
 
-- **B6 (9784 probe) upgraded** from "unknown curiosity" to a concrete,
-  evidence-backed Callisto hypothesis with a safe probe ladder.
+- **B6 (9784) is now ANSWERED at the behavioral level** (2026-09-13 live
+  session above): accept-then-close stub, never reads, no state
+  dependence. De-prioritized; only post-root identification or a DMX-NV1
+  reference remains. The Callisto *hypothesis* stands unrefuted but is
+  untestable from the wire.
+- **UDP 7776 becomes the new unknown surface** — the only live mystery
+  port on the EX725, EX725-only, publicly undocumented, with a bound
+  socket. Add to Track B-alt audit targets (post-root process
+  identification is step 1).
+- **B7 (AZ2-F manuals) DONE** — all four SMs + the chassis-level AZ2-F
+  schematic downloaded to `manuals/KDL-46EX725/`.
+- **Donor-board option is live**: the exact HX855 main board (1-885-388-52)
+  is for sale in Brazil, tested, R$329.90 — the bench unit that makes the
+  B1 UART hunt possible without ever opening the owner's sets. EX725
+  BATV boards (1-884-915-11, 1-883-753-72) are also in stock (~R$154-180).
 - **IRCC driver script** (no registration needed) becomes the default
   control path for everything: service-menu capture, state orchestration,
-  probing. Replaces "register mode 2" as step 1.
+  probing. Replaces "register mode 2" as step 1. (`tools/bravia_ircc.py`.)
 - **Broadcast-input sub-track added**: OpenCaster + low-cost modulator +
   coax injection serves BOTH the Ginga app path (code execution candidate
   with root-as-Lua precedent) AND HbbTV AIT injection (Opera foothold).
