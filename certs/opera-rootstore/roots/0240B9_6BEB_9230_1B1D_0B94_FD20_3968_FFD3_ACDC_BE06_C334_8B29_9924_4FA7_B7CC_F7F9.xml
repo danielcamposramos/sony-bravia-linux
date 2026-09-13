@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- 0ZoQtYyK2SBNdAFG12YuXjycoRROgYwbPTV4vge1XWCrn6Y+4yePrUNuF2+cfRlXsDbn5KdOS5G3zzPicQj4IenTc50xKdTC3H5A23MDJjGulBSXlsvfeKIEuA7eWRzBsZlD+2c9VsHjnBWHpX3+Mw0TsbkYj9jm2bT15hGg2b1cJDzTjDFqOIiOYvnsgnR8Xlja/so//OlSGLlRglRAyvFpbXot6SRiW2RwQmFKaelT34M7DxU36btj7Q5iGlhCsomrOJHLiqRJKCpw8SlC+vrasZf104C8hM1Njd1J05LNGuZyjawqo5J+5z1zegIs70xaQu2Cz6JDxSl30+5qTn2sreFhWcAXYc6OG6iFIkbdGVhfcYCu65n65GuuLaGWNX9ACh0nesHr//a78AphAjCC/Io/0n1E+fudJyBlYbvyYM9YwkrS5DlodZw8LAgJ7XnQGUZz571xGyp6AzaCI7X72F90cLyaTH8mGHiMg0KoMAt652qSLZFSlZFb6P4JJ5uvA1tPFMjnO5JmZ3zw5ycd1pi0tZYonK+uz1645f1+5SSDWfYJGByVkEeZAa2hiW87Ykkql5pDAoW02ml22dAlIiq6nCMvYk6920YAgB2UIInRP15RSkMhPxBw+VoN5b5lv0qe27mggSZRRVqFvHD/vLO5nYJgloG4PcqXBlY=
+-->
+<!-- Copyright (C) 2008-2012 Opera Software ASA. All Rights Reserved. -->
+
+<certificates>
+<certificate>
+<issuer>
+/C=US/O=Symantec Corporation/OU=Symantec Trust Network/CN=Symantec Class 3 Public Primary Certification Authority - G4
+</issuer>
+<shortname>
+Symantec Class 3 Public Primary Certification Authority - G4
+</shortname>
+<certificate-data>
+MIICpzCCAi2gAwIBAgIQTHm1miicdjFk9YlE0JEC3jAKBggqhkjOPQQDAzCBlDEL
+MAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMR8wHQYD
+VQQLExZTeW1hbnRlYyBUcnVzdCBOZXR3b3JrMUUwQwYDVQQDEzxTeW1hbnRlYyBD
+bGFzcyAzIFB1YmxpYyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0g
+RzQwHhcNMTIxMDE4MDAwMDAwWhcNMzcxMjAxMjM1OTU5WjCBlDELMAkGA1UEBhMC
+VVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMR8wHQYDVQQLExZTeW1h
+bnRlYyBUcnVzdCBOZXR3b3JrMUUwQwYDVQQDEzxTeW1hbnRlYyBDbGFzcyAzIFB1
+YmxpYyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0gRzQwdjAQBgcq
+hkjOPQIBBgUrgQQAIgNiAARXz+qzOU0/oSHgbi84csaHl/OFC0fnD1HI0fSZm8pZ
+Zf9M+eoLtyXV0vbsMS0yYhLXdoan+jjJZdT+c+KEOfhMSWIT3brViKBfPchPsD+P
+oVAR5JNGrcNfy/GkapVW6MCjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8E
+BTADAQH/MB0GA1UdDgQWBBQknbzScfcdwiW+IvGJpSwVOzQeXjAKBggqhkjOPQQD
+AwNoADBlAjEAuWZoZdsF0Dh9DvPIdWG40CjEsUozUVj78jwQyK5HeHbKZiQXhj5Q
+Vm6lLZmIuL0kAjAD6qfnqDzqnWLGX1TamPR3vU+PGJyRXEdrQE0QHbPhicoLIsga
+xcX+i93B3294n5E=
+
+</certificate-data>
+<ev-oid-text>
+<ev-oid-entry>
+2.16.840.1.113733.1.7.23.6
+</ev-oid-entry>
+</ev-oid-text>
+<ev-oids>
+MA0GC2CGSAGG+EUBBxcGA4ICAQCo6w5ylAKeBMuyVTeRg4R4SlYDsK7ptsZvnMrF
+AIf8wH7oJGMJm80IDKNopQtslvuJSJ7sH99SvRIaaDzF7BAWCG3jYouv0YXsbnWR
+tbKHYWWDmKH7JhxjlCDfvB1K6ghHH+TDPYs9EVDmEvSoMBO252BZFWBUUe3QsS3d
+NbYQ9n2uaN6JcfB6j49xm8JQk21Axg2Q2pv0caJ8PUEBQbBS4ZZlpDfgW2NJO8vO
+KqY1PBHlG5s4n8gSlvzL4AR7LooLhElyocB+zsBwGm7GZ0rqF2TA6J9XlBfDebkH
+TtzmwnkawI8nGnW9BNg2Ij9OKuit8vd08nu6fU5S50XlQBQ91uZ1LGhTlD6I/TiG
+kW2k6qPjo57ATvKdwyiPpu0S4zxzHGAddyg97ey5PeLMlzx0MbCEzHPEmnNt5Uhc
+hY2tITAh0YzLlRRt/wk9Ds2JJP4L2fdC+K7oKSdtGUXlKw7zu+RZb/QiBE+G0jLm
+TxbKk/ZjEKFVV07OZlD7mY2b1pDlx1r05et7YOuamkx6HylNRkfxUQm2s7MdVo1+
+8Y8ubjb27ybMJg6A3yIv2ywoZtJxo8WlFiFe2LERsEpL8sdGdFLHqM5BjLB8m5OS
+hwkq4x9djwP6TGicVBzirN+mpToZTLgXkp2YPSTrzhunmCtYWZWK0U7vvLixxESS
+KtM69w==
+
+</ev-oids>
+</certificate>
+</certificates>

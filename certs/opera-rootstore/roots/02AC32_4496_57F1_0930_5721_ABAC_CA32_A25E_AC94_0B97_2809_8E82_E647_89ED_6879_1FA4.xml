@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- F7ox2TXbQjLgqG9+uiFd86XlUcZj/GSHskcbqtwoO9m/0z4qiZKOhqFh1yMLMh3jFISw8BSl5B2B+QAkPb3Lt549R3+c7u7leOUql9thxDP9hWMN5rB8Ajb+97PVoe6fSvb+KbUwDvUDPd8m11bU2la6aubxxAx++neJpEdVL7R2mrkRNnjwwnUm57W89R1JQe6bfV1dkc1jnE+31R6Q2aXrFfMXID799KHoAUXc3CTiNIG3Wmq5oo9zL/FTAuH5s3oTPrlyCl3nI4slixP8raMGFlvL8TUdzIpQ3oCuQu2vLEg0j1h56kreo3k/nxRhjJkLybpdnTns4aj13WQ9ef4gmrlzGP0uOaL6TUVyjdMw5EjCSmvD35cnrRXurBC/37yhyX1f6DBCqq7eelGZFDixDkkXgvbCkDKvHpFNE9x3EqnW6RjxmAiCi+4GzVrEDyBEJdqZfRDz/fx7Q1y9+duorXvLjjwwkDlADs0oaPMW1oAyI28h8+U5/XpbF/7zmIIkYcmNuNonZrDvgCrIq58iwUd76SMQ0IqSmA/FRYNbLBecgfNSJRXmEPg+EQ9xkf7J+PVrv+Jf08vaTlnCBfxm1qGdxfMGcwniB9GFQdKiPONAVHvJnJeW6sreftWAtAKLPankcWV0yT2AZ8osth4NXpzGnCX4HtG+rqRV73w=
+-->
+<!-- Copyright (C) 2008-2012 Opera Software ASA. All Rights Reserved. -->
+
+<certificates>
+<certificate>
+<issuer>
+/C=US/O=VeriSign, Inc./OU=Class 1 Public Primary Certification Authority
+</issuer>
+<shortname>
+Verisign Class 1 Public Primary Certification Authority
+</shortname>
+<certificate-data>
+MIICPDCCAaUCED9pHoGc8JpK83P/uUii5N0wDQYJKoZIhvcNAQEFBQAwXzELMAkG
+A1UEBhMCVVMxFzAVBgNVBAoTDlZlcmlTaWduLCBJbmMuMTcwNQYDVQQLEy5DbGFz
+cyAxIFB1YmxpYyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MB4XDTk2
+MDEyOTAwMDAwMFoXDTI4MDgwMjIzNTk1OVowXzELMAkGA1UEBhMCVVMxFzAVBgNV
+BAoTDlZlcmlTaWduLCBJbmMuMTcwNQYDVQQLEy5DbGFzcyAxIFB1YmxpYyBQcmlt
+YXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5MIGfMA0GCSqGSIb3DQEBAQUAA4GN
+ADCBiQKBgQDlGb9to1ZhLZlIcfZn3rmN67eehoAKkQ76OCWvRoiC5XOooJskXQ0f
+zGVuDLDQVoQYh5oGmxChc9+0WDlrbsH2FdWoqD+qEgaNMax/sDTXjzRniAnNFBHi
+TkVWaR94AoDa3EeRKbs2yWNcxeDXLYd7obcysHswuiovMaruo2fa2wIDAQABMA0G
+CSqGSIb3DQEBBQUAA4GBAFgVKTk8d6PaXCUDfGD67gmZPCcQcMgMCeazh88K4hiW
+NWLMv5sneYlfycQJ9M61Hd8qveXbhpxoJeUwfLaJFf5n0a3hUKw8fGJLj7qE1xIV
+Gx/KXQ/BUpQqEZnae88MNhPVNdwQGVnqlMEAv3WP2fr9dgTbYruQagPZRjXZ+Hxb
+
+</certificate-data>
+</certificate>
+</certificates>

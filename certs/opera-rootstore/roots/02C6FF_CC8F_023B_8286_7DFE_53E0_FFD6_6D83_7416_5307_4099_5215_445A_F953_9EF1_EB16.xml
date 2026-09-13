@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- GGM9TT8ElSsONfZjHhHC1WhkQ1fxICeMR7Ljt5UJRg2e7Iaqxot99p9DYyFfbSYe4URNw0WeFuDouCrO1r+HMkJOvm/LWhduaaeH1VyxSfbgL7+4cDTGtvKeQjNmny8rT4WN5CD+0dgFcHy35OGTcUCQHMr8T4X8oPO5X6G5zj3t7E+r9vjCKnrgSzRNIXIvpvzXoGMEebbGAkqmb7iVfzadTbnq3V+wy3ACSeOgaJw2fB01gbqom0aYU8SZhmn2klXPlHNDjwgZWV23QGbbtiepEGd+bhXui+mTXyUGjosvD/Ze21ZbHbTZ9kDtQ/TGN+G6RivLnpA+YSyS+C4MiIbzWezvu6DIfNXZbyOwOh8LU9zx6Fk0G9sCExt0GxZOBL2sfwvilxY2IkbEXLFI3XeJJftjNnvGOkHZTDJZYhFx/wqNOER6AOTxXZekZ/Hx21dC8f+VxjMPNrRVktxZJAf+RCGFYYkU10/gpJcyc2JMJCP3FI2fVufYjxP+k3yN03hX6bCL9aSCAmjy5ULPlYESso4cL+8ZcmujUD41xQrEYaofQAe9VE5D4TnKLhXOam219CmP/V1ssmufg4Luel3xqgIENNuKoDBMigUwm6ZR6Zy+Nuz/9x5PRv4lUU2mbUG7ZRq2zDBVAdnTnmOJxxUI1J4kaBE70+0rZbxGKWA=
+-->
+<!-- Copyright (C) 2008-2012 Opera Software ASA. All Rights Reserved. -->
+
+<certificates>
+<certificate>
+<issuer>
+/C=US/O=VeriSign, Inc./OU=Class 3 Public Primary Certification Authority - G2/OU=(c) 1998 VeriSign, Inc. - For authorized use only/OU=VeriSign Trust Network
+</issuer>
+<shortname>
+Verisign Class 3 Public Primary Certification Authority - G2
+</shortname>
+<certificate-data>
+MIIDAjCCAmsCEH3Z/gfPqB63EHln+6eJNMYwDQYJKoZIhvcNAQEFBQAwgcExCzAJ
+BgNVBAYTAlVTMRcwFQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE8MDoGA1UECxMzQ2xh
+c3MgMyBQdWJsaWMgUHJpbWFyeSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEcy
+MTowOAYDVQQLEzEoYykgMTk5OCBWZXJpU2lnbiwgSW5jLiAtIEZvciBhdXRob3Jp
+emVkIHVzZSBvbmx5MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMB4X
+DTk4MDUxODAwMDAwMFoXDTI4MDgwMTIzNTk1OVowgcExCzAJBgNVBAYTAlVTMRcw
+FQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE8MDoGA1UECxMzQ2xhc3MgMyBQdWJsaWMg
+UHJpbWFyeSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEcyMTowOAYDVQQLEzEo
+YykgMTk5OCBWZXJpU2lnbiwgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5
+MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMIGfMA0GCSqGSIb3DQEB
+AQUAA4GNADCBiQKBgQDMXtERXVxp0KvTuWpMmR9ZmDCOFoUgRm1HP9SFIIThbbP4
+pO0M8RcPO/mn+SXXwc+EY/J8Y8+iR/LGWzOOZEAEaMGAuWQcRXfH2G71lSk8UOg0
+13gfqLptQ5GVj0VXXn7F+8qkBOvqlzdUMG+7AUcyM83cV5tkaWH4mx0ciU9cZwID
+AQABMA0GCSqGSIb3DQEBBQUAA4GBAFFNzb5cy5gZnBWyATl4Lk0PZ3BwmcYQWpSk
+U01UbSuvDV1Ai2TT1+7eVmGSX6bEHRBhNtMsJzzoKQm5EWR0zLVznxxIqbxhAe7i
+F6YM40AIOw7n60RzKprxaZLvcRTDOaxxp5EJb+RxBrO6WVcmeQD2+A2iMzAo1KpY
+oJ2daZH9
+
+</certificate-data>
+</certificate>
+</certificates>

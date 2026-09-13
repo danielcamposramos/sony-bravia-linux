@@ -427,3 +427,93 @@ trust-anchor update path.
   MANIFEST.tsv (every URL, status, size), and the grab script
   — per the closed rescue sweep, the last retrievable copies of
   everything 403-at-origin
+## Cold boot round (17:13, `tv-ex725-coldboot.pcap`) — WsIndexes discovery
+
+Wall unplug 15s → full cold boot. Sequence: DHCP (17:13:32) → fresh
+DNS (resolver cache gone) → **ssm STVgetTime** clock sync → applicast
+DNS → **HEAD `/WsIndexes/AZ2_LA.xml`** revalidation → ssm TLS ×3 →
+`upbookmark.ww.np.community.playstation.net` DNS. **No bundle digest
+sweep** — confirmed absent by a 75s live listen. So: warm resume =
+digest sweep, cold boot = clock+index revalidation. Two different boot
+agendas; neither fetches an ssm update manifest (timestamp-gated
+confirmed for both boot classes; the overdue-check powerup remains
+the untested half).
+
+The HEAD revalidation exposed a namespace the rescue sweep never
+probed — **`/WsIndexes/`** (region×chassis widget-system indexes):
+
+- **AZ2_LA (our EX725) & AZ3_LA (our HX855)**: 200, 1712B / 2443B —
+  the authoritative installed-widget inventory. AZ2_LA: PHT_PhotoMap,
+  BgmSearch/2.0.1, VideoExplorer/2.0.1, MusicExplorer/2.0.6, LogGate,
+  BgmSearch-2ndDisp, VCServiceUtil. AZ3_LA adds SEN_Portal_DV
+  ("Portal"), SEN_Portal ("HePortal"), SocialTV/EmotionPost,
+  SocialTV/WatchingContent, MediaSearch/1.0.0/?from=GUIDE, and a
+  PortalConfig. US/EU variants 200; GB/BR/XLA + bare Index = 403
+  (never existed).
+- **`/WsCatalogs/`** (locale-keyed catalogs): 13 fetched 200 incl.
+  `AZ2_LA_ALL_por.xml` / `AZ3_LA_ALL_por.xml` — the live route to
+  BRA/por catalog content the gallery path 403s on. Schema: Category
+  Widgets/Applications; Application entries use `pack:VideoExplorer/`
+  icons, `data='{"mode":"text_search","from":"NUX"}'`, `filter="hotel"`,
+  `{MvCatalog::STRING}` i18n refs.
+- **`/WsBundles/`**: PHT_PhotoMap_AZ2 info.xml 200 (profile **AC1.0**,
+  first live AC1.0 sighting) — digest 403 (origin-gated, unlike the
+  playstation host).
+
+## ws-lane enumeration (17:20) — four live bundles, fully archived
+
+Digest-driven enumeration of every file the digests name —
+`applicast-fetched/ws-lane/` (46×200, MANIFEST.tsv):
+
+- **MediaSearch/1.0.0** complete: widget XML + `MediaExplorerCommon.txt`
+  (112KB) + `MediaSearch.txt` (**1.2MB**). Both .txt are
+  `JAVA_SCRIPT_BUNDLE_VERSION_1.0.11` concatenated-JS bundles mounted
+  via XGML `<bigfile>` (`mediaCommonRes:` / `mediaSrhRes:` mountpoints)
+  — 69+13 modules incl. the full `MSSrv*` service stack.
+  **MediaSearch is search/metadata only** (Kamaji = Sony's metadata
+  service): `MEDIASEARCH_KAMAJI_URL =
+  portal.store.sonyentertainmentnetwork.com/kamaji/api/haku/00_0…`,
+  `MEDIASEARCH_SPGS_URL = guide.np.ac.playstation.net`. This is the
+  source of the cold-boot `upbookmark` DNS (bookmark service).
+  No player-launch API in it — `_doExecuteWidget` is internal-only.
+- **SEN_Portal** ("HePortal") complete, 13/13 files incl.
+  **`encryption.enc.js` (304B, binary — encrypted JS, same pattern as
+  VCServiceUtil's main.enc.js)** and **`common.key` (384B raw)** —
+  the widget-preference crypto material, in-scope (not DRM).
+- **SEN_Portal_DV** ("Portal") complete: canvas.xml/dicutil.js/canvas.js.
+- **SocialTV/WatchingContent** complete: server.xml + server.js (22KB).
+- **VideoExplorer/2.0.1 and MusicExplorer/2.0.6: gone from the CDN**
+  (every layout variant 404s) — the TVs' installed copies and the
+  Wayback `MediaExplorerCommon.img` (123KB) are what remains.
+
+## Media-player lane opened (user goal)
+
+The user's actual playback pain: Serviio-served videos fail on
+newer HDR/high-res content even with transcoding enabled; no audio
+stream selection (dual-audio + dual-SRT library). Findings so far:
+
+- The widget runtime cannot add codecs — 2011 AZ2/AZ3 silicon has a
+  hard decode ceiling (AVC ≤ ~High L4.1, MPEG-2, no HEVC/10-bit/HDR).
+  Failures with "transcoding on" point at Serviio remuxing instead of
+  transcoding (codec matches → profile/level/pixel-format over spec)
+  or transcode targets above the decoder.
+- Track selection must be **server-side**: era players ignore DLNA
+  track-selection extensions. Serviio per-stream audio selection +
+  subtitle burn is the workable fix; a proper "Sony BRAVIA 2011
+  (AZ2/AZ3)" Serviio profile is the upstream contribution candidate.
+- Plan: firewall capture of a **failing** play attempt (TV ↔ Serviio)
+  → exact DLNA profile string + where playback dies → craft profile →
+  contribute upstream. Widget lane complements as the better front-end
+  (browse, pick audio/sub before play, hand native player a
+  track-preselected URL).
+
+## Artifacts (this round)
+
+- `tv-ex725-coldboot.pcap` — cold boot (DHCP→STVgetTime→WsIndexes
+  HEAD→TLS; no sweep)
+- `applicast-fetched/WsIndexes/` — 6 live system indexes (.xml) +
+  7×403 bodies (.403body)
+- `applicast-fetched/ws-lane/` — 13 catalogs + 4 complete bundles +
+  digests + MANIFEST.tsv (2.0MB)
+- `certs/opera-rootstore/roots/` — **complete era root store,
+  302/302 certs** (paced Wayback retry landed)

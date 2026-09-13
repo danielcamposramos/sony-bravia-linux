@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- TvWG7g1m7mzsj2Yfl8kkgZILa9tFO8ihBwtvtwXNFDTL/aQ//lVvrZTd1/AE+4uwowtlPC2QFitiuMTpaeCQCULCWwT/iEsN2VO2Bn+M7ZefCm/14k3t+V2g0v7aNYHjuNJIqC1O4tx8gDych5NeYYWrBXyoEYmZrJBn4DDPDZyPzESlF2d6iUsxqrOPWjKcIWaNrPOL3H7O2jWkcljly9JbBNKG9kaMJ9P8hbNJT3LVl+NV+76dicyf8x+MgvQ+yxyD7XUSEBvojdX6aN2CS/0yiRfd9XM7fluuwE3NvnkZt8/SrdzHUPP2tiRSzbl9hlJihX1URBjK2zLFaV3+jZa5hZzHC4FkfxJ3vL304FNqSqsJg0tbFpA+poIUPbeG/srEqpMWZer6Me2PoGgawFkCGwY7jTOtpAmAquwI4mbbCWv77yMmaDnPNe4eXaj4wkJA07m+Z9ol5w3rmBjQCr3dEh+NyAO6UHUGBDKxZRDK2H/4lb6ZlcqkYJFfJsjUf2rqP2tBwV2t0DpkOpJOr2gcXuPSgk3l/qSiME+1/o3W/JlaLEkn/jgYkVx+IFeQnneNV+3V89ZnvQtF7i4DxuQ4ALxt0jtv0/ZOcZVdQMMcMriEjNEJnD9rp2WZvTrnD/VSKc/6t2YMHBYKD1RlMlDu6Fu8X1147++RxkiPdgk=
+-->
+<!-- Copyright (C) 2008-2012 Opera Software ASA. All Rights Reserved. -->
+
+<certificates>
+<certificate>
+<issuer>
+/C=US/O=Symantec Corporation/OU=Symantec Trust Network/CN=Symantec Class 2 Public Primary Certification Authority - G6
+</issuer>
+<shortname>
+Symantec Class 2 Public Primary Certification Authority - G6
+</shortname>
+<certificate-data>
+MIID9jCCAt6gAwIBAgIQZIKe/DcedF38l/+XyLH/QTANBgkqhkiG9w0BAQsFADCB
+lDELMAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMR8w
+HQYDVQQLExZTeW1hbnRlYyBUcnVzdCBOZXR3b3JrMUUwQwYDVQQDEzxTeW1hbnRl
+YyBDbGFzcyAyIFB1YmxpYyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5
+IC0gRzYwHhcNMTExMDE4MDAwMDAwWhcNMzcxMjAxMjM1OTU5WjCBlDELMAkGA1UE
+BhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMR8wHQYDVQQLExZT
+eW1hbnRlYyBUcnVzdCBOZXR3b3JrMUUwQwYDVQQDEzxTeW1hbnRlYyBDbGFzcyAy
+IFB1YmxpYyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0gRzYwggEi
+MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDNzOkFyGOFyz9AYxe9GPo15gRn
+V2WYKaRPyVyPDzTS+NqoE2KquB5QZ3iwFkygOakVeq7t0qLA8JA3KRgmXOgNPLZs
+ST/B4NzZS7YUGQum05bh1gnjGSYc+R9lS/kaQxwAg9bQqkmi1NvmYji6UBRDbfkx
++FYW2TgCkc/rbN27OU6Z4TBnRfHU8I3D3/7yOAchfQBeVkSz5GC9kSucq1sEcg+y
+KNlyqwUgQiWpWwNqIBDMMfAr2jUs0Pual07wgksr2F82owstr2MNHSV/oW5cYqGN
+KD6h/Bwg+AEvulWaEbAZ0shQeWsOagXXqgQ2sqPy4V93p3ec5R7c6d9qwWVdAgMB
+AAGjQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8EBTADAQH/MB0GA1UdDgQW
+BBSHjCCVyJhK0daABkqQNETfHE2/sDANBgkqhkiG9w0BAQsFAAOCAQEAgY6ypWaW
+tyGltu9vI1pf24HFQqV4wWn99DzX+VxrcHIa/FqXTQCAiIiCisNxDY7FiZss7Y0L
+0nJU9X3UXENX6fOupQIR9nYrgVfdfdp0MP1UR/bgFm6mtApI5ud1Bw8pGTnOefS2
+bMVfmdUfS/rfbSw8DVSAcPCIC4DPxmiiuB1w2XaM/O6lyc+tHc+ZJVdaYkXLFmu9
+Sc2lo4xpeSWuuExsi0BmSxY/zwIa3eFsawdhanYVKZl/G92IgMG/tY9zxaaWI4Sm
+KIYkM2oBLldzJbZev4/mHWGoQClnHYebHX+bn5nNMdZUvmK7OaxoEkiRIKXLsd3+
+b/xa5IJVWa8xqQ==
+
+</certificate-data>
+</certificate>
+</certificates>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- gUhlED/Oj1f8K2EszaSElY2f88TuzVkTrf6MeoPtYofNwmKXkNF/aUeUD5oPfi+/N1CGzbxaRtVYOkG3hssIH6vZmxoQ3pjW26zDE6eCcmD9HHRmmJZXtTvJRff8JKoCuY2Nf3TvwbOdMT8uTreSmPL82LzApO+eO/Q9u45TplbeJtom1SVHEANiCxuW8HlD8uRoBzV4Px7aeE/1he+/pmvRXJBxWrnXs7rVFtWAzquPUlWc3px9LIWYBV2ehNmQ8CGd6OBdMFvFLiF3wG3BS+dh7CecOeIZolhCUpDQbYX+YLdrKefgIYS44OXTJCxEK8Vd1+cV4HNxeaqh7LqIKrXbhMWL3/ZLf/+E6kWytUiZgMjwNM1nfiCPmGA1ZRfTQhAmIadzwEtH3Up3wS+X58qrwqWnuR4sMrupLkrASUXIOau/PET+goFcjMUi8GDf33V3LaZaoWfBs9jvZzxdVWbVsjh4Zv+cP3kE1znFjG65bdxoGtIZM/JrCMBeIMDtBh5wlFZRmYwI262bjBMY/EP1YRWkguV6FViBNukWl/huL4Toklg4drtICsywLyS6WzSHkH5pG6nHfU64xFoZcNlR01BnqxfI/eoQaCSyCcv3FECGHpc2z2LftkXnXS8ywK+Fo5PaC6qwiiwecy9q2U1MH2cecYzvIVhSC7S7izg=
+-->
+<!-- Copyright (C) 2008-2012 Opera Software ASA. All Rights Reserved. -->
+
+<certificates>
+<certificate>
+<issuer>
+/C=US/O=VeriSign, Inc./OU=Class 1 Public Primary Certification Authority - G2/OU=(c) 1998 VeriSign, Inc. - For authorized use only/OU=VeriSign Trust Network
+</issuer>
+<shortname>
+Verisign Class 1 Public Primary Certification Authority - G2
+</shortname>
+<certificate-data>
+MIIDAjCCAmsCEEzH6qqYPnHTkxD4PTqJkZIwDQYJKoZIhvcNAQEFBQAwgcExCzAJ
+BgNVBAYTAlVTMRcwFQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE8MDoGA1UECxMzQ2xh
+c3MgMSBQdWJsaWMgUHJpbWFyeSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEcy
+MTowOAYDVQQLEzEoYykgMTk5OCBWZXJpU2lnbiwgSW5jLiAtIEZvciBhdXRob3Jp
+emVkIHVzZSBvbmx5MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMB4X
+DTk4MDUxODAwMDAwMFoXDTI4MDgwMTIzNTk1OVowgcExCzAJBgNVBAYTAlVTMRcw
+FQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE8MDoGA1UECxMzQ2xhc3MgMSBQdWJsaWMg
+UHJpbWFyeSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEcyMTowOAYDVQQLEzEo
+YykgMTk5OCBWZXJpU2lnbiwgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5
+MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMIGfMA0GCSqGSIb3DQEB
+AQUAA4GNADCBiQKBgQCq0Lq+Fi24g9TK0g+8djHKlNgdk4xWArzZbxpvUjZudVYK
+VdPfQ4chEWWKfo+9Id5rMj8bhDSVBZ1BNeuS65bdqlk/AVNtmU/t5eIqWpDBucSm
+Fc/IReumXY6cPvBkJHalzasab7bYe1FhbqZ/h8jit+U03EGI6glAvnOSPWvndQID
+AQABMA0GCSqGSIb3DQEBBQUAA4GBAKlPww3HZ74sy9mozS11534Vnjty637rXC0J
+h9ZrbWB85a7FkCMMXErQr7Fd88e2CtvgFZMN3QO8x3aKtd1Pw5sTdbgBwObJW2ul
+uIncrKTdcu1OofdPvAbT6shkdHvClUGcZXNY8ZCaPGqxmMnEh7zPRW1F4m4iP/68
+DzFc6PLZ
+
+</certificate-data>
+</certificate>
+</certificates>

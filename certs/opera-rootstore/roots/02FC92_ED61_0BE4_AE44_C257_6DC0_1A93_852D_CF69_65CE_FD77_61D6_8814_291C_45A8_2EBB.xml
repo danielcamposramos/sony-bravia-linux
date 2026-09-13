@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- owpqSh4vv2Bd0ieIHxiwYvW9AQV7qnI3cLzXAacogCiNAxp/fxXywGPCS5qrD6FJu1xuA5Gr2uNXI3jNrsGFtHEki1OjKdpGI+lKAGbq2BvE80mbOv3+3RUyx4jx8cPjuQRUvhopKz8Zk6VZPGN/mdHvQDsft36UO0ufdPayGBgy9y0CFvxgoeuq0gf4DwikJnX3wMrZ7pohOjexIAObvxvchVUfeEPvfn3F25HlGUepXk8+K0MWtqQMGJ1Y9/F/71u7wCNr8SpccFHoJeG45HTXSIGpyBwUB8aGLJM5GElupAIb35V+Wx8ahHMyia35qbKK7ism94iDXn1XCRuqkDLPHRcyxjfHqa1UU8NUVbduLfJlCs+4j0eMYFZWOdtlkPTHmL18x/ZkNHKzlntGBMfDqYFdzBZCqprTYETZe/ZuzHCEIAJz8MqHA/fDnfQd9nEuLK2JMI0T/xuI59bjoCuAHx97S1un/5tvrolykKXzOHJx12R9yTLDYTTB6efk4XlAOfXRMtZHSP+iAhGUNVst+/8F1aGQb/6Qco1mZ7gMzxo5HDH3FTU8Mw38vyL/OBOn3ZJxXh3ArIMsM2EhMyPgCM3ASqYnA9WvLtCg2fU52zvRg7HpVaq2VbNLTSneZmr/se/F6eZUgbVpvZKEIIHFrnJkXhhymdrL356v5J4=
+-->
+<!-- Copyright (C) 2008-2012 Opera Software ASA. All Rights Reserved. -->
+
+<certificates>
+<certificate>
+<issuer>
+/C=US/O=Symantec Corporation/OU=Symantec Trust Network/CN=Symantec Class 2 Public Primary Certification Authority - G4
+</issuer>
+<shortname>
+Symantec Class 2 Public Primary Certification Authority - G4
+</shortname>
+<certificate-data>
+MIICqDCCAi2gAwIBAgIQNBdlEkA7t1aALYDLeVWmHjAKBggqhkjOPQQDAzCBlDEL
+MAkGA1UEBhMCVVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMR8wHQYD
+VQQLExZTeW1hbnRlYyBUcnVzdCBOZXR3b3JrMUUwQwYDVQQDEzxTeW1hbnRlYyBD
+bGFzcyAyIFB1YmxpYyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0g
+RzQwHhcNMTExMDA1MDAwMDAwWhcNMzgwMTE4MjM1OTU5WjCBlDELMAkGA1UEBhMC
+VVMxHTAbBgNVBAoTFFN5bWFudGVjIENvcnBvcmF0aW9uMR8wHQYDVQQLExZTeW1h
+bnRlYyBUcnVzdCBOZXR3b3JrMUUwQwYDVQQDEzxTeW1hbnRlYyBDbGFzcyAyIFB1
+YmxpYyBQcmltYXJ5IENlcnRpZmljYXRpb24gQXV0aG9yaXR5IC0gRzQwdjAQBgcq
+hkjOPQIBBgUrgQQAIgNiAATR2UqOTA2ESlG6fO/TzPo6mrWnYxM9AeBJPvrBR8mS
+szrX/m+c95o6D/UOCgrDP8jnEhSO1dVtmCyzcTIK6yq99tdqIAtnRZzSsr9TImYJ
+XdsR8/EFM1ij4rjPfM2Cm72jQjBAMA4GA1UdDwEB/wQEAwIBBjAPBgNVHRMBAf8E
+BTADAQH/MB0GA1UdDgQWBBQ9MvM6qQyQhPmijGkGYVQvh3L+BTAKBggqhkjOPQQD
+AwNpADBmAjEAyKapr0F/tckRQhZoaUxcuCcYtpjxwH+QbYfTjEYX8D5P/OqwCMR6
+S7wIL8fip29lAjEA1lnehs5fDspU1cbQFQ78i5Ry1I4AWFPPfrFLDeVQhuuea9//
+KabYR9mglhjb8kWz
+
+</certificate-data>
+</certificate>
+</certificates>

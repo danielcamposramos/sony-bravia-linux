@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- i3AEj7897kOxqnWq4rrc44+AolbHd7iURBmxEUEOO1/Ux2H/kZfKnqAcSPbmgp6HMDQVBbw4LHVVbGOR/ocUrmTZXe2ulwJNcQ2FlwiS724JNbCWEHXA8faV7noljTDoeTc5EVa+yFbkw+UYYj8B3ie+2+o1wiJs3m+oaWVeEgLtWIW32qhFEYYMwsaZ7rsQoTn1Qo/6hQkLCRr7O7/bFxr9PEK4TFV1fqiV5lGs9gcV0EcblcpjdRUFBQTTVxrLNka3um+T+B0/PXjBdWoTqUNul7cB+vWLx6LjLpRDHRpCP8rpfMqYYSg4vUSOP+VJFbcigxuef+3LwA7InmWp0pVbznF0Z17JQv4XKsR5sZ5GchSAAC6xy7mttHuj0ZWTr+2YzIA2YWvOiP9XYxbDzQmWahosa9/iXj7jD5irhTs2bZ4OpCC816Af1+ZF+4+EuaKrRGLvQDiXHIYNMOftETRMZ8WN4Kcwua97BaDHHeikC0NmDjMHgHlFpqd7qkEoE85sEfZIXpgG4TzWeglbj39b0nc48yJ2hwSdwe1n2laITw/9Jov90c7shukBB+dKAmSIJ/f9Sp8/aYro6pYfMkUJyCbUy1fAMvD1yqzUt8X1enidma4+hkC2TgIqN6zrI2joXhoEA7jyShAR3Pv13vW8UJYt1NtKTJP4dXgABkA=
+-->
+<!-- Copyright (C) 2008-2012 Opera Software ASA. All Rights Reserved. -->
+
+<certificates>
+<certificate>
+<issuer>
+/C=US/O=VeriSign, Inc./OU=Class 4 Public Primary Certification Authority - G2/OU=(c) 1998 VeriSign, Inc. - For authorized use only/OU=VeriSign Trust Network
+</issuer>
+<shortname>
+Verisign Class 4 Public Primary Certification Authority - G2
+</shortname>
+<certificate-data>
+MIIDAjCCAmsCEDKIjprS9esTR/h/xCA3JfgwDQYJKoZIhvcNAQEFBQAwgcExCzAJ
+BgNVBAYTAlVTMRcwFQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE8MDoGA1UECxMzQ2xh
+c3MgNCBQdWJsaWMgUHJpbWFyeSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEcy
+MTowOAYDVQQLEzEoYykgMTk5OCBWZXJpU2lnbiwgSW5jLiAtIEZvciBhdXRob3Jp
+emVkIHVzZSBvbmx5MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMB4X
+DTk4MDUxODAwMDAwMFoXDTI4MDgwMTIzNTk1OVowgcExCzAJBgNVBAYTAlVTMRcw
+FQYDVQQKEw5WZXJpU2lnbiwgSW5jLjE8MDoGA1UECxMzQ2xhc3MgNCBQdWJsaWMg
+UHJpbWFyeSBDZXJ0aWZpY2F0aW9uIEF1dGhvcml0eSAtIEcyMTowOAYDVQQLEzEo
+YykgMTk5OCBWZXJpU2lnbiwgSW5jLiAtIEZvciBhdXRob3JpemVkIHVzZSBvbmx5
+MR8wHQYDVQQLExZWZXJpU2lnbiBUcnVzdCBOZXR3b3JrMIGfMA0GCSqGSIb3DQEB
+AQUAA4GNADCBiQKBgQC68OTP+cSuhVS5B1f5j8V/aBH4xBewRNzjMHPVKmIquNDM
+HO0oW369atyzkSTKQWI8/AIBvxwWMZQFl3Zuoq29YRdsTjCG8FE3KlDHqGKB3FtK
+qsGgtG7rL+VXxbErQHDbWk2hjh+9Ax/YA9SPTJlxvOKCzFjomDqG04Y48wApHwID
+AQABMA0GCSqGSIb3DQEBBQUAA4GBAIWMEsGnuVAVess+rLhDityq3RS6iYF+ATwj
+cSGIL4LcY/oCRaxFWdcqWERbt5+BO5JoPeI3JPV7bI92NZYJqFmduc4jq3TWg/0y
+cyfYaT5DdPauxYma51N86Xv2S/PBZYPejYqcPIiNOVn8qj8ijaHBZlCBckztImRP
+T8qAkbYp
+
+</certificate-data>
+</certificate>
+</certificates>
