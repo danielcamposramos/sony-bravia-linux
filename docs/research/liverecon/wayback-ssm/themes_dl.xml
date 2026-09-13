@@ -1,0 +1,66 @@
+<themes>
+	<theme id="1" version="2.02">
+		<name>App View</name>
+		<description>Personalize screen settings based on your favorite App</description>
+		<author>Sony</author>
+		<thumbnailURL>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/appview/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/appview/theme.swf</url>
+        <md5>bd9a06093feedcea2a8beae3fe269535</md5>
+	</theme>
+	<theme id="2" version="2.02">
+		<name>Dashboard</name>
+		<description>Multiple sources of personal information at a glance</description>
+		<author>Sony</author>
+		<thumbnailURL>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/bento/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/bento/theme.swf</url>
+        <md5>ed5e3bf550860e9ac02006aefeae3bed</md5>
+	</theme>
+	<theme id="3" version="2.02">
+		<name>Full Screen App</name>
+		<description>Apps viewed in Full Screen, unpinned by default</description>
+		<author>Sony</author>
+		<thumbnailURL>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/fullappview/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/fullappview/theme.swf</url>
+        <md5>1d37f601a46fe99193e5dd94feda726a</md5>
+	</theme>
+	<theme id="4" version="2.02">
+		<name>App Launcher</name>
+		<description>Select and load apps directly</description>
+		<author>Sony</author>
+		<thumbnailURL>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/applauncher/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/applauncher/theme.swf</url>
+        <md5>650e39ad10e4d22a86ae0bae937fe7b6</md5>
+	</theme>
+	<theme id="5" version="2.02">
+		<name>Dr. Oz</name>
+		<description>Sony</description>
+		<author>Sony</author>
+		<thumbnailURL> http://ssm.internet.sony.tv/DASH/updates/themes/20120127/droz/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/droz/theme.swf</url>
+        <md5>09ce805f03cd51cee710bc2df7323b92</md5>
+	</theme>
+        <theme id="6" version="1.65">
+		<name>Winter Wonderland</name>
+		<description>Winter Wonderland</description>
+		<author>Sony</author>
+		<thumbnailURL>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/ww/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/ww/theme.swf</url>
+        <md5>50eab25da94ea885d0222a879834b68a</md5>
+        </theme>
+        <theme id="7" version="1.04">
+		<name>CBS Sports</name>
+		<description>CBS Sports</description>
+		<author>Sony</author>
+		<thumbnailURL>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/cbs/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/cbs/theme.swf</url>
+        <md5>709d6a573f4adf6c1378e4c83ef4cadc</md5>
+        </theme>
+        <theme id="8" version="1.5">
+		<name>PlayStation(R)</name>
+		<description>PlayStation(R)</description>
+		<author>Sony</author>
+		<thumbnailURL>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/ps/theme.jpg</thumbnailURL>
+		<url>http://ssm.internet.sony.tv/DASH/updates/themes/20120127/ps/theme.swf</url>
+        <md5>a0969d9e33ef4dca74ca800b5057bc0e</md5>
+        </theme>
+ </themes>

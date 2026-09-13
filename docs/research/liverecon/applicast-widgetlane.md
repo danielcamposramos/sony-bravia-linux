@@ -186,6 +186,75 @@ Consequences:
 3. For the spoof experiment nothing changes: we replace the whole
    host via DNS.
 
+## EX725 powerup round (16:49, `tv-ex725-powerup.pcap` — user power-cycled with 10 s down-time)
+
+The armed idle writer caught the boot. One burst of 21 unique GETs
+(~16:49:17, seconds after power-up), all **200 OK**, all UA
+`WidgetSystem/3.0.9` — a full **bundle-integrity sweep** of every
+installed widget, digest-first:
+
+- `bravia.dl.playstation.net/bravia/WidgetBundles/{LogGate,
+  BgmSearch-2ndDisp}/` — digest.sig/txt, info.xml, then
+  **resident.xml/resident.js** (LogGate) and **server.xml/server.js**
+  (BgmSearch-2ndDisp). **This revises the "2012-gen-only endpoint"
+  claim: the EX725 (AZ2) talks to the playstation host too — at
+  boot, not in menus.**
+- `applicast.ga.sony.net/WidgetBundles/{SNY_WidgetGallery,
+  VCServiceUtil}/` — digest/info plus **notification.xml +
+  notification.js** (a widget push-notification system) and
+  **`VCServiceUtil/common.key` + `main.enc.js`** — the same
+  key+encrypted-JS pattern as SNY_Facebook's bundle.
+- The catalog `../../WidgetContents/SNY_WidgetGallery/AZ2/Index.xml`
+  returned **200 at boot** (a different CloudFront edge than the
+  menu round's 403) — cache-node lottery, and proof the boot sweep
+  refreshes bundles while any node still serves them.
+
+**The update phone-home did NOT fire at powerup** — zero ssm
+contact in the whole boot window. Combined with the idle-window
+silence, the enabled phone-home setting is **timestamp-gated**:
+the TV checked hours earlier (our OTA menu rounds), so boot skipped
+it ("checks the last check"). An overdue-check powerup (the "or do
+it anyway" half) remains untested — needs a boot after the check
+interval lapses.
+
+Zero DNS lookups anywhere in the capture — with a 10 s down-time
+the set resumed from standby state with its resolver cache intact
+(not a cold boot).
+
+**7776 beacon cycle:** stopped while the set sat powered on the
+HDMI input with no signal (70 s listen, zero), **back at 1.25 s
+cadence immediately after the power cycle**. The beacon is gated by
+something that changed during no-signal idle — a calibratable
+remote state oracle.
+
+## Wayback lane (17:00) — what the Internet Archive holds
+
+- **applicast.ga.sony.net: zero captures ever.** The 422 blocked
+  objects have no Wayback copies — the repo archive is the only
+  surviving record of that CDN.
+- **bravia.dl.playstation.net: mapped by a previous explorer** (CDX
+  captures 2011–2024, ~60 URLs). 18 status-200 objects fetched
+  (`wayback-playstation/`): real SocialTV-system widget code —
+  `SocialTV/EmotionPost_FY13/EmotionPostWidget.xml`,
+  `SocialUX/SocialFriends/FriendListWidget.xml`, the complete
+  `Zapping` manager/player/selector set (FY13 + FY14 + six version
+  dirs 6.0.8–6.1.4), `MyChannel_Bundles/6.1.4/Keyword/widget.xml`,
+  `BgmSearch/2.0.1/MediaExplorerCommon.img` (123 KB) — plus a
+  **`KiOhJ/` chassis-generation tree** (FY2013 gen) and FY13/FY14
+  bundle variants. The 404s in the CDX list map the rest of the
+  namespace.
+- **sony.tvstore.opera.com: archived 2015** — root page, `jsi18n/`,
+  `m/d/Y` fetched (`wayback-tvstore/`); the store's front-end IDs
+  and i18n exist for the revival lane.
+- **ssm.internet.sony.tv: `DASH/updates/themes/20120127/themes_dl.xml`**
+  fetched — the XMB **theme catalog** (themes distributed as SWF +
+  md5, thumbnail/theme URLs under the same path). A further content
+  lane the Unbound override can serve with our own files.
+- Since the boot sweep proved LogGate/BgmSearch-2ndDisp still serve
+  200 live, a digest-driven live enumeration sweep of the whole
+  playstation-host bundle namespace was launched from the Wayback
+  hit-list (`grab_playstation.sh`).
+
 ## EX725 idle window — first facts (armed 16:36, firewall vantage)
 
 The 725 sat at the XMB home menu, untouched. Firewall writer

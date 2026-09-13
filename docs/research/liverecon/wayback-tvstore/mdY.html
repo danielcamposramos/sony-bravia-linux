@@ -1,0 +1,38 @@
+<!doctype html><html><head><meta charset="utf-8"><link rel="stylesheet" type="text/css" href="https://tvstoremedia.global.ssl.fastly.net/static/3.6.3/common.css" /><link rel="stylesheet" type="text/css" href="https://tvstoremedia.global.ssl.fastly.net/static/3.6.3/opera/skin.css" /><style>
+    .ing img {
+        position: absolute;
+        left: -48px;
+    }
+</style><script src="/jsi18n/"></script></head><body><div id="error-box" class="screen app-disabled"><hgroup><h2>Oops! Something went wrong...</h2><h4 id="error-text">
+                This application has been disabled because of reported problems.
+            </h4></hgroup><div class="toolbar"><div id="cancel" tabindex="0" style="visibility: hidden"><span></span>Remove</div></div></div><script>
+
+    /*/
+    // DEBUG
+    window.opera = (window.opera || {});
+    window.VK_ENTER = (window.VK_ENTER || 13);
+    opera.uninstallApp = function (appid, callback) {
+        setTimeout(callback, 1500, null);
+    };
+    // end of DEBUG
+    /*/
+
+    if (opera.uninstallApp) {
+        var appid = "";
+        var button = document.getElementById("cancel");
+        button.style.visibility = "";  // show it
+        button.focus();
+
+        window.addEventListener("keydown", function (evt) {
+            if (evt.keyCode === VK_ENTER) {
+                button.classList.add("ing");
+                button.innerHTML = "<img src='https://tvstoremedia.global.ssl.fastly.net/static/3.6.3/images/loader-small.gif' alt=''/>" + gettext("Processing");
+                // TODO log uninstalling
+                opera.uninstallApp(appid, function (err) {
+                    console.log(err);
+                    history.back();
+                });
+            }
+        }, false);
+    }
+    </script></body></html>
