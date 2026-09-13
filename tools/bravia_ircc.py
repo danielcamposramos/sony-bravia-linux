@@ -25,9 +25,10 @@ chr15m/media-remote SNIFF.md capture of a TV-served remoteCommandList):
 
   * Standard codes: manufacturer=1, device=1.
     MDF variant: manufacturer=2, device=26 (HDMI1..4 = 0x5a..0x5d).
-    Color buttons: manufacturer=2 (device byte see table: published Sony
-    table uses 0x97; a live-verified note claimed 0x9c, so both variants
-    are carried, see *_alt entries).
+    Color buttons: manufacturer=2, device 0x97 -- CONFIRMED by the EX725's
+    own /cers/api/getRemoteCommandList (2026-09-13, saved in
+    docs/research/liverecon/).  The *_alt entries carry the device 0x9c
+    variant Sony's Android-generation table uses, kept for that family.
 
   * URL-type CERS commands (no auth, port 80):
         GET /cers/command/MuteOn   GET /cers/command/MuteOff
@@ -46,6 +47,14 @@ PERSISTENT-STATE HAZARD -- read before driving a set:
   command line AND an interactive y/N confirmation, and the
   confirmation is refused outright when stdin is not a TTY (so 'echo y
   |' cannot bypass it).  VolumeUp+Power never happens implicitly.
+
+SERVICE-MODE ENTRY CANNOT BE ARMED OVER IRCC (live-tested 2026-09-13,
+  EX725): with every code verified against the TV's own command list and
+  remote-like 0.6 s pacing from standby, the sequence booted the set
+  normally every time; the physical remote armed it instantly.  The
+  standby arming path evidently does not honour network-injected keys.
+  This is also good news for safety: the LAN path cannot write service
+  NVM.  Keep the sequences for documentation, but entry needs IR.
 
 This tool never scans, never discovers, and never touches any port other
 than the one host:port the operator names.  Stdlib only, Python 3.9+.
@@ -110,9 +119,13 @@ IRCC_TAIL_BYTE = 0x03  # constant final byte of every 13-byte IRCCCode struct
 #
 # Every entry is (name, manufacturer, device, function, description).
 # base64 constants are DERIVED from struct.pack(">IIIB", manu, dev, func, 3);
-# nothing in this table is a pasted string.  Functions cross-checked between
-# Sony's official IRCC code table (pro-bravia.sony.net) and the TV-served
-# remoteCommandList captured in chr15m/media-remote SNIFF.md.
+# nothing in this table is a pasted string.  Cross-checked against the
+# EX725's OWN authoritative /cers/api/getRemoteCommandList (2026-09-13,
+# after CERS registration; saved as
+# docs/research/liverecon/cers_remoteCommandList_KDL-46EX725.xml), Sony's
+# Android-generation table (pro-bravia.sony.net), and the TV-served list
+# captured in chr15m/media-remote SNIFF.md.  Generation differences found:
+# color/media family device 0x97 here vs 0x9c on Android-gen.
 # --------------------------------------------------------------------------
 
 _KEY_TABLE_RAW = [
@@ -124,9 +137,14 @@ _KEY_TABLE_RAW = [
     ("jump",         1,   1, 0x3b, "jump (last channel)"),
     ("teletext",     1,   1, 0x3f, "teletext toggle"),
     ("audio",        1,   1, 0x17, "audio track select"),
-    ("subtitle",     2, 151, 0x28, "subtitle / closed-caption toggle"),
-    ("display",      1,   1, 0x3a, "DISPLAY (info banner)"),
+    ("subtitle",     2, 151, 0x28, "subtitle cycle"),
+    ("closed-caption", 2, 164, 0x10, "closed-caption toggle"),
+    ("display",      1,   1, 0x3a, "DISPLAY (info banner; no-op on some "
+                                    "inputs on the EX725 despite being "
+                                    "in the TV's own table)"),
     ("wide",         2, 164, 0x3d, "wide / aspect mode"),
+    ("pap",          2, 164, 0x77, "picture-and-picture"),
+    ("program-description", 2, 151, 0x16, "program description overlay"),
     ("num1",         1,   1, 0x00, "digit 1"),
     ("num2",         1,   1, 0x01, "digit 2"),
     ("num3",         1,   1, 0x02, "digit 3"),
@@ -157,26 +175,45 @@ _KEY_TABLE_RAW = [
     ("back",         2, 151, 0x23, "back / return"),
     ("options",      2, 151, 0x36, "OPTIONS button"),
     ("help",         2, 196, 0x4d, "help"),
-    # color buttons -- manufacturer=2, device=0x97 per the published Sony
-    # table and the TV-served remoteCommandList (AAAAAgAAAJc...).
-    ("red",          2, 151, 0x25, "red color button (dev 0x97, published)"),
-    ("green",        2, 151, 0x26, "green color button (dev 0x97, published)"),
-    ("yellow",       2, 151, 0x27, "yellow color button (dev 0x97, published)"),
-    ("blue",         2, 151, 0x24, "blue color button (dev 0x97, published)"),
-    # color buttons, device=0x9c variant.  A 2026-09-13 live-verified note
-    # recorded color buttons as manufacturer=2 device=0x9c; both public
-    # references decode to device=0x97.  Both variants are kept so either
-    # can be confirmed against the physical sets.
-    ("red-alt",      2, 156, 0x25, "red, device 0x9c variant (live-note)"),
-    ("green-alt",    2, 156, 0x26, "green, device 0x9c variant (live-note)"),
-    ("yellow-alt",   2, 156, 0x27, "yellow, device 0x9c variant (live-note)"),
-    ("blue-alt",     2, 156, 0x24, "blue, device 0x9c variant (live-note)"),
+    # color buttons -- manufacturer=2, device=0x97, CONFIRMED by the
+    # EX725's own getRemoteCommandList (2026-09-13).
+    ("red",          2, 151, 0x25, "red color button   [TV-table-verified]"),
+    ("green",        2, 151, 0x26, "green color button   [TV-table-verified]"),
+    ("yellow",       2, 151, 0x27, "yellow color button   [TV-table-verified]"),
+    ("blue",         2, 151, 0x24, "blue color button   [TV-table-verified]"),
+    # color buttons, device=0x9c -- the variant Sony's Android-generation
+    # table (pro-bravia.sony.net) uses.  This 2011 chassis uses 0x97 above;
+    # the 2026-09-13 "live note" that claimed 0x9c for this set was wrong.
+    ("red-alt",      2, 156, 0x25, "red, Android-gen device 0x9c"),
+    ("green-alt",    2, 156, 0x26, "green, Android-gen device 0x9c"),
+    ("yellow-alt",   2, 156, 0x27, "yellow, Android-gen device 0x9c"),
+    ("blue-alt",     2, 156, 0x24, "blue, Android-gen device 0x9c"),
     # media transport -- manufacturer=2, device=0x97 family
     ("play",         2, 151, 0x1a, "play"),
     ("pause",        2, 151, 0x19, "pause"),
     ("stop",         2, 151, 0x18, "stop"),
     ("prev",         2, 151, 0x3c, "previous track"),
     ("next",         2, 151, 0x3d, "next track"),
+    # media transport extras (EX725's own table)
+    ("rewind",       2, 151, 0x1b, "rewind"),
+    ("forward",      2, 151, 0x1c, "fast forward"),
+    ("replay",       2, 151, 0x79, "replay (jump back)"),
+    ("advance",      2, 151, 0x78, "advance (jump forward)"),
+    ("eject",        2, 151, 0x48, "eject"),
+    ("rec",          2, 151, 0x20, "record"),
+    ("ten-key",      2, 151, 0x0c, "ten-key keypad toggle"),
+    # tuner-family and service keys (EX725's own table)
+    ("analog",       2, 119, 0x0d, "analog tuner"),
+    ("digital",      2, 151, 0x32, "digital tuner"),
+    ("bs",           2, 151, 0x2c, "BS (broadcast satellite) band"),
+    ("cs",           2, 151, 0x2b, "CS (communication satellite) band"),
+    ("bscs",         2, 151, 0x10, "BS/CS toggle"),
+    ("ddata",        2, 151, 0x15, "data broadcast (BML/Ddata) toggle"),
+    ("mode3d",       2, 119, 0x4d, "3D mode toggle"),
+    ("my-epg",       2, 119, 0x6b, "My EPG"),
+    ("write-chapter", 2, 119, 0x6c, "write chapter mark (recording)"),
+    ("delete-video", 2, 119, 0x1f, "delete recorded video"),
+    ("easy-startup", 2, 119, 0x6a, "easy setup (initial setup wizard)"),
     # MDF variant -- manufacturer=2, device=26
     ("hdmi1",        2,  26, 0x5a, "HDMI input 1"),
     ("hdmi2",        2,  26, 0x5b, "HDMI input 2"),
@@ -185,6 +222,17 @@ _KEY_TABLE_RAW = [
     ("sync-menu",    2,  26, 0x58, "SYNC MENU"),
     ("top-menu",     2,  26, 0x60, "BD/DVD top menu"),
     ("popup-menu",   2,  26, 0x61, "BD/DVD popup menu"),
+    ("internet-widgets", 2, 26, 0x7a, "Internet Widgets"),
+    ("internet-video", 2, 26, 0x79, "Internet Video / video portal"),
+    ("scene-select", 2,  26, 0x78, "Scene Select"),
+    ("imanual",      2,  26, 0x7b, "iManual (on-screen manual)"),
+    ("applicast",    2,  26, 0x6f, "AppliCast widgets"),
+    ("actvila",      2,  26, 0x72, "acTVila video service"),
+    ("track-id",     2,  26, 0x7e, "TrackID"),
+    ("one-touch-time-rec", 2, 26, 0x64, "one-touch timed record"),
+    ("one-touch-view", 2, 26, 0x65, "one-touch view"),
+    ("one-touch-rec", 2, 26, 0x62, "one-touch record"),
+    ("one-touch-rec-stop", 2, 26, 0x63, "stop one-touch record"),
 ]
 
 KEY_TABLE = {name: (manu, dev, func, desc)
@@ -201,7 +249,7 @@ KEY_ALIASES = {
     "return": "back",
     "cursor-up": "up", "cursor-down": "down",
     "cursor-left": "left", "cursor-right": "right",
-    "cc": "subtitle", "closed-caption": "subtitle",
+    "cc": "closed-caption", "subtitle-cycle": "subtitle",
     "input-select": "input",
     "hdmi-1": "hdmi1", "hdmi-2": "hdmi2", "hdmi-3": "hdmi3", "hdmi-4": "hdmi4",
     "digit-1": "num1", "digit-2": "num2", "digit-3": "num3", "digit-4": "num4",
@@ -276,7 +324,11 @@ SEQUENCES = {
         ("volume-up", 0.6),
         ("power", None),
     ], "AZ3F service manual: standby -> DISPLAY -> Ch 5 -> VOL+ -> POWER "
-       "(enters factory service mode; writes NVM)"),
+       "(enters factory service mode; writes NVM).  LIVE-TESTED NEGATIVE "
+       "on the EX725 2026-09-13: does NOT arm via IRCC even with verified "
+       "codes and tight pacing -- the physical remote is required; the "
+       "set just boots normally.  Kept for documentation and for the day "
+       "a root shell can inject at the IR/standby layer."),
     "self-diagnostic": ([
         ("power", 5.0),
         ("display", 0.6),

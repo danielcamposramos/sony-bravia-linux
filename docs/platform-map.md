@@ -11,7 +11,7 @@ from primary source or live device), **[W]**eb-researched (secondary source),
 |---|---|---|
 | Year | 2012 | 2011 |
 | Chassis | AZ3F ("Segment 3a-G") **[C:SM]** | AZ2-F (SEGM.3A-2 "BATV" board) **[W]** |
-| Service-mode chassis name | "WYVERN" **[C:SM]** | TBD |
+| Service-mode chassis name | "WYVERN" **[C:SM]** | "WYVERN" too **[C:SM, live 2026-09-13]** |
 | Main board | BAP board ("B*" board), SoC heatsink part labeled "ATREYU" **[C:SM]** | BATV board **[W]** |
 | Final firmware | PKG2.120BRA (`sony_dtv0FA20A02A0A2_00001400`) | PKG4.027BRA (`sony_dtv0FA10A01A0A1_00000400`) |
 | LAN IP | 192.168.0.21 | 192.168.0.22 |
@@ -27,6 +27,17 @@ from primary source or live device), **[W]**eb-researched (secondary source),
 - WiFi module marking: **Wlan - J20H049** (ANATEL 2858-11-6740) — Sony's
   internal module ID; external attribution still says DWM-W046/AR9271
 - GS1 barcode: (01) 07898943613189; document/part ref 4-418-393-01
+
+### Unit identity (EX725, read from its own service screens 2026-09-13)
+
+- MID (motherboard ID): **3D65E205**; PID (panel ID): **0E050000**
+- Panel: **LG Display LTY460HJJ0501** (46-inch)
+- Firmware module versions on screen: DM **4.027BRA** (upgraded from
+  3.505BRA — matches final PKG4.027BRA), WF 2310W00AA, DF 2.290W00AA,
+  YM 1.030W00AA, M 4.001C, PK (PEM panel micro) **4.190W00AA**
+- SELF CHECK: HOST_WDT **21** lifetime watchdog trips, BALANCER 01,
+  everything else clean; panel 25758 h, **11498 boots**, total 26682 h
+  (`docs/research/liverecon/service-mode-ex725-session.md`)
 
 ## 2. SoC and board (AZ3F, from service manual block diagram p.129–130)
 
@@ -71,6 +82,14 @@ from primary source or live device), **[W]**eb-researched (secondary source),
 - T-CON side: "PEM" micro with FRC; fed by Atreyu over **SPI_B ("PEM DL"),
   UARTD ("PEM CTRL"), UART_PEM_LOG**; panel-ID EEPROM on I2C (P_ID_ERR →
   5 blinks) **[C:SM]**.
+- **Live 2026-09-13 (EX725, read-only)**: service-mode entry is armed
+  by the **physical remote only** — the standby arming state machine
+  ignores network-injected IRCC keys (verified codes + remote pacing;
+  the set just boots normally), so the LAN path cannot write service
+  NVM. Self-diagnostic screen same but Vol−; categories cycle
+  Digital/Chassis/VPC via JUMP/OPTIONS; error history and the
+  watchdog/boot/hours counters live on the SELF CHECK screen
+  (`docs/research/liverecon/service-mode-ex725-session.md`).
 
 ## 3. Software stack (license PDFs + Sony GPL pages + live headers)
 

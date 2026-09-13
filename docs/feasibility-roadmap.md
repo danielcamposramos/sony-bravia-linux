@@ -20,7 +20,7 @@ else is exhausted AND on a donor board, not these two.
 |---|---|---|
 | A1 | DLNA transcoding server (Serviio/UMS/Jellyfin) on the LAN with Sony 2011/2012 BRAVIA profiles: MP4/H.264 ≤ L4.1, MPEG2-TS ≤ ~20–25 Mbps + AC3, WMV/VC-1; MKV → transcode. The owner already runs Serviio 2.5 at 192.168.0.3 | available now |
 | A2 | xupnpd-style IPTV-over-DLNA bridge → live internet streams appear as a DLNA channel list on the stock player | proven pattern in the SamyGO community |
-| A3 | **IRCC remote control from scripts — no registration needed** (live-proven 2026-09-13: `POST /IRCC` X_SendIRCC accepts arbitrary keypresses unauthenticated on both TVs; `/cers/command/MuteOn/MuteOff` URL commands also ungated). A registration (one-time on-screen dialog, EX725 first) only adds the full `getRemoteCommandList` code table + `getText/sendText`. See `docs/research/noninvasive-avenues.md` | control path proven; deliberate `register` still pending user OK |
+| A3 | **IRCC remote control from scripts — no registration needed** (live-proven 2026-09-13: `POST /IRCC` X_SendIRCC accepts arbitrary keypresses unauthenticated on both TVs; `/cers/command/MuteOn/MuteOff` URL commands also ungated). **Registration DONE on the EX725 2026-09-13**: the TV's own authoritative 85-command table is captured (`liverecon/cers_remoteCommandList_KDL-46EX725.xml`) and merged into the driver (90 named codes; colors = dev 0x97 on this gen, 0x9c is Android-gen). Live negative: **service-mode entry cannot be armed over LAN IRCC** — physical remote required (standby arming ignores network keys), so the LAN path also cannot write service NVM. See `docs/research/liverecon/service-mode-ex725-session.md` | control path proven; registration done |
 | A4 | HbbTV 1.1.1 apps: any HTTP page the stock Opera engine can render; also the (unexplored) Nimue-issue-#4 class of port-80 attack surface | research only |
 | A5 | **Ginga broadcast-chain content** (and code-execution candidate): locally-authored NCL/Lua app → OpenCaster ISDB-Tb → DSM-CC carousel → low-cost modulator → **coax injection** into the EX725 antenna input (standard Ginga developer methodology, no RF emission, no opening). Same gear unlocks HbbTV AIT injection into the Opera engine | research done; build the chain |
 
@@ -58,7 +58,16 @@ Leverage the era's known flaws as an alternate entry:
      0x0c0c0c0c; no-ASLR MIPS era favorable), plus post-freeze Presto
      CVEs (2012-3561, 2012-6468/6465/6470, 2012-1003, 2013-1637/1638).
      Crash-oracle rig: 8-blink Software Error state / service-mode error
-     history, **EX725 only — never the HX855 monitor**.
+     history, **EX725 only — never the HX855 monitor**. Baseline captured
+     2026-09-13 (read-only service session,
+     `liverecon/service-mode-ex725-session.md`): SELF CHECK shows
+     **HOST_WDT=21** lifetime watchdog trips on a healthy, heavily-used
+     set (25758 panel h, 11498 boots) — watchdog resets accumulate
+     recoverably, so probe trips just increment a counter; `103 HOST_WDT`
+     and the boot count are the rig's before/after tripwires. Note:
+     reading them needs the physical remote (service screens can't be
+     entered over LAN), and the 8-blink LED state is observable without
+     entering anything.
    - **X_SendIRCC dispatch** (port 80) — unauthenticated (live-proven),
      hand-rolled, proven-sloppy dispatch (mis-routes X_GetStatus to the
      IRCC path; garbage base64 silently 200s), TWO independent

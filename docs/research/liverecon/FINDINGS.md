@@ -40,13 +40,20 @@ Both expose an identical `MediaRenderer:1` device — this is a DLNA
 smartphone apps used:
 
 - `register` (mode "2" — pops a dialog on the TV screen, yields a
-  `CERS-DEVICE-ID` header used for the other actions)
+  `X-CERS-DEVICE-ID` header used for the other actions) — **DONE on the
+  EX725 2026-09-13**: `GET /cers/api/register?name=...&registrationType=initial&deviceId=...`
+  with matching `X-CERS-DEVICE-ID` header, accepted on-screen by the
+  owner; procedure in `service-mode-ex725-session.md`
 - `getText` / `sendText` (HX855 also supports the Notification function)
 - `getSystemInformation` — **works unauthenticated via GET**:
   - EX725: `generation 1.0`, area BRA
   - HX855: `generation 1.1`, area BRA, language por, country BRA,
     modelName KDL-46HX855, supports `Notification`
-- `getRemoteCommandList`, `getStatus` — empty without registration
+- `getRemoteCommandList`, `getStatus` — empty/403 without registration;
+  **post-registration the EX725 served its full authoritative 85-command
+  IRCC table** — saved as `cers_remoteCommandList_KDL-46EX725.xml`,
+  merged into `tools/bravia_ircc.py` (this generation: colors/media
+  family device 0x97; Android-gen 0x9c)
 - HX855 only: `getContentUrl`, `sendContentUrl` (remote "throw" a URL to
   the TV), `cersEx/api/getContentInformation`
 - `BgmSearch::search`
@@ -72,9 +79,13 @@ actions works). Both send `ACCESS-CONTROL-ALLOW-ORIGIN: *`.
    (SonyDTV115 device token).
 2. Port 9784 open **only** on the EX725 — worth protocol identification
    (raw TCP probe; nmap calls it tcpwrapped).
-3. `register` mode 2 will pop an on-screen dialog (HX855 is the user's
-   monitor, so it is immediately visible) — do this deliberately, then
-   use `getRemoteCommandList` to unlock full remote control.
+3. ~~`register` mode 2 will pop an on-screen dialog~~ — DONE (EX725,
+   2026-09-13) and used to capture the authoritative command list;
+   read-only service-mode session also completed
+   (`service-mode-ex725-session.md`): chassis codename WYVERN shared
+   with AZ3F, MID 3D65E205 / PID 0E050000 / panel LTY460HJJ0501,
+   SELF CHECK baseline HOST_WDT=21, boot count 11498. Service-mode
+   arming requires the physical remote — LAN IRCC cannot arm it.
 4. `sendContentUrl` (HX855) may allow pushing arbitrary content URLs —
    potential lever for serving our own content/apps if its URL schemes
    are permissive.
