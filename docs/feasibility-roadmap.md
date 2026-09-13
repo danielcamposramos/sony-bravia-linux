@@ -53,10 +53,30 @@ Leverage the era's known flaws as an alternate entry:
 1. **Foothold**: memory-safety bug in reachable 2011-era userspace —
    ranked audit targets (2026-09-13 update, evidence in
    `docs/research/noninvasive-avenues.md`):
-   - **CVE-2011-2628 / Exploit-DB 17936** — public Opera Presto RCE PoC
-     hitting the EX725's Presto 2.7.61 band exactly (heap spray at
-     0x0c0c0c0c; no-ASLR MIPS era favorable), plus post-freeze Presto
-     CVEs (2012-3561, 2012-6468/6465/6470, 2012-1003, 2013-1637/1638).
+   - **CVE-2011-2628 / Exploit-DB 17936** — **studied in depth
+     2026-09-13, see `docs/research/presto-cve-2011-2628.md`** (workflow
+     wf_12f70c4e-2c1, adversarially verified). Trigger is pure content
+     (badly nested XHTML frameset/iframe + 333em CSS at page unload);
+     band = all desktop Opera 10.00–11.10, fixed only in desktop 11.11 —
+     the Devices/mobile line NEVER got the fix, and our Presto 2.7.61 is
+     an SDK build of the 2.7 core (desktop 11.00 "Kjevik" generation;
+     corrected mapping: Presto 2.7.62 = Opera 11.00/11.01, 11.10/11.11
+     ran 2.8.131), so strong-inference vulnerable, unproven on SDK
+     builds. MIPS retarget required: `0x0c0c0c0c` decodes as `jal` on
+     MIPS and the deterministic no-ASLR mmap base is **0x2aaa8000**
+     (TASK_SIZE/3, bottom-up); no NX on this kernel (no ROP needed) but
+     I/D caches need a `cacheflush` (syscall 4147) stub; spray budget is
+     tens of MB on 512 MB RAM. Delivery lane #1 = HbbTV AIT over coax
+     (HTTP-tagged transport_protocol_descriptor: the TV fetches our page
+     from a LAN web server — no DSM-CC carousel strictly needed), GATED
+     on verifying our BRA firmware actually runs HbbTV wired to ISDB-Tb
+     (the only HbbTV/2.7.61 UA we hold is from an EUA sibling). Lane #2
+     = registered CERS sendText + IRCC InternetWidgets keys (no free-URL
+     browser known on this generation). Ladder: HbbTV-presence gate →
+     DoS signature → sled calibration → UDP-beacon canary. Post-freeze
+     Presto CVEs 2012-3561/6465/6468/6470 and 2013-1637/1638 are
+     band-plausible but introduction-unknown; 2012-1003 definitively
+     excluded (typed arrays did not exist before Presto 2.10).
      Crash-oracle rig: 8-blink Software Error state / service-mode error
      history, **EX725 only — never the HX855 monitor**. Baseline captured
      2026-09-13 (read-only service session,
