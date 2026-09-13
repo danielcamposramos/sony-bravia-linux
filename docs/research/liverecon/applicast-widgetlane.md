@@ -566,3 +566,15 @@ workstation's HDMI monitor, so its EDID is ground truth:
   YCbCr 4:4:4) — the realistic "VLC-substitute" endpoint for this
   hardware, and strictly better-looking than any internal path.
   (User: the 755 shares the exact same HDMI info.)
+
+### PlayStation-host live sweep CLOSED (17:45, `playstation-archive/`)
+
+Digest-driven + Wayback-hit-list enumeration of
+bravia.dl.playstation.net/bravia/WidgetBundles: 1248 URLs tried,
+269×200 / 1160×404 / 61 dup — 3.2MB, 270 files. Complete bundles
+include **AppDataSourceAddon** (server.js/xml, addon.js,
+plugins/kamaji/kamajiapps.enc.js + plugins/local/localapps.js,
+common.key — the Kamaji-app loader, encrypted-JS + key pattern again),
+plus every bundle the digests named on the swept roots. With the
+ws-lane batch, the playstation-host widget estate is now archived to
+the limit of what the CDN still serves.
