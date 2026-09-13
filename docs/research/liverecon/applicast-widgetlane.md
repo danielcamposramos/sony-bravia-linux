@@ -357,6 +357,67 @@ New facts:
 - Era resolver quirk on display: unqualified-lookup retries append
   the LAN search domain (`…casacampos.lok`) for every failing name.
 
+## Widget-programming reference complete (workflow wf_3282b9e4-4f5)
+
+Full authoring reference: **`docs/research/appliwidget-programming.md`**
+(16 agents, adversarial verify, confidence-tagged [V]/[C]/[I] throughout).
+Headlines:
+
+- **Engine API reconstructed and adversarially verified** from the held
+  bundles: ~30 engine globals (`widget`, `system`, `System`, `KeyEvent`,
+  `Debug`, `document` XGML DOM with `getElementByName`…), the AC2.1
+  declarative layout vocabulary, XGML/CSS dialect, registry/persistence
+  semantics, chassis-branching by `system.version` (3 = AZ2, 4 = AZ3).
+- **A sanctioned develop-mode backdoor exists in the gallery**:
+  `widget.uri` can carry `?mode=develop&url=<catalog-url>` — the
+  gallery's option menu "Change Catalog" (native `prompt()`, persisted
+  in registry `developCatalogSrc`) redirects the catalog fetch,
+  bypassing WidgetContents entirely. Signature-independent for the
+  CATALOG (bundle install still gated by digest.sig). Whether we can
+  control `widget.uri`'s query string at launch is the open probe.
+- **Signature verdict: UNKNOWN, leaning enforced-at-install-time** —
+  digest.sig is one RSA-3072 block over SHA-256(digest.txt), key
+  firmware-pinned, zero verification logic in any bundle JS. The
+  decisive on-LAN A/B/C experiment (original sig / foreign sig /
+  garbage-absent) is designed in §4 of the reference.
+- **First-widget target: AC2.1 "LAN_Hello"** (RSSReader-shaped;
+  SAX1.1 proven-installed fallback), full bundle layout + engineering
+  rules in §5.
+- **Unbound override experiment design** in §6 — one-host override
+  (applicast.ga.sony.net only), firmware/ssm/playstation hosts left
+  resolving normally, conditional-GET-honoring LAN server, 5 phases
+  from transparent baseline to custom-widget install.
+- The research pass also grew the live mirror to **30 bundles** plus
+  `ga-dev/`, `cn-dev/`, geekpage.jp tutorial mirror (incl. verified
+  HelloWorld.zip), the one public GitHub AppliCast widget, and a
+  dev-site Wayback copy — all under `/tmp/acig-/applicast-archive/`.
+
+## Certificate lane (Opera trust anchors, 2026-09-13 evening)
+
+Why it matters: the 855's Opera TV Store revival needs TLS the era
+browser accepts, and `certs.opera.com` (still ALIVE on the wire, full
+TLS sessions) is Opera's root-CA distribution server — the TV's
+trust-anchor update path.
+
+- **The entire root store is archived in Wayback** (1,831 objects).
+  `certs.opera.com/02/repository.xml` = the root inventory manifest;
+  era-relevant set (2013 captures, matching our 2011–2012 TVs) = 302
+  root certs, fetched to `certs-opera/roots/`.
+- **`repository.xml` is cryptographically signed** — a base64
+  signature block sits above the `<repository>` tree. The
+  "override certs.opera.com to inject our own CA" chain is therefore
+  signature-gated: a forged root list should fail verification (if
+  the era client verifies). Remaining TLS strategies: serve the
+  store a cert chaining to an already-trusted root, or empirically
+  test era-Opera's validation strictness.
+- **Live certs.opera.com** serves a 2026 `*.opera.com` wildcard
+  (Trust Provider B.V.) — alive and current, so the TV's root-update
+  path still functions against the real host.
+- **CT logs for the store domain**: no era cert recoverable — the
+  only CT entries are 13 Let's Encrypt certs 2018–2019 for
+  `alibaba.tvstore.opera.com` (a SAN sibling; an Alibaba-partnership
+  store variant that survived on LE until 2019).
+
 ## Artifacts
 
 - `widgetgallery-wan.pcap` — the EX725 gallery round (firewall vantage)

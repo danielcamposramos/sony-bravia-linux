@@ -1,0 +1,326 @@
+# Programming AppliCast Widgets on KDL-46EX725 / KDL-46HX855
+
+**Widget-platform research reference for the sony-bravia-linux project**
+Date: 2026-09-13 · Primary evidence: live-mirror of applicast.ga.sony.net at `/tmp/acig-/applicast-archive/` (30 bundles, ≥4 complete) and repo copy `/K3D/GitHub/sony-bravia-linux/docs/research/liverecon/applicast-fetched/` (126 files, 2.2 MB, MANIFEST.tsv); pcap wire research in `docs/research/liverecon/applicast-widgetlane.md`; external research in `docs/research/webfindings.md`.
+
+Confidence legend: **[V]** = adversarially verified this project (refutation attempt failed, multi-bundle provenance proven); **[C]** = corroborated by ≥2 independent first-party bundles but not adversarially verified; **[I]** = inference, single-source or untested.
+
+---
+
+## 1. The widget platform
+
+### 1.1 Two TVs, two runtime generations
+
+| | KDL-46EX725 | KDL-46HX855 |
+|---|---|---|
+| Chassis generation | AZ2 (2011, "Zeus" family) | AZ3 (2012, "Phoenix" family) |
+| Widget runtime (UA on wire) | `WidgetSystem/3.0.9` | `WidgetSystem/4.0.4` |
+| Widget CDN | applicast.ga.sony.net (HTTP :80, plain) | same, plus a second widget system (SocialTV/EmotionPost) on bravia.dl.playstation.net |
+| Chassis path in catalog | `AZ2` | `AZ3` (but see §7 Q4 — the gallery's notification view hardcodes AZ2) |
+
+Both TVs speak plain HTTP :80 to applicast.ga.sony.net (CloudFront → S3, CNAME `tv-applicast-ga.update.me.sony.com`). The store's remaining catalog inventory is Facebook + Twitter, both `status='Deleted'` since 2011-04-01 — the era store is dead; the delivery lane is not.
+
+### 1.2 Profile ladder
+
+AppliCast had two platform families:
+
+**Japan / AC profiles (AC1.0 → AC2.0 → AC2.1).** The publicly documented one. Developer program ran 2008–2012 (site: www.jp.sonystyle.com/Taiken/Original/Applicast/, later sony.jp); geekpage.jp tutorial series still live; SDK (emulator + 3 spec PDFs + sample zips) is **lost** from public archives. Japan sets officially ran unsigned USB widgets — **this does not apply to our Brazilian sets** (international platform, no USB widget path is known to exist). The AC2.1 profile is the simplest authoring surface observed anywhere (see §2, §5).
+
+**International / "X2 widget system" profiles (SAX1.0/SAX1.1, SWA1.0, WAA1.0).** Registry namespace `dtv/X2WS` (hence "X2WS"). Never had a public SDK; semantics recoverable only from the bundle corpus — which our project holds. The unsanitized dev comment in SNY_AudioControl/info.xml names the ladder directly: `<profile spec='SAX1.0'/> // AZ2以降ではSWA1.0` ("on AZ2 and later it's SWA1.0").
+
+Profile semantics as reconstructed from bundles:
+
+| Profile | Seen in | Layout | Storage | Notes |
+|---|---|---|---|---|
+| **AC2.1** | SNY_RSSReader (served from the **GA** CDN — i.e., international TVs got it) | `layout.xml` + `layout_fullscreen.xml`, `<Widget>` tree: Component/Bitmap/Text/Memo2D/RichText/Prim | engine `getStoredValue`/`widget.preference` + `setRegistry/getRegistry` | fullscreen context via `changeToFullscreen()`; `<fullscreen>1</fullscreen>`, `<duplicable>1</duplicable>`, `<preference>1</preference>` |
+| **SAX1.0 / SAX1.1** | SNY_AudioControl (AZ1) / SNY_Facebook, SNY_Twitter | XGML dock (280×165) + optional canvas | `widget.registry.getItem/setItem` (SAX) | dock+canvas dual view; `canvas.open()/close()` |
+| **SWA1.0** | SNY_AudioControlApp (AZ2+) | XGML dock + canvas (HD_QUARTER 480×1080) | `registry.extension` under `dtv/X2WS`, packed ≤1024-char slots | runtime branch on `widget.profile.indexOf('SWA')==0` |
+| **WAA1.0** | SNY_WidgetGallery, SNY_Facebook canvas view | XGML canvas, `mode='HD_HALF'` | `registry.extension` + `dock.*` + `canvas.*` integration | the gallery IS a WAA1.0 widget — the reference implementation of the whole install/store UI |
+
+Chassis capability mapping (from bundle code, all [C]): `system.version` major 3 = AZ2-era runtime (EX725), major 4 = AZ3 (HX855); `system.version` can be undefined on 2010 Odyssey/AZ1 firmware. dicutil.js branches "Zeus 2011" (major 3) vs "Phoenix 2012" (major 4). The EX725 therefore runs a runtime that natively understands SAX1.1, SWA1.0, WAA1.0 — and demonstrably was served an AC2.1-profile bundle (RSSReader) by Sony's own GA CDN, so AC2.1 acceptance is likely but untested on the wire for our specific sets (§7 Q2).
+
+---
+
+## 2. The programming model
+
+### 2.1 Markup vocabulary
+
+**AC2.1 (layout.xml)** — declarative node tree, no CSS:
+- `<Widget>` root; `<Component name visible>` containers (all mode switching done in JS via `setVisible`)
+- `<Bitmap name x y w h scale>` — image node; PNG supplied at runtime via `loadImage(node, path)`
+- `<Text>` single-line; `<Memo2D>` multi-line pane (`scroll`, `lines_max`, `exceed_dot`, `fade_frames`, `wordwrap_mode`, `buf_size` — an explicit string memory budget); `<RichText>` marquee (`scroll_speed_x`); `<Prim type='rect'>` vector rectangle
+- Coordinates: origin at widget **center** (partscreen 280×165 → x −115..118; fullscreen ~960 wide → x −436..436)
+
+**XGML (SAX/SWA/WAA)** — canvas/dock layouts, plus CSS:
+- `<xgml>` root; `<meta>` with `<script src>` and `<style src>` includes (three CSS files loaded together: common + fhd + wxga); `<script encrypted='encryption.enc.js'>` for encrypted scripts
+- Elements: `component` (nav_left/nav_right/nav_up/nav_down declarative focus graph), `image`, `image3x3` (nine-slice), `text`, `rich_text`, `bitmap`, `auto_layouter` (flow layout, `.lineCount`), `scroll_clip_pane`, `prim`
+- CSS dialect: element/.class/#id selectors; properties x, y, width, height, alpha (0–255), visibility, color, font-size, text-align, spacing-v, scaleX/scaleY (WXGA panels are handled by scaling the whole widget by 768/1080 × 1366/1920)
+- info.xml is **comment-tolerant** (Sony ships `//` comments after elements in it) and declares: `<profile spec>`, `<name lang>` ×30–40 locales, `<layout view='dock|canvas|notification' type='xgml' src mode width height>`, `<registry path='dtv/X2WS'/>`, and profile-specific flags (`duplicable`, `preference`, `fullscreen`, `width/height`)
+
+### 2.2 JS API surface
+
+**Adversarially verified engine globals [V]** (proven engine-provided: never defined in any bundle, consumed bare at top-level scope by ≥5 independently signed bundles):
+
+- **`widget`** — host object. `widget.uri` (launch URI **including query string** — bundles do `widget.uri.split("?",2)[1]`; also base for OAuth helper pages), `widget.name`, `widget.mode` (read/write: 'HD_FULL'/'HD_THIRD'/'FULL'), `widget.profile` (e.g. 'SAX1.0'), `widget.preference.getItem/setItem/open`; callbacks `onload`, `onactivate`, `onunload`, `onkeydown(key)`, `onkeyup(key)` (boolean return; false = consumed), `onmodechange`; `widget.optionMenu.global` + `onselect` (develop mode only)
+- **`system`** — `modelName` (full 'KDL-46HX855' string), `country` (ISO-alpha-3, 'BRA'), `language` (3-letter dic code, 'por'), `panelType` (compare `System.PANEL_TYPE_WXGA`), `version` (dotted; '3.0.0'/'3.0.1' special-cased for a dock-persistence bug workaround), `isFeliCaSupported` (may be undefined on old firmware — bundles regex-fake it from modelName)
+- **`System`** — constants namespace: `PANEL_TYPE_WXGA`, `PANEL_TYPE_FHD`, `COLOR_KEYS_LAYOUT_BRGY/RGYB/YBRG`
+- **`KeyEvent`** — `KEY_CODE_LEFT/RIGHT/UP/DOWN/CONFIRM/CANCEL/BLUE/RED/GREEN/YELLOW`
+- **`Debug`** — `printInfo/printWarn/printError` (note: engine logs max ~1024 bytes/message, per a FIXME in gallery code)
+- **`document`** — XGML DOM: `getElementByName(name)` (**singular**, name-not-id — zero getElementById anywhere), `createElement('image'|'text'|'rich_text'|'component'|'auto_layouter'|'scroll_clip_pane')`, `activeElement`, `addEventListener/removeEventListener/dispatchEvent`; nodes have `appendChild/removeChild/insertBefore/hasChildNodes`. Parsed data XML (xhr.responseXML) is a *separate* API: `getElementsByTagName`, `getAttribute`, `childNodes` — NOT W3C (no getElementById, no textContent, no querySelector)
+- **Element/node API** — `loadAsync(url, new ImageLoadParam())` / `abortLoad()` / `destroyTexture()`, `setStr(str, flag)`, `.strW`, `.lineCount` (AZ2+ only), `.computedStyle`, `.style.{x,y,width,height,visibility,alpha,color,fontSize,textAlign,lineHeight,scaleX,scaleY,...}`, `scrollChildComponents(dx,dy,ScrollClipPane.ANIMATION_TYPE_LINEAR)`, `startScroll()/stopScroll()` on rich_text; engine classes `Element/Component/Text/RichText/Image/Image3x3/Document/XMLDOM` exist as globals (WidgetGallery patches their prototypes)
+
+**Corroborated engine globals [C]** (multi-bundle, not adversarially verified):
+
+- **`XMLHttpRequest`** — async GET (and POST in SAX1.1 Facebook) only; `readyState==4`, `status` 200; status 0 = "timeout or oversize response" per Facebook error handling; no ontimeout (manual watchdog timers everywhere), no header-set usage except one Range-trick; Facebook uses a proprietary 6-arg `open(method,url,true,null,null,false)`; AC2.1 uses `getResponseHeader("CONTENT-LENGTH")` for size caps; `eval()` of responseText is permitted (dictionaries, JSON)
+- **`registry` / `Registry`** — `registry.extension.get/set(path, Registry.DATA_TYPE_STRING|DATA_TYPE_LONG)` under `dtv/X2WS`; serialization in gallery is Foo.freeze — **eval-able JS source, not JSON**
+- **`canvas`** — `canvas.open(id)` / `canvas.close()` (dock↔canvas view switch)
+- **`dock`** — `isAdded(id)`, `widgets` (cap 50), `open(id,name)`, `open()` (dock UI), `add(id,name,notify)`, `remove(id)` — widget-manager integration
+- **`execBrowser(url)`** — hand URL to TV web browser
+- **`hdmiCec` / `HdmiCec`** — the headline capability of the AudioControl bundle: `sendVendorCommand(dest, sonyOpcode16, operand[], flags, cb)`, `sendUserControlCommand`, `oncommandreceived` (every vendor frame with sender/isbroadcast/opcode/operand), `ondevicesupdated`, `isConnected(addr)`, `isControlEnabled()`. A docked widget can sniff and drive the CEC bus (Sony 0xF000–0xF244 sub-opcode space; power via User Control 0x6D/0x6C)
+- **`Animator` / `KeyFrameMotion`** — tween engine: `motion.<prop>_goalValue/_duration/_durationType/_curveType/_interpolationType`, `animator.startMotion/finishMotion`; animated props observed: x, y, w, h, a (alpha), x2d, y2d, scaleX
+- **`audibleFeedback.play(TYPE_KEY)`**, **`prompt(title, default, ?, callback)`** (native text dialog), **timers** (setTimeout/setInterval; engine does NOT clean them up on context switch — every bundle defensively clears), **`screen.setLayout/mute/onresize`**, **`videoPlayer`** (global, init/open/play/close/onstatechange — decode on a dedicated input path; call `extInput.selectLastInput()` after close), **`hostApp.getItem('code')`** (browser OAuth handoff, Facebook only), **`print()`** (AC-profile debug)
+- **AC2.1-only node-handle API**: `getNode(name)`, `getChildNode`, `setVisible(node,0|1)`, `setStr`, `setRGB`, `loadImage(node, path[, cb, maxH, maxW])`, `destroyImage`, `setW/setH/getW/getH`, `lineUp/lineDown/getLines`, `setAutoScroll`, `playAnimA`, `getStoredValue`, `setRegistry/getRegistry`, `getLanguage()`, `changeToFullscreen()`, `execMusicPlayer/MusicContent` (documented in commented-out code)
+
+### 2.3 Lifecycle
+
+**XGML profiles:** no main() — top-level IIFE runs at script evaluation; `widget.onload` → dictionary XHR + catalog load → init; `widget.onactivate` on user select; `widget.onkeydown/onkeyup` for remote (engine delivers only raw transitions — **key repeat is synthesized in JS**: 1000 ms delay, 100 ms interval); default unhandled keydown = spatial focus move via nav_* attributes; `widget.onunload` persists registry. Dock view (280×165) ↔ canvas view via `canvas.open()/close()`. Headless `notification` view exists (gallery's dock-sync — no UI).
+
+**AC2.1:** engine parses layout.xml, runs widget.js top-level, calls `onLoad()`; three-state modal lifecycle via named handlers `onFocus()/onUnfocus()/onActivate()`; keys via `onUpKey()/onDownKey()/onLeftKey()/onRightKey()/onConfirmKey(type)` (type==0 = press); `changeToFullscreen()` switches to the fullscreen script context — the registry is the ONLY bridge between the two scripts; exit from fullscreen is engine-driven (RETURN key).
+
+### 2.4 Engine-robustness rules a custom widget must respect (hard-won from Sony's own code)
+
+- Timers are not cleaned up on context switches — clear everything defensively in every path
+- "to avoid OOM error": force materialization of possibly-null XML strings via `new String(v).length`
+- "to avoid timer queue problem": make spinner nodes visible before starting their interval
+- buf_size on Memo2D is a real memory budget (3072/5120 bytes)
+- Debug messages cap at ~1024 bytes
+- AC-profile documented limits (geekpage, Japan-era, treat as guidelines): ≤48KB total code+layout+info+bg.png, max 3 concurrent XHRs, 1 s timer resolution (max 3 outstanding callbacks), PNG8, 300 KB memory normal/focus, 1.3 MB active
+- Image loads fail gracefully via error callbacks — missing assets degrade, they don't crash
+
+---
+
+## 3. The install path — what our LAN server must serve
+
+This is the gallery's catalog protocol, reconstructed step-by-step from SNY_WidgetGallery canvas.js:2015–2073 and notification.js (the TV's own store UI **is** this code). Our server impersonates applicast.ga.sony.net via Unbound; every path below is therefore under our vhost root.
+
+### Step 0 — TV polls the CDN
+The TV notices catalog/DNS changes within ~30 s via the XMB autonomous icon poll (pcap-verified). Requests carry UA `WidgetSystem/3.0.9` or `4.0.4`, plain HTTP :80, and **conditional GETs — honor If-Modified-Since with 304**; the cached copy becomes the trust anchor, so a stale-served 200 with unchanged content does nothing.
+
+### Step 1 — `WidgetContents/SNY_WidgetGallery/{AZ2|AZ3}/Index.xml`
+Gallery canvas.js fetches `../../WidgetContents/SNY_WidgetGallery/` + chassis, chassis chosen as `AZ3` if `parseInt(system.version)===4` else `AZ2`. So:
+- EX725 (3.0.9) → **`/WidgetContents/SNY_WidgetGallery/AZ2/Index.xml`**
+- HX855 (4.0.4) → **`/WidgetContents/SNY_WidgetGallery/AZ3/Index.xml`**
+- ⚠️ The gallery's notification view (dock-sync) **hardcodes AZ2** — on the HX855 the two views can disagree. Serve both trees identically, or at minimum AZ2 correctly, until behavior is observed on the wire.
+
+Index.xml format (data XML, not markup):
+```xml
+<Index>
+  <gallery country="BRA" lang="por" src="path/to/Gallery.xml"/>
+  <gallery country="ALL" lang="ALL" src="..."/>
+</Index>
+```
+Scoring per `<gallery>`: start 1; country contains `system.country` → +0x4 (else discarded unless 'ALL'); lang contains `system.language` → +0x2 (same rule); `type` may contain 'felica' (+0x8 if FeliCa supported, else discarded — **leave type off entirely for Brazil**). Highest score wins, first-best kept. `src` may contain `{_area_}/{_country_}/{_lang_}/{_dicarea_}` dictionary tokens; resolved relative to the Index.xml URL's directory.
+
+### Step 2 — Gallery XML (the winning src)
+```xml
+<Gallery>
+  <screen name="main" layout="multi">
+    <catalog src="Catalog.xml"/>
+    <message title="..." body="..." headline="..."/>        <!-- optional -->
+    <banner image="..." text="..." link="..."/>              <!-- optional -->
+  </screen>
+</Gallery>
+```
+Resume logic: the screen whose first `<catalog src>` equals the registry's `lastCatalogSrc`, else screen[0]. catalog src resolved against the Gallery URL's directory unless absolute http(s).
+
+### Step 3 — Catalog XML (this is where OUR widget gets offered)
+```xml
+<Catalog updated="2026-09-13T12:00:00">
+  <Category name="LAN">
+    <Widget name="HelloLAN" status="" registration="dock" updated="2026-09-13T12:00:00">
+      <id>LAN_Hello</id>
+      <image>http://applicast.ga.sony.net/WidgetBundles/LAN_Hello/icon128.png</image>
+      <information>http://applicast.ga.sony.net/WidgetBundles/LAN_Hello/information.xml</information>
+      <provider>sony-bravia-linux</provider>
+      <description>LAN hello world</description>
+    </Widget>
+  </Category>
+</Catalog>
+```
+Rules the gallery enforces client-side: `status='deleted'` filtered out (and force-removed from dock by the notification view); `status='closed'` blocks display and auto-unregisters; `updated` (ISO8601, local time) is compared as epoch seconds against registry `dtv/X2WS/LastUpdated` in the headless notification flow — **newer widgets auto-register into the dock**: `registration='notification'` → `dock.add(id,name,true)`, `registration='dock'` → `dock.add(id,name,false)`, then LastUpdated is written. Detail-list icon URL is conventionally **widget id + 'icon.png'** (e.g. `LAN_Helloicon.png`).
+
+### Step 4 — Information XML (Details page)
+```xml
+<information><detail>Text with literal \\n escapes</detail>
+<provider>sony-bravia-linux</provider><contact>...</contact>
+<url>http://lan-server/</url></information>
+```
+`url` opens in the TV browser via execBrowser.
+
+### Step 5 — The bundle itself: `/WidgetBundles/<WidgetId>/`
+File-by-file for an AC2.1-style minimal bundle (RSSReader-shaped):
+
+```
+WidgetBundles/LAN_Hello/
+  info.xml               ← <Info>: profile spec, localized <name>, layout declarations,
+                            width/height, duplicable, preference, registry path
+  layout.xml             ← part-screen XGML/Widget tree (280×165)
+  layout_fullscreen.xml  ← only if <fullscreen>1</fullscreen>
+  widget.js              ← part-screen logic
+  widget_fullscreen.js   ← only with fullscreen
+  bg.png, icon.png       ← PNG (PNG8 safest)
+  contact.xml            ← AC-profile contact block (present in era bundles)
+  digest.txt             ← Name:/SHA256-Digest: manifest (see §4) — REQUIRED file
+  digest.sig             ← 384-byte signature — REQUIRED file (content is the experiment)
+  dic/<area>/<lang>.txt  ← only if the widget is localized (tab-separated, 4-col, '@'-terminated)
+```
+For an XGML (SAX/WAA) bundle instead: `dock/dock.xml`, `canvas/canvas.xml`, per-view JS/CSS trees, `img/{fhd,wxga}/`, and — only if we used encrypted scripts — `common.key` + `encryption.enc.js` in each view root (we won't; no secrets to protect, and the encryption scheme is unresolved). Note the verifier resolves digest paths **relative to each layout XML root**, so shared files appear once per view (`dock/../util.js` AND `canvas/../util.js` as separate entries — copy this convention exactly).
+
+Also observed on the CDN: a `/WidgetInfos/<id>/...` tree (in our archive). Role not fully established (§7 Q5) — mirror the original structure for any widget id we list until observed on the wire.
+
+### Step 6 — Dock registration and launch
+After fetch, the installer (native "WidgetContents" sync channel) validates and installs; the gallery/notification view registers via `dock.add` as above; the widget appears on the AppliCast/XMB dock and launches with `widget.uri` pointing at our served bundle directory. All subsequent relative fetches (dic files, images, XHRs) resolve against that URI — **so a launched widget's XHRs stay inside our vhost automatically if we use relative paths**, and absolute `http://<lan-host>/...` URLs give us the "fetch from LAN server" demo.
+
+---
+
+## 4. The signature question
+
+### What is established
+- `digest.txt` is a JAR-manifest-style list (`Name: <path>` / `SHA256-Digest: <base64>`, LF-separated) covering code/layout/info (+dic/img/icon in some bundles, **code-only in others**); format is platform-wide across all three profiles and both runtime generations. All 18 Facebook entries re-verify today (0 mismatches) — Sony's signing pipeline was real and maintained.
+- `digest.sig` is always exactly **384 bytes** = one RSA-3072 block, unique per bundle, raw opaque binary (not PEM/DER/PGP — `file(1)` misreports it). Most plausible: raw RSA-3072 signature over SHA-256(digest.txt), verified against a firmware-pinned Sony public key. **No public key exists in any bundle or on the CDN.**
+- `common.key` (384 bytes, per-bundle, duplicated per view root) is a separate object: most plausibly an RSA-wrapped AES content key for `encryption.enc.js` (16-byte-block cipher). **Confidentiality, not authentication.** Irrelevant to us — we have no secrets and will ship unencrypted scripts.
+- **Zero verification logic exists in any widget JavaScript** — enforcement, if real, lives in the native WidgetSystem runtime inside the firmware, which is whole-file encrypted with no public decryptor (SamyGO t=2430 hit the same wall in 2011).
+- The TV honors conditional GETs/304s — signatures are at most an **install/update-time** gate; cached bundles are never continuously re-checked.
+
+### Verdict: **UNKNOWN — leaning ENFORCED at install/update time only. Confidence: medium-low.**
+For-leaning: maintained RSA-3072-over-accurate-manifest on a TLS-less channel, for a platform whose widgets get network access, persistent registry, and HDMI-CEC; the total historical absence of any homebrew AppliCast widget scene (unlike the cracked Yahoo TV widget ecosystem); a 2011 LX900 owner's belief that "apps must be approved by Sony to run". Against-leaning: no SDK ever exposed the scheme; Sony shipped un-sanitized dev-comment bundles (sloppiness); 2010-era embedded practice was genuinely mixed (advisory verify-and-continue existed).
+
+No community shortcut exists. Nobody anywhere has publicly loaded a custom widget, bypassed, or forged digest.sig on this platform (systematic negative result across DDG/Bing/GitHub/Wayback; the only adjacent community thread — SamyGO t=2430 — never followed up).
+
+### The decisive experiment (cheap, on our LAN)
+With the Unbound override live and a working baseline (§6 phase 2), list the SAME unmodified original bundle (e.g. re-offer SNY_RSSReader's exact bytes) plus one byte-modified variant, in three arms:
+
+1. **Arm A (control):** original files + original digest.txt + original digest.sig → expect install (proves the lane end-to-end).
+2. **Arm B (foreign sig):** original digest.txt + a *different bundle's* digest.sig (valid 384 bytes, wrong signature).
+3. **Arm C (garbage/absent):** digest.sig = 384 random bytes, then deleted entirely.
+
+Observe per arm: does the widget appear in the gallery, does Confirm install it, does it launch, does any error dialog appear, what do the HTTP access logs show (does the TV even *fetch* digest.sig — if it never requests the sig, enforcement may be digest.txt-hash-only or nothing)? Outcomes:
+- A installs + B/C rejected → **enforced**; the only remaining routes are firmware-side (UART/ABK-monitor) or finding the Sony key.
+- A installs + B or C installs → **unenforced or advisory** — full third-party authoring unlocked, proceed to §5 immediately.
+- A fails → our catalog/lane emulation is wrong; debug server before concluding anything about signatures.
+
+Watch the wire (the project already has the pcap rig): which files the TV pulls and in what order tells us the verifier's actual behavior regardless of UI outcome.
+
+---
+
+## 5. Recommended authoring target for a first custom widget
+
+### Target: **AC2.1 profile, RSSReader-shaped** — with SAX1.1/WAA1.0 as fallback
+
+Rationale:
+- **Simplest surface observed anywhere**: ~30 engine globals, 6-element declarative markup, plain callbacks for remote keys, async GET XHR, two-string-key persistence. No canvas painting, no event-loop management, no per-view duplicated digest entries (single layout root).
+- **Sony itself served an AC2.1 bundle (SNY_RSSReader) from applicast.ga.sony.net to international GA-region TVs** — the strongest available evidence the EX725's WidgetSystem/3.0.9 accepts it (unproven for our specific sets: §7 Q2).
+- Full community-era documentation survives for AC-profile programming (geekpage.jp tutorial series, live; HelloWorld.zip verified downloadable at `/tmp/acig-/applicast-archive/geekpage/`; the only GitHub AppliCast widget, takus/js-tardy-prevention-timer, is AC2.0 and mirrored at `/tmp/acig-/applicast-archive/github-takus/`).
+- Caveat: if the EX725 rejects AC2.1, fall back to **SAX1.1** (Facebook-shaped: dock.xml + canvas.xml XGML, no encryption needed) — that profile is *proven installed* on these TVs (Facebook/Twitter were the store inventory).
+
+### Minimal "hello world + LAN fetch" design (AC2.1)
+
+```
+WidgetBundles/LAN_Hello/
+  info.xml            ← <spec>AC2.1</spec>, <fullscreen>0</fullscreen> (keep it one-context),
+                        <width>280</width><height>165</height>, <duplicable>1</duplicable>,
+                        <preference>1</preference> with one string pref for the LAN URL (Item1),
+                        <name lang="eng">LAN Hello</name> (provide por too)
+  layout.xml          ← <Widget> tree: one <Component name="main" visible="1">,
+                        one <Text name="title">, one <Memo2D name="body" scroll="1"
+                        wordwrap_mode="auto" exceed_dot="1" buf_size="2048"/>,
+                        one <Bitmap name="icon"> for a status glyph
+  widget.js           ← onLoad(): getNode() handles; XHR GET the dictionary-less path —
+                        skip dic entirely (hardcode strings) for v1;
+                        onActivate(): async GET http://<lan-host>/hello.txt (from getStoredValue
+                        pref, default set in the engine-generated settings UI);
+                        readyState==4 && status==200 → setStr(body, responseText) with
+                        new String() materialization; 28 s watchdog timer, CLEARED on
+                        success and on every state change; onConfirmKey(type==0) → re-fetch;
+                        onRedKey → help dialog Component
+  bg.png, icon.png    ← PNG8, tiny
+  contact.xml
+  digest.txt          ← computed: SHA256-Digest of info.xml, layout.xml, widget.js, bg.png
+  digest.sig          ← experiment arm per §4
+```
+Engineering rules to bake in from §2.4: clear every timer defensively; never exceed 3 concurrent XHRs; keep the bundle under 48 KB; 1 s timer resolution (never rely on sub-second setInterval precision); wrap XML reads in `new String(...).length`. Serve `hello.txt` from the same vhost (absolute `http://applicast.ga.sony.net/...` path or a second local name — the XHR follows absolute URLs fine, as RSSReader does with user-supplied URLs).
+
+v2 escalation path (same bundle): add `<fullscreen>1</fullscreen>` + `layout_fullscreen.xml` + `widget_fullscreen.js`, passing state via `setRegistry("Item1")`/`getRegistry("Item1")` — the only bridge between contexts. v3: port to SAX1.1/WAA1.0 to gain registry.extension, dock/canvas integration and (the long-game prize) the `hdmiCec` API — CEC transmit/receive from widget JS, which only the XGML profiles exercise.
+
+---
+
+## 6. The Unbound override experiment design
+
+### 6.1 DNS override (OPNsense → Unbound)
+
+1. **Record ground truth first**: `dig applicast.ga.sony.net` from LAN before any change; log the resolved CloudFront IPs and a direct curl of `/WidgetContents/SNY_WidgetGallery/AZ2/Index.xml` status (the origin has 403-blocked many objects since 2026-03-17 — surviving 200s are cache-node lottery; our archive may be the last retrievable copies, which is exactly why we mirror).
+2. **Add exactly one Unbound override**: `applicast.ga.sony.net → A <lan-server-ip>` (Unbound → Overrides, or a local-zone host entry). Nothing else.
+3. **Do NOT touch**: firmware/update domains (sony.net update paths, bravia update hosts), `ssm1.internet.sony.tv`, `bravia.dl.playstation.net`, `static.internet.sony.tv`, NTP. Community blocklists confirm blocking ssm1/internet.sony.tv triggers "no internet connection" states — leave them resolving normally so the TV never enters an offline error path that changes widget behavior.
+4. Reversibility: the override is one delete away; no TV-side change of any kind.
+
+### 6.2 Server layout (plain HTTP :80 on the lan host; the TV does not use TLS on this lane)
+
+```
+/var/www/applicast/            ← vhost root for applicast.ga.sony.net
+  WidgetContents/SNY_WidgetGallery/
+      AZ2/Index.xml            ← per §3; AZ3/Index.xml served identically (notification-view
+                                 hardcodes AZ2 even on HX855)
+      <gallery-dir>/Gallery.xml, Catalog.xml, information trees
+  WidgetBundles/
+      LAN_Hello/…              ← our widget, §5
+      SNY_RSSReader/…          ← byte-exact copy from /tmp/acig-/applicast-archive/ (control arm)
+      SNY_Facebook/…           ← optional: re-list the original as catalog entries to test
+                                 the deleted→update resurrection path
+  WidgetInfos/…                ← mirrored structure for any listed id
+  hello.txt                    ← fetch demo target
+```
+Server rules:
+- **Honor conditional GETs** (If-Modified-Since → 304 when unchanged). The TV's cache semantics trust 304s; serving naive 200s for unchanged content may cause needless reinstalls or, worse, hide whether revalidation happens.
+- Serve correct Content-Type and Content-Length; log **every** request with UA + full path + response code — the request order itself is reconnaissance data (which files the installer pulls, whether digest.sig is ever requested).
+- Unknown paths: return 404 (mimic the CDN), not a directory index.
+- Keep both TVs' traffic separated in logs (UA distinguishes 3.0.9 vs 4.0.4).
+
+### 6.3 Safety rules (absolute)
+
+- **No firmware path is ever pointed at us** — the override list stays at exactly one host. No flash writes, no update attempts, no TV-side settings changes beyond normal widget use.
+- Everything served is content the TV already fetches in the normal widget lane (catalogs/bundles) — all changes are LAN-side and instantly reversible by deleting the DNS override.
+- Keep the original applicast.ga.sony.net archive **read-only** as evidence (`/tmp/acig-/applicast-archive/`, repo `docs/research/liverecon/applicast-fetched/`); experiment from copies.
+- If either TV shows any sign of an update/firmware flow over our vhost (unexpected large binary requests, version-check-like paths), drop the override immediately and re-examine.
+
+### 6.4 Experiment phases
+
+1. **Baseline (no override behavior change):** override live, serve mirrored original Index/gallery/catalog unchanged → TV should behave exactly as before. Confirms DNS interception is transparent.
+2. **Lane test:** modified Catalog re-listing an original bundle (status cleared, newer `updated` timestamp) → gallery should offer it; Confirm should install. Proves catalog emulation end-to-end.
+3. **Signature arms A/B/C** (§4) on the original bundle.
+4. **If any modified-content arm installs:** serve `LAN_Hello` (§5) — first custom widget.
+5. Throughout: pcap both TVs; diff request sequences per phase.
+
+---
+
+## 7. Open questions, ranked by importance
+
+1. **Is digest.sig enforced?** The single gating fact for everything. Nothing but the on-hardware experiment (§4) can answer it; no community knowledge exists. **Blocker for all custom-widget work.**
+2. **Does WidgetSystem/3.0.9 (EX725) accept AC2.1-profile bundles?** Strongly suggested by Sony serving RSSReader on the GA CDN, but our EX725's acceptance is unobserved. Cheap to test in the same catalog experiment (list LAN_Hello AC2.1 alongside an SAX1.1 control). Determines the authoring target; fallback is SAX1.1.
+3. **Exact revalidation/install triggers.** Which combination of catalog `updated`, registry LastUpdated, HTTP 304s, and the ~30 s XMB poll causes install vs. ignore vs. reinstall — and whether the headless notification view auto-`dock.add`s our widget with no user confirmation (it does for `registration='notification'|'dock'` entries per code — needs wire confirmation).
+4. **AZ2/AZ3 catalog divergence on the HX855.** canvas.js computes chassis (AZ3 for version 4), notification.js hardcodes AZ2 — what does the HX855 *actually* request on the wire? Serve both trees; observe.
+5. **Role of `/WidgetInfos/`.** Present on the CDN and in our archive; exact function in install/registration unknown until observed. Mirror structure for listed ids.
+6. **Whether the develop-mode backdoor is reachable.** The gallery supports `?mode=develop&url=<catalog-url>` (option-menu "Change Catalog" via native `prompt()`, persisted in registry `developCatalogSrc`) — a sanctioned catalog redirect that bypasses WidgetContents entirely. We cannot currently control `widget.uri`'s query string (it's set at launch/registration); worth probing whether a dock-registered gallery entry or a crafted URI can carry it. Would give a second, signature-independent injection lane **for the catalog only** (bundle install still gated by Q1).
+7. **Engine resource ceilings on our exact sets** for AC2.1 (memory/timers/XHR limits are Japan-era documented; international runtime may differ). Empirically establish during LAN_Hello bring-up.
+8. **common.key / encryption.enc.js scheme** (RSA-wrapped AES envelope is the leading hypothesis). Only relevant if we ever need at-rest secrets — low priority; unencrypted scripts are the norm (RSSReader, gallery, AudioControl ship none).
+9. **Whether the HX855's second widget system (SocialTV on bravia.dl.playstation.net) offers another lane.** Out of scope until the primary lane is settled.
+10. **IA/CDX sweeps unfinished** (Internet Archive flapped offline mid-research): sony.net/sony.jp/sony.com.br applicast paths, internet.sony.tv captures, SamyGO t=2430 pages 2–3, technopat.net "Project BraviaGo" — low probability of new SDK material, but the one 2011 "widget developer kit" URL was never preserved and might still surface.
+
+---
+
+### Source artifacts (local, primary)
+
+- 30-bundle live mirror: `/tmp/acig-/applicast-archive/WidgetBundles/` (+ `WidgetInfos/`, `ga-dev/`, `cn-dev/`, `geekpage/`, `github-takus/`, `wayback-devsite/`)
+- Repo copy with fetch log: `/K3D/GitHub/sony-bravia-linux/docs/research/liverecon/applicast-fetched/` (MANIFEST.tsv, grab_applicast.sh)
+- Wire/CDN behavior: `/K3D/GitHub/sony-bravia-linux/docs/research/liverecon/applicast-widgetlane.md`
+- External research: `/K3D/GitHub/sony-bravia-linux/docs/research/webfindings.md`
+- Community tutorial (live): geekpage.jp/web/AppliCast/ series incl. usb-memory.php, emulator.php, regulation.php
