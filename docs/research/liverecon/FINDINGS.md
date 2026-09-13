@@ -97,6 +97,21 @@ actions works). Both send `ACCESS-CONTROL-ALLOW-ORIGIN: *`.
    execution** in Presto. Live UA captured:
    `Opera/9.80 (Linux mips; U; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL46EX725; CC/BRA; en) Presto/2.7.61 Version/11.00`
    — first live UA of this set; no HbbTV token; Presto 2.7.61
-   self-declared. https URLs fail pre-flight with zero egress; JS gated
-   by Opera's standard "insecure code" accept prompt. Registration
-   survives power cycles.
+   self-declared. https URLs refused on-screen ("outdated keys"-class
+   local error; the earlier "zero egress" packet claim was WITHDRAWN —
+   see observation 6); JS gated by Opera's standard "insecure code"
+   accept prompt. Registration survives power cycles.
+6. **CAPTURE VANTAGE IS BLIND TO TV→WAN UNICAST (2026-09-13 evening,
+   proven empirically)**: the EX725's authenticated internet-content
+   download (Rede → "Atualizar o Conteúdo da Internet" → "Descarregar
+   o conteúdo da internet disponível") completed while tcpdump on the
+   workstation enp6s0 saw ONLY broadcast/multicast (ARP, IGMP join
+   239.255.255.250, UPnP NOTIFY) — 28 packets, zero DNS, zero SYNs;
+   the sole visible fingerprint was the TV's ARP for gateway
+   192.168.0.1. The switched LAN delivers to the workstation only
+   traffic addressed to it. Consequences: (a) the sony.com.br
+   "zero egress" claim in the browser test is withdrawn; (b) all
+   future TV WAN-traffic capture needs a gateway-side vantage or an
+   ARP-MITM on our own LAN (which doubles as the future DNS-spoof
+   portal testbed); (c) the TV's ARP-for-gateway is a usable
+   WAN-activity fingerprint.

@@ -87,7 +87,12 @@ Leverage the era's known flaws as an alternate entry:
      fire from any fetch we control, no URL-entry UI needed. JS in the
      browser is gated by Opera's standard "insecure code" accept prompt
      — fold the accept into the run procedure or find the settings
-     toggle. Post-freeze
+     toggle. https URLs are refused on-screen ("outdated keys"-class
+     local error) — plain-HTTP LAN is the working transport (NOTE: the
+     earlier "zero egress" packet claim was withdrawn 2026-09-13: our
+     tcpdump vantage is blind to TV→WAN unicast on this switched LAN —
+     proven during the internet-content OTA capture, FINDINGS obs. 6;
+     TV WAN capture needs a gateway or ARP-MITM vantage). Post-freeze
      Presto CVEs 2012-3561/6465/6468/6470 and 2013-1637/1638 are
      band-plausible but introduction-unknown; 2012-1003 definitively
      excluded (typed arrays did not exist before Presto 2.10).

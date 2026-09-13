@@ -53,14 +53,25 @@ Opera/9.80 (Linux mips; U; InettvBrowser/2.2 (00014A;SonyDTV115;0002;0100) KDL46
 - Registration (done 2026-09-13, session doc) **survived a TV power cycle**
   — getRemoteCommandList/getStatus still 200 after off/on.
 
-## sony.com.br observation (the pun, and a finding)
+## sony.com.br observation (the pun, and a finding — later corrected)
 
 `https://www.sony.com.br` was typed via sendText and confirmed; the browser
-**refused to render ("outdated keys"-class error)** — and the packet capture
-shows **zero network egress**: no DNS query, no TCP SYN, nothing left the
-TV. The refusal is pre-flight (browser-side TLS capability check or a dead
-configured path), not a server handshake failure. Era browsers cannot do
-modern TLS regardless; plain-HTTP LAN URLs are the working transport.
+**refused to render ("outdated keys"-class error)**. **CORRECTION
+(2026-09-13, same evening — internet-content capture session): the
+original "zero network egress / no DNS / no SYN" claim is WITHDRAWN as
+unprovable.** The capture vantage (tcpdump on the workstation's enp6s0)
+is blind to TV→WAN unicast on this switched LAN — proven the hard way:
+the EX725's authenticated internet-content download (menu: Rede →
+"Atualizar o Conteúdo da Internet" → "Descarregar o conteúdo da internet
+disponível") completed successfully while enp6s0 saw only broadcast
+noise; the sole visible fingerprint was the TV's ARP for its gateway
+192.168.0.1. Any DNS/SYN the browser emitted for sony.com.br would have
+been equally invisible. What still stands: the on-screen "outdated keys"
+refusal itself (a local error message, not a timeout, suggests a
+browser-side TLS capability refusal rather than a failed handshake) and
+the empirical fact that plain-HTTP LAN URLs work. Wire-level proof of
+the https behavior needs a gateway-side or MITM vantage (see
+FINDINGS observation 6).
 
 ## Artifacts
 
