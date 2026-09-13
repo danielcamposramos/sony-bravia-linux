@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<actionList>
+    <action name="register" mode="2" url="http://192.168.0.21:80/cers/api/register" />
+    <action name="getText" url="http://192.168.0.21:80/cers/api/getText" />
+    <action name="sendText" url="http://192.168.0.21:80/cers/api/sendText" />
+    <action name="getSystemInformation" url="http://192.168.0.21:80/cers/api/getSystemInformation" />
+    <action name="getRemoteCommandList" url="http://192.168.0.21:80/cers/api/getRemoteCommandList" />
+    <action name="getStatus" url="http://192.168.0.21:80/cers/api/getStatus" />
+    <action name="getContentUrl" url="http://192.168.0.21:80/cers/api/getContentUrl" />
+    <action name="sendContentUrl" url="http://192.168.0.21:80/cers/api/sendContentUrl" />
+    <action name="BgmSearch::search" url="http://192.168.0.21:80/BgmSearch/search" />
+    <action name="getContentInformation" url="http://192.168.0.21:80/cersEx/api/getContentInformation" />
+</actionList>

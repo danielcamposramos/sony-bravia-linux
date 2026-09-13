@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<systemInformation>
+    <name>BRAVIA</name>
+    <generation>1.1</generation>
+    <area>BRA</area>
+    <language>por</language>
+    <country>BRA</country>
+    <modelName>KDL-46HX855</modelName>
+    <actionHeader name="CERS-DEVICE-ID" />
+    <supportSource>
+        <source>Net</source>
+    </supportSource>
+    <supportContentsClass>
+        <class>video</class>
+        <class>music</class>
+        <class>photo</class>
+    </supportContentsClass>
+    <supportFunction>
+        <function name="Notification" />
+    </supportFunction>
+</systemInformation>

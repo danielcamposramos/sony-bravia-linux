@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+  <specVersion>
+    <major>1</major>
+    <minor>0</minor>
+  </specVersion>
+  
+  <actionList>
+    <action>
+      <name>X_SendIRCC</name>
+      <argumentList>
+        <argument>
+          <name>IRCCCode</name>
+          <direction>in</direction>
+          <relatedStateVariable>X_A_ARG_TYPE_IRCCCode</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+        
+    <action>
+      <name>X_GetStatus</name>
+      <argumentList>
+        <argument>
+          <name>CategoryCode</name>
+          <direction>in</direction>
+          <relatedStateVariable>X_A_ARG_TYPE_Category</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>CurrentStatus</name>
+          <direction>out</direction>
+          <relatedStateVariable>X_A_ARG_TYPE_CurrentStatus</relatedStateVariable>
+        </argument>
+        <argument>
+          <name>CurrentCommandInfo</name>
+          <direction>out</direction>
+          <relatedStateVariable>X_A_ARG_TYPE_CurrentCommandInfo</relatedStateVariable>
+        </argument>
+      </argumentList>
+    </action>
+  </actionList>
+  
+  <serviceStateTable>
+    <stateVariable sendEvents="no">
+      <name>X_A_ARG_TYPE_IRCCCode</name>
+      <dataType>string</dataType>
+    </stateVariable>
+    <stateVariable sendEvents="no">
+      <name>X_A_ARG_TYPE_Category</name>
+      <dataType>string</dataType>
+    </stateVariable>
+    <stateVariable sendEvents="no">
+      <name>X_A_ARG_TYPE_CurrentStatus</name>
+      <dataType>string</dataType>
+    </stateVariable>
+    <stateVariable sendEvents="no">
+      <name>X_A_ARG_TYPE_CurrentCommandInfo</name>
+      <dataType>string</dataType>
+    </stateVariable>
+  </serviceStateTable>
+</scpd>

@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<systemInformation>
+    <name>BRAVIA</name>
+    <generation>1.0</generation>
+    <area>BRA</area>
+    <actionHeader name="CERS-DEVICE-ID" />
+    <supportSource>
+        <source>Net</source>
+    </supportSource>
+    <supportContentsClass>
+        <class>video</class>
+        <class>music</class>
+        <class>photo</class>
+    </supportContentsClass>
+</systemInformation>
