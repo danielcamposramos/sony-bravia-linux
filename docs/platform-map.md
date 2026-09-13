@@ -18,12 +18,26 @@ from primary source or live device), **[W]**eb-researched (secondary source),
 | 3D | Active (FRC via T-CON "PEM" micro) | Active (some models) |
 | Ginga middleware (Brazil) | ByYouTV (TOTVS) — Lua + LuaJava + Boost + OWB/WebKit **[C:license-PDF]** | Astro TV (TQTVD) **[C:manual]** |
 
+### Unit identity (HX855 rating sticker, transcribed by vision model)
+
+- Serial: **1006472** — no manufacture date or date code printed on the sticker
+- Made in Polo Industrial de Manaus, Brazil (Sony Brasil Ltda, CNPJ
+  43.447.044/0001-77)
+- Power: 110–220 V ~ 60 Hz, 120 W
+- WiFi module marking: **Wlan - J20H049** (ANATEL 2858-11-6740) — Sony's
+  internal module ID; external attribution still says DWM-W046/AR9271
+- GS1 barcode: (01) 07898943613189; document/part ref 4-418-393-01
+
 ## 2. SoC and board (AZ3F, from service manual block diagram p.129–130)
 
 - **Main SoC: Sony codename "ATREYU"** — integrates video/TS processing, HDMI
   TMDS handling, DDR3 controller, NAND controller, USB host, Ethernet MAC,
   LVDS panel output, audio, SPDIF, SIRCS IR, I2C A/B/C, and **four UARTs**.
-  The manual never prints a CXD part number or CPU architecture **[C:SM]**.
+  The manual never prints a CXD part number or CPU architecture **[C:SM]** —
+  **confirmed visually** by a vision model reading the block-diagram image
+  (PDF p.130): no CXD#### anywhere on the page; UARTA/C/D TX/RX, JTAG
+  (TCK/TMS/TDI/TDO), "One NAND" and DDR3 "1333 2Gb" / "Muxed 2Gb 4Gb"
+  labels all verified **[C:SM+vision]**.
 - Part number **CXD4727GB** ("X-Reality Processor", IC9000) is attributed via
   board censuses of sibling models (KDL-46EX724, KDL-40HX853, KDL-55HX753) —
   **medium confidence, not yet confirmed on our board** **[W]**. Verify by
