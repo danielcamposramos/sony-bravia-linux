@@ -5,6 +5,18 @@ pre-Android, Linux-based BRAVIA platform (~2005–2015). Goal: understand the
 platform well enough to run third-party software on it (e.g. VLC) and unlock
 more internet content than the stock firmware allows.
 
+## Repository scope — what is and isn't here
+
+This public repo contains **only our own work**: research notes, protocol
+captures from our own TVs, analysis, and tooling (the Serviio 3D fix, SEI
+injector, ffmpeg wrapper). **No Sony-distributed material is hosted here** —
+no firmware images, service manuals, widget packages, or Sony-server
+sweeps. Those resources were gathered for research and are kept offline by
+the owner; the right-to-repair plan for that material is in
+[docs/right-to-repair.md](docs/right-to-repair.md). Some older research
+notes may still reference those filenames — they refer to the owner's
+offline archive, not to anything in this repository.
+
 ## Why bother (the right-to-repair angle)
 
 These late-KDL sets are phenomenal hardware — the KDL-46HX855 has

@@ -1,12 +1,7 @@
-# Redundant: this is the uncompressed duplicate of sony_tvupdate_2012_2120_bra_auth.zip
-firmware/extracted/
-
-# GPL kernel tarball (228 MB) and unpacked tree stay on disk, out of git
-firmware/gpl-sources/*.tar
-firmware/gpl-sources/*.tar.gz
-firmware/gpl-sources/kernel2635/
-
-# Scratch
-/tmp/
-*.log
-__pycache__/
+# Sony-distributed material lives in the offline archive
+# (../sony-bravia-linux.private/), never in this repo — see README scope note
+firmware/
+manuals/
+docs/research/liverecon/playstation-archive/
+docs/research/liverecon/applicast-fetched/
+docs/research/liverecon/wayback-playstation/
