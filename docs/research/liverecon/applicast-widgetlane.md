@@ -211,6 +211,45 @@ fingerprints and endpoints the EX725 never shows:
 - BIVL icon fetches include service_55/sub_1, service_41/sub_4,
   service_30 — richer service-icon taxonomy than the 725 requested.
 
+## HX855 extra systems round (16:30–16:33, `hx855-extramenus-wan.pcap`)
+
+The 855's menus hold three app systems the 725 lacks: **Opera TV
+Store**, **Compartilhar/SNS** (SocialTV), and **Netflix**, plus
+Wi-Fi Direct. Owner opened each (Wi-Fi Direct wizard viewed only, not
+activated — it can reconfigure the set's radios). All three showed
+connection errors; the wire gives each a distinct cause:
+
+| System | Wire evidence | Verdict |
+|---|---|---|
+| Opera TV Store | `certs.opera.com` still ALIVE (resolve + full TLS-1.0 session, bidirectional data — it serves modern Opera too). `sony.tvstore.opera.com` → **NXDOMAIN, confirmed globally** (1.1.1.1 + 8.8.8.8) — domain deleted; the TV never attempts a connection | **Dead domain, revivable via Unbound override** — we must serve TLS; whether era Opera Devices validates certs is the open question |
+| Netflix | `nccp-nrdp-31.cloud.netflix.net` → CNAME `nccp-nrdp-31.dradis.netflix.com` → **NXDOMAIN**; zero SYNs | era control plane deleted; not worth reviving (DRM-wrapped, out of scope) |
+| SNS/Share | EmotionPost icons still serve (200/304); app loads its NUX then dies on its missing backend | cosmetically half-alive |
+
+New facts:
+
+- **The XMB home screen polls autonomously**: the icon-refresh loop
+  (`applicast.ga.sony.net` + `bravia.dl.playstation.net`, ~every
+  30 s: SNY_WidgetGallery/icon-tiny, SNY_AudioControlApp/icon,
+  SocialTV/EmotionPost/img/NUX_Share.png,
+  **Ext/WsCatalogs/otvs_icon_77x58.png**) ran continuously
+  regardless of which menu was open — settles the autonomous-polling
+  question for the 855 (idle-window capture still worthwhile for the
+  725). Practical consequence: a Unbound override is noticed within
+  seconds, no menu action needed.
+- **`/bravia/WidgetBundles/Ext/WsCatalogs/`** — a new
+  playstation-host namespace holding external-catalog icons
+  (`otvs_icon_77x58.png` = the Opera TV Store's XMB icon, archived;
+  the namespace is a thin Akamai slice — XML siblings 404).
+  bravia.dl.playstation.net is the 2012 chassis's external-app
+  catalog host, not just SocialTV.
+- **Real infra CNAMEs exposed by DNS answers**:
+  `applicast.ga.sony.net` → `tv-applicast-ga.update.me.sony.com` →
+  `dn81zjgsnqw3k.cloudfront.net` (CloudFront);
+  `bravia.dl.playstation.net` → `generichttp.dl.playstation.net.
+  edgesuite.net` → `a908.d.akamai.net` (Akamai).
+- Era resolver quirk on display: unqualified-lookup retries append
+  the LAN search domain (`…casacampos.lok`) for every failing name.
+
 ## Artifacts
 
 - `widgetgallery-wan.pcap` — the EX725 gallery round (firewall vantage)
