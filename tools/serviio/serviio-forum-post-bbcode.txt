@@ -1,0 +1,42 @@
+# BBcode version of the forum post (for phpBB: forum.serviio.org)
+# The markdown version (serviio-forum-post.md) shows **bold**/`code` as
+# literal characters in phpBB. Paste THIS into the post's Edit box instead.
+# In phpBB's editor keep the checkbox "Disable BBCode" UNchecked.
+
+# --- Subject (plain text, no BBcode in subjects) ---
+3D auto-detection restored on 2011-2012 BRAVIA over DLNA - frame-packing SEI; one profile + two small tools (stock Serviio 2.5)
+
+# --- Body ---
+
+Hi all - sharing a finding and a working fix, in case it helps other era 3D TV owners (and in case the devs want to fold any of it upstream).
+
+[b]The short version:[/b] 2011-2012 Sony BRAVIA 3D sets (tested on a KDL-46EX725/2011 and a KDL-46HX855/2012) auto-engage 3D when the H.264 elementary stream carries a [i]frame_packing_arrangement[/i] SEI (payload type 45). They ignore the Matroska [i]StereoMode[/i] container tag - the only 3D flag web rips ever carry - so every DLNA-served 3D MKV plays flat. Two breaks: remuxes copy the ES bit-exact and drop the container tag (no SEI appears), and the profile XML has no way to pass x264 [code]--frame-packing[/code] on re-encodes.
+
+[b]The fix, on stock Serviio 2.5:[/b]
+
+[list=1]
+[*]One renderer profile, "Sony Bravia EX7xx/HX8xx (3D Enhanced)" (extends stock [i]sony2011[/i], covers both lines) - MPEG-TS + AC-3 output, h264 re-encode targets instead of mpeg2video (which cannot carry frame-packing at all), no DAR squeezes.
+[*]An ffmpeg wrapper on the Serviio host that appends [code]-x264-params frame-packing=3|4[/code] whenever Serviio re-encodes a 3D-flagged input with libx264 -> [b]on-the-fly 3D[/b] for every re-encode path (proven on MPEG4 AVI, VC-1 WMV, MPEG4 MOV).
+[*]A lossless tool ([i]bravia_sei3d.py[/i]) for the remux paths, where nothing can be injected in flight: inserts the 16-byte SEI before every IDR, no re-encode, ~0.002% size growth, idempotent, verified in-place.
+[/list]
+
+[b]What works on the fly vs. what needs one-time pre-processing:[/b]
+
+[list]
+[*][b]On the fly[/b] (re-encode paths, wrapper handles SEI): non-h264 codecs (AVI/MOV mpeg4, VC-1, msmpeg4, MJPEG, DV...), HEVC, 10-bit, >L4.1, >1920 wide, subtitle burn-in, online feeds.
+[*][b]One-time pre-processing[/b] (bit-exact remux / video-copy paths): h264 <=L4.1 8-bit with AC-3, and h264 with any other audio (video is copied, only audio transcodes). Fix once with the SEI injector, plays 3D forever.
+[/list]
+
+[b]Possibly relevant upstream:[/b] ffmpeg >= 9 auto-injects frame-packing SEI from Matroska stereo side data on x264 encode - bundling it would make the wrapper unnecessary. Per-profile x264 params would make the transcode-path fix pure-profile. A remux-side SEI injection (bitstream filter on video-copy paths) would be the general fix for every renderer that auto-detects this way - and the signalling is standard H.264 stereoscopic syntax, not Sony-proprietary, so other manufacturers' era 3D DLNA sets plausibly behave the same (untested - we only have the two TVs; community test results welcome in the GitHub discussion below).
+
+[b]Disclaimer:[/b] this investigation and tooling were produced with the assistance of an AI coding agent (Claude Code CLI, GLM 5.3 model), under the direction and live on-hardware verification of the TV owner. All conclusions were confirmed empirically on the actual sets.
+
+Everything (profile, wrapper, injector, evidence base, test log):
+
+[list]
+[*]Repo: [url=https://github.com/danielcamposramos/sony-bravia-linux]https://github.com/danielcamposramos/sony-bravia-linux[/url]
+[*]Write-up + community testing ask: [url=https://github.com/danielcamposramos/sony-bravia-linux/discussions/1]https://github.com/danielcamposramos/sony-bravia-linux/discussions/1[/url]
+[*]Files: [code]tools/serviio/user-profiles-3d.xml[/code], [code]tools/serviio/ffmpeg-3d-wrapper.sh[/code], [code]tools/bravia_sei3d.py[/code]
+[/list]
+
+Happy to answer questions or help people reproduce on their own sets.
