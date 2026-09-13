@@ -517,3 +517,52 @@ stream selection (dual-audio + dual-SRT library). Findings so far:
   digests + MANIFEST.tsv (2.0MB)
 - `certs/opera-rootstore/roots/` — **complete era root store,
   302/302 certs** (paced Wayback retry landed)
+
+### Media-player lane, round 2 — the authoritative decode matrix (17:27)
+
+`ConnectionManager:GetProtocolInfo` pulled live from both TVs (port
+52323, one routine SOAP call each — the same query any DLNA controller
+sends on connect): **identical 69/75-entry sink lists, identical PN
+sets** (`ex725_GetProtocolInfo.xml`, `hx855_GetProtocolInfo.xml`).
+
+- **AVC/H.264 only in MPEG-TS** (`video/vnd.dlna.mpeg-tts`,
+  `AVC_TS_HD_EU/60/50/24_AC3[_T/_ISO]`, SONY.COM_PN twins); the only
+  AAC pairing is `AVC_TS_JP_AAC_T` (JP SD market).
+- **Audio in TS: AC-3 or MPEG-L2. No E-AC-3/DD+, no TrueHD, no DTS,
+  no AAC-in-TS (ex-JP).** Plus LPCM/MP3/WMA audio, WMV/VC1 ASF,
+  MPEG-PS, MPEG1. **No MKV at all.** Wildcard MIME lines exist
+  (video/mp4:* etc.) — the half-play trap: container parses, track
+  decoders don't.
+
+**Half-play diagnosis (user symptoms, now explained by the matrix):**
+"audio but no video" = video track over spec (HEVC/10-bit/4K/L5+)
+in a container the TV still parses; "video but no audio (Atmos)" =
+E-AC-3/TrueHD passthrough the TV cannot decode. Both are the
+remux-instead-of-transcode failure: Serviio matched the container or
+codec name and skipped transcoding.
+
+**Serviio profile recipe (upstream contribution candidate) — both
+TVs, one profile:** transcode to **MPEG-TS / H.264 ≤High@L4.1 1080p /
+AC-3 5.1 (≤640 kb/s)**, `DLNA.ORG_PN=AVC_TS_HD_EU_ISO`; always-on for
+anything not strictly matching the sink list; audio-language priority
+(dual-audio selection — era players ignore DLNA track-selection
+extensions, selection must be server-side); subtitle burn-in.
+
+### Panel capability vs player ceiling — EDID evidence (17:30)
+
+`hx855-edid-decode.txt` / `hx855-edid.bin` — the 855 is this
+workstation's HDMI monitor, so its EDID is ground truth:
+
+- **`DC_36bit` + `DC_30bit` deep color, YCbCr 4:4:4, TMDS 225 MHz** —
+  the display chain accepts **12-bit-per-channel 1080p60** (225 MHz is
+  exactly the 36-bit@1080p60 envelope). 3D frame packing 1080p24/30.
+- **No HDR metadata block, no wide gamut, no 2160p** — "almost HDR"
+  (user's framing, confirmed): 12-bit precision on Rec.709 SDR
+  gamma-2.2. HDMI audio: PCM 2ch + AC-3 ≤640 kb/s.
+- **Consequence: the internal-player ceiling is software, not panel.**
+  The DLNA path tops out at 8-bit AVC/AC-3-in-TS while the panel
+  behind it consumes 12-bit deep color. The 12-bit path is reachable
+  only via an external HDMI source (HDR→SDR tone-map to 1080p 12-bit
+  YCbCr 4:4:4) — the realistic "VLC-substitute" endpoint for this
+  hardware, and strictly better-looking than any internal path.
+  (User: the 755 shares the exact same HDMI info.)
