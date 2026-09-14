@@ -26,12 +26,26 @@ Context: owner opened `Conteúdo de Internet` → `BRAVIA Internet Video` →
    provisioning backend is `ssm.internet.sony.tv` (AWS round-robin; one IP,
    52.39.176.193, identified from TLS sessions + current DNS).
 
-## 2. Registration gate (pre-registration behavior)
+## 2. Registration gate and outcome
 
-- EX725 (unregistered): `Ativar Funções Avançadas` gate with EULA pointing to
-  https://internet.sony.tv + registration code. Netflix absent.
+- EX725 (pre-registration): `Ativar Funções Avançadas` gate with EULA pointing to
+  https://internet.sony.tv + registration code `CZKJE`. Netflix absent.
 - HX855 (owner-registered years ago): lists **Netflix, Digital Concert Hall**
   and the registration form; DCH loads after accepting a mixed-content prompt.
+- **EX725 registered 2026-09-13, outcome: UNLOCKED NOTHING.** Registration
+  completed mechanically (fresh Essentials account, TV confirmed "registered"
+  within minutes), but the advanced-content library rendered empty. Wire
+  proof: the whole post-registration window (pcap `tv-ex725-reg.pcap`,
+  684 packets) is TLS-only to `ssm.internet.sony.tv` — zero port-80, no icon
+  lane, no service list, no content endpoints. The gate machinery is alive;
+  the catalog behind it is gone.
+- Interpretation (right-to-repair framing, live-proven): era services are
+  **server-side killable and killed**. The HX855 still shows Netflix/DCH
+  because those entries were written to the set's local storage while Sony
+  still provisioned them; a set registering in 2026 receives an empty
+  provision. Same hardware, same gate — the difference is purely Sony-side.
+  The 855's surviving local service entries are therefore preservation-
+  valuable (firmware-lane extraction candidate).
 
 ## 3. Digital Concert Hall endpoint map (HX855 DNS, 22:56–22:57 local)
 
