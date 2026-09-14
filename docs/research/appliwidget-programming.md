@@ -228,27 +228,56 @@ After fetch, the installer (native "WidgetContents" sync channel) validates and 
 - **Zero verification logic exists in any widget JavaScript** — enforcement, if real, lives in the native WidgetSystem runtime inside the firmware, which is whole-file encrypted with no public decryptor (SamyGO t=2430 hit the same wall in 2011).
 - The TV honors conditional GETs/304s — signatures are at most an **install/update-time** gate; cached bundles are never continuously re-checked.
 
-### Verdict: **UNKNOWN — enforcement still untested, but Arm A (control) PASSED live 2026-09-13: original Sony signatures are accepted from a foreign (LAN) server. Confidence: medium.**
-The lane is proven end-to-end: with applicast.ga.sony.net DNS-overridden to our LAN
-vhost, the EX725 fetched the original `digest.sig` (RSA-3072, 384 B) and `digest.txt`
-and **installed the original bundles from our server** — Facebook, Twitter, Leitor RSS
-(SNY_RSSReader), Controle do Home Theatre (SNY_AudioControlApp), plus the encrypted
-Resident VCServiceUtil. Two UA layers confirmed on the wire: `WidgetSystem/3.0.9` =
-installer/gallery system (outer lane + install), `AppliCast/4.0/DTV` = the widget
-runtime *executing* installed bundles (dock UI, loading animations, Dic fetches —
-observed even on the EX725, whose installer is 3.0.9). The signature question is now
-narrowly about Arms B/C (foreign/garbage sig): whether the native installer rejects
-a wrong signature at install time. Nothing else about the lane is in doubt anymore.
-For-leaning: maintained RSA-3072-over-accurate-manifest on a TLS-less channel, for a platform whose widgets get network access, persistent registry, and HDMI-CEC; the total historical absence of any homebrew AppliCast widget scene (unlike the cracked Yahoo TV widget ecosystem); a 2011 LX900 owner's belief that "apps must be approved by Sony to run". Against-leaning: no SDK ever exposed the scheme; Sony shipped un-sanitized dev-comment bundles (sloppiness); 2010-era embedded practice was genuinely mixed (advisory verify-and-continue existed).
+### Verdict: **ENFORCED — live-proven 2026-09-13 (~22:36–22:38 local, EX725). The installer verifies digest.sig over digest.txt BEFORE downloading body files; a foreign signature aborts the install at the header trio. Confidence: high.**
+The mechanism is now located on the wire, in a single catalog pass where all
+three arms were processed by the same TV within the same minute:
+
+- **Arm A (control: byte-exact SNY_RSSReader clone, original digest.sig)** — installer
+  fetched icon + `digest.sig` + `digest.txt` + `info.xml`, **then downloaded the body**
+  (`widget.js` 60 826 B, `layout.xml` 8 964 B, `bg.png` 3 060 B), installed it, and the
+  AppliCast/4.0/DTV runtime *executed the clone* (runtime fetches from
+  `ARMA_RSSReader/./DIC/…` and `./PARTS/…` paths). It still runs on the dock as
+  "Teste Assinatura A".
+- **Arm B (byte-exact clone, foreign sig = SNY_Facebook's 384-B digest.sig)** —
+  installer fetched the header trio, **never any body file**, across repeated poll cycles.
+- **Arm B2 (unique content + accurately-recomputed digest.txt + foreign sig)** — same
+  result: header trio only (3 consecutive poll cycles: 22:36, 22:37, 22:38), body never
+  fetched. Opening it on the dock *did* launch an RSS reader — but the runtime fetched
+  everything from the already-installed `SNY_RSSReader/` paths and nothing from the
+  ARMB2 path: the TV ran the **cached original**, not B2's unique content (which would
+  have shown "Teste ArmB2"). B2's `widget.js` was never downloaded at all.
+
+Arm B2 was the decisive control for the alternative explanations: its digest.txt was
+recomputed to accurately match its own content (kills "hash mismatch"), its info.xml
+name was unique (kills "name collision/dedup"), and its content differed from the
+installed original in `widget.js` + `info.xml` (kills "byte-identical content-dedup",
+the confound that made Arm B v1 inconclusive when the TV mapped the dock entry to the
+stored SNY_RSSReader copy). The only surviving variable across A vs B/B2 is the
+signature on the manifest.
+
+**Installer algorithm (as observed):** fetch icon + `digest.sig` + `digest.txt` +
+`info.xml` → verify RSA-3072 signature (firmware-pinned Sony key) over the manifest →
+only then download `widget.js`/`layout.xml`/assets. Dock registration is independent:
+`dock.add()` fires from catalog parsing *before* any signature check, which is why
+rejected bundles still appear on the dock (and why opening them falls through to a
+locally installed widget — the "widget ativado" false positive that initially made Arm
+B look like it ran).
+
+**Consequences:** the resurrection lane (original signed bundles served from our LAN
+vhost) is fully open — that is the preservation library. Third-party authoring is
+closed at this gate without the Sony signing key (no public key exists in any bundle,
+on the CDN, or in any SDK). Arm C (garbage/absent sig) is now moot for the enforced
+branch — the remaining routes for custom code are firmware-side (UART/ABK-monitor),
+where the runtime's pinned key would live.
 
 No community shortcut exists. Nobody anywhere has publicly loaded a custom widget, bypassed, or forged digest.sig on this platform (systematic negative result across DDG/Bing/GitHub/Wayback; the only adjacent community thread — SamyGO t=2430 — never followed up).
 
-### The decisive experiment (cheap, on our LAN)
+### The decisive experiment (cheap, on our LAN) — RUN 2026-09-13, verdict above
 With the Unbound override live and a working baseline (§6 phase 2), list the SAME unmodified original bundle (e.g. re-offer SNY_RSSReader's exact bytes) plus one byte-modified variant, in three arms:
 
-1. **Arm A (control):** original files + original digest.txt + original digest.sig → expect install (proves the lane end-to-end).
-2. **Arm B (foreign sig):** original digest.txt + a *different bundle's* digest.sig (valid 384 bytes, wrong signature).
-3. **Arm C (garbage/absent):** digest.sig = 384 random bytes, then deleted entirely.
+1. **Arm A (control):** original files + original digest.txt + original digest.sig → expect install (proves the lane end-to-end). **RAN — installed and running.**
+2. **Arm B (foreign sig):** original digest.txt + a *different bundle's* digest.sig (valid 384 bytes, wrong signature). **RAN twice (v1 byte-exact → dedup-confounded; v2 = B2, unique content → rejected).**
+3. **Arm C (garbage/absent):** digest.sig = 384 random bytes, then deleted entirely. **Moot — B2 already answered the question.**
 
 Observe per arm: does the widget appear in the gallery, does Confirm install it, does it launch, does any error dialog appear, what do the HTTP access logs show (does the TV even *fetch* digest.sig — if it never requests the sig, enforcement may be digest.txt-hash-only or nothing)? Outcomes:
 - A installs + B/C rejected → **enforced**; the only remaining routes are firmware-side (UART/ABK-monitor) or finding the Sony key.
@@ -508,6 +537,65 @@ authored `WidgetInfos/.../LA_BRA_por/description.xml` → 200.
   HomeMenu), `SNY_AudioControl/model/*.json`, and DEV-lane MyChannel files.
 - The obsolete `Gallery_US_BRA_por.xml` variants (deployed in the US-token phase,
   now 403 at origin) recovered from staging into the archive — only copies anywhere.
+- **Wayback era-recovery tally (2026-09-13/14):** 52 files saved so far in two passes
+  (20 initial CDX loop + 32 on retry), incl. `WsIndexes/RB2_CH.xml`, `RB2_US.xml`,
+  more AZ1_EU locale catalogs and DEV-lane trees.
+  13 curl-000 throttle failures were re-queued (round 3, in flight); anything still
+  000 after that is treated as archive-throttle, re-tryable, not 404-gone.
+
+## 10. Deployment log (2026-09-13/14, phase 3 live — THE SIGNATURE VERDICT)
+
+### 10.1 Design (pre-registered, adversarially reviewed)
+Three arms, one catalog, appended LAST after the four working originals, deployed to
+both AZ2 and AZ3 catalog trees with root + per-entry `updated` bumped past the
+registry's `dtv/X2WS/LastUpdated` gate (design review caught four blockers: the root
+gate, dock.add≠install, the `status="Deleted"`-only removal path, and the timestamp
+format). Experiment tree: `/tmp/acig-/applicast-phase3/` (evidence archive stays
+read-only at `/tmp/acig-/applicast-archive/`).
+
+- **ARMA_RSSReader** — byte-exact SNY_RSSReader clone, original sig. Control: proves
+  a *new catalog id/path* installs, so a body-less cascade elsewhere can only be the
+  signature.
+- **ARMB_RSSReader** — byte-exact clone + SNY_Facebook's sig (foreign, valid format).
+- **ARMB2_RSSReader** — unique content (`info.xml` name → "ArmB2 Test"/"Teste ArmB2",
+  marker comment appended to `widget.js`) + **digest.txt hashes recomputed to match**
+  + SNY_Facebook's sig. Kills the dedup/hash-mismatch/name-collision confounds.
+
+### 10.2 Wire chronology (EX725 .22, all -0300; vhost access log)
+- 22:32:10 catalog deployed (6 then 7 entries); 22:32:30 gate passed (200).
+- **Arm B v1 confound:** opening "Teste Assinatura B" showed "widget ativado" + a
+  running RSS reader, but the runtime fetched everything from `SNY_RSSReader/` paths —
+  byte-identical content maps to the already-stored copy. INCONCLUSIVE; led to B2.
+- 22:35:55 7-entry catalog pulled; 22:36:01–04 **the decisive pass**:
+  - ARMA: icon + digest.sig + digest.txt + info.xml → **widget.js + layout.xml +
+    bg.png (200)** → installed.
+  - ARMB + ARMB2: header trio only, no body.
+- 22:37:06–22:37:12 second poll cycle: ARMA body re-fetched (200) + header trio again
+  for ARMB/ARMB2 — still no body.
+- 22:36:05–22:37:40 runtime executes ARMA (AppliCast/4.0/DTV: `./DIC/dic_por.txt`,
+  4-frame loading animation loop, `list_NF_BG.png`, 304s on repeat) — **the control
+  clone is genuinely installed AND running from its own path.**
+- 22:38:02 third cycle: ARMB2 header trio again (icon 304) — no body. Negative
+  sustained ≥3 cycles.
+- On-screen corroboration (owner, live): "Teste Assinatura A" opens = real RSS reader
+  from its own install. "Teste Assinatura B2" *also* opens "just like the others" —
+  but with zero ARMB2-path fetches on the wire, that was the cached original
+  RSSReader executing, not B2's unique content (which would have read "Teste ArmB2").
+
+### 10.3 Verdict
+**ENFORCED** (§4 has the mechanism). Signatures gate the *download* decision:
+header trio (icon, digest.sig, digest.txt, info.xml) is fetched unconditionally,
+body files only after the RSA-3072 signature over the manifest verifies against the
+firmware-pinned key. Rejected bundles still dock-register (dock.add precedes
+verification) and their dock entries fall through to locally-installed content when
+opened — the two facts that made early "it ran!" reads false positives.
+
+### 10.4 Cleanup state (pending decision)
+Test entries remain dock-registered on both TVs: ARMA (installed, running, harmless
+clone) and ARMB/ARMB2 (never installed — phantom dock entries). Removal requires
+`status="Deleted"` in the catalog (the only `dock.remove()` path); a rollback catalog
+is pre-staged at `/tmp/acig-/applicast-phase3/Catalog_ROLLBACK.xml`. Decision pending
+with owner: keep ARMA as a living control / remove all three.
 
 ### 9.6 What this unlocks (owner's framing)
 
