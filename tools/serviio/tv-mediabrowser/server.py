@@ -36,8 +36,10 @@ Run:  python3 server.py [port]        (default 8090)
 
 import hashlib
 import html
+import http.client
 import json
 import os
+import queue
 import re
 import signal
 import subprocess
@@ -141,6 +143,10 @@ def pick_image_res(res_list):
 
 def pick_audio_res(res_list):
     auds = [r for r in res_list if r['mime'].startswith('audio/')]
+    # prefer an era-decodable MP3 res when Serviio offers several variants
+    for r in auds:
+        if r['mime'] == 'audio/mpeg':
+            return r
     return auds[0] if auds else None
 
 
@@ -169,6 +175,9 @@ img{max-width:100%;}
 .hud #fmt{color:#ccc;margin:0;}
 /* #status alone would win on ID specificity (56px) inside the 44px strip */
 .hud #status{font-size:44px;margin:0;}
+/* music page: album art centered over the on-screen button row; the
+   audio element stays 1px in-flow (display:none risks era decode skips) */
+#music img{display:block;margin:8px auto;max-width:70%;border:4px solid #333;}
 """
 
 NAV_JS = """
@@ -221,6 +230,43 @@ document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
   if(k==13){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
   else if(k==39){try{v.currentTime+=30;}catch(x){}}
+  else if(k==37||k==8){history.back();}
+  else{return true;}
+  return false;
+};
+"""
+
+MUSIC_JS = """
+var v=document.getElementById('player_object');
+var st=document.getElementById('status');
+var items=document.getElementsByTagName('li');
+var sel=0;
+function show(){for(var i=0;i<items.length;i++){items[i].className=(i==sel)?'sel':'';}if(items.length){try{items[sel].scrollIntoView(false);}catch(x){}}}
+function move(d){if(!items.length){return;}sel=(sel+d+items.length)%items.length;show();}
+function act(a){
+ if(a=='pp'){if(v.paused){v.play();}else{v.pause();}}
+ else if(a=='bk'){try{v.currentTime-=30;}catch(x){}}
+ else if(a=='fw'){try{v.currentTime+=30;}catch(x){}}
+ else if(a=='back'){history.back();}
+}
+function openSel(){if(!items.length||!items[sel]){return;}var a=items[sel].getElementsByTagName('a');if(a.length){act(a[0].getAttribute('data-act'));}}
+var s=document.createElement('source');
+s.type=%MIME%;
+s.src=%URL%;
+s.addEventListener('error',function(){st.innerHTML=%hud_err_src%;});
+v.appendChild(s);
+v.addEventListener('timeupdate',function(e){st.innerHTML=Math.round(e.target.currentTime)+'/'+Math.round(e.target.duration)+'s';});
+v.addEventListener('error',function(e){st.innerHTML=%hud_err_code%+(e.target.error?e.target.error.code:'?');});
+v.addEventListener('ended',function(){st.innerHTML=%hud_ended%;});
+v.load();v.play();
+st.innerHTML=%hud_load%;
+show();
+document.onkeydown=function(e){
+  e=e||window.event;var k=e.keyCode;
+  if(k==38){move(-1);}
+  else if(k==40){move(1);}
+  else if(k==13){openSel();}
+  else if(k==39){act('fw');}
   else if(k==37||k==8){history.back();}
   else{return true;}
   return false;
@@ -291,6 +337,14 @@ STRINGS = {
         'no_audio_res': 'no audio resource',
         'no_video_res': 'no video resource',
         'clip_missing': 'clip missing: %s',
+        # music page (album art + on-screen buttons)
+        'btn_pp': 'Play / Pause',
+        'btn_b30': '-30 s',
+        'btn_f30': '+30 s',
+        'btn_back': 'Back',
+        'music_foot': 'OK = select button, right = +30s, left = back',
+        'music_start': 'playing... OK = pause, right = +30s',
+        'music_live': 'live MP3 conversion',
     },
     'pt': {
         'nav_foot': 'Setas navegam, OK abre, esquerda = voltar',
@@ -334,6 +388,13 @@ STRINGS = {
         'no_audio_res': 'sem recurso de áudio',
         'no_video_res': 'sem recurso de vídeo',
         'clip_missing': 'clipe ausente: %s',
+        'btn_pp': 'Tocar / Pausar',
+        'btn_b30': '-30 s',
+        'btn_f30': '+30 s',
+        'btn_back': 'Voltar',
+        'music_foot': 'OK = escolher botão, direita = +30s, esquerda = voltar',
+        'music_start': 'tocando... OK = pausa, direita = +30s',
+        'music_live': 'conversão MP3 ao vivo',
     },
     'es': {
         'nav_foot': 'Flechas navegan, OK abre, izquierda = volver',
@@ -377,6 +438,13 @@ STRINGS = {
         'no_audio_res': 'sin recurso de audio',
         'no_video_res': 'sin recurso de video',
         'clip_missing': 'clip ausente: %s',
+        'btn_pp': 'Reproducir / Pausar',
+        'btn_b30': '-30 s',
+        'btn_f30': '+30 s',
+        'btn_back': 'Volver',
+        'music_foot': 'OK = elegir botón, derecha = +30s, izquierda = volver',
+        'music_start': 'reproduciendo... OK = pausa, derecha = +30s',
+        'music_live': 'conversión MP3 en vivo',
     },
 }
 
@@ -414,11 +482,17 @@ HUD_KEYS = ('hud_err_src', 'hud_loadstart', 'hud_canplay', 'hud_err_code',
             'hud_ended', 'hud_load', 'hud_play', 'hud_pause')
 
 
-def player_js(mime, url):
-    js = (PLAYER_JS.replace('%MIME%', repr(mime)).replace('%URL%', repr(url)))
+def player_js(mime, url, tpl=PLAYER_JS):
+    js = (tpl.replace('%MIME%', repr(mime)).replace('%URL%', repr(url)))
     for k in HUD_KEYS:
         js = js.replace('%%%s%%' % k, json.dumps(T(k)))
     return js
+
+
+def _latin1(s):
+    """HTTP status lines encode latin-1-strict; T() strings and paths
+    (Música, em dashes) crash send_error otherwise."""
+    return str(s).encode('latin-1', 'replace').decode('latin-1')
 
 
 def _page(title, body, extra_js=NAV_JS, extra_head=''):
@@ -531,6 +605,98 @@ def render_image(o, res):
     return _page(o['title'], body, extra_js=IMG_JS)
 
 
+# --------------------------------------------------- music lane (/aud/, /atr/)
+
+def _art_path(obj_id):
+    return os.path.join(CACHE_DIR, 'art',
+                       _cache_key(obj_id, 0) + '.jpg')
+
+
+def extract_embedded_art(src, dst):
+    """Pull the first embedded cover (ID3 APIC / FLAC picture) into
+    cache/art/ as JPEG. True when a usable picture sits at dst."""
+    if os.path.exists(dst) and os.path.getsize(dst) > 0:
+        return True
+    try:
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+    except OSError:
+        return False
+    tmp = '%s.%d.tmp.jpg' % (dst, threading.get_ident())
+    try:
+        # re-encode to mjpeg for uniform output (covers arrive as jpeg/
+        # png/bmp). Review catch: the bare '.tmp' suffix gave ffmpeg no
+        # muxer to infer, so this step silently never worked before.
+        r = subprocess.run(['ffmpeg', '-nostdin', '-y', '-v', 'error',
+                            '-i', src, '-map', '0:v:0', '-frames:v', '1',
+                            '-an', '-q:v', '3', '-f', 'image2', tmp],
+                           capture_output=True, timeout=20)
+        if r.returncode == 0 and os.path.exists(tmp) \
+                and os.path.getsize(tmp) > 0:
+            os.replace(tmp, dst)
+            return True
+    except Exception:
+        pass
+    finally:
+        try:
+            os.remove(tmp)
+        except OSError:
+            pass
+    return False
+
+
+# res mime -> library extension: the first rank tiebreak for dual-format
+# stems (one album often exists as both FLAC and MP3)
+MIME_EXT = {'audio/mpeg': '.mp3', 'audio/mp3': '.mp3',
+            'audio/x-flac': '.flac', 'audio/flac': '.flac',
+            'audio/x-wav': '.wav', 'audio/wav': '.wav',
+            'audio/mp4': '.m4a', 'audio/aac': '.aac', 'audio/aacp': '.aac',
+            'audio/ogg': '.ogg', 'audio/x-ms-wma': '.wma'}
+
+
+def music_art_available(o):
+    """Art ladder for the music page: Serviio's cover res first, then
+    embedded extraction (Serviio 404s covers it never generated — the
+    'Cover image ... cannot be found' warn). True = show <img>."""
+    if pick_image_res(o['res']):
+        return True
+    src, _ = resolve_source(o['title'], _didl_duration_seconds(o['res']),
+                             want='audio')
+    return bool(src) and extract_embedded_art(src, _art_path(o['id']))
+
+
+def render_music(o, res):
+    """Music page: album art + on-screen buttons, NOT full-screen.
+
+    MP3 plays era-native (proxied); anything else (FLAC/OGG/WAV/...)
+    points at the live /atr/ MP3 pipe — ffmpeg bytes straight to the
+    player, nothing written to disk.
+    """
+    qid = urllib.parse.quote(o['id'], safe='')
+    live = res['mime'] != 'audio/mpeg'
+    url = ('/atr/%s' % qid) if live else proxied_res_url(res['url'])
+    label = res['mime'] + ((', ' + T('music_live')) if live else '')
+    art = ('<img src="/art/%s" alt="">' % qid) if music_art_available(o) \
+        else ''
+    btns = (('pp', 'btn_pp'), ('bk', 'btn_b30'),
+            ('fw', 'btn_f30'), ('back', 'btn_back'))
+    rows = ''.join('<li><a href="#" data-act="%s">%s</a></li>'
+                   % (act, esc(T(key))) for act, key in btns)
+    body = ('<div id="music">'
+            '<h2 id="hdr">%s</h2>'
+            '<p id="fmt">%s</p>'
+            '%s'
+            '<video id="player_object" width="1px" height="1px" '
+            'preload="none" style="width:1px;height:1px;"></video>'
+            '<p id="status">%s</p>'
+            '<ul>%s</ul>'
+            '<p id="foot">%s</p>'
+            '</div>'
+            % (esc(o['title']), esc(label), art, T('music_start'),
+               rows, T('music_foot')))
+    js = player_js('audio/mpeg' if live else res['mime'], url, tpl=MUSIC_JS)
+    return _page(o['title'], body, extra_js=js)
+
+
 # ------------------------------------------------- format-probe lane (/t/)
 
 TEST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test')
@@ -635,7 +801,8 @@ def _oid_for_item(obj_id):
 # and normalized title matches are fast path + tiebreaker.
 
 MEDIA_ROOTS = [r for r in os.environ.get(
-    'MEDIA_ROOTS', '/mnt/Backup/Vídeos').split(':') if os.path.isdir(r)]
+    'MEDIA_ROOTS', '/mnt/Backup/Vídeos:/mnt/Backup/Música').split(':')
+               if os.path.isdir(r)]
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
 # sweep stale transcode remnants at startup: a part file with no live job
@@ -651,10 +818,18 @@ for _fn in os.listdir(CACHE_DIR):
             pass
 VIDEO_EXT = ('.mkv', '.avi', '.mpg', '.mpeg', '.ts', '.m2ts', '.mts',
              '.flv', '.wmv', '.mov', '.mp4', '.m4v', '.vob')
+# era Presto decodes MP3 but not FLAC/OGG/WAV/... — those route to the
+# live /atr/ MP3 pipe, so the index must know them too
+AUDIO_EXT = ('.mp3', '.flac', '.m4a', '.aac', '.wav', '.ogg', '.oga',
+             '.wma', '.opus', '.ape', '.mka')
 
 _lib_lock = threading.Lock()
 _lib_by_stem = {}       # lower(filename stem) -> [paths]
 _lib_durations = {}     # path -> duration seconds
+_lib_kind = {}          # path -> 'video' | 'audio' — the index grew
+                        # AUDIO_EXT, so resolve_source must be kind-aware:
+                        # a song stem must never resolve as a movie
+                        # transcode source, nor a movie as an /atr/ source
 _lib_ready = False      # stems usable (phase 1 done)
 _lib_dur_done = False   # duration pass complete (phase 2 done)
 _lib_note = ''
@@ -696,15 +871,22 @@ def _build_library_index():
     for root in MEDIA_ROOTS:
         for dirpath, dirnames, filenames in os.walk(root):
             for fn in filenames:
-                if os.path.splitext(fn)[1].lower() in VIDEO_EXT:
+                ext = os.path.splitext(fn)[1].lower()
+                if ext in VIDEO_EXT or ext in AUDIO_EXT:
                     files.append(os.path.join(dirpath, fn))
     by_stem = {}
+    by_kind = {}
     for p in files:
         by_stem.setdefault(os.path.splitext(os.path.basename(p))[0].lower(),
                            []).append(p)
+        by_kind[p] = ('video'
+                      if os.path.splitext(p)[1].lower() in VIDEO_EXT
+                      else 'audio')
     with _lib_lock:
         _lib_by_stem.clear()
         _lib_by_stem.update(by_stem)
+        _lib_kind.clear()
+        _lib_kind.update(by_kind)
         _lib_ready = True
         _lib_note = '%d files, %d probed' % (len(files), 0)
     sys.stderr.write('library stems ready: %d files\n' % len(files))
@@ -761,7 +943,8 @@ def _build_library_index():
     sys.stderr.write('library durations ready: %s\n' % _lib_note)
 
 
-threading.Thread(target=_build_library_index, daemon=True).start()
+if os.environ.get('BRAVIA_SKIP_INDEX') != '1':   # unit tests set this
+    threading.Thread(target=_build_library_index, daemon=True).start()
 
 
 def _didl_duration_seconds(res_list):
@@ -773,10 +956,28 @@ def _didl_duration_seconds(res_list):
     return None
 
 
-def resolve_source(title, didl_dur):
-    """Map a DIDL item to its file in the mounted library."""
+def resolve_source(title, didl_dur, want=None, prefer_ext=None):
+    """Map a DIDL item to its file in the mounted library.
+
+    want: 'video' or 'audio' — every tier filters to that kind, so the
+    index growing AUDIO_EXT can never cross-resolve a song into a movie
+    transcode (or a movie into the /atr/ audio lane).
+    prefer_ext: '.flac'/'.mp3'/... — first rank tiebreak for dual-format
+    stems (the same album often exists as both FLAC and MP3 with
+    near-identical durations; the res mime says which one is playing).
+    """
+    def kind_ok(p):
+        if want is None:
+            return True
+        with _lib_lock:
+            return _lib_kind.get(p) == want
+
+    # NB: filter inside this one lock acquisition — calling kind_ok() here
+    # would re-acquire _lib_lock (non-reentrant) and deadlock every
+    # want=-filtered resolve.
     with _lib_lock:
-        paths = list(_lib_by_stem.get(title.lower(), []))
+        paths = [p for p in _lib_by_stem.get(title.lower(), [])
+                 if want is None or _lib_kind.get(p) == want]
     if len(paths) == 1:
         return paths[0], None
     nt = _norm_title(title)
@@ -785,7 +986,7 @@ def resolve_source(title, didl_dur):
             cands = [p for stem, ps in _lib_by_stem.items()
                      if nt in _norm_title(stem)
                      or _norm_title(stem) in nt for p in ps]
-        cands = sorted(set(cands))
+        cands = sorted(set(p for p in cands if kind_ok(p)))
         if len(cands) == 1:
             p0 = cands[0]
             # cross-check against the DIDL duration when we have one and
@@ -803,23 +1004,30 @@ def resolve_source(title, didl_dur):
                 return _lib_durations.get(p)
 
         def rank(p):
-            # collision tiebreak: shared title tokens first (online-metadata
-            # titles translate the filename, but keep words like "adam"),
-            # then closer duration. DIDL durations are second-resolution,
-            # so a sub-second delta is a strong signal on its own.
+            # collision tiebreak: requested format first (dual-format
+            # stems: FLAC and MP3 of one song differ by ~1-2s, inside
+            # the ±3s duration window, so duration alone ties), then
+            # shared title tokens (online-metadata titles translate the
+            # filename, but keep words like "adam"), then closer
+            # duration. DIDL durations are second-resolution, so a
+            # sub-second delta is a strong signal on its own.
             def toks(s):
                 return set(w for w in re.split(r'[^a-z0-9]+', s.lower())
                            if len(w) > 1 and not w.isdigit())
+            ext_ok = bool(prefer_ext and p.lower().endswith(prefer_ext))
             shared = len(toks(os.path.splitext(os.path.basename(p))[0]) & toks(title))
-            return (-shared, abs(d(p) - didl_dur))
+            return (-ext_ok, -shared, abs(d(p) - didl_dur))
 
         m = [p for p in paths if d(p) and abs(d(p) - didl_dur) < 3]
-        if len(m) == 1:
-            return m[0], None
         if not m and not paths:
+            # duration-index fallback (no title hit at all): inline kind
+            # check — kind_ok() would re-acquire _lib_lock and deadlock
             with _lib_lock:
                 m = [p for p, dur in _lib_durations.items()
-                     if abs(dur - didl_dur) < 3]
+                     if abs(dur - didl_dur) < 3
+                     and (want is None or _lib_kind.get(p) == want)]
+        if len(m) == 1:
+            return m[0], None
         if len(m) > 1:
             ranked = sorted(m, key=rank)
             if rank(ranked[0]) != rank(ranked[1]):
@@ -833,6 +1041,11 @@ def resolve_source(title, didl_dur):
 
 _jobs = {}   # cache key -> {proc, progress, out, part, duration, encoder}
 _jobs_lock = threading.Lock()   # start_job/job_state check-then-act + rename
+
+# live /atr/ ffmpeg pipes: not cached, but they must die with the server
+# too (a stalled one would orphan onto init after a restart)
+_live_procs = set()
+_live_lock = threading.Lock()
 
 
 def _cache_key(obj_id, track):
@@ -1020,6 +1233,10 @@ class Handler(BaseHTTPRequestHandler):
                 return self.do_local_file(u)
             elif u.path.startswith('/tcf/'):
                 return self.do_cache_file(u)
+            elif u.path.startswith('/atr/'):
+                return self.do_audio_transcode(u)
+            elif u.path.startswith('/art/'):
+                return self.do_art(u)
             elif u.path.startswith('/tr/'):
                 return self.do_transcode(u)
             elif u.path.startswith('/t/'):
@@ -1045,7 +1262,7 @@ class Handler(BaseHTTPRequestHandler):
                     body = render_image(o, r) if r else render_error('item', T('no_image_res'))
                 elif kind == 'aud':
                     r = pick_audio_res(o['res'])
-                    body = render_player(o, r) if r else render_error('item', T('no_audio_res'))
+                    body = render_music(o, r) if r else render_error('item', T('no_audio_res'))
                 else:
                     r = pick_video_res(o['res'])
                     body = render_player(o, r) if r else render_error('item', T('no_video_res'))
@@ -1101,6 +1318,141 @@ class Handler(BaseHTTPRequestHandler):
             pass  # player aborted the fetch (seek/stop); upstream closes with us
         finally:
             upstream.close()
+
+    def do_audio_transcode(self, u):
+        """Live audio lane: era Presto decodes MP3 but not FLAC/OGG/WAV;
+        ffmpeg pipes libmp3lame bytes straight to the player socket —
+        nothing is written to disk (no duplicate files ever).
+        No Range support by nature; pause works, seek is best-effort."""
+        obj_id = urllib.parse.unquote(u.path[len('/atr/'):])
+        o = _oid_for_item(obj_id)
+        if not o:
+            self.send_error(404)
+            return
+        r = pick_audio_res(o['res'])
+        src, err = resolve_source(
+            o['title'], _didl_duration_seconds(o['res']),
+            want='audio',
+            prefer_ext=MIME_EXT.get(r['mime']) if r else None)
+        if not src:
+            # review catch: send_error puts this text on the HTTP status
+            # line, which encodes latin-1-strict — T() strings carry an
+            # em dash and crashed it. Log the note, send a bare status.
+            sys.stderr.write('atr: no source for %r: %s\n' % (obj_id, err))
+            self.send_error(404, 'no source')
+            return
+        try:
+            proc = subprocess.Popen(
+                ['ffmpeg', '-nostdin', '-v', 'error', '-i', src,
+                 '-map', '0:a:0', '-c:a', 'libmp3lame', '-q:a', '2',
+                 '-f', 'mp3', '-'],
+                stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+                stderr=subprocess.DEVNULL)
+        except Exception as e:
+            self.send_error(500, _latin1(e))
+            return
+        with _live_lock:
+            _live_procs.add(proc)
+        # review catch: a plain blocking read on proc.stdout hangs the
+        # request thread forever when the CIFS source stalls (ffmpeg
+        # produces no bytes and no EOF). Pump via a queue with a
+        # deadline instead: silence past the timeout kills the stream.
+        q = queue.Queue()
+
+        def pump():
+            while True:
+                b = proc.stdout.read(64 * 1024)
+                q.put(b)
+                if not b:
+                    return
+
+        threading.Thread(target=pump, daemon=True).start()
+        try:
+            # buffer the first chunk before committing headers: a dead
+            # source then answers as an error page, not a silent stall
+            try:
+                first = q.get(timeout=30)
+            except queue.Empty:
+                self.send_error(502, 'no audio data')
+                return
+            if not first:
+                self.send_error(502, 'no audio data')
+                return
+            self.send_response(200)
+            self._sent = True   # raw send — no HTML fallback may follow
+            self.send_header('Content-Type', 'audio/mpeg')
+            self.send_header('Cache-Control', 'no-store')
+            self.send_header('Accept-Ranges', 'none')
+            self.end_headers()
+            self.wfile.write(first)
+            while True:
+                try:
+                    buf = q.get(timeout=30)
+                except queue.Empty:
+                    break   # source went silent: cut the stream here
+                if not buf:
+                    break
+                self.wfile.write(buf)
+        except (BrokenPipeError, ConnectionResetError):
+            pass  # player stopped/paused the fetch; ffmpeg dies with us
+        finally:
+            with _live_lock:
+                _live_procs.discard(proc)
+            proc.kill()
+            try:
+                proc.stdout.close()
+            except Exception:
+                pass
+            proc.wait()
+
+    def do_art(self, u):
+        """Cover art ladder: Serviio's JPEG res proxied (same-client),
+        falling back to embedded extraction when the upstream 404s
+        ('Cover image ... cannot be found') or has no res at all."""
+        obj_id = urllib.parse.unquote(u.path[len('/art/'):])
+        o = _oid_for_item(obj_id)
+        if not o:
+            self.send_error(404)
+            return
+        r = pick_image_res(o['res'])
+        if r:
+            try:
+                req = urllib.request.Request(
+                    r['url'], headers={'User-Agent': 'K3D-BRAVIA-MediaBrowser/0.1'})
+                up = urllib.request.urlopen(req, timeout=30)
+            except Exception:
+                r = None  # cover promised but unresolvable — fall through
+            else:
+                try:
+                    self.send_response(200)
+                    self.send_header(
+                        'Content-Type',
+                        up.headers.get('Content-Type') or 'image/jpeg')
+                    self.send_header('Cache-Control', 'no-cache')
+                    self.end_headers()
+                    self._sent = True   # headers committed — no error page after
+                    while True:
+                        chunk = up.read(64 * 1024)
+                        if not chunk:
+                            break
+                        self.wfile.write(chunk)
+                except (OSError, http.client.HTTPException):
+                    # broken pipe/reset/timeout mid-body — same handling as
+                    # _serve_file; must NOT fall through to send_error (404)
+                    # which would emit a second status line on this socket.
+                    pass
+                finally:
+                    up.close()
+                return
+        # No Serviio thumbnail, or it 404'd (live-observed "Cover image
+        # cannot be found") — fall back to embedded cover art. Art lives on
+        # the audio side: never resolve to a video file sharing the stem.
+        src, _ = resolve_source(o['title'], _didl_duration_seconds(o['res']),
+                                want='audio')
+        if src and extract_embedded_art(src, _art_path(obj_id)):
+            self._serve_file(_art_path(obj_id), 'image/jpeg')
+            return
+        self.send_error(404)
 
     def _serve_file(self, fn, mime):
         """Serve a file with byte-range support (era player sends
@@ -1184,7 +1536,7 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_html(render_player(o, r).encode())  # direct-play
                 return
             dur = _didl_duration_seconds(o['res'])
-            src, err = resolve_source(o['title'], dur)
+            src, err = resolve_source(o['title'], dur, want='video')
             if not src:
                 self._send_html(render_error(
                     'transcode', err or 'source not found').encode())
@@ -1273,6 +1625,12 @@ def _kill_live_jobs():
                 if j['proc'].poll() is None:
                     os.killpg(os.getpgid(j['proc'].pid), signal.SIGTERM)
                     j['proc'].wait(timeout=10)
+            except Exception:
+                pass
+    with _live_lock:
+        for p in _live_procs:
+            try:
+                p.kill()
             except Exception:
                 pass
 
