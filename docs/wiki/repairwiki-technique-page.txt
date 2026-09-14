@@ -85,5 +85,4 @@ The technique adds standard H.264 stereoscopic signalling metadata (ITU-T H.264 
 * Research repository, profile, wrapper and injector: [https://github.com/danielcamposramos/sony-bravia-linux github.com/danielcamposramos/sony-bravia-linux]
 * Evidence base and community testing ask: [https://github.com/danielcamposramos/sony-bravia-linux/discussions/1 Discussion #1]
 * Serviio forum thread: [https://forum.serviio.org/viewtopic.php?f=7&t=31269 forum.serviio.org]
-* Consumer-rights background on the platform's withdrawal: [https://www.consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012) consumerrights.wiki entry]
-<!-- UPDATE after creating the entry: replace the last link with the actual URL. -->
+* Consumer-rights background on the platform's withdrawal: [https://consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012) consumerrights.wiki entry]

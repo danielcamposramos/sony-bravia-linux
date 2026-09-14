@@ -85,15 +85,21 @@ Sony byte from the US-hosted GitHub repo (done — history rewritten), is
 the exposure posture: our own work public in the US; Sony's material
 gated, on our soil, offered to the movement.
 
-## 4. Serviio forum (parallel track, different audience)
+## 4. Serviio forum (parallel track, different audience) — DONE
 
-forum.serviio.org — paste `tools/serviio/serviio-forum-post.md`
-(Serviio's author reads it; no GitHub presence exists).
+Posted (2026-09-13), live at:
+https://forum.serviio.org/viewtopic.php?f=7&t=31269
+(BBcode version swapped in via edit; Serviio's author reads the forum —
+no GitHub presence exists.)
 
 ## Order of operations
 
-1. consumerrights.wiki entry (no gatekeeper, fastest, feeds search engines)
-2. repair.wiki account + technique page
-3. Serviio forum post
+1. consumerrights.wiki entry — DONE (2026-09-13), live at
+   https://consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)
+   (product-line page via the guided creator; draft in
+   docs/wiki/consumerrights-wiki-entry.txt)
+2. repair.wiki account + technique page (draft ready in
+   docs/wiki/repairwiki-technique-page.txt)
+3. Serviio forum post — DONE (see section 4)
 4. Hand-written email to youtube@rossmanngroup.com linking all three
 5. Archive handover to RPG/FULU if they take it up
