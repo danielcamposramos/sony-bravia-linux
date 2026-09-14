@@ -155,3 +155,38 @@ Owner-verified on the EX725 in a live session (~00:14–00:22):
   request: match the DCH app's fullscreen playback; also removes the
   scrollbar the embedded layout caused; the strip is the diagnostic
   surface on errors).
+
+## Update 2026-09-14 (late) — transcode lane live-verified incl. Dolby
+
+The app-side transcode lane (server.py) is owner-verified live end-to-end
+on the EX725:
+
+- **Audio-track selection page** on the set: an MKV item opens
+  "Choose the audio track" (e.g. War of the Worlds: AC3 5.1 por/eng);
+  OK on a track starts the conversion.
+- **Progress page** with live percentage, auto-refreshing — owner
+  confirmed "it's converting on the fly and even shows a progress
+  percentage"; on completion the page itself becomes the fullscreen
+  player.
+- **Dolby decodes bit-exact:** AC-3 and E-AC3 tracks copied unchanged
+  into the faststart MP4 are decoded by the set's own Dolby decoder
+  (probe clips `/t/ac3` re-encoded AC-3 5.1, `/t/eac3` lossless E-AC3
+  remux; then a full movie). Center-channel dialog present on the
+  2.2 TV speakers — the classic "voices vanish" failure of a device
+  that cannot decode 5.1 did not occur, confirming decode (with proper
+  downmix) rather than track refusal. HDMI 5.1 pass-through to a
+  receiver is advertised by the set but untested (no AVR on the LAN).
+- With era-compatible H.264 (the library's rips mostly are:
+  1080p High@L4.0), a Dolby-audio movie is a **pure remux**: original
+  video, original theatrical Dolby track, chosen audio language, new
+  container. Non-Dolby audio converts to AAC 5.1 48 kHz, channel
+  layout preserved. >1080p / HEVC / 10-bit sources re-encode
+  (NVENC h264_nvenc on the app host's RTX 3060, High@L4.1 yuv420p —
+  NVENC emits no weighted prediction, EX7xx-safe; libx264
+  weightp=0:weightb=0 fallback), scaled down to 1080p when wider.
+- The lane survived a multi-agent code review before deployment: the
+  confirmed findings (start_job double-spawn race, ffmpeg orphans
+  surviving restart, stale part-file sweep at startup, terminal
+  failed-job state, NVENC global poisoning, a resolve_source
+  normalization bug, unclickable no-res items) were all fixed in the
+  deployed build.

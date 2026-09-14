@@ -81,9 +81,21 @@ So the lane lives in the app: the library shares are mounted on the app
 host (CIFS from the media server), the app ffprobes the source, offers
 the audio tracks on the player page, and ffmpeg transcodes on demand —
 video copied bit-exact when the H.264 is era-compatible, era-safe
-re-encode otherwise (weightp=0:weightb=0, level ≤4.1), AAC audio from the
-chosen track, `+movflags faststart` — into a cache that plays like any
-direct MP4 from then on.
+re-encode otherwise (weightp=0:weightb=0, level ≤4.1, scaled down to
+1080p for >1080p sources), AAC audio from the chosen track
+(`-ar 48000`, channel layout preserved — 5.1 stays 5.1), `+movflags
+faststart` — into a cache that plays like any direct MP4 from then on.
+
+**Dolby plays bit-exact (live-verified 2026-09-14).** The era player
+decodes AC-3 and E-AC3 tracks inside MP4: an E-AC3 5.1 lossless remux
+(`/t/eac3`) and the dual-AC3 *War of the Worlds* both played on the
+EX725, the set's own Dolby decoder handling the track (center-channel
+dialog present on its 2.2 speakers — the classic "lost voices" failure
+of a device that can't decode 5.1 did not occur). So the lane copies
+AC-3/E-AC3 audio tracks unchanged (`-c:a copy`); with era-compatible
+video the whole "transcode" is a pure remux — original picture, original
+theatrical Dolby, chosen track, new container. Non-Dolby audio (DTS,
+FLAC, MP3…) converts to AAC 5.1 48 kHz.
 
 ## Next steps
 
@@ -92,8 +104,14 @@ direct MP4 from then on.
 - [x] format probe — MP4/H.264+AAC direct-plays up to 1080p High@L4.0;
   MKV/AVI refused client-side; TS refused; fragmented MP4 fetched but
   not decoded → cached-faststart transcode lane (see above)
-- [ ] transcode lane build: DIDL item → source path mapping (shares are
-  mounted), ffprobe audio-track listing on the player page, on-demand
-  ffmpeg to faststart-MP4 cache, era-safe progress page
+- [x] transcode lane — owner-verified live 2026-09-14: MKV → audio-track
+  page → progress page → fullscreen playback (War of the Worlds, PT AC3
+  5.1 bit-exact); later views instant from cache
+- [x] Dolby probe — AC-3/E-AC3 in MP4 decode on the set (bit-exact copy
+  lane, see above)
 - [ ] thumbnails on list pages (Serviio serves cover art over :8895)
 - [ ] "next in folder" on `ended`
+- [ ] audio-track selection for direct-playable MP4s (multi-track MP4s
+  currently play Serviio's chosen track)
+- [ ] receiver pass-through test (HDMI 5.1 out is advertised; no AVR on
+  the verified setup — TV speakers decode+downmix correctly)
