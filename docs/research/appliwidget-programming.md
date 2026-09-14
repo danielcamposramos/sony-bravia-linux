@@ -623,6 +623,56 @@ clone) and ARMB/ARMB2 (never installed — phantom dock entries). Removal requir
 is pre-staged at `/tmp/acig-/applicast-phase3/Catalog_ROLLBACK.xml`. Decision pending
 with owner: keep ARMA as a living control / remove all three.
 
+### 10.5 Cleanup EXECUTED + dock curated (2026-09-13 ~22:45, owner-directed)
+Owner decision: keep only what is functional locally; remove the experiments and the
+dead-API social widgets. Deployed `Catalog_CLEAN.xml` (root updated
+2026-09-14T00:20:00; Deleted entries stamped same) to both AZ2/AZ3 trees:
+
+- **KEPT on the dock:** Leitor RSS (SNY_RSSReader — points at any RSS feed) and
+  Controle do Home Theatre (SNY_AudioControlApp — HDMI-CEC, no external API).
+- **DELETED:** SNY_Facebook, SNY_Twitter (dead legacy APIs), ARMA/ARMB/ARMB2
+  (experiments). Owner confirmed removal live on the EX725 screen within one poll.
+- Runtime fix discovered during removal: the TV 404'd
+  `WidgetBundles/SNY_RSSReader/por/preference.xml` — a locale-scoped preference
+  screen XML NOT covered by digest.txt (manifests cover code, not runtime-only
+  locale files). Recovered por+eng variants from origin (200) and deployed to the
+  vhost mirror — the kept RSS reader's options screen now works.
+
+### 10.6 Region comparison: what other countries got that Brazil did not (and vice versa)
+Assembled from every WsIndex/WsCatalog we now hold (LA live + Wayback EU/US + origin
+re-rescues incl. the newly recovered RB2_LA.xml, AZ3_US.xml, AZ3_US_ALL_eng.xml):
+
+| Era | Region | Widget inventory |
+|---|---|---|
+| AZ1 (2010-11) | EU (24 locales, all recovered) | SNY_AudioControl only — the thinnest region |
+| AZ1 (2010-11) | US | PHT_PhotoMap (Photo Player map) |
+| AZ2 (2011-12, EX725) | **Brazil/LA** | **Facebook, Twitter, Leitor RSS, Controle Home Theatre** |
+| AZ2 (2011-12) | US | SNY_AudioControlApp only; VideoExplorer/MusicExplorer exist as `pack:` firmware-embedded entries (`filter="hotel"`), never on CDN |
+| AZ3 (2012, HX855) | Brazil/LA | ≈ identical to US: PHT_PhotoMap, BgmSearch, MusicExplorer 2.0.6, SEN_Portal/SEN_Portal_DV, SocialTV EmotionPost/WatchingContent, MediaSearch, VCServiceUtil |
+| RB2 (FY13/14 rebrand) | Brazil/LA | ≈ identical to US (RB2_LA.xml recovered): CrossSearch(+Secure), BgmSearch(+2ndDisp), MyChannel/Keyword, Zapping manager (+Bundles 6.0.8–6.1.4), Discovery + DiscoveryYoutube, SocialViewing(+Secure), Football(+Secure), HomeMenu_FY14(+Secure), RecommendationSettings, SocialUX suite (playstation host), CsxAccessor, VCServiceUtil |
+
+Headline: **the AZ2-era inversion** — Brazil got MORE user-facing widgets than the
+US: Facebook/Twitter/Leitor RSS were LatAm exclusives; the US AZ2 catalog carried
+only the audio-control widget. From the AZ3 era on, LA and US inventories converge
+to the same set. The only genuinely US-only item is the era-1 PHT_PhotoMap.
+The 24 origin-denied bundles (Clock, Dailymotion, Deezer, Weather, Stocks, News,
+Sports, Flickr, TrackID, Napster, Slacker, Ebay, Shopping...) appear in NO captured
+regional catalog — their home region is unresolved (most plausibly JP-market or the
+SDK-era gallery lane, both 403'd at origin).
+
+### 10.7 Post-verdict origin rescues (still-live paths, 2026-09-13 ~22:50)
+The origin CDN still serves 200s on paths never in the Wayback captures:
+- `WidgetInfos/SNY_AudioControl/EU_ALL_<lang>/description.xml` — 19 locales saved
+  (ita lav nor pol rum rus slo slv spa swe tur eng fre ger dut fin dan gre cze + por
+  earlier; `hgb` 403).
+- `WsIndexes/RB2_LA.xml` (6 049 B — Brazil's FY14 rebrand-era index, previously
+  uncaptured), `WsIndexes/AZ3_US.xml`, `WsCatalogs/AZ3_US_ALL_eng.xml`,
+  `AZ2_US_ALL_{fre,spa}.xml`, `WsBundles/PHT_PhotoMap_AZ1_US/info.xml`.
+- 13/13 wayback throttle-failures recovered on retry round 3 — the Wayback sweep is
+  now COMPLETE (52 + 13 files).
+- VideoExplorer/MusicExplorer reclassified: firmware `pack:` entries, never CDN-
+  distributed — not a preservation loss.
+
 ### 9.6 What this unlocks (owner's framing)
 
 Region-gating is pure server-side XML: widgets shipped US/EU/JP-only can be listed
