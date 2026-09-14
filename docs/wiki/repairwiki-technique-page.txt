@@ -80,6 +80,10 @@ The 2011 EX7xx H.264 decoder cannot decode streams with <code>weighted_pred_flag
 
 The technique adds standard H.264 stereoscopic signalling metadata (ITU-T H.264 annex D) to media files the user owns, on the user's own network. No DRM, copy-protection or conditional-access mechanism (PlayReady, Marlin, CI+) is involved, circumvented or affected. Nothing on the television is modified.
 
+== Companion technique ==
+
+This fix composes with the broader service-withdrawal remedy on this wiki: [[Sony BRAVIA 2011-2012 - Restore a media player after service withdrawal (self-hosted LAN app)]], the self-hosted LAN media application that restores a usable, remote-navigable media player to these sets. Serving SEI-injected or wrapper-transcoded files through that application gives automatic 3D inside the app, not just over DLNA.
+
 == Documentation ==
 
 * Research repository, profile, wrapper and injector: [https://github.com/danielcamposramos/sony-bravia-linux github.com/danielcamposramos/sony-bravia-linux]

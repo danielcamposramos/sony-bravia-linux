@@ -1,0 +1,72 @@
+# MediaWiki source for the repair.wiki (Repair Preservation Group) companion
+# technique page: the service-withdrawal takeover. The 3D SEI page
+# (repairwiki-technique-page.txt) answers "my 3D rips play flat over DLNA";
+# this one answers "the smart features are dead and I want my own media
+# player back" — the reader arriving after the manufacturer withdrew the
+# services, not with a playback artifact. The two techniques compose: the
+# app lane below plus the SEI profile/injector gives a 3D-capable media
+# app on a 2011 set.
+#
+# HOW TO PUBLISH:
+#   1. Register a free account at repair.wiki; read RepairWiki:Guidelines
+#      first, and search for existing Sony TV pages to avoid duplicates.
+#   2. Suggested title: "Sony BRAVIA 2011-2012 - Restore a media player
+#      after service withdrawal (self-hosted LAN app)".
+#   3. Paste the markup below (everything after this header block).
+#   4. repair.wiki returned HTTP 403 to our automated fetches, so category
+#      names could not be verified — check existing categories on-site
+#      before saving.
+#   5. The [[wikilinks]] between this page and the 3D SEI page must match
+#      the titles actually published under — fix them at paste time if
+#      either title changed.
+#
+# MEDIAWIKI FORMATTING NOTE: every list item and indented block is a single
+# line — MediaWiki renders a leading-space continuation line as a <pre>
+# block, so wrapped items must not be re-wrapped when pasting.
+
+This page documents a software technique for restoring a usable, owner-controlled media player on the 2011&ndash;2012 (pre-Android, Linux-based) generation of Sony BRAVIA televisions after the manufacturer withdrew the internet services the sets were sold with. It requires no hardware repair, no disassembly, and no modification of the television: everything new runs on the owner's LAN, on the owner's own server, in software the owner controls. It was developed and verified live on stock firmware.
+
+== Symptom ==
+
+The set's internet/apps functionality is gone or hollow: service entries are missing from the home menu, a freshly-registered set receives an empty provision, or the surviving services are dead ends (a few entries whose third-party providers are still alive, such as Digital Concert Hall, keep working). On the sets verified, the television itself &mdash; panel, tuner, USB playback, network stack, built-in web browser &mdash; keeps working fully. The owner wants to play their own media library with a real, remote-navigable interface, without depending on any manufacturer server that can be switched off.
+
+== Affected hardware ==
+
+* '''Confirmed:''' KDL-46EX725 (2011, AZ2-F chassis) &mdash; the full application chain, navigation and playback live-verified on stock firmware &mdash; and KDL-46HX855 (2012, AZ3 chassis), on which the same browser and native-player chain is verified through its stock Digital Concert Hall lane; the application is expected to run unchanged on it.
+* '''Plausible, untested:''' other 2011&ndash;2012 BRAVIA Linux sets with the built-in "Internet Browser" application. The mechanism uses only the stock browser and standard HTTP &mdash; nothing model-specific in what was exercised. Community test results are collected in the [https://github.com/danielcamposramos/sony-bravia-linux/discussions/1 GitHub discussion].
+
+== Cause ==
+
+The "smart" features of this generation are client apps that render content provisioned by manufacturer servers. When the manufacturer withdraws the back end, the clients remain fully functional but have nothing to talk to: on a set freshly registered in 2026, registration itself succeeds (the gate machinery is still alive) and the provisioned content library comes back empty &mdash; the withdrawal is server-side: the registration machinery is still running, but the catalog behind it is gone, and only the few services whose third-party providers are still operating keep working. Sets that were registered while the services lived still show their old service entries, which is why two sets of the same generation can show different menus. The remedy is therefore not to fix the set but to stop depending on the far end: give the set's own, undamaged client stack (its Opera-based browser) an owner-run application instead.
+
+== Technique overview ==
+
+The technique stands up a small web application on the owner's LAN that the TV's built-in browser can use, and plays media through the browser's native player. Every step below was verified live on a stock KDL-46EX725 (2026). No DNS interception and no certificate tricks are needed; the chain runs over plain HTTP on the local network.
+
+# '''A media server on the LAN.''' Any UPnP/DLNA server with a library works; the verified setup uses stock '''Serviio 2.5''' (free edition) on a home server. The browser application talks to its UPnP ContentDirectory (plain HTTP SOAP Browse) and renders the library.
+# '''An era-capable web app.''' The set's browser is an Opera 9.8/11.00-era Presto build with no CORS, no modern JavaScript, and a hard memory ceiling (heavy pages fail with "page too big to display"). The verified application renders every page server-side &mdash; small plain-HTML documents with a tiny key-handling script &mdash; so the browser only ever performs plain GETs. Remote arrows arrive as standard keydown events, so list navigation (up/down select, OK/right open, left/back go back) needs no framework at all.
+# '''URL entry on the TV.''' Open the browser, press Options, choose the URL-entry field (called "Inserir URL" on Brazilian-market BRA firmware; localized equivalents elsewhere), and type the app's LAN address. This step can be automated from the LAN: the sets expose the CERS Remote Keyboard API over their own web interface &mdash; register a device once, then <code>GET /cers/api/sendText?text=&lt;url&gt;</code> with the registered device-ID header types the URL into the focused field from across the room. The television is not modified; CERS is how the stock "Media Remote" phone apps always talked to these sets.
+# '''Accept the era prompt once per session.''' Plain-HTTP pages that contain scripts trigger Opera's standard "this page contains insecure code" acceptance. Confirm it once; it is a browser feature, not an error.
+# '''Playback through the native player.''' The proven recipe is an HTML5 video element with the URL and MIME type set on a <code>&lt;source&gt;</code> child (not on <code>video.src</code>), then <code>load()</code> and <code>play()</code>. The native player then streams the file over HTTP with byte-range requests; the server must answer <code>206 Partial Content</code>. Media fetches are not subject to the browser's same-origin policy, so the video can be served from a different host than the pages &mdash; though with Serviio the app must proxy the stream; see the delivery gotcha below.
+# '''Format support is the codec list, not the browser.''' MP4 with H.264 (live-verified up to 1080p High@L4.0) and AAC plays directly, including side-by-side 3D files (see the companion 3D page for automatic 3D engagement). MKV, AVI and the other non-MP4 containers tested were refused by the era player itself (verified live) and need server-side transcoding; the era-native transcode target for these sets is MPEG-TS with H.264, which their DLNA stack was designed around. On Serviio this can happen on the fly: match the browsing client's renderer profile to the set's Sony profile and the server transcodes refused containers itself.
+# '''One delivery gotcha.''' If the app browses the library as one host and the TV fetches media directly, DLNA servers that bind resource URLs to the browsing client will refuse the TV's fetch (Serviio answers HTTP 500). Have the app proxy the media stream (byte-range passthrough), so the browsing client and the fetching client are the same host.
+
+== Verification (confirm your set behaves this way) ==
+
+# Open the browser, press Options, type the address of any plain web page served from the LAN, and confirm the page loads and the insecure-code acceptance appears once per session.
+# Before building anything, confirm the native player engages: serve a small faststart MP4 (H.264 + AAC) from a minimal page using the recipe in step 5 below, and confirm it plays.
+
+== What the owner ends up with ==
+
+A full library browser on the TV screen, navigated entirely with the stock remote: categories, folders, thousand-title movie libraries with paging, and per-title playback &mdash; navigation, browsing and playback live-confirmed on the set, with pause and skip-ahead controls built into the player pages. All served from the owner's own hardware, with no manufacturer dependency of any kind. The same pages run on both confirmed models; nothing in the chain trusts the model, so they should run on any set of the generation with the built-in browser.
+
+== Scope / legality ==
+
+The technique runs software on the owner's own server, on the owner's own LAN, and uses only interfaces the television already exposes (its stock browser and its stock CERS remote-keyboard API). No DRM, copy-protection or conditional-access mechanism (PlayReady, Marlin, CI+) is involved, circumvented or affected. Nothing on the television is modified, and no manufacturer server is needed, contacted or depended on by the technique itself &mdash; everything it uses is served on the owner's LAN (the stock browser's own default homepage is a manufacturer page; navigate away from it once).
+
+== Documentation ==
+
+* Research repository, working application and evidence: [https://github.com/danielcamposramos/sony-bravia-linux github.com/danielcamposramos/sony-bravia-linux] (<code>tools/serviio/tv-mediabrowser/</code>)
+* Companion technique, automatic 3D during DLNA/app playback: [[Sony BRAVIA 2011-2012 - Restore 3D auto-detection over DLNA (frame-packing SEI)]] on this wiki
+* Evidence base and community testing ask: [https://github.com/danielcamposramos/sony-bravia-linux/discussions/1 Discussion #1]
+* Consumer-rights background on the platform's withdrawal: [https://consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012) consumerrights.wiki entry]

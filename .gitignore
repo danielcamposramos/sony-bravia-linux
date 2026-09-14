@@ -5,3 +5,9 @@ manuals/
 docs/research/liverecon/playstation-archive/
 docs/research/liverecon/applicast-fetched/
 docs/research/liverecon/wayback-playstation/
+
+# Serviio console credentials — LAN secret, never in the repo
+tools/serviio/tv-mediabrowser/creds.json
+# runtime artifacts
+__pycache__/
+tools/serviio/tv-mediabrowser/server.log

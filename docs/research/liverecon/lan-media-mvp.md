@@ -110,3 +110,37 @@ lane is a next-phase task (curl-only, no DNS overrides ever).
 4. Port the same page to the 855's BIV browser lane once service injection
    (or the same built-in browser, if present on AZ3 firmware) is available;
    the standalone-browser chain is already proven on the EX725.
+
+## Update 2026-09-14 — the full app is live (tools/serviio/tv-mediabrowser)
+
+The next-step list above is now built: `server.py` (:8090) browses Serviio's
+UPnP ContentDirectory and renders the whole library for the era browser.
+Owner-verified on the EX725 in a live session (~00:14–00:22):
+
+- **Navigation** with the stock remote (arrows/OK) through category →
+  folder → item trees, including the 1248-title movie root and the Curtas
+  3D folder.
+- **MP4 direct playback through the app**, owner-confirmed across multiple
+  titles (playback events in serviio.log, e.g. item 84489 "3D BONSAI …
+  FULL HD 3D SBS" started → stopped at 34%). ffprobe of the played files:
+  **1920x1080 H.264 High@L4.0 + AAC** — upgrades the verified codec
+  ceiling from the 720p Main@L4.0 clip to 1080p High.
+- **Format probe result (decides the transcode lane):** AVI, MKV and other
+  non-MP4 containers are **refused by the era player itself, client-side**
+  (owner-confirmed; unrelated to the Serviio res-URL client-binding 500,
+  which the `/stream/` proxy already fixed). They need server-side
+  transcoding.
+- **Transcode lane enabled with no app changes:** Serviio picks delivery
+  format from the renderer profile matched to the requesting client's IP.
+  The workstation — the app's browse+fetch client since the proxy — was
+  switched from "Generic DLNA" to the "Sony Bravia EX7xx/HX8xx (3D
+  Enhanced)" user profile (`sony2011x`) via the console's own REST path
+  (`GET`/`PUT /rest/status`, port 23423, the same write the console Status
+  tab makes). serviio.log shows the transcode engine engaging right after
+  the switch; MKV/AVI playback through the app lane pending owner retest.
+- Era prompt: accepted once per session, did not re-fire across many page
+  loads. Era-browser quirk: it decodes `%2A` to a literal `*` in browse
+  URLs — harmless, the handler unquotes.
+- Player pages now render the video as a fixed full-viewport element with
+  a slim overlay strip (owner request: match the DCH app's fullscreen
+  playback; also removes the scrollbar the embedded layout caused).
