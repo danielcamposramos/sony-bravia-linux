@@ -177,7 +177,7 @@ img{max-width:100%;}
 .hud #status{font-size:44px;margin:0;}
 /* music page: album art centered over the on-screen button row; the
    audio element stays 1px in-flow (display:none risks era decode skips) */
-#music img{display:block;margin:8px auto;max-width:70%;border:4px solid #333;}
+#music img{display:block;margin:8px auto;width:512px;max-width:95%;border:4px solid #333;}
 """
 
 NAV_JS = """
@@ -800,12 +800,24 @@ def _oid_for_item(obj_id):
 # (built once in the background, persisted, refreshed by mtime). Exact
 # and normalized title matches are fast path + tiebreaker.
 
-MEDIA_ROOTS = [r for r in os.environ.get(
+def _pick_local(*cands):
+    """First existing dir — lets the same file run on d2server (media is
+    LOCAL there: /mnt/arquivos2) and on the workstation (CIFS mirror at
+    /mnt/Backup). Daniel's rule: heavy media work belongs on d2server,
+    so that is the app's real home; the CIFS paths are the fallback."""
+    for c in cands:
+        if os.path.isdir(c):
+            return c
+    return cands[-1]
+
+MEDIA_ROOTS = [r for r in os.environ.get('MEDIA_ROOTS', '').split(':')
+               if os.path.isdir(r)]
+if not MEDIA_ROOTS:
     # Música first: the probe pass walks roots in order and the duration
     # cache replays already-probed files instantly, so audio (the small,
     # newly indexed root) finishes while video replays from cache.
-    'MEDIA_ROOTS', '/mnt/Backup/Música:/mnt/Backup/Vídeos').split(':')
-               if os.path.isdir(r)]
+    MEDIA_ROOTS = [_pick_local('/mnt/arquivos2/Música', '/mnt/Backup/Música'),
+                   _pick_local('/mnt/arquivos2/Vídeos', '/mnt/Backup/Vídeos')]
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
 # sweep stale transcode remnants at startup: a part file with no live job
