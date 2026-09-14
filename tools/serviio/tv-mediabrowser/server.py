@@ -149,15 +149,15 @@ def pick_audio_res(res_list):
 CSS = """
 body{background:#000;color:#fff;font-family:sans-serif;margin:0;}
 a{color:#fff;text-decoration:none;}
-h2{margin:10px;font-size:30px;font-weight:normal;}
-#hdr{color:#ccc;font-size:34px;}
+h2{margin:10px;font-size:60px;font-weight:normal;}
+#hdr{color:#3cf;font-size:68px;}
 ul{list-style:none;margin:10px;padding:0;}
-li{padding:10px 14px;font-size:28px;}
-li.sel{background:#fff;color:#000;}
+li{padding:10px 14px;font-size:56px;background:#222;border-left:8px solid #3cf;margin:0 0 12px 0;}
+li.sel{background:#3cf;color:#000;}
 li.sel a{color:#000;}
-#foot{color:#888;font-size:22px;margin:10px;}
-#status{margin:10px;font-size:28px;}
-#fmt{color:#ccc;font-size:22px;margin:0 10px;}
+#foot{color:#999;font-size:44px;margin:10px;}
+#status{margin:10px;font-size:56px;}
+#fmt{color:#ccc;font-size:44px;margin:0 10px;}
 video{background:#000;}
 img{max-width:100%;}
 /* player pages: full-viewport video like the karajan/DCH app — era Presto
@@ -165,14 +165,18 @@ img{max-width:100%;}
    the HUD is a fixed bottom strip; neither is in the document flow, so no
    scrollbar and no embedded letterboxing */
 #player_page video{position:fixed;left:0;top:0;width:100%;height:100%;border:0;z-index:1;}
-.hud{position:fixed;left:0;bottom:0;width:100%;margin:0;padding:6px 14px;background:#000;color:#fff;font-size:22px;z-index:2;}
+.hud{position:fixed;left:0;bottom:0;width:100%;margin:0;padding:6px 14px;background:#000;color:#fff;font-size:44px;z-index:2;}
 .hud #fmt{color:#ccc;margin:0;}
+/* #status alone would win on ID specificity (56px) inside the 44px strip */
+.hud #status{font-size:44px;margin:0;}
 """
 
 NAV_JS = """
 var items=document.getElementsByTagName('li');
 var sel=0;
-function show(){for(var i=0;i<items.length;i++){items[i].className=(i==sel)?'sel':'';}}
+// big-font rows overflow the era viewport: without this the highlight
+// walks off-screen and the arrows never scroll (onkeydown returns false)
+function show(){for(var i=0;i<items.length;i++){items[i].className=(i==sel)?'sel':'';}if(items.length){try{items[sel].scrollIntoView(false);}catch(x){}}}
 function move(d){if(!items.length){return;}sel=(sel+d+items.length)%items.length;show();}
 function openSel(){if(!items.length||!items[sel]){return;}var a=items[sel].getElementsByTagName('a');if(a.length){window.location=a[0].href;}}
 show();
@@ -195,13 +199,13 @@ function hideshow(v2){if(hud){hud.style.visibility=v2?'visible':'hidden';}}
 var s=document.createElement('source');
 s.type=%MIME%;
 s.src=%URL%;
-s.addEventListener('error',function(){st.innerHTML='ERROR: source error';hideshow(true);});
+s.addEventListener('error',function(){st.innerHTML=%hud_err_src%;hideshow(true);});
 v.appendChild(s);
 v.style.display='block';
 v.setAttribute('width','100%');
 v.setAttribute('height','100%');
-v.addEventListener('loadstart',function(){st.innerHTML='loadstart';});
-v.addEventListener('canplay',function(){st.innerHTML='canplay';});
+v.addEventListener('loadstart',function(){st.innerHTML=%hud_loadstart%;});
+v.addEventListener('canplay',function(){st.innerHTML=%hud_canplay%;});
 v.addEventListener('durationchange',function(e){st.innerHTML='duration '+Math.round(e.target.duration)+'s';});
 v.addEventListener('timeupdate',function(e){st.innerHTML=Math.round(e.target.currentTime)+'/'+Math.round(e.target.duration)+'s';hideshow(false);});
 v.addEventListener('playing',function(){hideshow(false);});
@@ -209,13 +213,13 @@ v.addEventListener('playing',function(){hideshow(false);});
 // belt-and-braces hide; error/ended above bring the HUD back when it
 // becomes the diagnostic surface
 setTimeout(function(){hideshow(false);},4000);
-v.addEventListener('error',function(e){st.innerHTML='ERROR: code '+(e.target.error?e.target.error.code:'?');hideshow(true);});
-v.addEventListener('ended',function(){st.innerHTML='ENDED';hideshow(true);});
+v.addEventListener('error',function(e){st.innerHTML=%hud_err_code%+(e.target.error?e.target.error.code:'?');hideshow(true);});
+v.addEventListener('ended',function(){st.innerHTML=%hud_ended%;hideshow(true);});
 v.load();v.play();
-st.innerHTML='load()+play()';
+st.innerHTML=%hud_load%;
 document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
-  if(k==13){if(v.paused){v.play();st.innerHTML='play';hideshow(false);}else{v.pause();st.innerHTML='pause';hideshow(true);}}
+  if(k==13){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
   else if(k==39){try{v.currentTime+=30;}catch(x){}}
   else if(k==37||k==8){history.back();}
   else{return true;}
@@ -232,9 +236,189 @@ document.onkeydown=function(e){
 };
 """
 
+# ---------------------------------------------------------------- i18n
+# Server-side UI strings. The era browser sends Accept-Language; do_GET
+# resolves it once per request into _UI (threading.local — the renderers
+# are module-level functions, not methods) and every user-facing string
+# goes through T(). 'en' is the base/fallback, 'pt' is the household
+# language of the verified sets, 'es' the other big regional language.
+
+_UI = threading.local()
+
+STRINGS = {
+    'en': {
+        'nav_foot': 'Arrows navigate, OK opens, left = back',
+        'no_items': '(no items)',
+        'empty': '(empty)',
+        'prev': '&lt; previous',
+        'next': 'next &gt;',
+        'of': 'of',
+        'browse': 'Browse',
+        'starting': 'starting... OK=pause, right=+30s, left=back',
+        'back_foot': 'left = back',
+        'error': 'Error',
+        'home': 'home',
+        'audio': 'Audio',
+        'no_audio': 'Play (no audio track)',
+        'choose_track': 'Choose the audio track',
+        'conv_foot': ('OK starts conversion (first time only; '
+                      'later views play instantly). left = back'),
+        'dolby_note': 'Dolby tracks play bit-exact (no conversion). ',
+        'converting': 'Converting... %d%%',
+        'converting_t': 'Converting',
+        'refresh_foot': ('this page refreshes every 5s and plays '
+                         'automatically when ready. left = back'),
+        'converted': ' (converted)',
+        'retry': 'conversion failed — OK to try again (cache/%s.log)',
+        'lib_building': ('library index still building — '
+                         'try again in a few minutes'),
+        'locating': ('still locating this title (duration index probing, '
+                     'try again in a few minutes)'),
+        'no_match': 'no matching file in the mounted library',
+        # player HUD live status (PLAYER_JS overwrites #status as playback
+        # progresses — these replace what were hardcoded English strings)
+        'hud_load': 'loading and playing',
+        'hud_loadstart': 'loading stream',
+        'hud_canplay': 'ready',
+        'hud_play': 'playing',
+        'hud_pause': 'paused',
+        'hud_ended': 'ended',
+        'hud_err_src': 'ERROR: source error',
+        'hud_err_code': 'ERROR: code ',
+        # error-page detail lines (render_error interpolates these raw)
+        'no_meta': 'no metadata for %r',
+        'no_image_res': 'no image resource',
+        'no_audio_res': 'no audio resource',
+        'no_video_res': 'no video resource',
+        'clip_missing': 'clip missing: %s',
+    },
+    'pt': {
+        'nav_foot': 'Setas navegam, OK abre, esquerda = voltar',
+        'no_items': '(sem itens)',
+        'empty': '(vazio)',
+        'prev': '&lt; anterior',
+        'next': 'próximo &gt;',
+        'of': 'de',
+        'browse': 'Navegar',
+        'starting': 'iniciando... OK=pausa, direita=+30s, esquerda=voltar',
+        'back_foot': 'esquerda = voltar',
+        'error': 'Erro',
+        'home': 'início',
+        'audio': 'Áudio',
+        'no_audio': 'Reproduzir (sem faixa de áudio)',
+        'choose_track': 'Escolha a faixa de áudio',
+        'conv_foot': ('OK inicia a conversão (só na primeira vez; '
+                      'depois toca na hora). esquerda = voltar'),
+        'dolby_note': 'Faixas Dolby tocam bit-exatas (sem conversão). ',
+        'converting': 'Convertendo... %d%%',
+        'converting_t': 'Convertendo',
+        'refresh_foot': ('esta página atualiza a cada 5s e toca '
+                         'automaticamente quando ficar pronta. esquerda = voltar'),
+        'converted': ' (convertido)',
+        'retry': 'conversão falhou — OK para tentar de novo (cache/%s.log)',
+        'lib_building': ('índice da biblioteca ainda em construção — '
+                         'tente de novo em alguns minutos'),
+        'locating': ('ainda localizando este título (sondagem do índice de '
+                     'durações, tente de novo em alguns minutos)'),
+        'no_match': 'nenhum arquivo correspondente na biblioteca montada',
+        'hud_load': 'carregando e tocando',
+        'hud_loadstart': 'carregando o fluxo',
+        'hud_canplay': 'pronto',
+        'hud_play': 'tocando',
+        'hud_pause': 'pausado',
+        'hud_ended': 'fim',
+        'hud_err_src': 'ERRO: erro na origem',
+        'hud_err_code': 'ERRO: código ',
+        'no_meta': 'sem metadados para %r',
+        'no_image_res': 'sem recurso de imagem',
+        'no_audio_res': 'sem recurso de áudio',
+        'no_video_res': 'sem recurso de vídeo',
+        'clip_missing': 'clipe ausente: %s',
+    },
+    'es': {
+        'nav_foot': 'Flechas navegan, OK abre, izquierda = volver',
+        'no_items': '(sin elementos)',
+        'empty': '(vacío)',
+        'prev': '&lt; anterior',
+        'next': 'siguiente &gt;',
+        'of': 'de',
+        'browse': 'Explorar',
+        'starting': 'iniciando... OK=pausa, derecha=+30s, izquierda=volver',
+        'back_foot': 'izquierda = volver',
+        'error': 'Error',
+        'home': 'inicio',
+        'audio': 'Audio',
+        'no_audio': 'Reproducir (sin pista de audio)',
+        'choose_track': 'Elija la pista de audio',
+        'conv_foot': ('OK inicia la conversión (solo la primera vez; '
+                      'luego reproduce al instante). izquierda = volver'),
+        'dolby_note': 'Las pistas Dolby se reproducen bit-exactas (sin conversión). ',
+        'converting': 'Convirtiendo... %d%%',
+        'converting_t': 'Convirtiendo',
+        'refresh_foot': ('esta página se actualiza cada 5s y reproduce '
+                         'automáticamente al estar lista. izquierda = volver'),
+        'converted': ' (convertido)',
+        'retry': 'conversión fallida — OK para reintentar (cache/%s.log)',
+        'lib_building': ('índice de la biblioteca aún en construcción — '
+                         'intente de nuevo en unos minutos'),
+        'locating': ('aún localizando este título (sondeo del índice de '
+                     'duraciones, intente de nuevo en unos minutos)'),
+        'no_match': 'ningún archivo coincidente en la biblioteca montada',
+        'hud_load': 'cargando y reproduciendo',
+        'hud_loadstart': 'cargando el flujo',
+        'hud_canplay': 'listo',
+        'hud_play': 'reproduciendo',
+        'hud_pause': 'en pausa',
+        'hud_ended': 'finalizado',
+        'hud_err_src': 'ERROR: error de origen',
+        'hud_err_code': 'ERROR: código ',
+        'no_meta': 'sin metadatos para %r',
+        'no_image_res': 'sin recurso de imagen',
+        'no_audio_res': 'sin recurso de audio',
+        'no_video_res': 'sin recurso de video',
+        'clip_missing': 'clip ausente: %s',
+    },
+}
+
+
+def T(key):
+    lang = getattr(_UI, 'lang', None)
+    if lang not in STRINGS:
+        lang = 'en'
+    return STRINGS[lang].get(key, STRINGS['en'][key])
+
+
+def set_ui_lang(accept_language):
+    """Resolve the request's Accept-Language to a UI language.
+
+    Walks tokens in order, stripping ;q= weights (RFC-legal forms like
+    'pt;q=0.9,en;q=0.8' must not defeat the lookup) and falls through to
+    later tokens when the first is unsupported.
+    """
+    for part in (accept_language or '').split(','):
+        code = part.split(';', 1)[0].strip().lower()
+        code = code.split('-', 1)[0]
+        if code in STRINGS:
+            _UI.lang = code
+            return
+    _UI.lang = 'en'
+
 
 def esc(s):
     return html.escape(str(s), quote=True)
+
+
+# PLAYER_JS HUD placeholders resolved per-request (json.dumps gives a
+# JS-safe quoted literal; T() gives the request's language)
+HUD_KEYS = ('hud_err_src', 'hud_loadstart', 'hud_canplay', 'hud_err_code',
+            'hud_ended', 'hud_load', 'hud_play', 'hud_pause')
+
+
+def player_js(mime, url):
+    js = (PLAYER_JS.replace('%MIME%', repr(mime)).replace('%URL%', repr(url)))
+    for k in HUD_KEYS:
+        js = js.replace('%%%s%%' % k, json.dumps(T(k)))
+    return js
 
 
 def _page(title, body, extra_js=NAV_JS, extra_head=''):
@@ -251,15 +435,15 @@ def render_root():
         % (urllib.parse.quote(o['id'], safe=''), esc(o['title']),
            o.get('child_count', '?'))
         for o in objects)
-    body = ('<h2 id="hdr">K3D BRAVIA MediaBrowser</h2>'
+    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
             '<h2>Serviio @ %s</h2><ul>%s</ul>'
-            '<p id="foot">Arrows navigate, OK opens, left = back</p>'
-            % (esc(SERVIIO), rows))
+            '<p id="foot">%s</p>'
+            % (esc(SERVIIO), rows, T('nav_foot')))
     return _page('BRAVIA MediaBrowser', body)
 
 
 def render_list(obj_id, objects, total, start, title=''):
-    rows = ['<li>(no items)</li>'] if not objects else []
+    rows = ['<li>%s</li>' % T('no_items')] if not objects else []
     for o in objects:
         qid = urllib.parse.quote(o['id'], safe='')
         if o['container']:
@@ -301,18 +485,21 @@ def render_list(obj_id, objects, total, start, title=''):
     if rows:
         rows[0] = rows[0].replace('<li>', '<li class="sel">', 1)
     if start > 0:
-        nav += ('<li><a href="/b/%s?start=%d">&lt; previous</a></li>'
-                % (urllib.parse.quote(obj_id, safe=''), max(0, start - PAGE_SIZE)))
+        nav += ('<li><a href="/b/%s?start=%d">%s</a></li>'
+                % (urllib.parse.quote(obj_id, safe=''),
+                   max(0, start - PAGE_SIZE), T('prev')))
     if start + len(objects) < total:
-        nav += ('<li><a href="/b/%s?start=%d">next &gt;</a></li>'
-                % (urllib.parse.quote(obj_id, safe=''), start + PAGE_SIZE))
-    body = ('<h2 id="hdr">K3D BRAVIA MediaBrowser</h2>'
-            '<h2>%s <span style="color:#888">%d-%d of %d</span></h2>'
+        nav += ('<li><a href="/b/%s?start=%d">%s</a></li>'
+                % (urllib.parse.quote(obj_id, safe=''),
+                   start + PAGE_SIZE, T('next')))
+    t_title = esc(title or T('browse'))
+    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
+            '<h2>%s <span style="color:#888">%d-%d %s %d</span></h2>'
             '<ul>%s%s</ul>'
-            '<p id="foot">Arrows navigate, OK opens, left = back</p>'
-            % (esc(title or 'Browse'), start + 1, start + len(objects), total,
-               ''.join(rows), nav))
-    return _page(title or 'Browse', body)
+            '<p id="foot">%s</p>'
+            % (t_title, start + 1, start + len(objects), T('of'), total,
+               ''.join(rows), nav, T('nav_foot')))
+    return _page(title or T('browse'), body)
 
 
 def proxied_res_url(res_url):
@@ -323,25 +510,24 @@ def proxied_res_url(res_url):
 
 def render_player(o, res):
     label = '%s / %s%s' % (res['mime'], res['pn'],
-                           ' (converted)' if res['ci'] == '1' else '')
+                           T('converted') if res['ci'] == '1' else '')
     title = o['title']
     body = ('<div id="player_page">'
             '<video id="player_object" width="0px" height="0px" preload="none"></video>'
             '<p class="hud" id="hud"><span id="ttl">%s</span> &mdash; '
             '<span id="fmt">%s</span> &mdash; '
-            '<span id="status">starting... OK=pause, right=+30s, left=back</span></p>'
+            '<span id="status">%s</span></p>'
             '</div>'
-            % (esc(title), esc(label)))
-    js = (PLAYER_JS.replace('%MIME%', repr(res['mime']))
-                   .replace('%URL%', repr(proxied_res_url(res['url']))))
+            % (esc(title), esc(label), T('starting')))
+    js = player_js(res['mime'], proxied_res_url(res['url']))
     return _page(title, body, extra_js=js)
 
 
 def render_image(o, res):
     body = ('<h2 id="hdr">%s</h2>'
             '<p><img src="%s" alt=""></p>'
-            '<p id="foot">left = back</p>'
-            % (esc(o['title']), esc(res['url'])))
+            '<p id="foot">%s</p>'
+            % (esc(o['title']), esc(res['url']), T('back_foot')))
     return _page(o['title'], body, extra_js=IMG_JS)
 
 
@@ -359,19 +545,19 @@ def render_local_player(name, mime, url):
             '<video id="player_object" width="0px" height="0px" preload="none"></video>'
             '<p class="hud" id="hud"><span id="ttl">%s</span> &mdash; '
             '<span id="fmt">%s</span> &mdash; '
-            '<span id="status">starting... OK=pause, right=+30s, left=back</span></p>'
+            '<span id="status">%s</span></p>'
             '</div>'
-            % (esc(name), esc(mime)))
-    js = PLAYER_JS.replace('%MIME%', repr(mime)).replace('%URL%', repr(url))
+            % (esc(name), esc(mime), T('starting')))
+    js = player_js(mime, url)
     return _page(name, body, extra_js=js)
 
 
 def render_error(where, err):
-    body = ('<h2 id="hdr">K3D BRAVIA MediaBrowser</h2>'
-            '<h2>Error</h2><p id="status">%s</p>'
-            '<p id="foot"><a href="/">home</a></p>'
-            % esc('%s: %s' % (where, err)))
-    return _page('Error', body)
+    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
+            '<h2>%s</h2><p id="status">%s</p>'
+            '<p id="foot"><a href="/">%s</a></p>'
+            % (T('error'), esc('%s: %s' % (where, err)), T('home')))
+    return _page(T('error'), body)
 
 
 def render_tracks(o, fmt):
@@ -383,7 +569,7 @@ def render_tracks(o, fmt):
                            int(v.get('width') or 0), int(v.get('height') or 0))
     rows = []
     for t in tracks:
-        label = 'Audio %d: %s' % (t['n'], t['codec'] or '?')
+        label = '%s %d: %s' % (T('audio'), t['n'], t['codec'] or '?')
         if t['lang']:
             label += ' (%s)' % t['lang']
         if t['ch']:
@@ -394,26 +580,28 @@ def render_tracks(o, fmt):
                     % (urllib.parse.quote(o['id'], safe=''), t['n'],
                        esc(label)))
     if not rows:
-        rows = ['<li><a href="/tr/%s/na">Play (no audio track)</a></li>'
-                % urllib.parse.quote(o['id'], safe='')]
-    foot = 'OK starts conversion (first time only; later views play instantly). left = back'
+        rows = ['<li><a href="/tr/%s/na">%s</a></li>'
+                % (urllib.parse.quote(o['id'], safe=''), T('no_audio'))]
+    foot = T('conv_foot')
     if any(t['codec'] in ('ac3', 'eac3') for t in tracks):
-        foot = ('Dolby tracks play bit-exact (no conversion). ' + foot)
-    body = ('<h2 id="hdr">K3D BRAVIA MediaBrowser</h2>'
+        foot = T('dolby_note') + foot
+    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
             '<h2>%s <span style="color:#888">%s</span></h2>'
-            '<h2>Choose the audio track</h2><ul>%s</ul>'
+            '<h2>%s</h2><ul>%s</ul>'
             '<p id="foot">%s</p>'
-            % (esc(o['title']), esc(vlabel), ''.join(rows), foot))
+            % (esc(o['title']), esc(vlabel), T('choose_track'),
+               ''.join(rows), foot))
     return _page(o['title'], body)
 
 
 def render_progress(title, pct, note):
     head = '<meta http-equiv="refresh" content="5">'
-    body = ('<h2 id="hdr">K3D BRAVIA MediaBrowser</h2>'
-            '<h2>%s</h2><h2 id="status">Converting... %d%%</h2>'
-            '<p id="foot">%s - this page refreshes every 5s and plays automatically when ready. left = back</p>'
-            % (esc(title), int(pct), esc(note)))
-    return _page('Converting', body, extra_js=IMG_JS, extra_head=head)
+    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
+            '<h2>%s</h2><h2 id="status">%s</h2>'
+            '<p id="foot">%s - %s</p>'
+            % (esc(title), T('converting') % int(pct), esc(note),
+               T('refresh_foot')))
+    return _page(T('converting_t'), body, extra_js=IMG_JS, extra_head=head)
 
 
 # ---------------------------------------------------------------- http server
@@ -637,11 +825,10 @@ def resolve_source(title, didl_dur):
             if rank(ranked[0]) != rank(ranked[1]):
                 return ranked[0], None
     if not _lib_ready:
-        return None, 'library index still building — try again in a few minutes'
+        return None, T('lib_building')
     if not _lib_dur_done:
-        return None, ('still locating this title (duration index probing, '
-                      'try again in a few minutes)')
-    return None, 'no matching file in the mounted library'
+        return None, T('locating')
+    return None, T('no_match')
 
 
 _jobs = {}   # cache key -> {proc, progress, out, part, duration, encoder}
@@ -807,6 +994,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_GET(self):
         u = urlparse(self.path)
+        set_ui_lang(self.headers.get('Accept-Language'))
         if u.path.startswith('/stream/'):
             return self.do_stream(u)
         try:
@@ -817,7 +1005,7 @@ class Handler(BaseHTTPRequestHandler):
                 start = int((parse_qs(u.query).get('start') or ['0'])[0])
                 objects, total = upnp_browse(obj_id, start=start)
                 if not objects and total == 0:
-                    body = render_list(obj_id, [], 0, 0, '(empty)')
+                    body = render_list(obj_id, [], 0, 0, T('empty'))
                 else:
                     # title is cosmetic: best-effort, never discard the listing
                     title = ''
@@ -841,7 +1029,7 @@ class Handler(BaseHTTPRequestHandler):
                     return
                 fn = os.path.join(TEST_DIR, TEST_FILES[name])
                 if not os.path.exists(fn):
-                    body = render_error('test', 'clip missing: %s' % name)
+                    body = render_error('test', T('clip_missing') % name)
                 else:
                     body = render_local_player(name, 'video/mp4',
                                                '/t/file/%s' % urllib.parse.quote(name))
@@ -851,16 +1039,16 @@ class Handler(BaseHTTPRequestHandler):
                 obj_id = urllib.parse.unquote(u.path.split('/', 2)[2])
                 o = _oid_for_item(obj_id)
                 if not o:
-                    body = render_error('item', 'no metadata for %r' % obj_id)
+                    body = render_error('item', T('no_meta') % obj_id)
                 elif kind == 'img':
                     r = pick_image_res(o['res'])
-                    body = render_image(o, r) if r else render_error('item', 'no image res')
+                    body = render_image(o, r) if r else render_error('item', T('no_image_res'))
                 elif kind == 'aud':
                     r = pick_audio_res(o['res'])
-                    body = render_player(o, r) if r else render_error('item', 'no audio res')
+                    body = render_player(o, r) if r else render_error('item', T('no_audio_res'))
                 else:
                     r = pick_video_res(o['res'])
-                    body = render_player(o, r) if r else render_error('item', 'no video res')
+                    body = render_player(o, r) if r else render_error('item', T('no_video_res'))
             else:
                 self.send_error(404)
                 return
@@ -989,7 +1177,7 @@ class Handler(BaseHTTPRequestHandler):
             o = _oid_for_item(obj_id)
             if not o:
                 self._send_html(render_error(
-                    'transcode', 'no metadata for %r' % obj_id).encode())
+                    'transcode', T('no_meta') % obj_id).encode())
                 return
             r = pick_video_res(o['res'])
             if track is None and r and r['mime'] == 'video/mp4':
@@ -1026,9 +1214,7 @@ class Handler(BaseHTTPRequestHandler):
                     # pop the entry so the next OK retries instead of a
                     # terminal dead state (failure may have been transient)
                     self._send_html(render_error(
-                        'transcode',
-                        'conversion failed — OK to try again '
-                        '(cache/%s.log)' % key).encode())
+                        'transcode', T('retry') % key).encode())
                     return
                 st, pct = 'none', 0
             if st == 'none':
