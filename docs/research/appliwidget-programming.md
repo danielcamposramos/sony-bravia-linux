@@ -290,11 +290,37 @@ Watch the wire (the project already has the pcap rig): which files the TV pulls 
 
 ## 5. Recommended authoring target for a first custom widget
 
-### Target: **AC2.1 profile, RSSReader-shaped** — with SAX1.1/WAA1.0 as fallback
+### Target: **K3D_Clock — AC2.1 floating clock, truth source = NTP.br official time** (owner-chosen 2026-09-13)
+The first custom widget is now specified (replaces generic LAN_Hello), with two
+owner-chosen properties: a floating overlay panel (dock-rail corner clock) and the
+Brazilian Legal Time as the truth source.
 
-Rationale:
+- **Overlay form is proven native:** SAX1.1 dock widgets (Facebook/Twitter dock.xml
+  panels) and AC2.1 `<fullscreen>0</fullscreen>` + `<width>/<height>` small panels
+  both run on these TVs.
+- **Time source:** widgets have HTTP XHR only (no UDP/NTP sockets) — use NIC.br's
+  Brazilian Legal Time HTTP API (`a.api.braziltime.com.br`, JSON timestamp).
+  Cross-origin HTTP GET is proven (RSSReader fetches arbitrary feed URLs; the TV
+  reaches the internet directly, no DNS override involved).
+- **Algorithm:** poll every ~10 min → `offset = official_time − tv_clock` → tick
+  locally between polls (tv_clock + offset). Display the live offset in the options
+  screen as a diagnostic.
+- **DST is a non-problem by design:** Brazil abolished DST (2019); render UTC-3
+  (UTC-4 option for far-west states) straight from the API's UTC. The TV's broken
+  DST table (§8.4) never enters the loop — this *is* the clock fix.
+- **Analog rendering:** no canvas in the RSSReader-shaped profile — pre-render hand
+  positions as frame PNGs swapped in a `<Bitmap>` (frame-swap animation is native;
+  Sony's own loading spinner is a 4-frame PNG cycle). Digital is a `Memo2D`.
+- Digital/analog toggle via `<preference>1</preference>` options menu.
+- **Gated behind the §4 verdict:** ENFORCED means this cannot install until the
+  firmware lane (UART/ABK) opens the signature wall. Author and test NOW against
+  the community PC emulator (geekpage `emulator.php`, archived) so it installs the
+  day the gate falls.
+
+### Profile rationale: **AC2.1 profile, RSSReader-shaped** — with SAX1.1 as fallback
+
 - **Simplest surface observed anywhere**: ~30 engine globals, 6-element declarative markup, plain callbacks for remote keys, async GET XHR, two-string-key persistence. No canvas painting, no event-loop management, no per-view duplicated digest entries (single layout root).
-- **Sony itself served an AC2.1 bundle (SNY_RSSReader) from applicast.ga.sony.net to international GA-region TVs** — the strongest available evidence the EX725's WidgetSystem/3.0.9 accepts it (unproven for our specific sets: §7 Q2).
+- **Sony itself served an AC2.1 bundle (SNY_RSSReader) from applicast.ga.sony.net to international GA-region TVs** — and AC2.1 is now *proven executing* on the EX725 (§7 Q2).
 - Full community-era documentation survives for AC-profile programming (geekpage.jp tutorial series, live; HelloWorld.zip verified downloadable at `/tmp/acig-/applicast-archive/geekpage/`; the only GitHub AppliCast widget, takus/js-tardy-prevention-timer, is AC2.0 and mirrored at `/tmp/acig-/applicast-archive/github-takus/`).
 - Caveat: if the EX725 rejects AC2.1, fall back to **SAX1.1** (Facebook-shaped: dock.xml + canvas.xml XGML, no encryption needed) — that profile is *proven installed* on these TVs (Facebook/Twitter were the store inventory).
 
