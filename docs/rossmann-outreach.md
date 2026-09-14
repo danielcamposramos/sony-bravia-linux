@@ -99,7 +99,13 @@ no GitHub presence exists.)
    (product-line page via the guided creator; draft in
    docs/wiki/consumerrights-wiki-entry.txt)
 2. repair.wiki account + technique page (draft ready in
-   docs/wiki/repairwiki-technique-page.txt)
+   docs/wiki/repairwiki-technique-page.txt) — BLOCKED: site down for
+   maintenance with no firm date (2026-09-13); revisit later, not a
+   dependency for the email
 3. Serviio forum post — DONE (see section 4)
-4. Hand-written email to youtube@rossmanngroup.com linking all three
+4. Hand-written email to youtube@rossmanngroup.com linking all three —
+   SENT 2026-09-13 (hand-rewritten by the owner; archive offer + password
+   included; response window is weeks, not days — Louis reads them all but
+   slowly). Awaiting reply.
+5. Archive handover to RPG/FULU if they take it up
 5. Archive handover to RPG/FULU if they take it up
