@@ -63,7 +63,11 @@ NAME_TOKENS = [
 
 
 def run(cmd, **kw):
-    return subprocess.run(cmd, check=True, capture_output=True, text=True, **kw)
+    # errors="replace": ffmpeg trace output can carry raw binary bytes (a
+    # corrupt tail, proprietary chunks) that strict utf-8 decode chokes on —
+    # seen live on one file in the first full-library run.
+    return subprocess.run(cmd, check=True, capture_output=True, text=True,
+                          errors="replace", **kw)
 
 
 def probe(path):
@@ -114,14 +118,14 @@ def count_sei(path, seconds=8):
     """
     r = subprocess.run(["ffmpeg", "-v", "trace", "-i", str(path), "-t", str(seconds),
                         "-c:v", "copy", "-bsf:v", "trace_headers", "-f", "null", "-"],
-                       capture_output=True, text=True)
+                       capture_output=True, text=True, errors="replace")
     return len(SEI_MARK.findall(r.stderr))
 
 
 def detect_mode(path, tag, w, h, default_sbs_ok):
     """Detection cascade. Returns (mode, reason) or (None, reason)."""
     if tag in STEREO_MAP:
-        return STEREO_MAP[tag], f"tag:{tag}"
+        return STEREO_MAP[tag][0], f"tag:{tag}"
     for rx, mode in NAME_TOKENS:
         if rx.search(path.name):
             return mode, "filename"
