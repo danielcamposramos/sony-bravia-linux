@@ -103,9 +103,12 @@ no GitHub presence exists.)
    maintenance with no firm date (2026-09-13); revisit later, not a
    dependency for the email
 3. Serviio forum post — DONE (see section 4)
-4. Hand-written email to youtube@rossmanngroup.com linking all three —
-   SENT 2026-09-13 (hand-rewritten by the owner; archive offer + password
-   included; response window is weeks, not days — Louis reads them all but
-   slowly). Awaiting reply.
+4. Hand-written email — SENT 2026-09-13 (hand-rewritten by the owner; archive
+   offer + password included; response window is weeks, not days — Louis
+   reads them all but slowly). Sent to BOTH youtube@rossmanngroup.com
+   (Louis's video-channel inbox) and help@rossmanngroup.com (verified legit:
+   the repair-shop help line, published on boards.rossmanngroup.com —
+   staff-triaged, board-repair techs, a second and arguably warmer
+   audience). Awaiting reply from either.
 5. Archive handover to RPG/FULU if they take it up
 5. Archive handover to RPG/FULU if they take it up
