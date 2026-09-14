@@ -101,7 +101,43 @@ Chassis capability mapping (from bundle code, all [C]): `system.version` major 3
 
 ## 3. The install path — what our LAN server must serve
 
-This is the gallery's catalog protocol, reconstructed step-by-step from SNY_WidgetGallery canvas.js:2015–2073 and notification.js (the TV's own store UI **is** this code). Our server impersonates applicast.ga.sony.net via Unbound; every path below is therefore under our vhost root.
+### 3.0 The two-layer protocol (wire-verified 2026-09-13 — rewrites the SDK-era map)
+
+The SDK-era reconstruction below (§3.1–3.7, from canvas.js reverse engineering) turned
+out to be the **inner lane** of a two-layer system. Live traffic on the EX725 after
+the DNS override showed the full chain:
+
+**Outer lane (the TV's own widget-menu protocol):**
+1. `HEAD/GET /WsIndexes/AZ2_LA.xml` — per-chassis, per-area index (**LA**, not US;
+   the SDK docs never mentioned an area token). Drives the widget MENU itself:
+   serving 404 here made the whole widget-menu entry vanish from the XMB within
+   one ~30 s poll; byte-exact deploy restored it within one poll. No reboot needed.
+   (Caveat: before a reboot, the widget process holds cached resolver state and
+   ignores DNS changes — the boot sweep re-resolves.)
+2. `GET /WsCatalogs/AZ2_LA_ALL_por.xml` — per-language catalog chosen by country
+   (Brazil → por). Lists the widget inventory for the XMB widget menu: the
+   "Galeria Widget" (SNY_WidgetGallery, activation="notification" — i.e. the
+   gallery is itself just a widget), Resident widgets (VCServiceUtil), dock
+   widgets (Controle do Home Theatre), `pack: applications` entries, and
+   playstation-served widgets (BgmSearch/VideoExplorer/MusicExplorer/SEN_Portal —
+   these point at bravia.dl.playstation.net, NOT our lane; never touch that host).
+3. `GET /WidgetBundles/<id>/...` — the WsCatalog's listed bundles install/update
+   directly, WITHOUT the gallery: digest.txt/digest.sig/info.xml first, then the
+   per-widget tree. This is how VCServiceUtil (Resident, encrypted: main.enc.js +
+   common.key) arrived.
+
+**Inner lane (the gallery widget, nested):** the SNY_WidgetGallery bundle's canvas
+then fetches `WidgetContents/SNY_WidgetGallery/AZ2/Index.xml` → `Gallery_LA_BRA_por.xml`
+→ `Catalog_LA_BRA_por.xml` → the four store widgets' bundles — the §3.1–3.7 chain
+below, exactly as reconstructed from canvas.js, but with area token **LA** and a
+`Gallery_{area}_{country}_{lang}.xml` naming layer the SDK docs lack.
+
+Practical consequence for our server: **both layers must be served**, and the WsIndex
+gates everything — a missing WsIndex doesn't degrade gracefully, it removes the
+widget menu. Also: "regional availability" of any widget is pure server-side XML
+(catalog entries); the TV's installer validates bundle signatures, not region of
+origin — so a widget shipped US/EU/JP-only can be re-offered to the LA catalog, and
+per-locale `description.xml`/Dic files are our translation surface.
 
 ### Step 0 — TV polls the CDN
 The TV notices catalog/DNS changes within ~30 s via the XMB autonomous icon poll (pcap-verified). Requests carry UA `WidgetSystem/3.0.9` or `4.0.4`, plain HTTP :80, and **conditional GETs — honor If-Modified-Since with 304**; the cached copy becomes the trust anchor, so a stale-served 200 with unchanged content does nothing.
@@ -192,7 +228,17 @@ After fetch, the installer (native "WidgetContents" sync channel) validates and 
 - **Zero verification logic exists in any widget JavaScript** — enforcement, if real, lives in the native WidgetSystem runtime inside the firmware, which is whole-file encrypted with no public decryptor (SamyGO t=2430 hit the same wall in 2011).
 - The TV honors conditional GETs/304s — signatures are at most an **install/update-time** gate; cached bundles are never continuously re-checked.
 
-### Verdict: **UNKNOWN — leaning ENFORCED at install/update time only. Confidence: medium-low.**
+### Verdict: **UNKNOWN — enforcement still untested, but Arm A (control) PASSED live 2026-09-13: original Sony signatures are accepted from a foreign (LAN) server. Confidence: medium.**
+The lane is proven end-to-end: with applicast.ga.sony.net DNS-overridden to our LAN
+vhost, the EX725 fetched the original `digest.sig` (RSA-3072, 384 B) and `digest.txt`
+and **installed the original bundles from our server** — Facebook, Twitter, Leitor RSS
+(SNY_RSSReader), Controle do Home Theatre (SNY_AudioControlApp), plus the encrypted
+Resident VCServiceUtil. Two UA layers confirmed on the wire: `WidgetSystem/3.0.9` =
+installer/gallery system (outer lane + install), `AppliCast/4.0/DTV` = the widget
+runtime *executing* installed bundles (dock UI, loading animations, Dic fetches —
+observed even on the EX725, whose installer is 3.0.9). The signature question is now
+narrowly about Arms B/C (foreign/garbage sig): whether the native installer rejects
+a wrong signature at install time. Nothing else about the lane is in doubt anymore.
 For-leaning: maintained RSA-3072-over-accurate-manifest on a TLS-less channel, for a platform whose widgets get network access, persistent registry, and HDMI-CEC; the total historical absence of any homebrew AppliCast widget scene (unlike the cracked Yahoo TV widget ecosystem); a 2011 LX900 owner's belief that "apps must be approved by Sony to run". Against-leaning: no SDK ever exposed the scheme; Sony shipped un-sanitized dev-comment bundles (sloppiness); 2010-era embedded practice was genuinely mixed (advisory verify-and-continue existed).
 
 No community shortcut exists. Nobody anywhere has publicly loaded a custom widget, bypassed, or forged digest.sig on this platform (systematic negative result across DDG/Bing/GitHub/Wayback; the only adjacent community thread — SamyGO t=2430 — never followed up).
@@ -304,9 +350,9 @@ Server rules:
 
 ## 7. Open questions, ranked by importance
 
-1. **Is digest.sig enforced?** The single gating fact for everything. Nothing but the on-hardware experiment (§4) can answer it; no community knowledge exists. **Blocker for all custom-widget work.**
-2. **Does WidgetSystem/3.0.9 (EX725) accept AC2.1-profile bundles?** Strongly suggested by Sony serving RSSReader on the GA CDN, but our EX725's acceptance is unobserved. Cheap to test in the same catalog experiment (list LAN_Hello AC2.1 alongside an SAX1.1 control). Determines the authoring target; fallback is SAX1.1.
-3. **Exact revalidation/install triggers.** Which combination of catalog `updated`, registry LastUpdated, HTTP 304s, and the ~30 s XMB poll causes install vs. ignore vs. reinstall — and whether the headless notification view auto-`dock.add`s our widget with no user confirmation (it does for `registration='notification'|'dock'` entries per code — needs wire confirmation).
+1. **Is digest.sig enforced?** NARROWED LIVE 2026-09-13: Arm A (control) passed — original sigs install fine from our LAN server (§4 verdict). Remaining: Arms B/C (foreign/garbage sig) — the single gating fact for custom-widget authoring. No community knowledge exists; only the on-hardware experiment answers it.
+2. **Does WidgetSystem/3.0.9 (EX725) accept AC2.1-profile bundles?** **ANSWERED LIVE: YES.** SNY_RSSReader (AC2.1) installed via our catalog and its runtime (`AppliCast/4.0/DTV`) executed it on the EX725 — layout/widget/DIC/PARTS fetches observed 2026-09-13. §5's authoring target is confirmed.
+3. **Exact revalidation/install triggers.** LARGELY ANSWERED LIVE: catalog `updated` bumped to a 2026 timestamp with `status` cleared and `registration="dock"` caused the TV to **auto-install all four listed widgets with NO user confirmation** (the 2011-era auto-register path). The TV re-polls digest.txt/digest.sig/info.xml periodically (observed re-fetch cascades every few minutes) and honors 304s.
 4. **AZ2/AZ3 catalog divergence on the HX855.** canvas.js computes chassis (AZ3 for version 4), notification.js hardcodes AZ2 — what does the HX855 *actually* request on the wire? Serve both trees; observe.
 5. **Role of `/WidgetInfos/`.** Present on the CDN and in our archive; exact function in install/registration unknown until observed. Mirror structure for listed ids.
 6. **Whether the develop-mode backdoor is reachable.** The gallery supports `?mode=develop&url=<catalog-url>` (option-menu "Change Catalog" via native `prompt()`, persisted in registry `developCatalogSrc`) — a sanctioned catalog redirect that bypasses WidgetContents entirely. We cannot currently control `widget.uri`'s query string (it's set at launch/registration); worth probing whether a dock-registered gallery entry or a crafted URI can carry it. Would give a second, signature-independent injection lane **for the catalog only** (bundle install still gated by Q1).
@@ -385,6 +431,91 @@ era firmware's legacy Brazil DST handling is suspect and the TV menu
 mitigation. To determine which: sniff the first minutes after a cold boot on the
 EX725 (tcpdump on the firewall LAN interface, port 123 + the SSM IPs) — deferred
 until the widget lane is settled to avoid conflating captures.
+
+---
+
+## 9. Deployment log (2026-09-13, phase 2 live — RESURRECTION)
+
+### 9.1 The WsIndex discovery (and the menu-vanish incident)
+
+Phase 1 baseline had a hole we didn't know about: our mirror never covered
+`WsIndexes/` — because no SDK-era doc mentioned the outer lane (§3.0). When the
+override went fully live the TV's first request, `HEAD /WsIndexes/AZ2_LA.xml`,
+404'd — and within one ~30 s poll the **entire widget menu entry vanished from the
+XMB** ("now no widget meny! interesting!" — owner, live). That single 404 proved
+the WsIndex gates the whole widget subsystem. Byte-exact fetch from origin (still
+live there: 1712 B AZ2, 2443 B AZ3) + deploy → menu back within one poll, no
+reboot. Also learned: a pre-reboot widget process ignores DNS changes (cached
+resolver state); the boot sweep re-resolves.
+
+### 9.2 The protocol map that fell out (all from live traffic)
+
+`WsIndexes/AZ2_LA.xml` (area **LA**) → per-language `WsCatalogs/AZ2_LA_ALL_por.xml`
+(Brazil picks por) → bundle installs directly (digest.txt → digest.sig → info.xml →
+tree). The WsCatalog lists "Galeria Widget" as a *widget* (SNY_WidgetGallery,
+activation="notification"), the Resident VCServiceUtil, dock widgets, and
+playstation-served widgets (BgmSearch etc. — bravia.dl.playstation.net, NOT ours).
+The gallery widget's canvas then runs the inner lane: Index.xml →
+`Gallery_LA_BRA_por.xml` → `Catalog_LA_BRA_por.xml`. Full map in §3.0.
+
+### 9.3 The resurrection catalog
+
+Sony's kill mechanism, observed byte-for-byte in the live
+`Catalog_LA_BRA_por.xml`: Facebook and Twitter still listed but with
+`status="Deleted"` — **flag-based deactivation, files still on the CDN**. Our
+phase-2 catalog (deployed as `WidgetContents/SNY_WidgetGallery/{AZ2,AZ3}/
+Catalog_LA_BRA_por.xml`) clears the status, bumps `updated` to a 2026 timestamp,
+sets `registration="dock"`, and lists four original bundles:
+Facebook, Twitter, Leitor RSS (SNY_RSSReader), Controle do Home Theatre
+(SNY_AudioControlApp) — with `WidgetInfos/` poster/thumbnail/description trees
+(LA_BRA_por) and Sony's own Brazilian marketing text (from WsCatalogs) reused for
+the authored description.xml files.
+
+Result: the TV **auto-installed all four with no user confirmation** (owner: "WOW!
+as soon as I returned the apps were listed!"), pulled every original signature and
+proceeded, and the dock now renders them. The gallery detail view fetches our
+authored `WidgetInfos/.../LA_BRA_por/description.xml` → 200.
+
+### 9.4 Live end-to-end proof (access log, 22:16–22:17 local)
+
+- `WidgetSystem/3.0.9` UA: installer cascade — all four bundles' digest.sig/digest.txt/
+  info.xml/dock files → 200; gallery canvas.js/css/xml → 200.
+- `AppliCast/4.0/DTV` UA (the widget runtime, executing): Facebook/Twitter dock
+  images + Dic_UTF8_por dictionaries + encryption.enc.js/common.key → 200;
+  RSSReader DIC/dic_por.txt + PARTS/Blue loading-animation frames (loading_Icon01–04)
+  → 200/304 — an animated loading sequence playing from our server.
+- Gap-closing fetches during the run (all from still-live origin): gallery
+  `img/fhd/border.png`, `registered_bg.png` (requested 4× — all four widgets show as
+  REGISTERED), RSSReader `PARTS/Blue/loading_Icon02–04.png`. Missing-frame probes
+  (loading_Icon05–08) → 403 at origin: the animation is exactly 4 frames.
+
+### 9.5 Preservation state after the phase-2 run (2026-09-13 late)
+
+- **7 bundles manifest-complete (0 missing files vs Sony's own digest.txt)**:
+  SNY_AudioControlApp, SNY_AudioControl, SNY_Facebook, SNY_RSSReader, SNY_Twitter,
+  SNY_WidgetGallery, VCServiceUtil. digest.txt (JAR-style Name:/SHA256-Digest:)
+  is Sony's own signed file inventory — the preservation instrument, not grep.
+- **24 bundles origin-denied** (403 on digest.txt AND info.xml — e.g. SNY_Clock,
+  Dailymotion, Deezer, Flickr, Weather, Slacker, TrackID): lost at origin; not in
+  the Wayback Machine either (domain CDX: 120 captures total, none for these).
+  Only recovery routes left: other archives, firmware-extracted preload copies, or
+  nothing. Logged as the known-loss list.
+- **Wayback era-recovery in flight**: domain CDX holds an entire lane we never had —
+  `WidgetCatalogs/` (AZ1 EU, 23 languages — a pre-WsCatalogs generation), more
+  `WsIndexes/` (AZ1_EU, AZ1_US, AZ2_EN, AZ2_US, RB1/RB2 rebranding indexes),
+  `AZ2_US/XLA` WsCatalog variants, `XMB_AppliCast_AZ1_EU` bundle,
+  FY13/FY14-era bundles (CrossSearch, BgmSearch, Zapping, SocialViewing, Football,
+  HomeMenu), `SNY_AudioControl/model/*.json`, and DEV-lane MyChannel files.
+- The obsolete `Gallery_US_BRA_por.xml` variants (deployed in the US-token phase,
+  now 403 at origin) recovered from staging into the archive — only copies anywhere.
+
+### 9.6 What this unlocks (owner's framing)
+
+Region-gating is pure server-side XML: widgets shipped US/EU/JP-only can be listed
+in the LA catalog; per-locale description.xml/Dic files give us a translation
+surface; and once Arms B/C answer the signature question, fully custom AC2.1
+bundles (§5 LAN_Hello) are the endgame. AC2.1 acceptance on the EX725 is already
+proven (RSSReader executing, §7 Q2).
 
 ---
 
