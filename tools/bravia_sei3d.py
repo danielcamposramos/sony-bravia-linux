@@ -176,6 +176,11 @@ def stream_counts(path):
     r = run(["ffprobe", "-v", "error", "-show_entries", "stream=index,codec_type",
              "-of", "csv=p=0", str(path)])
     kinds = [l.split(",")[1] for l in r.stdout.splitlines() if "," in l]
+    # video+audio only: MP4 "data" streams (bin_data telemetry/metadata) are
+    # container metadata mkvmerge legitimately drops — seen live on Deadpool/
+    # EpisódioI/A.travessia — and counting them made verify fail on files
+    # that remuxed perfectly.
+    kinds = [k for k in kinds if k in ("video", "audio")]
     return {k: kinds.count(k) for k in set(kinds)}
 
 
