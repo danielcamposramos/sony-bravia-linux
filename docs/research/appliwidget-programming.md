@@ -317,6 +317,77 @@ Server rules:
 
 ---
 
+## 8. Deployment log (2026-09-13, phase 1 live)
+
+### 8.1 Server side (d2server 192.168.0.60)
+
+- Apache vhost `applicast.ga.sony.net` on :80 → `/var/www/applicast/`
+  (`/etc/apache2/sites-available/applicast-lan.conf`, a2ensite'd); dedicated logs
+  `applicast-access.log` / `applicast-error.log` (combined format — client IP + UA
+  distinguishes WidgetSystem/3.0.9 (EX725) vs 4.0.4 (HX855)).
+- Content: byte-exact mirror of the archived CDN state — all `WidgetBundles/`
+  (30, incl. partials), `WidgetInfos/`, and `WidgetContents/SNY_WidgetGallery/{AZ2,AZ3}/Index.xml`
+  (live-fetched, byte-identical to origin's current 254/257 B responses).
+- Phase-1 rules honored: unknown paths 404 (no indexes); Gallery/Catalog files
+  deliberately ABSENT until phase 2 (origin 403s them since 2026-03-17, so absence
+  matches what the TV has been receiving — transparent baseline).
+- Phase-2 tree staged, not deployed: `/tmp/acig-/applicast-phase2/` (four-widget
+  Catalog_US_BRA_por.xml re-listing the original RSSReader / Facebook / Twitter /
+  AudioControlApp bundles, Gallery token aliases, description fills, icon aliases).
+
+### 8.2 DNS side (OPNsense 192.168.0.1)
+
+- Exactly one Unbound host override added (§6.3 respected — no other host touched):
+  `applicast.ga.sony.net → A 192.168.0.60`, in `/conf/config.xml`
+  `<unboundplus><hosts>`, description "ApplicaCast LAN resurrection - widget lane phase 1".
+- Applied via `configctl template reload OPNsense/Unbound/core` + `configctl unbound restart`
+  (renders into `/var/unbound/host_entries.conf` as
+  `local-data: "applicast.ga.sony.net  IN A 192.168.0.60"`).
+- Verified: `dig +short applicast.ga.sony.net @192.168.0.1` → `192.168.0.60`;
+  end-to-end `curl http://applicast.ga.sony.net/...Index.xml` → 200, 254 B, via .60.
+  Pre-override ground truth (CNAME chain to CloudFront 13.225.205.93/.20/.70/.87):
+  `/tmp/acig-/dns-groundtruth-applicast.txt`.
+- **Rollback = one delete**: remove that single `<host>` block from config.xml, rerun
+  the two configctl commands. Backup taken: `/conf/config.xml.bak-applicast-20260913`.
+- Other Sony hosts confirmed NOT overridden (sony.net / www.sony.com.br resolve
+  publicly as before).
+
+### 8.3 Recon bonus: the TVs' full phone-home map (Unbound stats DB)
+
+Unbound's duckdb (`/var/unbound/data/unbound.duckdb`, stats enabled) holds per-client
+DNS history — a passive, no-touch instrument (no port scans, no TV interaction).
+Full query history per set:
+
+- **KDL-46EX725 (.22)** — 179 queries: `ssm.internet.sony.tv` (74), **`applicast.ga.sony.net`
+  (40 — autonomous polling confirmed, both idle and in use)**, `bravia.dl.playstation.net` (25),
+  `bravia-e.dl.playstation.net` (17), `static.internet.sony.tv` (9),
+  `upbookmark.ww.np.community.playstation.net` (4), one-shots: `certs.opera.com`,
+  `rd1.sony.net`, `www.sony.com.br`, `xml.opera.com`, `crl3.digicert.com`.
+- **KDL-46HX855 (.21)** — 642 queries: **`applicast.ga.sony.net` (276 — polls most actively)**,
+  `bravia.dl.playstation.net` (162), `ssm.internet.sony.tv` (88), `www.sony.net` (62),
+  `static.internet.sony.tv` (8), `ssm1.internet.sony.tv` (6), `sony.tvstore.opera.com` (2),
+  `upbookmark.ww.np.community.playstation.net` (2), one-shots: `certs.opera.com`,
+  `nccp-nrdp-31.cloud.netflix.net`.
+- pf state table (passive) shows the EX725's live outbound as pure HTTP:
+  CloudFront/AWS IPs on :80/:443 (the poll cadence) + DNS to .1:53. **No port-123
+  (NTP) traffic and no time-related DNS from either set.**
+
+### 8.4 The clock question (open — another broken feature)
+
+The sets' clocks run ~1 h fast with "network time" selected (reported by owner
+2026-09-13, post-Brazil-DST-abolition era). Given §8.3: no NTP DNS, no NTP states —
+the "network" clock comes from the SSM/HTTP channel payloads (most likely), the
+ISDB-Tb broadcast TOT (possible), or a hardcoded-IP source (can't be excluded until
+a capture sees one). Consequence: **no quick DNS-style fix exists** — if it's SSM,
+the clock is another candidate for the resurrection lane; if it's broadcast, the
+era firmware's legacy Brazil DST handling is suspect and the TV menu
+(System Settings → Clock: timezone = Brasília UTC-3, DST = Off) is the immediate
+mitigation. To determine which: sniff the first minutes after a cold boot on the
+EX725 (tcpdump on the firewall LAN interface, port 123 + the SSM IPs) — deferred
+until the widget lane is settled to avoid conflating captures.
+
+---
+
 ### Source artifacts (local, primary)
 
 - 30-bundle live mirror: `/tmp/acig-/applicast-archive/WidgetBundles/` (+ `WidgetInfos/`, `ga-dev/`, `cn-dev/`, `geekpage/`, `github-takus/`, `wayback-devsite/`)
