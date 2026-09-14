@@ -801,7 +801,10 @@ def _oid_for_item(obj_id):
 # and normalized title matches are fast path + tiebreaker.
 
 MEDIA_ROOTS = [r for r in os.environ.get(
-    'MEDIA_ROOTS', '/mnt/Backup/Vídeos:/mnt/Backup/Música').split(':')
+    # Música first: the probe pass walks roots in order and the duration
+    # cache replays already-probed files instantly, so audio (the small,
+    # newly indexed root) finishes while video replays from cache.
+    'MEDIA_ROOTS', '/mnt/Backup/Música:/mnt/Backup/Vídeos').split(':')
                if os.path.isdir(r)]
 CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
