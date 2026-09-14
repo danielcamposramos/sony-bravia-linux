@@ -130,17 +130,28 @@ Owner-verified on the EX725 in a live session (~00:14–00:22):
   (owner-confirmed; unrelated to the Serviio res-URL client-binding 500,
   which the `/stream/` proxy already fixed). They need server-side
   transcoding.
-- **Transcode lane enabled with no app changes:** Serviio picks delivery
-  format from the renderer profile matched to the requesting client's IP.
-  The workstation — the app's browse+fetch client since the proxy — was
-  switched from "Generic DLNA" to the "Sony Bravia EX7xx/HX8xx (3D
-  Enhanced)" user profile (`sony2011x`) via the console's own REST path
-  (`GET`/`PUT /rest/status`, port 23423, the same write the console Status
-  tab makes). serviio.log shows the transcode engine engaging right after
-  the switch; MKV/AVI playback through the app lane pending owner retest.
+- **Serviio profile-matching experiment — negative result, reverted same
+  night:** switching the app host's renderer profile to the Sony profile
+  (via the console's own REST path, `GET`/`PUT /rest/status`, port 23423)
+  makes Serviio serve **everything** — even direct-playable MP4s — as
+  live-transcoded MPEG-TS (`AVC_TS_MP_HD_AC3_ISO`, `video/mpeg`, CI=1).
+  The browser player refused all of it: zero `/stream/` fetches, "no one
+  plays now" (owner report). Reverted to Generic DLNA; direct MP4 playback
+  restored immediately. Lesson: the era browser player accepts exactly
+  one delivery — progressive faststart MP4 — and Serviio has no MP4
+  transcode target (its live targets are mpegts/mpeg/m2ts/lpcm/mp3/flv/
+  asf/applehttp).
+- **fMP4 probe — refused:** a 30 s fragmented-MP4 clip
+  (`+frag_keyframe+empty_moov+default_base_moov`, streams untouched) was
+  fetched by the player (206 ×2 in the server log) but rendered nothing;
+  the faststart control cut from the same source played fullscreen.
+  Live MP4 streaming is out → the transcode lane is **cached faststart
+  MP4**, transcoded app-side (shares are CIFS-mounted on the app host).
 - Era prompt: accepted once per session, did not re-fire across many page
   loads. Era-browser quirk: it decodes `%2A` to a literal `*` in browse
   URLs — harmless, the handler unquotes.
-- Player pages now render the video as a fixed full-viewport element with
-  a slim overlay strip (owner request: match the DCH app's fullscreen
-  playback; also removes the scrollbar the embedded layout caused).
+- Player pages render the video as a fixed full-viewport element with a
+  slim overlay strip that auto-hides on first playing frame (owner
+  request: match the DCH app's fullscreen playback; also removes the
+  scrollbar the embedded layout caused; the strip is the diagnostic
+  surface on errors).

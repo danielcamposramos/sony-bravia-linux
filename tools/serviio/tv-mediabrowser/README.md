@@ -63,38 +63,37 @@ On the TV's browser open `http://192.168.0.4:8090/` (CERS `sendText`
 delivery as usual), accept the era insecure-content prompt once per
 session.
 
-## Transcode lane — Serviio renderer profile matching
+## Transcode lane — cached faststart MP4 (app-side)
 
-Serviio picks the delivery format (and whether to transcode) from the
-renderer profile it matched for the **requesting client's IP**. Because the
-app's `/stream/` proxy makes the workstation both the browsing and the
-fetching client, the workstation's renderer profile governs what the TV
-gets. The era player refuses MKV/AVI client-side (format probe,
-2026-09-14), so those must arrive already transcoded.
+The era browser player accepts exactly one delivery: progressive faststart
+MP4. Everything else is refused (format probe, 2026-09-14):
 
-Switching the app host's renderer to the Sony profile once makes Serviio
-itself transcode refused containers to era-native MPEG-TS on the fly — no
-app changes; `pick_video_res` already prefers `video/mp4`, then `video/mp2t`:
+* **MKV/AVI/other containers** — refused client-side.
+* **MPEG-TS** — refused; and it is the only family typical DLNA servers
+  (incl. Serviio) transcode into live. Matching the app host's Serviio
+  renderer profile to the Sony profile makes Serviio serve *everything*
+  (even direct-playable MP4s) as live TS — tried, broke the whole lane,
+  reverted the same night. Serviio has no MP4 transcode target.
+* **Fragmented MP4** — fetched (206 in the server log) but not decoded:
+  the era demuxer needs a real `moov`. Live MP4 streaming is out.
 
-* **Console UI:** Status tab → the app host's IP → profile →
-  "Sony Bravia EX7xx/HX8xx (3D Enhanced)".
-* **Or the console's own REST path** (port 23423, plain JSON, the same
-  write the UI makes): `GET /rest/status` with `Accept: application/json`,
-  change that renderer's `profileId` to `sony2011x`, `PUT` the whole
-  document back to `/rest/status`.
-
-Done live on 2026-09-14 via the REST path (verified: `.4` shows
-`profileId=sony2011x`; serviio.log shows the transcode engine engaging).
-MKV/AVI playback through the app lane pending owner retest.
+So the lane lives in the app: the library shares are mounted on the app
+host (CIFS from the media server), the app ffprobes the source, offers
+the audio tracks on the player page, and ffmpeg transcodes on demand —
+video copied bit-exact when the H.264 is era-compatible, era-safe
+re-encode otherwise (weightp=0:weightb=0, level ≤4.1), AAC audio from the
+chosen track, `+movflags faststart` — into a cache that plays like any
+direct MP4 from then on.
 
 ## Next steps
 
 - [x] live test on the EX725 (arrow-key nav + direct MP4 playback) —
   owner-verified 2026-09-14 incl. 1920x1080 High@L4.0 SBS 3D titles
 - [x] format probe — MP4/H.264+AAC direct-plays up to 1080p High@L4.0;
-  MKV/AVI refused client-side by the era player → server-side transcode
-  lane (see above)
-- [ ] owner retest: MKV/AVI through the app after the profile switch
-  (expect Serviio on-the-fly MPEG-TS)
+  MKV/AVI refused client-side; TS refused; fragmented MP4 fetched but
+  not decoded → cached-faststart transcode lane (see above)
+- [ ] transcode lane build: DIDL item → source path mapping (shares are
+  mounted), ffprobe audio-track listing on the player page, on-demand
+  ffmpeg to faststart-MP4 cache, era-safe progress page
 - [ ] thumbnails on list pages (Serviio serves cover art over :8895)
 - [ ] "next in folder" on `ended`

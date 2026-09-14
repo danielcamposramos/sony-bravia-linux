@@ -185,10 +185,12 @@ document.onkeydown=function(e){
 PLAYER_JS = """
 var v=document.getElementById('player_object');
 var st=document.getElementById('status');
+var hud=document.getElementById('hud');
+function hideshow(v2){if(hud){hud.style.visibility=v2?'visible':'hidden';}}
 var s=document.createElement('source');
 s.type=%MIME%;
 s.src=%URL%;
-s.addEventListener('error',function(){st.innerHTML='ERROR: source error';});
+s.addEventListener('error',function(){st.innerHTML='ERROR: source error';hideshow(true);});
 v.appendChild(s);
 v.style.display='block';
 v.setAttribute('width','100%');
@@ -196,9 +198,9 @@ v.setAttribute('height','100%');
 v.addEventListener('loadstart',function(){st.innerHTML='loadstart';});
 v.addEventListener('canplay',function(){st.innerHTML='canplay';});
 v.addEventListener('durationchange',function(e){st.innerHTML='duration '+Math.round(e.target.duration)+'s';});
-v.addEventListener('timeupdate',function(e){st.innerHTML=Math.round(e.target.currentTime)+'/'+Math.round(e.target.duration)+'s';});
-v.addEventListener('error',function(e){st.innerHTML='ERROR: code '+(e.target.error?e.target.error.code:'?');});
-v.addEventListener('ended',function(){st.innerHTML='ENDED';});
+v.addEventListener('timeupdate',function(e){st.innerHTML=Math.round(e.target.currentTime)+'/'+Math.round(e.target.duration)+'s';hideshow(false);});
+v.addEventListener('error',function(e){st.innerHTML='ERROR: code '+(e.target.error?e.target.error.code:'?');hideshow(true);});
+v.addEventListener('ended',function(){st.innerHTML='ENDED';hideshow(true);});
 v.load();v.play();
 st.innerHTML='load()+play()';
 document.onkeydown=function(e){
@@ -304,7 +306,7 @@ def render_player(o, res):
     title = o['title']
     body = ('<div id="player_page">'
             '<video id="player_object" width="0px" height="0px" preload="none"></video>'
-            '<p class="hud"><span id="ttl">%s</span> &mdash; '
+            '<p class="hud" id="hud"><span id="ttl">%s</span> &mdash; '
             '<span id="fmt">%s</span> &mdash; '
             '<span id="status">starting... OK=pause, right=+30s, left=back</span></p>'
             '</div>'
@@ -320,6 +322,25 @@ def render_image(o, res):
             '<p id="foot">left = back</p>'
             % (esc(o['title']), esc(res['url'])))
     return _page(o['title'], body, extra_js=IMG_JS)
+
+
+# ------------------------------------------------- format-probe lane (/t/)
+
+TEST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test')
+TEST_FILES = {'faststart': 'test-faststart.mp4',   # control: proven-playable layout
+              'fmp4': 'test-fmp4.mp4'}              # probe: fragmented MP4
+
+
+def render_local_player(name, mime, url):
+    body = ('<div id="player_page">'
+            '<video id="player_object" width="0px" height="0px" preload="none"></video>'
+            '<p class="hud" id="hud"><span id="ttl">%s</span> &mdash; '
+            '<span id="fmt">%s</span> &mdash; '
+            '<span id="status">starting... OK=pause, right=+30s, left=back</span></p>'
+            '</div>'
+            % (esc(name), esc(mime)))
+    js = PLAYER_JS.replace('%MIME%', repr(mime)).replace('%URL%', repr(url))
+    return _page(name, body, extra_js=js)
 
 
 def render_error(where, err):
@@ -368,6 +389,20 @@ class Handler(BaseHTTPRequestHandler):
                     except Exception:
                         pass
                     body = render_list(obj_id, objects, total, start, title)
+            elif u.path.startswith('/t/file/'):
+                return self.do_local_file(u)
+            elif u.path.startswith('/t/'):
+                name = urllib.parse.unquote(u.path[3:])
+                if name not in TEST_FILES:
+                    self.send_error(404)
+                    return
+                fn = os.path.join(TEST_DIR, TEST_FILES[name])
+                if not os.path.exists(fn):
+                    body = render_error('test', 'clip missing: %s' % name)
+                else:
+                    body = render_local_player(name, 'video/mp4',
+                                               '/t/file/%s' % urllib.parse.quote(name))
+                self._send_html(body.encode())
             elif u.path.startswith(('/vid/', '/img/', '/aud/')):
                 kind = u.path.split('/')[1]
                 obj_id = urllib.parse.unquote(u.path.split('/', 2)[2])
@@ -435,6 +470,38 @@ class Handler(BaseHTTPRequestHandler):
             pass  # player aborted the fetch (seek/stop); upstream closes with us
         finally:
             upstream.close()
+
+    def do_local_file(self, u):
+        """Serve a test clip from ./test with byte-range support (era player)."""
+        name = urllib.parse.unquote(u.path[len('/t/file/'):])
+        if name not in TEST_FILES:
+            self.send_error(404)
+            return
+        fn = os.path.join(TEST_DIR, TEST_FILES[name])
+        size = os.path.getsize(fn)
+        start = 0
+        ranged = bool(self.headers.get('Range'))
+        m = re.match(r'bytes=(\d+)-', self.headers.get('Range') or '')
+        if m:
+            start = int(m.group(1))
+        try:
+            self.send_response(206 if ranged else 200)
+            self.send_header('Content-Type', 'video/mp4')
+            self.send_header('Content-Length', str(size - start))
+            self.send_header('Accept-Ranges', 'bytes')
+            if ranged:
+                self.send_header('Content-Range',
+                                 'bytes %d-%d/%d' % (start, size - 1, size))
+            self.end_headers()
+            with open(fn, 'rb') as f:
+                f.seek(start)
+                while True:
+                    chunk = f.read(64 * 1024)
+                    if not chunk:
+                        break
+                    self.wfile.write(chunk)
+        except (BrokenPipeError, ConnectionResetError):
+            pass  # player aborted the fetch
 
     def _send_html(self, payload):
         if self._sent:
