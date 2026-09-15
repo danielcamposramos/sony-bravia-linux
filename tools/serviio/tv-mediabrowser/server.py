@@ -691,7 +691,14 @@ VID_MIME_EXT = {'video/mp4': ('.mp4', '.m4v'),
                 'video/mp2t': ('.ts', '.m2ts', '.mts'),
                 'video/x-ms-wmv': '.wmv', 'video/quicktime': '.mov',
                 'video/x-flv': '.flv', 'video/3gpp': ('.3gp', '.3g2'),
-                'video/webm': '.webm'}
+                'video/webm': '.webm',
+                'video/vnd.rn-realvideo': '.rmvb',
+                # Serviio reports x-ms-asf for many .wmv files (live
+                # 2026-09-15: DreamScene's Beach/Caverays/Elixir/...);
+                # now that .webm is indexed, dual-format stems like
+                # Aurora/Elixir NEED this hint or a duration tie can
+                # hand the wmv item its webm twin's bytes.
+                'video/x-ms-asf': '.wmv'}
 
 
 def music_art_available(o):
@@ -879,13 +886,20 @@ for _fn in os.listdir(CACHE_DIR):
             pass
 VIDEO_EXT = ('.mkv', '.avi', '.mpg', '.mpeg', '.ts', '.m2ts', '.mts',
              '.flv', '.wmv', '.mov', '.mp4', '.m4v', '.vob',
-             '.3gp', '.3g2')
+             '.3gp', '.3g2', '.rmvb', '.webm', '.mk3d', '.m2t')
+# live 2026-09-15 (workflow audit): .rmvb (92 files) and .webm (51) were
+# missing — Serviio lists both, so every /tr/ click on an rmvb fell to the
+# duration-index fallback and silently offered to transcode an UNRELATED
+# video (Cavaleiros ep 01 -> an mpeg4 512x384 of the same length), and
+# .webm items either 404'd or resolved to their .wmv twin. .mk3d/.m2t
+# are latent table alignment (VID_MIME_EXT already promises them).
 # era Presto decodes MP3 but not FLAC/OGG/WAV/... — those route to the
 # live /atr/ MP3 pipe, so the index must know them too. Full Serviio
 # roster (owner-directed 2026-09-15): mpc/wv/aiff are in the library
 # and stream through the same pipe, so they must be indexed.
 AUDIO_EXT = ('.mp3', '.flac', '.m4a', '.aac', '.wav', '.ogg', '.oga',
-             '.wma', '.opus', '.ape', '.mka', '.mpc', '.wv', '.aif', '.aiff')
+             '.wma', '.opus', '.ape', '.mka', '.mks', '.mpc', '.wv',
+             '.aif', '.aiff')   # .mks: MIME_EXT promises it (x-matroska)
 
 _lib_lock = threading.Lock()
 _lib_by_stem = {}       # lower(filename stem) -> [paths]
@@ -1073,6 +1087,10 @@ def resolve_source(title, didl_dur, want=None, prefer_ext=None):
             with _lib_lock:
                 return _lib_durations.get(p)
 
+        def toks(s):
+            return set(w for w in re.split(r'[^a-z0-9]+', s.lower())
+                       if len(w) > 1 and not w.isdigit())
+
         def rank(p):
             # collision tiebreak: requested format first (dual-format
             # stems: FLAC and MP3 of one song differ by ~1-2s, inside
@@ -1081,9 +1099,6 @@ def resolve_source(title, didl_dur, want=None, prefer_ext=None):
             # filename, but keep words like "adam"), then closer
             # duration. DIDL durations are second-resolution, so a
             # sub-second delta is a strong signal on its own.
-            def toks(s):
-                return set(w for w in re.split(r'[^a-z0-9]+', s.lower())
-                           if len(w) > 1 and not w.isdigit())
             ext_ok = bool(prefer_ext and p.lower().endswith(prefer_ext))
             shared = len(toks(os.path.splitext(os.path.basename(p))[0]) & toks(title))
             return (-ext_ok, -shared, abs(d(p) - didl_dur))
@@ -1091,11 +1106,19 @@ def resolve_source(title, didl_dur, want=None, prefer_ext=None):
         m = [p for p in paths if d(p) and abs(d(p) - didl_dur) < 3]
         if not m and not paths:
             # duration-index fallback (no title hit at all): inline kind
-            # check — kind_ok() would re-acquire _lib_lock and deadlock
+            # check — kind_ok() would re-acquire _lib_lock and deadlock.
+            # A duration-only match whose name shares NO title token is a
+            # different recording that happens to be the same length —
+            # live 2026-09-15 the (then unindexed) rmvb probe matched an
+            # unrelated mpeg4 within ±3s and offered to transcode IT
+            # under the episode's title. Require token overlap so the
+            # fallback never crosses titles; a miss is a clean error.
+            tt = toks(title)
             with _lib_lock:
                 m = [p for p, dur in _lib_durations.items()
                      if abs(dur - didl_dur) < 3
-                     and (want is None or _lib_kind.get(p) == want)]
+                     and (want is None or _lib_kind.get(p) == want)
+                     and toks(os.path.splitext(os.path.basename(p))[0]) & tt]
         if len(m) == 1:
             return m[0], None
         if len(m) > 1:
