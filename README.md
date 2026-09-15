@@ -39,30 +39,39 @@ Rossmann / repair.wiki / FULU Foundation sharing plan).
 
 ## Repository layout
 
-- `firmware/` — official Sony update packages (encrypted, `*_auth.zip`)
-  - `KDL-46HX855/` — `sony_tvupdate_2012_2120_bra_auth.zip` (PKG2.120BRA,
-    95 MB image, `sony_dtv0FA20A02A0A2_00001400`) and
-    `sony_tvupdate_2011_4027_bra_auth.zip` (PKG4.027BRA, 68 MB image,
-    `sony_dtv0FA10A01A0A1_00000400` — the EX725's package)
-  - `siblings/` — 4 regional sibling builds from Wayback (BRB/GAA/AAA)
-    forming a 6-image differential corpus
-  - `extracted/` — uncompressed copies of the images (gitignored, regenerable)
-- `manuals/` — service manual (AZ3F chassis), user manual, iManual, OSS license
-  agreements, unit photos
-- `docs/` — [platform map](docs/platform-map.md),
+- `docs/` — **[project status & partner guide](docs/project-status.md)**
+  (read this first), [platform map](docs/platform-map.md),
   [feasibility roadmap](docs/feasibility-roadmap.md),
   [right-to-repair context](docs/right-to-repair.md),
-  research notes (`docs/research/`, incl. live LAN recon artifacts)
-- `tools/` — extraction/analysis tooling and notes
+  research notes (`docs/research/`, incl. live LAN recon artifacts),
+  repair.wiki page drafts (`docs/wiki/`)
+- `tools/` — extraction/analysis tooling and notes: the
+  [tv-mediabrowser](tools/serviio/tv-mediabrowser/README.md) media app
+  (live on the owner's LAN), Serviio renderer profiles + 3D fix,
+  the SEI 3D injector, the rd1 portal, and the [systemd
+  stack](tools/systemd/README.md) that runs it all
+- `certs/` — CA + leaf certificates for the era-TLS lanes
+
+Firmware images, service manuals, and Sony-distributed widget
+packages are **not hosted here** — they live in the owner's offline
+private archive (see the scope note above and the private-material
+section of the partner guide).
 
 ## Current status
 
-Raw materials imported and attributed. Platform identified (MIPS mipsel
-"ATREYU" SoC, glibc 2.7 userland, DirectFB/Qt/Opera, Linux 2.6.35-era
-kernel). Firmware containers confirmed whole-file encrypted (no public
-decryptor). Live CERS/IRCC + UPnP API documented. Full analysis in
-`docs/platform-map.md`; staged plan (zero-mod content → UART root → kernel
-modernization) in `docs/feasibility-roadmap.md`.
+**The media experience is live and owner-verified (2026-09-15):** both
+TVs browse the full library on the LAN media server and play every
+audio format and every major video format, via a systemd-managed stack
+with a config file. See
+[docs/project-status.md](docs/project-status.md) — the single partner
+entry point, kept current.
+
+Research continues: platform identified (MIPS mipsel "ATREYU" SoC,
+glibc 2.7 userland, DirectFB/Qt/Opera, Linux 2.6.35-era kernel),
+firmware containers confirmed whole-file encrypted (no public
+decryptor), live CERS/IRCC + UPnP API documented. Full analysis in
+`docs/platform-map.md`; staged plan (zero-mod content → UART root →
+kernel modernization) in `docs/feasibility-roadmap.md`.
 
 ## Legal note
 
