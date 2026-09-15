@@ -244,12 +244,23 @@ var v=document.getElementById('player_object');
 var st=document.getElementById('status');
 var items=document.getElementsByTagName('li');
 var sel=0;
+var rep=false;
+var prevUrl=%PREV%;
+var nextUrl=%NEXT%;
 function show(){for(var i=0;i<items.length;i++){items[i].className=(i==sel)?'sel':'';}if(items.length){try{items[sel].scrollIntoView(false);}catch(x){}}}
 function move(d){if(!items.length){return;}sel=(sel+d+items.length)%items.length;show();}
 function act(a){
  if(a=='pp'){if(v.paused){v.play();}else{v.pause();}}
  else if(a=='bk'){try{v.currentTime-=30;}catch(x){}}
  else if(a=='fw'){try{v.currentTime+=30;}catch(x){}}
+ // next/previous in folder: plain navigation, the target page is a
+ // fresh /aud/ render with its own player (era Presto cannot swap a
+ // <source> in place and re-run reliably — a page load is the era-
+ // proven way to change what plays)
+ else if(a=='prv'){if(prevUrl){window.location=prevUrl;}}
+ else if(a=='nxt'){if(nextUrl){window.location=nextUrl;}}
+ // repeat-this-track toggle: rewinds and replays on 'ended'
+ else if(a=='rep'){rep=!rep;st.innerHTML=rep?%music_rep_on%:%music_rep_off%;}
  else if(a=='back'){history.go?history.go(-1):history.back();}
 }
 function openSel(){if(!items.length||!items[sel]){return;}var a=items[sel].getElementsByTagName('a');if(a.length){act(a[0].getAttribute('data-act'));}}
@@ -260,7 +271,10 @@ s.addEventListener('error',function(){st.innerHTML=%hud_err_src%;});
 v.appendChild(s);
 v.addEventListener('timeupdate',function(e){st.innerHTML=Math.round(e.target.currentTime)+'/'+Math.round(e.target.duration)+'s';});
 v.addEventListener('error',function(e){st.innerHTML=%hud_err_code%+(e.target.error?e.target.error.code:'?');});
-v.addEventListener('ended',function(){st.innerHTML=%hud_ended%;});
+// repeat: reload-and-play (works for native /stream/ MP3s AND the live
+// /atr/ pipe — a fresh fetch spawns a fresh ffmpeg decode from zero;
+// a bare currentTime=0 seek is unreliable against the live pipe)
+v.addEventListener('ended',function(){if(rep){try{v.load();}catch(x){try{v.currentTime=0;}catch(x2){}}v.play();st.innerHTML=%music_rep_on%;}else{st.innerHTML=%hud_ended%;}});
 v.load();v.play();
 st.innerHTML=%hud_load%;
 show();
@@ -345,6 +359,11 @@ STRINGS = {
         'btn_b30': '-30 s',
         'btn_f30': '+30 s',
         'btn_back': 'Back',
+        'btn_prev': 'Previous track',
+        'btn_next': 'Next track',
+        'btn_rep': 'Repeat this track',
+        'music_rep_on': 'repeat on',
+        'music_rep_off': 'repeat off',
         'music_foot': 'OK = select button, right = +30s, left = back',
         'music_start': 'playing... OK = pause, right = +30s',
         'music_live': 'live MP3 conversion',
@@ -396,6 +415,11 @@ STRINGS = {
         'btn_b30': '-30 s',
         'btn_f30': '+30 s',
         'btn_back': 'Voltar',
+        'btn_prev': 'Faixa anterior',
+        'btn_next': 'Próxima faixa',
+        'btn_rep': 'Repetir esta faixa',
+        'music_rep_on': 'repetir ligado',
+        'music_rep_off': 'repetir desligado',
         'music_foot': 'OK = escolher botão, direita = +30s, esquerda = voltar',
         'music_start': 'tocando... OK = pausa, direita = +30s',
         'music_live': 'conversão MP3 ao vivo',
@@ -447,6 +471,11 @@ STRINGS = {
         'btn_b30': '-30 s',
         'btn_f30': '+30 s',
         'btn_back': 'Volver',
+        'btn_prev': 'Pista anterior',
+        'btn_next': 'Pista siguiente',
+        'btn_rep': 'Repetir esta pista',
+        'music_rep_on': 'repetir activado',
+        'music_rep_off': 'repetir desactivado',
         'music_foot': 'OK = elegir botón, derecha = +30s, izquierda = volver',
         'music_start': 'reproduciendo... OK = pausa, derecha = +30s',
         'music_live': 'conversión MP3 en vivo',
@@ -486,11 +515,16 @@ def esc(s):
 # JS-safe quoted literal; T() gives the request's language)
 HUD_KEYS = ('hud_err_src', 'hud_loadstart', 'hud_canplay', 'hud_err_code',
             'hud_ended', 'hud_load', 'hud_play', 'hud_pause')
+# MUSIC_JS extras (repeat toggle + prev/next-in-folder URLs); harmless
+# no-ops for the video templates that lack the placeholders
+MUSIC_KEYS = ('music_rep_on', 'music_rep_off')
 
 
-def player_js(mime, url, tpl=PLAYER_JS):
+def player_js(mime, url, tpl=PLAYER_JS, prev=None, nxt=None):
     js = (tpl.replace('%MIME%', repr(mime)).replace('%URL%', repr(url)))
-    for k in HUD_KEYS:
+    js = js.replace('%PREV%', json.dumps(prev or ''))
+    js = js.replace('%NEXT%', json.dumps(nxt or ''))
+    for k in HUD_KEYS + MUSIC_KEYS:
         js = js.replace('%%%s%%' % k, json.dumps(T(k)))
     return js
 
@@ -721,6 +755,27 @@ def music_art_available(o):
     return bool(src) and extract_embedded_art(src, _art_path(o['id']))
 
 
+def music_neighbors(o):
+    """Prev/next musicTrack ids in the same DIDL folder, folder order,
+    wrapping at the ends. Serviio item ids are '<parent>$MI<number>':
+    strip the tail to browse the folder. (None, None) when the folder
+    can't be resolved — no $MI tail, browse failure, or the item isn't
+    in it — so the page just renders without the prev/next buttons."""
+    m = re.match(r'^(.*)\$MI\d+$', o['id'])
+    if not m:
+        return None, None
+    try:
+        objs, _ = upnp_browse(m.group(1), count=1000)
+    except Exception:
+        return None, None
+    ids = [x['id'] for x in objs
+           if not x.get('container') and 'musicTrack' in x.get('cls', '')]
+    if o['id'] not in ids or len(ids) < 2:
+        return None, None
+    i = ids.index(o['id'])
+    return ids[i - 1], ids[(i + 1) % len(ids)]
+
+
 def render_music(o, res):
     """Music page: album art + on-screen buttons, NOT full-screen.
 
@@ -740,8 +795,17 @@ def render_music(o, res):
     label = fmt + ((', ' + T('music_live')) if live else '')
     art = ('<img src="/art/%s" alt="">' % qid) if music_art_available(o) \
         else ''
-    btns = (('pp', 'btn_pp'), ('bk', 'btn_b30'),
-            ('fw', 'btn_f30'), ('back', 'btn_back'))
+    # embedded player controls: prev/next in folder (only when the
+    # folder resolves), play/pause between them, seek, repeat toggle
+    prev_id, next_id = music_neighbors(o)
+    btns = []
+    if prev_id:
+        btns.append(('prv', 'btn_prev'))
+    btns.append(('pp', 'btn_pp'))
+    if next_id:
+        btns.append(('nxt', 'btn_next'))
+    btns += [('bk', 'btn_b30'), ('fw', 'btn_f30'),
+             ('rep', 'btn_rep'), ('back', 'btn_back')]
     rows = ''.join('<li><a href="#" data-act="%s">%s</a></li>'
                    % (act, esc(T(key))) for act, key in btns)
     body = ('<div id="music">'
@@ -756,7 +820,11 @@ def render_music(o, res):
             '</div>'
             % (esc(o['title']), esc(label), art, T('music_start'),
                rows, T('music_foot')))
-    js = player_js('audio/mpeg' if live else res['mime'], url, tpl=MUSIC_JS)
+    js = player_js('audio/mpeg' if live else res['mime'], url, tpl=MUSIC_JS,
+                   prev=('/aud/%s' % urllib.parse.quote(prev_id, safe=''))
+                   if prev_id else None,
+                   nxt=('/aud/%s' % urllib.parse.quote(next_id, safe=''))
+                   if next_id else None)
     return _page(o['title'], body, extra_js=js)
 
 
