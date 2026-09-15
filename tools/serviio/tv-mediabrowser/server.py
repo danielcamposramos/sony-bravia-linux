@@ -1418,11 +1418,19 @@ class Handler(BaseHTTPRequestHandler):
         q = queue.Queue()
 
         def pump():
-            while True:
-                b = proc.stdout.read(64 * 1024)
-                q.put(b)
-                if not b:
-                    return
+            # the request thread kills ffmpeg + closes stdout on client
+            # abort (track skip / voltar); the pump's in-flight read then
+            # raises on the closed pipe — that is the normal shutdown
+            # path, not an error (live 2026-09-15: it crash-logged as
+            # "Exception in thread Thread-N (pump)" on every skip)
+            try:
+                while True:
+                    b = proc.stdout.read(64 * 1024)
+                    q.put(b)
+                    if not b:
+                        return
+            except (ValueError, OSError):
+                pass   # stdout closed under us: stream over, exit clean
 
         threading.Thread(target=pump, daemon=True).start()
         try:
