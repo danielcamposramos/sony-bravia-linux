@@ -2,7 +2,7 @@
 """Regression battery for the mpc/wv + relative-URL fixes (2026-09-15).
 
 Run from the tv-mediabrowser dir with BRAVIA_SKIP_INDEX=1:
-    BRAVIA_SKIP_INDEX=1 python3 tests/mpcwv-fix.py
+    BRAVIA_SKIP_INDEX=1 python3 tests/test-mpcwv-fix.py
 """
 import os
 import sys

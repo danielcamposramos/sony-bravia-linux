@@ -33,8 +33,8 @@ they are gone. **Kill and start are two separate ssh calls** (project
 rule: never pkill a pattern contained in the running command line).
 
 ```
-# 1. verify nobody is streaming first:
-ss -tn state established '( sport = :8090 or sport = :8443 )'
+# 1. verify nobody is streaming first (app + portal + Serviio + Apache):
+ss -tn state established '( sport = :80 or sport = :443 or sport = :8090 or sport = :8443 or sport = :8895 )'
 # 2. (separate ssh call) stop the old processes:
 pkill -f "[s]erver.py 8090"
 pkill -f "[s]erve.py 8443"

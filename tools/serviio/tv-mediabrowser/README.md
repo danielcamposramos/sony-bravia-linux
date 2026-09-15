@@ -76,9 +76,10 @@ prototype keeps MediaBrowser's structure and swaps the delivery.
 python3 server.py [port]     # default from config.ini [app] port, else 8090
 ```
 
-On the TV's browser open `http://192.168.0.4:8090/` (CERS `sendText`
-delivery as usual), accept the era insecure-content prompt once per
-session.
+On the TV's browser open `http://192.168.0.60:8090/` (CERS `sendText`
+delivery as usual; the address is `[serviio] host` in `config.ini` —
+d2server, where the app is deployed), accept the era insecure-content
+prompt once per session.
 
 ### Configuration (config.ini)
 

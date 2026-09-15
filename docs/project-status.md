@@ -108,7 +108,7 @@ Key architectural facts a partner must not re-learn the hard way
 | `tools/serviio/tv-mediabrowser/config.ini.example` | config template — copy to `config.ini` |
 | `tools/serviio/tv-mediabrowser/README.md` | app deep-doc: architecture, lanes, formats |
 | `tools/serviio/tv-mediabrowser/tests/` | 4 regression batteries (see below) |
-| `tools/systemd/` | the four units + bucket target + deploy README |
+| `tools/systemd/` | the two bravia units + the bucket target + deploy README (serviio.service and apache2.service are stock distro units, deliberately not rewritten here) |
 | `tools/serviio/user-profiles-3d.xml` | Serviio renderer profiles (see Serviio side) |
 | `tools/bravia_ircc.py`, `tools/bravia_sei3d.py` | remote control + SEI 3D injector |
 
@@ -135,19 +135,26 @@ sudo systemctl restart bravia-mediabrowser.service
 one handle that pulls up the whole TV lane at boot.
 
 **Restart safety rule (hard):** before restarting anything that
-serves the TVs, check nobody is streaming:
+serves the TVs, check nobody is streaming — the stack serves on
+:8090/:8443 (app + portal), :8895 (Serviio, both TV render paths and
+the app's browse), and :80/:443 (Apache):
 
 ```bash
-ss -tn state established '( sport = :8090 or sport = :8443 )'
+ss -tn state established '( sport = :80 or sport = :443 or sport = :8090 or sport = :8443 or sport = :8895 )'
 ```
 
-**Kill/start rule (hard):** when killing a service by pattern, the
-kill and the start must be TWO separate SSH calls, and the plain
-process pattern must not appear anywhere in the same command line —
-`pkill -f "server.py 8090"` in a command whose own text contains
-"server.py 8090" kills your SSH session mid-command (this happened;
-exit 255). Use bracket patterns (`pkill -f "[s]erver.py 8090"`) and
-even then verify the string isn't in your own command line.
+**Kill/start rule (migration-era, hard):** under systemd use
+`systemctl restart <unit>` and this rule mostly doesn't apply — but
+if you ever must kill a process by pattern (manual migration runs,
+nohup-era processes), the kill and the start must be TWO separate
+SSH calls, and the plain process pattern must not appear anywhere in
+the same command line — `pkill -f "server.py 8090"` in a command
+whose own text contains "server.py 8090" kills your SSH session
+mid-command (this happened; exit 255). Use bracket patterns
+(`pkill -f "[s]erver.py 8090"`) and even then verify the string
+isn't in your own command line. Also note a pkill against a
+systemd-managed process just triggers Restart=on-failure in 3 s —
+restart through systemd, not the pattern kill.
 
 ### Config surface
 
@@ -190,17 +197,21 @@ contract: each check names a live-proven behavior.
 ## Serviio side
 
 - **Renderer profiles** (`tools/serviio/user-profiles-3d.xml`,
-  deployed at `/opt/serviio/config/user-profiles.xml`):
-  - `sony2011x` (extends stock sony2012): the daily driver for both
+  deployed at `/opt/serviio/config/user-profiles.xml` — `/opt/serviio`
+  is a symlink to the current install, `serviio-2.5/`):
+  - `sony2011x` (extends stock `sony2011`, which extends `sony2012`):
+    the daily driver for both
     TVs — raw delivery for everything the sets play natively, LPCM
     for the lossless oddities, and the **3D fix** — H.264 SEI frame
     packing insertion so MVC 3D titles play (the reason the repo
     exists; see `tools/serviio/serviio-3d-explainer.md` and the
     forum-post drafts in the same dir).
-  - `tvbox-vlc` (authored 2026-09-15, deploy pending verification):
-    direct-pass profile for the two Android TV boxes on the LAN
-    (.24/.25) that run modified VLC — everything deliverable raw,
-    Audio→lpcm only for mpc/wv/ape.
+  - `tvbox-vlc` (deployed 2026-09-15, verified by a 6-agent adversarial
+    workflow, 0 findings): direct-pass profile for the two Android TV
+    boxes on the LAN (.24/.25) that run modified VLC — everything
+    deliverable raw, Audio→lpcm only for mpc/wv/ape. Assigned to both
+    boxes via the console REST API after a full Serviio restart; the
+    TVs' sony2011x assignments survived untouched.
 - **Console REST API** (found by reading serviio-web-console.jar):
   `GET/PUT http://127.0.0.1:23423/rest/status` with an
   `Accept: application/json` header returns/accepts the renderer
@@ -245,9 +256,13 @@ These apply to any partner working on this project:
 5. **EX725 (.22) first, always.** Never crash-test the HX855 (.21) —
    it is the workstation's monitor. Changes land on .22, get
    owner-verified, and only then touch .21.
-6. **No firmware/update host is ever pointed at us.** DNS overrides
-   cover media/portal hosts only. `ssm`/`ssm1`/`playstation`/
-   `static.internet.sony.tv` are never MITM'd and never overridden.
+6. **No firmware/update host is ever pointed at us.** The DNS-override
+   list on d2server's Unbound is a **closed, owner-approved set of
+   exactly two hosts**: `applicast.ga.sony.net` → 192.168.0.60 and
+   `rd1.sony.net` → 192.168.0.60. Nothing else is ever overridden;
+   adding a host means the owner says so first. `ssm`/`ssm1`/
+   `playstation`/`static.internet.sony.tv` are never MITM'd and never
+   overridden.
 7. **Heavy media jobs run on d2server**, never the workstation
    (ffmpeg/mkvmerge/SEI batches go to .60 over SSH).
 8. **Kill and start are two separate SSH calls** (see above).
@@ -255,6 +270,13 @@ These apply to any partner working on this project:
    widget packages, third-party app sources stay in the owner's
    offline archive. See below.
 10. **Check for live streams before restarting a serving service.**
+11. **Pre-publish sweep (hard):** before publishing this repo or any
+   part of it anywhere (repair.wiki, a fork, a tarball), sweep for
+   key/credential material: `git grep -l "BEGIN.*KEY" $(git rev-list
+   --all)`, check no `*.key` or `creds.json` is tracked, and confirm
+   the .gitignore tripwires are intact (firmware/, manuals/, widget
+   trees, creds.json, `tools/rd1-portal/*.key`). Key material lives
+   only in the owner's private archive and on the server.
 
 ## Private material
 
@@ -281,10 +303,9 @@ unroutable, needed for the docs to make sense).
 - real keyCode harvest from the TV remotes via `/keys` (deployed
   2026-09-15, awaiting a session in front of the TVs)
 
-**Pending deploys**:
-- `tvbox-vlc` renderer profile → d2server + `.24`/`.25` assignment
-  via the console REST API (authored; verification workflow was
-  still running when this doc was written)
+**Pending deploys**: (none — tvbox-vlc renderer profile was deployed
+and assigned 2026-09-15; verify on the boxes by browsing mpc/wv and
+confirming LPCM delivery)
 
 **Bigger lanes** (see the roadmap for gates and ordering):
 - widget lane: run owner-built applicast widgets on the sets

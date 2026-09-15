@@ -75,6 +75,8 @@ kernel modernization) in `docs/feasibility-roadmap.md`.
 
 ## Legal note
 
-This project studies devices the author owns. Firmware images are Sony
-copyright material kept here for personal research; nothing here bypasses or
-redistributes DRM-protected content.
+This project studies devices the author owns. Sony-distributed material
+(firmware images, service manuals, widget packages) referenced by older
+research notes is kept in the owner's offline private archive — never in
+this repository. Nothing here bypasses or redistributes DRM-protected
+content.

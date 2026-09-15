@@ -7,7 +7,9 @@
   frame-packing SEI on both sets).
 
   Deploy as:   <serviio-install>/config/user-profiles.xml
-               (target host 192.168.0.60, path /opt/serviio-2.5/config/)
+               (target host 192.168.0.60, path /opt/serviio/config/
+               — /opt/serviio is a symlink to the current install,
+               serviio-2.5/ as of 2026-09)
   Then:        FULLY restart the Serviio server process (Linux process / service,
                NOT just the console UPnP restart buttons), and in
                Console > Status > Devices assign profile
