@@ -9,8 +9,26 @@ era profile. Content `/var/www/rd1-portal` (copy of `wwwroot/`), media
 link points at `http://192.168.0.60:8090/` (the app now runs on d2server
 too — local-disk probe pass, no LAN traffic). The standalone
 `serve.py 8443 ip.crt ip.key` probe (CN=192.168.0.60) stays up as the
-direct-IP probe path. **Remaining: the one Unbound override on OPNsense
-(owner step), then the live homepage probe.**
+direct-IP probe path.
+
+**Unbound override applied 2026-09-15 (owner-directed):**
+`rd1.sony.net → A 192.168.0.60`. SCHEMA CORRECTION — the applicast
+override lives in the LEGACY `<unbound><hosts>` section of
+`/conf/config.xml` (NOT `<unboundplus>`): split
+`<hostname>applicast</hostname>` + `<domain>ga.sony.net</domain>` +
+`<server>192.168.0.60</server>` + `<addptr>1</addptr>` fields. The rd1
+block mirrors it exactly (`hostname` `rd1`, `domain` `sony.net`, uuid
+`ed254d96-a03d-45f4-bf38-637ae90561d8`, description "rd1 browser-homepage
+LAN resurrection"), inserted after the applicast block via a guarded
+python script (`/tmp/acig-/opnsense-rd1-override.py`; applied with
+`ssh root@192.168.0.1 'python3 -' < script`). Applied
+`configctl template reload OPNsense/Unbound/core` +
+`configctl unbound restart`. Verified: `dig +short rd1.sony.net
+@192.168.0.1` → `192.168.0.60`; applicast still `.60`; end-to-end
+era-TLS GET https://rd1.sony.net/tv1/ → 200.
+Backup: `/conf/config.xml.bak-rd1-20260915`. **Rollback = delete the
+one rd1 `<host>` block + rerun the two configctl commands.**
+Remaining: the live homepage probe on the EX725.
 
 The built-in browser's hardcoded default homepage is
 `https://rd1.sony.net:443/tv1/` (live-verified, browser-lane-test.md).
