@@ -857,11 +857,14 @@ for _fn in os.listdir(CACHE_DIR):
         except OSError:
             pass
 VIDEO_EXT = ('.mkv', '.avi', '.mpg', '.mpeg', '.ts', '.m2ts', '.mts',
-             '.flv', '.wmv', '.mov', '.mp4', '.m4v', '.vob')
+             '.flv', '.wmv', '.mov', '.mp4', '.m4v', '.vob',
+             '.3gp', '.3g2')
 # era Presto decodes MP3 but not FLAC/OGG/WAV/... — those route to the
-# live /atr/ MP3 pipe, so the index must know them too
+# live /atr/ MP3 pipe, so the index must know them too. Full Serviio
+# roster (owner-directed 2026-09-15): mpc/wv/aiff are in the library
+# and stream through the same pipe, so they must be indexed.
 AUDIO_EXT = ('.mp3', '.flac', '.m4a', '.aac', '.wav', '.ogg', '.oga',
-             '.wma', '.opus', '.ape', '.mka')
+             '.wma', '.opus', '.ape', '.mka', '.mpc', '.wv', '.aif', '.aiff')
 
 _lib_lock = threading.Lock()
 _lib_by_stem = {}       # lower(filename stem) -> [paths]
@@ -1015,8 +1018,14 @@ def resolve_source(title, didl_dur, want=None, prefer_ext=None):
     # NB: filter inside this one lock acquisition — calling kind_ok() here
     # would re-acquire _lib_lock (non-reentrant) and deadlock every
     # want=-filtered resolve.
+    # Serviio sometimes titles an item with its extension included
+    # ("02 Querem Meu Sangue.wma" — live 2026-09-15): strip it so the
+    # stem map hits directly instead of dropping to the substring tier
+    tl = title.lower()
+    if os.path.splitext(tl)[1] in (AUDIO_EXT + VIDEO_EXT):
+        tl = os.path.splitext(tl)[0]
     with _lib_lock:
-        paths = [p for p in _lib_by_stem.get(title.lower(), [])
+        paths = [p for p in _lib_by_stem.get(tl, [])
                  if want is None or _lib_kind.get(p) == want]
     if len(paths) == 1:
         return paths[0], None
@@ -1072,6 +1081,12 @@ def resolve_source(title, didl_dur, want=None, prefer_ext=None):
             ranked = sorted(m, key=rank)
             if rank(ranked[0]) != rank(ranked[1]):
                 return ranked[0], None
+            # a complete rank tie — same format (prefer_ext), same title
+            # tokens, same duration — is two copies of one recording
+            # (live: "02 Querem Meu Sangue.wma" sits in both MPB/ and
+            # Reggae/, 201.266s each). Any copy plays the right bytes:
+            # pick the first instead of 404ing the track.
+            return ranked[0], None
     if not _lib_ready:
         return None, T('lib_building')
     if not _lib_dur_done:
