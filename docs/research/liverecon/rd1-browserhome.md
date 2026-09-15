@@ -28,7 +28,21 @@ python script (`/tmp/acig-/opnsense-rd1-override.py`; applied with
 era-TLS GET https://rd1.sony.net/tv1/ → 200.
 Backup: `/conf/config.xml.bak-rd1-20260915`. **Rollback = delete the
 one rd1 `<host>` block + rerun the two configctl commands.**
-Remaining: the live homepage probe on the EX725.
+
+**LIVE-VERIFIED 2026-09-15 (EX725, owner-confirmed "portal opened after
+fresh start"):** with the Unbound override active, a fresh TV start →
+"Internet" button → the hardcoded homepage lands on our portal with zero
+typing. Access log: `GET /tv1/` **200** from 192.168.0.22 with the genuine
+era UA (`Opera/9.80 … KDL46EX725 … Presto/2.7.61`). One wrinkle: the
+browser recorded the page URL as `http://rd1.sony.net/tv1/` (plain
+`:80` namevhost — 895B gzipped body), i.e. the https-default fell back to
+or normalized to http; the self-signed-cert acceptance question stays
+unanswered but is moot for the homepage goal — the page arrives either
+way. Pre-reboot the TV showed "Web Address Blocked" with zero LAN hits —
+that was the stale Akamai DNS cache, cured by the TV restart (owner's
+instinct). `/favicon.ico` added to the wwwroot afterwards (was 404).
+Probe-ladder verdict: closest to row 1 ("homepage renders our portal")
+with an http-fallback footnote.
 
 The built-in browser's hardcoded default homepage is
 `https://rd1.sony.net:443/tv1/` (live-verified, browser-lane-test.md).

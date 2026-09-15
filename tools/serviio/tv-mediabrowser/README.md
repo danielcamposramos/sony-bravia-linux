@@ -1,5 +1,12 @@
 # tv-mediabrowser — era-lean Serviio MediaBrowser for 2011-era Sony BRAVIA
 
+**LIVE-PROVEN 2026-09-15 (EX725): music lane works end-to-end.** Album art
+displays at a decent size (512px CSS upscale of Serviio JPEG_TN), and **FLAC
+plays** — the era native player accepted our responses (the 200-no-Range
+concern on `/atr/` never bit; owner confirmed audio out of the TV). Deployed
+and running on d2server (`:8090`, local-disk library, probe cache warm) —
+all traffic stays on .60, none on the workstation.
+
 A TV app that browses the Serviio library on the LAN media server
 (192.168.0.60, Serviio 2.5) and plays items on the EX725's built-in browser,
 **modeled on Serviio's own MediaBrowser web app** — same library, same
