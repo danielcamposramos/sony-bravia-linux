@@ -58,8 +58,8 @@ RES_BASE = 'http://%s:8895' % SERVIIO
 # them directly, Serviio answered 500 "No media description available for
 # required version" (verified live). So the app proxies media through
 # itself: browse client == fetch client, and the TV streams Range/206
-# from this server instead.
-OWN_BASE = os.environ.get('OWN_BASE', 'http://192.168.0.4:%d')
+# from this server instead. The proxy URL is RELATIVE (see
+# proxied_res_url) so it survives host moves.
 PAGE_SIZE = 18
 PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8090
 
@@ -348,6 +348,7 @@ STRINGS = {
         'music_foot': 'OK = select button, right = +30s, left = back',
         'music_start': 'playing... OK = pause, right = +30s',
         'music_live': 'live MP3 conversion',
+        'music_unknown': 'unknown format',
     },
     'pt': {
         'nav_foot': 'Setas navegam, OK abre, esquerda = voltar',
@@ -398,6 +399,7 @@ STRINGS = {
         'music_foot': 'OK = escolher botão, direita = +30s, esquerda = voltar',
         'music_start': 'tocando... OK = pausa, direita = +30s',
         'music_live': 'conversão MP3 ao vivo',
+        'music_unknown': 'formato desconhecido',
     },
     'es': {
         'nav_foot': 'Flechas navegan, OK abre, izquierda = volver',
@@ -448,6 +450,7 @@ STRINGS = {
         'music_foot': 'OK = elegir botón, derecha = +30s, izquierda = volver',
         'music_start': 'reproduciendo... OK = pausa, derecha = +30s',
         'music_live': 'conversión MP3 en vivo',
+        'music_unknown': 'formato desconocido',
     },
 }
 
@@ -553,6 +556,14 @@ def render_list(obj_id, objects, total, start, title=''):
                     # lane: it locates the source by DIDL title/duration
                     rows.append('<li><a href="/tr/%s">%s</a></li>'
                                 % (qid, esc(o['title'])))
+                elif kind == 'aud':
+                    # Serviio lists some audio items with NO res at all
+                    # (live 2026-09-15: mpc/wv items are musicTracks with
+                    # empty res — Serviio can't serve them). The /atr/
+                    # lane can still resolve the source by DIDL
+                    # title/duration, so keep them clickable.
+                    rows.append('<li><a href="/aud/%s">%s</a></li>'
+                                % (qid, esc(o['title'])))
                 else:
                     rows.append('<li>%s</li>' % esc(o['title']))
                 continue
@@ -580,9 +591,14 @@ def render_list(obj_id, objects, total, start, title=''):
 
 
 def proxied_res_url(res_url):
-    """Wrap a Serviio res URL in our /stream/ proxy (same-client delivery)."""
-    return '%s/stream/%s' % (OWN_BASE % PORT,
-                             urllib.parse.quote(res_url, safe=''))
+    """Wrap a Serviio res URL in our /stream/ proxy (same-client delivery).
+
+    RELATIVE on purpose: this same server serves the page, so the URL
+    resolves to whichever host the browser reached us on. The old
+    absolute OWN_BASE=192.168.0.4 survived the d2server move and left
+    every native MP3/MP4 stream URL pointing at the dead workstation —
+    live 2026-09-15, MP3 items 404'd via connection-refused."""
+    return '/stream/%s' % urllib.parse.quote(res_url, safe='')
 
 
 def render_player(o, res):
@@ -695,11 +711,16 @@ def render_music(o, res):
     MP3 plays era-native (proxied); anything else (FLAC/OGG/WAV/...)
     points at the live /atr/ MP3 pipe — ffmpeg bytes straight to the
     player, nothing written to disk.
+
+    res may be None: Serviio lists mpc/wv items as musicTracks with no
+    res at all (it can't serve them) — the /atr/ lane resolves the source
+    by DIDL title/duration instead, so the page renders fine either way.
     """
     qid = urllib.parse.quote(o['id'], safe='')
-    live = res['mime'] != 'audio/mpeg'
+    live = res is None or res['mime'] != 'audio/mpeg'
     url = ('/atr/%s' % qid) if live else proxied_res_url(res['url'])
-    label = res['mime'] + ((', ' + T('music_live')) if live else '')
+    label = ((res['mime'] if res else T('music_unknown'))
+             + ((', ' + T('music_live')) if live else ''))
     art = ('<img src="/art/%s" alt="">' % qid) if music_art_available(o) \
         else ''
     btns = (('pp', 'btn_pp'), ('bk', 'btn_b30'),
@@ -1316,8 +1337,10 @@ class Handler(BaseHTTPRequestHandler):
                     r = pick_image_res(o['res'])
                     body = render_image(o, r) if r else render_error('item', T('no_image_res'))
                 elif kind == 'aud':
+                    # r may be None (mpc/wv: Serviio lists them with no
+                    # res) — render_music handles that via the /atr/ lane
                     r = pick_audio_res(o['res'])
-                    body = render_music(o, r) if r else render_error('item', T('no_audio_res'))
+                    body = render_music(o, r)
                 else:
                     r = pick_video_res(o['res'])
                     body = render_player(o, r) if r else render_error('item', T('no_video_res'))
