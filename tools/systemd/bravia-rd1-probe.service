@@ -1,0 +1,18 @@
+[Unit]
+Description=Bravia rd1 HTTPS probe - TLS1.0-era portal endpoint for the era TVs (:8443)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pvpgn
+Group=pvpgn
+WorkingDirectory=/home/pvpgn/rd1-portal
+ExecStart=/usr/bin/python3 serve.py 8443 ip.crt ip.key
+Restart=on-failure
+RestartSec=3
+StandardOutput=append:/home/pvpgn/rd1-portal/rd1-serve.log
+StandardError=append:/home/pvpgn/rd1-portal/rd1-serve.log
+
+[Install]
+WantedBy=bravia-stack.target

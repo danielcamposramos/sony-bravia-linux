@@ -1,0 +1,19 @@
+[Unit]
+Description=Bravia tv-mediabrowser - era-lean Serviio MediaBrowser for the Sony TVs (:8090)
+Documentation=file:///home/pvpgn/tv-mediabrowser/README.md
+After=network-online.target serviio.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=pvpgn
+Group=pvpgn
+WorkingDirectory=/home/pvpgn/tv-mediabrowser
+ExecStart=/usr/bin/python3 server.py 8090
+Restart=on-failure
+RestartSec=3
+StandardOutput=append:/home/pvpgn/tv-mediabrowser/server.log
+StandardError=append:/home/pvpgn/tv-mediabrowser/server.log
+
+[Install]
+WantedBy=bravia-stack.target

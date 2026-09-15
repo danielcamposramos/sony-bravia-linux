@@ -1,0 +1,7 @@
+[Unit]
+Description=Bravia media stack bucket - one handle that launches the whole TV lane
+Wants=bravia-mediabrowser.service bravia-rd1-probe.service serviio.service apache2.service
+After=network-online.target
+
+[Install]
+WantedBy=multi-user.target
