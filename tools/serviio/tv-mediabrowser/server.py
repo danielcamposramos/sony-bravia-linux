@@ -194,7 +194,10 @@ document.onkeydown=function(e){
   if(k==38){move(-1);}
   else if(k==40){move(1);}
   else if(k==13||k==39){openSel();}
-  else if(k==37||k==8){history.back();}
+  // era InettvBrowser ignores history.back() (live 2026-09-15, owner
+  // report: "voltar" dead on the music page); history.go(-1) is honored.
+  // Back must be relative — the player is reachable by many paths.
+  else if(k==37||k==8){history.go?history.go(-1):history.back();}
   else{return true;}
   return false;
 };
@@ -230,7 +233,7 @@ document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
   if(k==13){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
   else if(k==39){try{v.currentTime+=30;}catch(x){}}
-  else if(k==37||k==8){history.back();}
+  else if(k==37||k==8){history.go?history.go(-1):history.back();}
   else{return true;}
   return false;
 };
@@ -247,7 +250,7 @@ function act(a){
  if(a=='pp'){if(v.paused){v.play();}else{v.pause();}}
  else if(a=='bk'){try{v.currentTime-=30;}catch(x){}}
  else if(a=='fw'){try{v.currentTime+=30;}catch(x){}}
- else if(a=='back'){history.back();}
+ else if(a=='back'){history.go?history.go(-1):history.back();}
 }
 function openSel(){if(!items.length||!items[sel]){return;}var a=items[sel].getElementsByTagName('a');if(a.length){act(a[0].getAttribute('data-act'));}}
 var s=document.createElement('source');
@@ -267,7 +270,7 @@ document.onkeydown=function(e){
   else if(k==40){move(1);}
   else if(k==13){openSel();}
   else if(k==39){act('fw');}
-  else if(k==37||k==8){history.back();}
+  else if(k==37||k==8){history.go?history.go(-1):history.back();}
   else{return true;}
   return false;
 };
@@ -276,7 +279,7 @@ document.onkeydown=function(e){
 IMG_JS = """
 document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
-  if(k==37||k==8){history.back();}
+  if(k==37||k==8){history.go?history.go(-1):history.back();}
   else{return true;}
   return false;
 };
@@ -644,13 +647,35 @@ def extract_embedded_art(src, dst):
     return False
 
 
-# res mime -> library extension: the first rank tiebreak for dual-format
-# stems (one album often exists as both FLAC and MP3)
+# res mime -> library extension(s): the first rank tiebreak for dual-format
+# stems (one album often exists as both FLAC and MP3). Full Serviio audio
+# roster (owner-directed 2026-09-15): every format Serviio serves goes down
+# the same live /atr/ MP3 pipe, so each mime needs an extension mapping.
+# Values are str or tuple — endswith() takes either.
 MIME_EXT = {'audio/mpeg': '.mp3', 'audio/mp3': '.mp3',
             'audio/x-flac': '.flac', 'audio/flac': '.flac',
             'audio/x-wav': '.wav', 'audio/wav': '.wav',
             'audio/mp4': '.m4a', 'audio/aac': '.aac', 'audio/aacp': '.aac',
-            'audio/ogg': '.ogg', 'audio/x-ms-wma': '.wma'}
+            'audio/ogg': ('.ogg', '.oga'), 'audio/x-ogg': '.ogg',
+            'audio/x-ms-wma': '.wma', 'audio/wma': '.wma',
+            'audio/x-musepack': '.mpc', 'audio/x-mpc': '.mpc',
+            'audio/x-wavpack': '.wv',
+            'audio/x-aiff': ('.aiff', '.aif'), 'audio/aiff': '.aiff',
+            'audio/x-ape': '.ape', 'audio/opus': '.opus',
+            'audio/x-matroska': ('.mka', '.mks')}
+
+# same for the /tr/ video lane: Serviio's video mimes -> container
+# extensions, so dual-format movie stems resolve to the file the res
+# mime actually describes (owner-directed 2026-09-15 — every Serviio-
+# compatible video format goes through the conversion lane)
+VID_MIME_EXT = {'video/mp4': ('.mp4', '.m4v'),
+                'video/x-matroska': ('.mkv', '.mk3d', '.webm'),
+                'video/avi': '.avi', 'video/x-msvideo': '.avi',
+                'video/mpeg': ('.mpg', '.mpeg', '.vob'),
+                'video/mp2t': ('.ts', '.m2ts', '.mts'),
+                'video/x-ms-wmv': '.wmv', 'video/quicktime': '.mov',
+                'video/x-flv': '.flv', 'video/3gpp': ('.3gp', '.3g2'),
+                'video/webm': '.webm'}
 
 
 def music_art_available(o):
@@ -1357,10 +1382,13 @@ class Handler(BaseHTTPRequestHandler):
             self.send_error(404, 'no source')
             return
         try:
+            # 320 kbps CBR + 48 kHz (owner-directed quality, 2026-09-15):
+            # max MP3 fidelity for the era player, and 48k is the era-safe
+            # rate the video lane already uses for AAC
             proc = subprocess.Popen(
                 ['ffmpeg', '-nostdin', '-v', 'error', '-i', src,
-                 '-map', '0:a:0', '-c:a', 'libmp3lame', '-q:a', '2',
-                 '-f', 'mp3', '-'],
+                 '-map', '0:a:0', '-c:a', 'libmp3lame', '-b:a', '320k',
+                 '-ar', '48000', '-f', 'mp3', '-'],
                 stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
                 stderr=subprocess.DEVNULL)
         except Exception as e:
@@ -1551,7 +1579,9 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_html(render_player(o, r).encode())  # direct-play
                 return
             dur = _didl_duration_seconds(o['res'])
-            src, err = resolve_source(o['title'], dur, want='video')
+            src, err = resolve_source(
+                o['title'], dur, want='video',
+                prefer_ext=VID_MIME_EXT.get(r['mime']) if r else None)
             if not src:
                 self._send_html(render_error(
                     'transcode', err or 'source not found').encode())
