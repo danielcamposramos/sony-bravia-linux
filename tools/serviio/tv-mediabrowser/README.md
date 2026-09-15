@@ -73,12 +73,50 @@ prototype keeps MediaBrowser's structure and swaps the delivery.
 ## Run
 
 ```
-python3 server.py [port]     # default 8090
+python3 server.py [port]     # default from config.ini [app] port, else 8090
 ```
 
 On the TV's browser open `http://192.168.0.4:8090/` (CERS `sendText`
 delivery as usual), accept the era insecure-content prompt once per
 session.
+
+### Configuration (config.ini)
+
+Everything host- and install-specific lives in `config.ini` next to
+`server.py` (see `config.ini.example`), overridable per-run with
+`BRAVIA_CONFIG=/path`. Precedence per option: **env var > config file >
+built-in default**. Sections:
+
+| section  | keys                | what it sets                                          |
+|----------|---------------------|-------------------------------------------------------|
+| `[app]`  | `bind_host`, `port` | where this app listens (a CLI port arg still wins)    |
+| `[serviio]` | `host`, `port`   | the Serviio server to browse/proxy                    |
+| `[library]` | `roots`, `cache_dir` | colon-separated media roots (audio first); transcode/probe cache dir |
+| `[keys]` | 8 media actions     | remote keyCode lists, see below                       |
+
+Deployed as systemd `bravia-mediabrowser.service` (User `pvpgn`,
+port 8090, logs to `server.log` in the working dir); restart with
+`sudo systemctl restart bravia-mediabrowser.service` after config
+edits. Startup prints the resolved config path, media roots and keymap
+to the log.
+
+### Multimedia keys (config surface for the remote transport buttons)
+
+The remotes carry play/pause/stop/previous/next/rewind/fast-forward
+buttons; the era browser surfaces them as keydown events with set-
+specific keyCodes. The player pages map them through the `[keys]`
+section — defaults are Android-TV-family **guesses** (`playpause=85`,
+`play=126`, `pause=127`, `stop=86`, `prev=88`, `next=87`, `rew=89`,
+`ff=90`).
+
+To learn your set's real codes, open **`/keys`** on the TV and press
+each media button: the page shows each keyCode on screen and beacons
+it to `/keylog/`, which appends `KEYPROBE code=<n>` lines (with the
+client IP) to `server.log`. Paste the observed codes into
+`config.ini [keys]` (comma-separate aliases, `0` disables an action)
+and restart. The actions: playpause toggles, play/pause explicit,
+stop exits to the folder page, prev/next jump within the current
+folder (wrap-around), rew/ff seek ∓30 s.
 
 ## Transcode lane — cached faststart MP4 (app-side)
 
@@ -126,8 +164,18 @@ FLAC, MP3…) converts to AAC 5.1 48 kHz.
   5.1 bit-exact); later views instant from cache
 - [x] Dolby probe — AC-3/E-AC3 in MP4 decode on the set (bit-exact copy
   lane, see above)
+- [x] player UX — prev/next in folder (wrap-around, audio and video
+  lanes) + repeat-this-track toggle (reload-and-play on `ended`),
+  owner-verified 2026-09-15
+- [x] full video format roster — wmv/webm/rmvb via the transcode lane and
+  mpg/mpeg direct, owner-verified 2026-09-15 (with FLV and TS-era
+  leftovers the last untested stragglers)
+- [x] multimedia keys — all eight remote transport actions wired via
+  `config.ini [keys]` + the `/keys` probe page (2026-09-15)
+- [ ] auto-advance to next track on `ended` (repeat and manual prev/next
+  are in; auto-advance deliberately not — the era reload flash made it
+  feel worse, revisit if wanted)
 - [ ] thumbnails on list pages (Serviio serves cover art over :8895)
-- [ ] "next in folder" on `ended`
 - [ ] audio-track selection for direct-playable MP4s (multi-track MP4s
   currently play Serviio's chosen track)
 - [ ] receiver pass-through test (HDMI 5.1 out is advertised; no AVR on

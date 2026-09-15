@@ -1,0 +1,42 @@
+# tv-mediabrowser configuration — copy to config.ini next to server.py
+# (or point BRAVIA_CONFIG=/path at it). Everything host- and install-
+# specific lives here, so the app itself is install-agnostic.
+#
+# Precedence per option: environment variable > this file > built-in
+# default. SERVIIO= and MEDIA_ROOTS= env vars still override, which
+# keeps the test batteries env-driven.
+
+[app]
+# where this app listens. The systemd unit passes its own port on the
+# command line, which still wins over this file.
+bind_host = 0.0.0.0
+port = 8090
+
+[serviio]
+# the Serviio media server this app browses/proxies
+host = 192.168.0.60
+port = 8895
+
+[library]
+# mounted media roots, colon-separated, audio first (the duration-index
+# probe pass walks them in order; audio is small and finishes while
+# video replays from the persisted cache). Only existing dirs are used.
+roots = /mnt/arquivos2/Música:/mnt/arquivos2/Vídeos
+# transcode/art/probe cache (defaults to <app dir>/cache)
+# cache_dir = /var/cache/bravia-mediabrowser
+
+[keys]
+# Remote multimedia-key codes: which keyCodes the TV's era browser
+# reports for the remote's transport buttons. The shipped values are a
+# GUESS (Android-TV keyCode family) — discover your set's truth at the
+# app's /keys page: every press shows its code on the TV screen AND is
+# logged as a KEYPROBE line in server.log. Paste the observed numbers
+# here and restart. Comma-separate for aliases; 0 disables an action.
+playpause = 85
+play = 126
+pause = 127
+stop = 86
+prev = 88
+next = 87
+rew = 89
+ff = 90

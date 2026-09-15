@@ -34,6 +34,7 @@ format-support probe for the transcode-lane design (next phase).
 Run:  python3 server.py [port]        (default 8090)
 """
 
+import configparser
 import hashlib
 import html
 import http.client
@@ -51,9 +52,57 @@ import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
 
-SERVIIO = os.environ.get('SERVIIO', '192.168.0.60')
-CONTROL_URL = 'http://%s:8895/serviceControl' % SERVIIO
-RES_BASE = 'http://%s:8895' % SERVIIO
+# ---------------------------------------------------------------- config
+# Install-time surface: everything host/path specific lives in a config
+# file (INI) next to this file — config.ini by default, override the
+# location with BRAVIA_CONFIG=/path. Precedence per option: environment >
+# config file > built-in default, so a deployed box is configured by file
+# while tests stay env-driven. See config.ini.example in this directory.
+
+CONFIG_PATH = os.environ.get(
+    'BRAVIA_CONFIG',
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'config.ini'))
+_cfg = configparser.ConfigParser()
+if os.path.isfile(CONFIG_PATH):
+    _cfg.read(CONFIG_PATH, encoding='utf-8')
+
+
+def _cfg_get(section, option, default):
+    if _cfg.has_option(section, option):
+        return _cfg.get(section, option).strip()
+    return default
+
+
+def _cfg_int(section, option, default):
+    try:
+        return int(_cfg_get(section, option, default))
+    except (TypeError, ValueError):
+        return default
+
+
+# Remote multimedia-key codes: which keyCode the era browser reports for
+# each of the remote's media buttons. The shipped values are an educated
+# guess (the Android-TV keyCode family) — the ground truth for a given
+# set is two minutes at the /keys probe page: every press shows its code
+# on screen AND is logged server-side. Paste the observed numbers into
+# config.ini [keys] and restart. 0 = unmapped/disabled.
+KEY_ACTIONS = ('playpause', 'play', 'pause', 'stop', 'prev', 'next',
+                'rew', 'ff')
+KEY_DEFAULTS = {'playpause': '85', 'play': '126', 'pause': '127',
+                'stop': '86', 'prev': '88', 'next': '87',
+                'rew': '89', 'ff': '90'}
+KEYMAP = {}
+for _act in KEY_ACTIONS:
+    _codes = [int(c.strip()) for c in
+              _cfg_get('keys', _act, KEY_DEFAULTS[_act]).split(',')
+              if c.strip().isdigit()]
+    KEYMAP[_act] = [c for c in _codes if c > 0]
+
+SERVIIO = os.environ.get(
+    'SERVIIO', _cfg_get('serviio', 'host', '192.168.0.60'))
+SERVIIO_PORT = _cfg_int('serviio', 'port', 8895)
+CONTROL_URL = 'http://%s:%d/serviceControl' % (SERVIIO, SERVIIO_PORT)
+RES_BASE = 'http://%s:%d' % (SERVIIO, SERVIIO_PORT)
 # Serviio binds res URLs to the browsing client's IP: when the TV fetched
 # them directly, Serviio answered 500 "No media description available for
 # required version" (verified live). So the app proxies media through
@@ -61,7 +110,11 @@ RES_BASE = 'http://%s:8895' % SERVIIO
 # from this server instead. The proxy URL is RELATIVE (see
 # proxied_res_url) so it survives host moves.
 PAGE_SIZE = 18
-PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 8090
+# CLI arg still wins (the systemd unit passes its port), then the config
+# file, then the built-in default
+PORT = (int(sys.argv[1]) if len(sys.argv) > 1 else
+        _cfg_int('app', 'port', 8090))
+BIND_HOST = _cfg_get('app', 'bind_host', '0.0.0.0')
 
 NS = {'didl': 'urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/',
       'dc': 'http://purl.org/dc/elements/1.1/',
@@ -207,6 +260,12 @@ PLAYER_JS = """
 var v=document.getElementById('player_object');
 var st=document.getElementById('status');
 var hud=document.getElementById('hud');
+// next/previous video in folder (page navigation, same as the music
+// player) and remote multimedia-key codes from config.ini [keys]
+var prevUrl=%PREV%;
+var nextUrl=%NEXT%;
+var KM=%KEYMAP%;
+function km(a,k){var c=KM[a]||[];for(var i=0;i<c.length;i++){if(c[i]==k){return true;}}return false;}
 function hideshow(v2){if(hud){hud.style.visibility=v2?'visible':'hidden';}}
 var s=document.createElement('source');
 s.type=%MIME%;
@@ -231,7 +290,15 @@ v.load();v.play();
 st.innerHTML=%hud_load%;
 document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
-  if(k==13){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
+  if(km('playpause',k)){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
+  else if(km('play',k)){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}}
+  else if(km('pause',k)){if(!v.paused){v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
+  else if(km('stop',k)){history.go?history.go(-1):history.back();}
+  else if(km('prev',k)){if(prevUrl){window.location=prevUrl;}}
+  else if(km('next',k)){if(nextUrl){window.location=nextUrl;}}
+  else if(km('rew',k)){try{v.currentTime-=30;}catch(x){}}
+  else if(km('ff',k)){try{v.currentTime+=30;}catch(x){}}
+  else if(k==13){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
   else if(k==39){try{v.currentTime+=30;}catch(x){}}
   else if(k==37||k==8){history.go?history.go(-1):history.back();}
   else{return true;}
@@ -247,6 +314,9 @@ var sel=0;
 var rep=false;
 var prevUrl=%PREV%;
 var nextUrl=%NEXT%;
+// remote multimedia-key codes, from config.ini [keys] (see /keys probe)
+var KM=%KEYMAP%;
+function km(a,k){var c=KM[a]||[];for(var i=0;i<c.length;i++){if(c[i]==k){return true;}}return false;}
 function show(){for(var i=0;i<items.length;i++){items[i].className=(i==sel)?'sel':'';}if(items.length){try{items[sel].scrollIntoView(false);}catch(x){}}}
 function move(d){if(!items.length){return;}sel=(sel+d+items.length)%items.length;show();}
 function act(a){
@@ -280,7 +350,17 @@ st.innerHTML=%hud_load%;
 show();
 document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
-  if(k==38){move(-1);}
+  // multimedia keys first: they are the remote's dedicated transport
+  // buttons (play, pause, stop, previous, next, rewind, fast-forward)
+  if(km('playpause',k)){act('pp');}
+  else if(km('play',k)){if(v.paused){v.play();}}
+  else if(km('pause',k)){if(!v.paused){v.pause();}}
+  else if(km('stop',k)){history.go?history.go(-1):history.back();}
+  else if(km('prev',k)){act('prv');}
+  else if(km('next',k)){act('nxt');}
+  else if(km('rew',k)){act('bk');}
+  else if(km('ff',k)){act('fw');}
+  else if(k==38){move(-1);}
   else if(k==40){move(1);}
   else if(k==13){openSel();}
   else if(k==39){act('fw');}
@@ -522,6 +602,7 @@ MUSIC_KEYS = ('music_rep_on', 'music_rep_off')
 
 def player_js(mime, url, tpl=PLAYER_JS, prev=None, nxt=None):
     js = (tpl.replace('%MIME%', repr(mime)).replace('%URL%', repr(url)))
+    js = js.replace('%KEYMAP%', json.dumps(KEYMAP))
     js = js.replace('%PREV%', json.dumps(prev or ''))
     js = js.replace('%NEXT%', json.dumps(nxt or ''))
     for k in HUD_KEYS + MUSIC_KEYS:
@@ -646,7 +727,13 @@ def render_player(o, res):
             '<span id="status">%s</span></p>'
             '</div>'
             % (esc(title), esc(label), T('starting')))
-    js = player_js(res['mime'], proxied_res_url(res['url']))
+    # multimedia keys prev/next jump to the sibling videos' /tr/ pages
+    # (do_transcode handles every delivery shape: direct play, track
+    # choice, conversion, cache)
+    prev_id, next_id = video_neighbors(o)
+    js = player_js(res['mime'], proxied_res_url(res['url']),
+                   prev=_tr_url(prev_id) if prev_id else None,
+                   nxt=_tr_url(next_id) if next_id else None)
     return _page(title, body, extra_js=js)
 
 
@@ -755,12 +842,13 @@ def music_art_available(o):
     return bool(src) and extract_embedded_art(src, _art_path(o['id']))
 
 
-def music_neighbors(o):
-    """Prev/next musicTrack ids in the same DIDL folder, folder order,
-    wrapping at the ends. Serviio item ids are '<parent>$MI<number>':
-    strip the tail to browse the folder. (None, None) when the folder
-    can't be resolved — no $MI tail, browse failure, or the item isn't
-    in it — so the page just renders without the prev/next buttons."""
+def folder_neighbors(o, cls_needle):
+    """Prev/next item ids of the same kind in the same DIDL folder,
+    folder order, wrapping at the ends. Serviio item ids are
+    '<parent>$MI<number>': strip the tail to browse the folder.
+    (None, None) when the folder can't be resolved — no $MI tail,
+    browse failure, or the item isn't in it — so the page renders
+    without the prev/next affordances."""
     m = re.match(r'^(.*)\$MI\d+$', o['id'])
     if not m:
         return None, None
@@ -769,11 +857,23 @@ def music_neighbors(o):
     except Exception:
         return None, None
     ids = [x['id'] for x in objs
-           if not x.get('container') and 'musicTrack' in x.get('cls', '')]
+           if not x.get('container') and cls_needle in x.get('cls', '')]
     if o['id'] not in ids or len(ids) < 2:
         return None, None
     i = ids.index(o['id'])
     return ids[i - 1], ids[(i + 1) % len(ids)]
+
+
+def music_neighbors(o):
+    return folder_neighbors(o, 'audioItem')
+
+
+def video_neighbors(o):
+    return folder_neighbors(o, 'videoItem')
+
+
+def _tr_url(obj_id):
+    return '/tr/%s' % urllib.parse.quote(obj_id, safe='')
 
 
 def render_music(o, res):
@@ -837,7 +937,7 @@ TEST_FILES = {'faststart': 'test-faststart.mp4',   # control: proven-playable la
               'eac3': 'test-eac3.mp4'}             # probe: E-AC3 5.1 lossless remux
 
 
-def render_local_player(name, mime, url):
+def render_local_player(name, mime, url, prev=None, nxt=None):
     body = ('<div id="player_page">'
             '<video id="player_object" width="0px" height="0px" preload="none"></video>'
             '<p class="hud" id="hud"><span id="ttl">%s</span> &mdash; '
@@ -845,8 +945,41 @@ def render_local_player(name, mime, url):
             '<span id="status">%s</span></p>'
             '</div>'
             % (esc(name), esc(mime), T('starting')))
-    js = player_js(mime, url)
+    js = player_js(mime, url, prev=prev, nxt=nxt)
     return _page(name, body, extra_js=js)
+
+
+KEYS_JS = """
+var st=document.getElementById('status');
+var seen=[];
+document.onkeydown=function(e){
+  e=e||window.event;var k=e.keyCode;
+  // show the code on screen AND beacon it server-side (a plain Image
+  // fetch is the era-Presto-safe channel; the server logs KEYPROBE)
+  seen[seen.length]=k;
+  st.innerHTML=seen.join(', ');
+  var i=new Image();
+  i.src='/keylog/'+k+'?n='+seen.length;
+  return false;
+};
+"""
+
+
+def render_keys():
+    """/keys — remote multimedia-key probe. Every keydown shows its
+    keyCode on the TV and is logged server-side as
+    'KEYPROBE <client> code=<n>' (server.log). Press the remote's play,
+    pause, stop, previous, next, rewind and fast-forward buttons, read
+    the codes off the screen or the log, paste them into config.ini
+    [keys], restart the app — the player pages honor them."""
+    body = ('<div id="music">'
+            '<h2 id="hdr">Remote key probe</h2>'
+            '<p id="fmt">press every media button on the remote</p>'
+            '<p id="status">(press keys)</p>'
+            '<p id="foot">codes on screen + KEYPROBE lines in server.log; '
+            'left = back</p>'
+            '</div>')
+    return _page('key probe', body, extra_js=KEYS_JS)
 
 
 def render_error(where, err):
@@ -944,12 +1077,16 @@ def _pick_local(*cands):
 MEDIA_ROOTS = [r for r in os.environ.get('MEDIA_ROOTS', '').split(':')
                if os.path.isdir(r)]
 if not MEDIA_ROOTS:
+    _roots_cfg = _cfg_get('library', 'roots', '')
+    MEDIA_ROOTS = [r for r in _roots_cfg.split(':') if os.path.isdir(r)]
+if not MEDIA_ROOTS:
     # Música first: the probe pass walks roots in order and the duration
     # cache replays already-probed files instantly, so audio (the small,
     # newly indexed root) finishes while video replays from cache.
     MEDIA_ROOTS = [_pick_local('/mnt/arquivos2/Música', '/mnt/Backup/Música'),
                    _pick_local('/mnt/arquivos2/Vídeos', '/mnt/Backup/Vídeos')]
-CACHE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
+CACHE_DIR = _cfg_get('library', 'cache_dir', '') or \
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), 'cache')
 os.makedirs(CACHE_DIR, exist_ok=True)
 # sweep stale transcode remnants at startup: a part file with no live job
 # belongs to a dead run (killed server, orphaned ffmpeg). Unlink it so a
@@ -1430,6 +1567,25 @@ class Handler(BaseHTTPRequestHandler):
                     except Exception:
                         pass
                     body = render_list(obj_id, objects, total, start, title)
+            elif u.path.startswith('/keylog/'):
+                # probe beacon from the /keys page: log and answer a
+                # tiny transparent gif (Image() src fetches)
+                code = u.path[len('/keylog/'):].split('?')[0]
+                sys.stderr.write('%s - KEYPROBE code=%s\n'
+                                 % (self.address_string(), code))
+                self.send_response(200)
+                self.send_header('Content-Type', 'image/gif')
+                gif = (b'GIF89a\x01\x00\x01\x00\x80\x00\x00\x00\x00\x00'
+                       b'\xff\xff\xff!\xf9\x04\x01\x00\x00\x00\x00,\x00'
+                       b'\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00;')
+                self.send_header('Content-Length', str(len(gif)))
+                self.end_headers()
+                self._sent = True  # no HTML fallback if the socket dies
+                self.wfile.write(gif)
+                return
+            elif u.path == '/keys':
+                self._send_html(render_keys().encode())
+                return
             elif u.path.startswith('/t/file/'):
                 return self.do_local_file(u)
             elif u.path.startswith('/tcf/'):
@@ -1806,8 +1962,11 @@ class Handler(BaseHTTPRequestHandler):
                           need_scale=need_scale, channels=ch, acodec=acodec)
                 st, pct = 'running', 0
             if st == 'done':
+                prev_id, next_id = video_neighbors(o)
                 self._send_html(render_local_player(
-                    o['title'], 'video/mp4', '/tcf/%s' % key).encode())
+                    o['title'], 'video/mp4', '/tcf/%s' % key,
+                    prev=_tr_url(prev_id) if prev_id else None,
+                    nxt=_tr_url(next_id) if next_id else None).encode())
             else:
                 self._send_html(render_progress(
                     o['title'], pct, _lib_note).encode())
@@ -1860,7 +2019,12 @@ def main():
     signal.signal(signal.SIGTERM, _on_sigterm)
     print('BRAVIA MediaBrowser proxy: serving on 0.0.0.0:%d' % PORT)
     print('  Serviio UPnP ContentDirectory: %s' % CONTROL_URL)
-    ThreadingHTTPServer(('0.0.0.0', PORT), Handler).serve_forever()
+    print('  config: %s (%s)' % (CONFIG_PATH,
+                                 'loaded' if os.path.isfile(CONFIG_PATH)
+                                 else 'not present — built-in defaults'))
+    print('  media roots: %s' % ':'.join(MEDIA_ROOTS))
+    print('  keymap: %s' % json.dumps(KEYMAP))
+    ThreadingHTTPServer((BIND_HOST, PORT), Handler).serve_forever()
 
 
 if __name__ == '__main__':
