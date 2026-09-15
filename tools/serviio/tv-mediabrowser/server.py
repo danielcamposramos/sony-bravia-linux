@@ -679,6 +679,15 @@ MIME_EXT = {'audio/mpeg': '.mp3', 'audio/mp3': '.mp3',
             'audio/x-aiff': ('.aiff', '.aif'), 'audio/aiff': '.aiff',
             'audio/x-ape': '.ape', 'audio/opus': '.opus',
             'audio/x-matroska': ('.mka', '.mks')}
+# reverse: extension -> canonical mime. No-res items (mpc/wv: Serviio
+# lists them with no res at all) have no DIDL mime to label the music
+# page with, but the DIDL title carries the extension — derive the
+# format label from it instead of showing "unknown" (owner report live
+# 2026-09-15: mpc played fine, page read "formato desconhecido").
+_EXT_MIME = {}
+for _m, _e in MIME_EXT.items():
+    for _x in (_e if isinstance(_e, tuple) else (_e,)):
+        _EXT_MIME.setdefault(_x, _m)
 
 # same for the /tr/ video lane: Serviio's video mimes -> container
 # extensions, so dual-format movie stems resolve to the file the res
@@ -726,8 +735,9 @@ def render_music(o, res):
     qid = urllib.parse.quote(o['id'], safe='')
     live = res is None or res['mime'] != 'audio/mpeg'
     url = ('/atr/%s' % qid) if live else proxied_res_url(res['url'])
-    label = ((res['mime'] if res else T('music_unknown'))
-             + ((', ' + T('music_live')) if live else ''))
+    fmt = res['mime'] if res else _EXT_MIME.get(
+        os.path.splitext(o['title'])[1].lower(), T('music_unknown'))
+    label = fmt + ((', ' + T('music_live')) if live else '')
     art = ('<img src="/art/%s" alt="">' % qid) if music_art_available(o) \
         else ''
     btns = (('pp', 'btn_pp'), ('bk', 'btn_b30'),
