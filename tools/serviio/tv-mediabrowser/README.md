@@ -7,6 +7,16 @@ concern on `/atr/` never bit; owner confirmed audio out of the TV). Deployed
 and running on d2server (`:8090`, local-disk library, probe cache warm) —
 all traffic stays on .60, none on the workstation.
 
+**COMPLETE AUDIO ROSTER — owner-verified on the TV 2026-09-15:** every audio
+format in the library plays: mp3 (era-native via `/stream/`), and flac/wma/
+m4a/wav/ogg through the live `/atr/` pipe (ffmpeg → libmp3lame 320 kbps CBR
+48 kHz, owner-directed). The two formats **Serviio itself cannot serve**
+(musepack .mpc, wavpack .wv — it lists them as musicTracks with no `res`) are
+routed through `/atr/` by DIDL title/duration resolve; both played on the TV
+and label correctly (`audio/x-musepack` / `audio/x-wavpack`, derived from the
+title extension since no DIDL mime exists). Stream URLs are RELATIVE
+(`/stream/...`) — same-origin, immune to host moves.
+
 A TV app that browses the Serviio library on the LAN media server
 (192.168.0.60, Serviio 2.5) and plays items on the EX725's built-in browser,
 **modeled on Serviio's own MediaBrowser web app** — same library, same
