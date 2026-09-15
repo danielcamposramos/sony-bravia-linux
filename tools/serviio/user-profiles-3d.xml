@@ -301,4 +301,87 @@
     </Subtitles>
 
   </Profile>
+
+  <!-- ==================================================================
+       ANDROID TVBOX / VLC (DIRECT PASS) - for the two Android TV boxes on
+       the LAN: 192.168.0.24 (announces as "MINIXPlayer"; modified Android,
+       24-bit 48 kHz audio out, 10-bit color, modified VLC as the UPnP
+       client) and 192.168.0.25 (same build, second box). VLC plays almost
+       any container/codec itself, so this profile asks Serviio to NEVER
+       transcode video or mainstream audio and to hand over the raw file.
+
+       Deploy (same file, same FULL restart as above), then assign by IP
+       via the console REST API on the Serviio box (no GUI needed):
+         GET http://127.0.0.1:23423/rest/status          (note: needs an
+              Accept: application/json header to return a body)
+         PUT http://127.0.0.1:23423/rest/status  with the SAME JSON, only
+              the renderers[].profileId for ipAddress 192.168.0.24 and
+              192.168.0.25 changed to "tvbox-vlc"
+       (that PUT is exactly what Console > Status > Devices > Save does;
+       both boxes already appear in the renderer list - .24 as MINIXPlayer,
+       .25 as "Unrecognized device"). After Serviio's next library pass the
+       box's VLC will see the new resources on its next browse.
+
+       BASE: the stock Generic DLNA profile (id="1") - the TVBoxes were on
+       it by default until now. Inherited unchanged: the full DLNA PN
+       matrix (MATROSKA / AVI / REAL_VIDEO / MPEG_TS_* / WMV / VC1_ASF_* /
+       FLAC / OGG / WAV / DSF ...), GenericDLNAMessageBuilder,
+       H264LevelCheck ANY (no level filtering - direct pass of any level),
+       the raw-image JPEG transcode block and the Online/Generic
+       transcoding fallbacks (irrelevant for library browsing).
+       ================================================================== -->
+  <Profile id="tvbox-vlc" name="Android TVBox / VLC (direct pass)" extendsProfileId="1">
+
+    <!-- Auto-match by SSDP friendly name where possible (.24 announces as
+         MINIXPlayer; .25 currently shows as an unrecognized device). The
+         forced PUT assignment above overrides detection either way, so
+         this is belt-and-braces for a factory reset / re-announcement. -->
+    <Detection>
+      <UPnPSearch>
+        <FriendlyName>(?i).*(minix|vlc).*</FriendlyName>
+      </UPnPSearch>
+    </Detection>
+
+    <!-- NO Video transcoding blocks: nothing matches, nothing re-encodes.
+         Every video container Serviio can deliver natively (mkv, mp4, avi,
+         mpg/mpeg, ts, wmv, flv, rmvb, webm, mov, 3gp...) lists with its
+         native resource and streams byte-identical to what is on disk. -->
+
+    <Transcoding>
+      <!-- ONLY the audio containers Serviio has NO native DLNA delivery
+           for. Verified live 2026-09-15: with no matching Audio block
+           these files are listed as musicTracks with NO res at all (the
+           generic base has no Audio transcoding). LPCM is raw linear PCM -
+           a LOSSLESS decode, so the 24-bit-capable box gives up only bit
+           depth (L16), never a lossy generation. This mirrors exactly what
+           stock sony2012 does for the same formats (its lpcm Audio block
+           matches wv/mpc/ape/dsf/wav). flac/ogg/wav/dsf/mp3/wma/m4a are
+           deliberately NOT matched: they have native PNs in the inherited
+           generic MediaFormatProfiles and direct-deliver untouched. -->
+      <Audio targetContainer="lpcm">
+        <Matches container="mpc" />
+        <Matches container="wv" />
+        <Matches container="ape" />
+      </Audio>
+    </Transcoding>
+
+    <!-- The box's VLC has a native audio-track selector (unlike the era
+         TVs), so multi-audio-track files may expose all their tracks. -->
+    <MultipleAudioTrackAware>true</MultipleAudioTrackAware>
+
+    <!-- VLC renders subtitles itself. HardSubs disabled: a burn-in would
+         force a transcode and destroy the direct pass (and Serviio cannot
+         burn into a direct-played file anyway). External .srt travel as a
+         text/srt resource, which VLC's UPnP client knows how to pick up
+         and render. Embedded subs (ASS/PGS inside MKV) are part of the
+         passed-through file. -->
+    <Subtitles>
+      <SoftSubs mime-type="text/srt" type="srt" character-encoding="utf-8" />
+      <HardSubs>
+        <BitmapBased supported="false" />
+        <TextBased supported="false" />
+      </HardSubs>
+    </Subtitles>
+
+  </Profile>
 </Profiles>
