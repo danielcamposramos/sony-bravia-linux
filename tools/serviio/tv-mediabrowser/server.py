@@ -1092,6 +1092,30 @@ def resolve_source(title, didl_dur, want=None, prefer_ext=None):
                 return p0, None
         if cands:
             paths = cands
+    if len(paths) > 1 and not didl_dur:
+        # No DIDL duration to rank with. Some sources have none at all:
+        # raw mpegvideo streams report duration=N/A to ffprobe and
+        # Serviio's DIDL res carries no duration either (live
+        # 2026-09-15: "Autmn Yard.mpg", a duration-less MPEG-1 1280x720
+        # DreamScene clip — its .webm twin shares the stem, so the
+        # duration tier was the only thing that could separate them and
+        # every click 404'd). Rank with the duration term dropped:
+        # prefer_ext first (the res mime still says which twin is
+        # playing), then shared title tokens. A tie means same-stem
+        # copies or versions of the same-titled recording — pick the
+        # first rather than 404ing the track (same rationale as the
+        # duplicate-copy tie below).
+        def toks(s):
+            return set(w for w in re.split(r'[^a-z0-9]+', s.lower())
+                       if len(w) > 1 and not w.isdigit())
+
+        def rank_nd(p):
+            ext_ok = bool(prefer_ext and p.lower().endswith(prefer_ext))
+            shared = len(toks(os.path.splitext(os.path.basename(p))[0])
+                         & toks(title))
+            return (-ext_ok, -shared)
+        ranked = sorted(paths, key=rank_nd)
+        return ranked[0], None
     if didl_dur:
         def d(p):
             with _lib_lock:
