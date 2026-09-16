@@ -33,3 +33,33 @@ Two feature thoughts, both small:
    the "Modify 3D format tags in MKV or AVC" tool would be a great command-line entry point — it's exactly the operation ecosystem tools (media servers, library fixers) need to batch-repair tag-only files on other OSes. A Linux/CLI sibling would let non-Windows users fix whole libraries the way Windows users already can.
 
 And the share-back: we couldn't find any published root-cause writeup connecting "hardware reads SEI only" to "rips carry tag only" — the community's standing answer to "why doesn't my TV auto-engage 3D on my MKV?" has always been "press the 3D button manually". You documented the mechanism in BD3D2MK3D's help years ago; our contribution is the live-proven diagnosis, the remux-path injector, and the upstream work so source producers stop emitting SEI-less files in the first place. If you see anything we got wrong — you know this corner of the ecosystem better than anyone — a correction on the thread would be gold.
+
+---
+
+# r0lZ's reply — post #2803762 (same day, 2026-09-16)
+
+**"Wow! What an impressive post!"** — full text at the thread link
+above. Key points, verbatim where it matters:
+
+- **Confirmation from the top authority:** the flat-play problem is
+  "common among most major brands. My Samsung TV has exactly the same
+  problem." — first-hand confirmation of the cross-brand claim.
+- **View-order nuance:** x264 `--frame-packing` doesn't let you pick
+  which view comes first; the SEI does. BD3D2MK3D always encodes the
+  left view first (as do most online SBS/TAB files), which is what
+  x264 assumes, so it works. h264Modify exposes packaging type AND
+  view order; lacks Frame Alternate (BD3D2MK3D has a workaround).
+- **Suggestion 1 (custom-encoder warning): ACCEPTED.** He can't fix
+  arbitrary encoder commands (they differ per encoder), but he will
+  "add a line to alert the user in the 'Custom encoder warning'
+  dialog. That's a good idea. Thank you."
+- **Suggestion 2 (AVC3Dmodifier as CLI): he misunderstood the ask**
+  — read it as "run BD3D2MK3D from the command line," and answered:
+  why not use h264Modify directly (bundled executable, "I assume it
+  works fine on Linux with Wine HQ"); it's not his project — author
+  is Videofan3D, "very responsible," maybe still active, "you may try
+  to ask him a Linux version." **Needs the owner's clarifying reply.**
+- **Closing:** "Thank you for your active role in improving 3D
+  programs and devices by promoting the writing of the correct SEI
+  messages. And, to answer your last question, no, I don't see
+  anything wrong in what you explained so well."
