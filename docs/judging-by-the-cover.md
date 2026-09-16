@@ -28,6 +28,37 @@ the wrong register for a tracker reply; the replies carry the facts).
   canonical judge-by-outputs rule.
 - **Latin:** _Fronti nulla fides._ — "no trusting appearances."
 
+## Slop, side by side — and where AI slop comes from
+
+The mpv thread put both kinds on the same record, so the ledger can
+be shown rather than argued. Two axes, independent: **authorship**
+(human / AI-assisted) and **information** (substance / slop).
+
+| | Substance | Slop |
+|---|---|---|
+| **Human** | HandBrake's review of PR #8100 — judged by code alone, merged in 81 minutes. r0lZ's reply — engaged every claim, corrected none, added real nuance (view-order in the SEI). | The "mucho texto" meme: 529×95 pixels, one image, zero technical content, nothing to check. "Thanks for the slop." |
+| **AI-assisted** | PR #18490 — reproduction commands, a 9-file before/after test table, keyframe/side-data counts measured on real files, every claim specific enough to be wrong. | What the guideline rightly fears: unverified padded volume at machine speed — and the reason reviewer attention is scarce enough that cover-judging exists at all. |
+
+**The origin, stated plainly: AI slop is human slop repeated.** The
+models were trained on human text — human padding, human hedging,
+human fake confidence, human verbosity in issue reports. Wherever an
+AI produces slop, a human wrote that slop first; the machine
+repeats it, faster. Slop's defining property (low information
+density, unverifiable claims, volume without checkable content)
+predates AI by centuries — which is exactly why every proverb above
+judges the *content* axis and none of them judges the *authorship*
+axis. "O hábito não faz o monge" was warning about covers before
+there was anything to wear but habits.
+
+The guideline's honest root — scarce reviewer attention — is the one
+thing the table validates: the AI-assisted/slop quadrant produces at
+machine speed, so covers get judged because books multiply. But the
+table also shows the heuristic misfiring in real time: on the day the
+cover said "AI," the sloppiest entry in the thread was human-made
+and the most checkable entry was AI-assisted. The cure is cheaper
+books — short posts, repro commands, measured results — not blinder
+judging.
+
 ## Why this proverb, for this campaign
 
 The mpv exchange judged a contribution by its cover — the AI
