@@ -10,7 +10,7 @@ code.ffmpeg.org and Codeberg targets wait for the next round.
 
 | # | Draft file | Target | Where it goes | Priority |
 |---|---|---|---|---|
-| 1 | `ffmpeg-eexist-bug.md` | FFmpeg | code.ffmpeg.org tracker (bug) | **post first** — real unreported decode bug, earns the campaign credibility |
+| 1 | `ffmpeg-eexist-bug.md` + `ffmpeg-eexist-facts.md` | FFmpeg | code.ffmpeg.org tracker (bug) | **READY** — fact list verified + 424 KB reproducer built (2026-09-16); owner posts in his own voice; account created |
 | 2 | `handbrake-issue.md` | HandBrake | comment on open issue #5826 (galad87 invited a patch) | **RESOLVED — PR #8100 MERGED 2026-09-16** ([b0145ad](https://github.com/HandBrake/HandBrake/pull/8100)); #5826 closed by the merge |
 | 3 | `staxrip-issue.md` | StaxRip | comment on open issue #1873 (answers a stranded user) | **POSTED 2026-09-15** — [#issuecomment-5685902578](https://github.com/staxrip/staxrip/issues/1873#issuecomment-5685902578) |
 | 4 | `x265-issue.md` | x265 | github.com/Multicorewareinc/x265 (issues enabled) | **POSTED 2026-09-15** — [issue #970](https://github.com/Multicorewareinc/x265/issues/970) |
