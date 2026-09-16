@@ -2,6 +2,12 @@
 # (Suggested board: "User created renderer profiles" / playback problems —
 # moderators feel free to move. The links at the bottom carry all files.)
 
+**POSTED 2026-09-15** — thread live at:
+https://forum.serviio.org/viewtopic.php?f=7&t=31269
+("3D auto-detection restored on 2011–2012 BRAVIA over DLNA")
+**UPDATE POSTED 2026-09-16** — the ffmpeg-version correction + the
+HandBrake merge news, appended below as posted (see UPDATE section).
+
 **Subject:** 3D auto-detection restored on 2011–2012 BRAVIA over DLNA —
 frame-packing SEI; one profile + two small tools (stock Serviio 2.5)
 
@@ -65,3 +71,42 @@ Everything (profile, wrapper, injector, evidence base, test log):
   `tools/serviio/ffmpeg-3d-wrapper.sh`, `tools/bravia_sei3d.py`
 
 Happy to answer questions or help people reproduce on their own sets.
+
+---
+
+# UPDATE — posted 2026-09-16 (second post in the same thread)
+
+**Update (2026-09-16): one correction, and some good news for anyone
+using this.**
+
+First the correction, because accuracy matters more than my ego: in the
+original post I said ffmpeg ≥ 9 auto-injects the frame-packing SEI on
+x264 encodes from Matroska stereo side data. That's wrong about the
+version — I've since verified ffmpeg's libx264 wrapper has done that
+**since 2013** (commit 09cb75cd). It's not a new feature; any ffmpeg
+from the last dozen years does it, including old ones. Better news than
+what I originally posted, and worth a correction.
+
+The good news: the diagnosis from this thread went upstream, and the
+HandBrake team just merged the fix — PR
+[#8100](https://github.com/HandBrake/HandBrake/pull/8100), "libhb:
+signal stereo 3d frame packing in the x264 encoder." It's in their
+development branch now and will ship in the next release.
+
+What that means for this thread: **new 3D rips made with the next
+HandBrake will carry the SEI natively** — no pre-processing step. If
+your whole library was ripped with post-release HandBrake, you won't
+need the injector at all. `bravia_sei3d.py` stays what it really is: a
+repair tool for existing collections (and for rips from tools that
+still don't write the SEI — StaxRip's defaults and x265 encodes
+currently don't; reports filed with them too).
+
+So the updated practical guidance:
+
+- **Ripping fresh 3D discs/files:** use the next HandBrake release,
+  done — the TV picks up 3D automatically over DLNA.
+- **Existing library:** same as before — one pass with the injector on
+  the tag-only MKVs, plays 3D forever.
+
+The write-up with the full signalling story is here:
+https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/3d-signalling-explainer.md
