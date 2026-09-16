@@ -4,9 +4,11 @@ One draft per upstream target, built from the four verified research
 lanes (2026-09-15). Every draft follows the campaign framing: we bring
 the **diagnosis + a working fix**, not just a feature request.
 
-**Status: all 8 targets engaged (2026-09-16).** 1 merged (HandBrake
-PR #8100), 7 posted/filed by the owner, 1 skipped by owner decision
-(mkvmerge/Codeberg). The videohelp post cleared moderation 2026-09-16
+**Status: all 9 targets engaged (2026-09-16).** 1 merged (HandBrake
+PR #8100), 6 posted/filed on trackers/forums, 1 skipped by owner decision
+(mkvmerge/Codeberg), and — first audience-facing target of the campaign —
+the LTT forum post (target #9): the guide the theater video promised in
+its description and the thread spent two weeks asking for. The videohelp post cleared moderation 2026-09-16
 (post #2803756); the mpv player-side pair (issue #18489 + PR #18490,
 from a parallel Opus session) completes the pipeline end to end:
 encode → remux → robustness → player → DLNA. PR #18490 is in review
@@ -26,6 +28,7 @@ posts; no AI-drafted text goes out without owner approval.
 | 6 | `mkvtoolnix-issue.md` | mkvmerge | codeberg.org/mbunkus/mkvtoolnix (keep it SHORT — maintainer closes verbose reports) | **SKIPPED 2026-09-16 (owner decision)** — Codeberg signup paywalled; unfilled, draft retained in case an account is ever created or another channel opens |
 | 7 | `bd3d2mk3d-forum-post.md` | BD3D2MK3D (r0lZ) | forum.videohelp.com thread 395498 | **POSTED + ANSWERED 2026-09-16** — [post #2803756](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756); r0lZ replied same day ([#2803762](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803762)): suggestion 1 accepted (custom-encoder warning dialog), suggestion 2 needs clarification, cross-brand confirmation (his Samsung behaves the same), zero corrections to the diagnosis |
 | 8 | *(Opus session)* mpv issue + PR — drafts and patch archived at `/K3D/GitHub/EchoSystems_Stereo3D/` | mpv (player side) | github.com/mpv-player/mpv | **FILED 2026-09-16, IN REVIEW** — [#18489](https://github.com/mpv-player/mpv/issues/18489) (stream-signalled stereo 3D ignored) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) (2 commits, Fixes #18489); review round 1 answered 2026-09-16 — 8 threads, owner's own words, 3 follow-ups offered (see below) |
+| 9 | `ltt-3d-theater-post.md` | LTT forums (**first audience-facing target**) | [linustechtips.com/topic/1589907](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/) (reply to the 3D-theater video thread) | **POSTED 2026-09-16** — [comment 16936161](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) — the guide the video promised and the thread begged for; hooks: the never-delivered guide complaint + WeeemRCB's MakeMKV→BD3D2MK3D→HandBrake VR pipeline (their x265 gap = our x265 #970); iZ3D origin story as the human footnote. Pre/post snapshots in the private repo (`docs/research/`, "…after my comment.html") |
 
 Not separately drafted: the ffmpeg `libx265.c` stereo3d wiring — fold
 it into #5 as a secondary bullet if the tracker prefers one report, or
