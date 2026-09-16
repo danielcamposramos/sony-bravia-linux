@@ -131,6 +131,40 @@ hundred years in the dungeon. Judge it by what it actually contains,
 and the world changes. "Não julgue um livro pela capa" — filmed in
 70mm, in 3-D, with lasers and smoke in the theater, in 1986.
 
+## The "unthinkable mix" — checked (2026-09-16)
+
+The rumor says the Coppola–Lucas–Disney combination was unthinkable
+because "they practically hate each other." Checked against the
+record: the mouths speak, but the fire is not quite where they say.
+
+- **Coppola ↔ Lucas:** not enemies — the opposite. Lifelong friends
+  since 1969 and American Zoetrope co-founders, and the collaboration
+  happened *because* of it: Lucas brought Coppola in partly to help
+  him recover financially after *One From the Heart* and *The Cotton
+  Club*. The friendship is real and famously volatile — a 2026
+  biography frames the Coppola/Lucas/Spielberg triangle as
+  "symbiotic, dynamic, toxic." Love with famous fights, not hate.
+- **Lucas ↔ Disney:** real bitterness — but 26 years after *Captain
+  EO*. Lucas sold Lucasfilm in 2012, Disney discarded his sequel
+  treatments, and in 2015 he said he had sold the films to "the white
+  slavers" (he apologized within days). In 1986 they were active park
+  partners — *Captain EO*, with Star Tours arriving in 1987.
+- **Coppola ↔ Disney:** public hostility too, and also later. His
+  2019 defense of Scorsese went one further: "Martin was kind when he
+  said it's not cinema. He didn't say it's despicable, which I just
+  say it is." Aimed at the franchise era — not at the studio that
+  had hired him in 1986.
+
+What *was* unthinkable about the production was the production
+itself: no fixed script, daily changes, Lucas vs. Katzenberg over a
+budget that roughly doubled, Coppola losing the film's-structure
+argument to Jackson, a lighting consultant repainting Rick Baker's
+puppet without asking, and Lucas' own retrospective verdict: "We had
+no idea what we were getting into." Judged by that crew at the time,
+the gift fails the worthiness test on arrival. Judged by the
+content: 93% of surveyed Disneyland guests cited *Captain EO* as
+their main reason for visiting.
+
 ## Related in-repo records
 
 - The episode itself: `tools/serviio/upstream-3d-issues/README.md`,
