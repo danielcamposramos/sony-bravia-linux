@@ -165,6 +165,43 @@ the gift fails the worthiness test on arrival. Judged by the
 content: 93% of surveyed Disneyland guests cited *Captain EO* as
 their main reason for visiting.
 
+And the star carried the same message himself, his whole career:
+Jackson was the most cover-judged artist of his era, and his answers
+were songs, not interviews — "Scream" and "Tabloid Junkie" (both on
+*HIStory*, 1995) are the "don't judge by the cover" doctrine set to
+music. The fans who fought to bring his film back after his death
+named the revival "Tribute." This footnote is ours.
+
+**Sources for the claims above** (registered here because this
+corner — the rumors around the mix, and the production chaos behind
+the gift — is mostly oral gossip, rarely cited):
+
+- Lucas brought Coppola in to help him recover (after *One From the
+  Heart*, *The Cotton Club*); the production chaos, the
+  Lucas-vs-Katzenberg budget fight, Storaro repainting the puppet,
+  the 93% figure, "We had no idea what we were getting into":
+  [Mouseplanet — The Untold Story of Captain EO](https://mouseplanet.com/the-untold-story-of-captain-eo/2773/)
+  and [MJVibe — The Making of Captain EO](https://www.mjvibe.com/the-making-of-captain-eo-lucas-coppola-and-michael-jacksons-messy-miraculous-disney-space-adventure/),
+  plus the contemporary
+  [LA Times preview, Sept 14, 1986](https://www.latimes.com/archives/la-xpm-1986-09-14-me-12518-story.html).
+- The Coppola–Lucas friendship and its volatility (American
+  Zoetrope 1969, the *Apocalypse Now* handover, the
+  "symbiotic, dynamic, toxic" framing from Paul Fischer's
+  *The Last Kings of Hollywood*, 2026):
+  [The Independent](https://www.the-independent.com/arts-entertainment/books/features/francis-ford-coppola-steven-spielberg-george-lucas-paul-fischer-b2930917.html),
+  [The Guardian — American Zoetrope](https://www.theguardian.com/film/2011/nov/17/zoetrope-coppola-lucas-star-wars),
+  [The Ankler — Coppola & Lucas Started a Studio in the 1970s](https://theankler.com/coppola-and-lucas-started-a-studio/).
+- Lucas vs. Disney — the 2012 sale, the discarded treatments, "I
+  sold them to the white slavers" (Charlie Rose, aired Dec 25,
+  2015), and the apology within days:
+  [Deadline (with video)](https://deadline.com/2015/12/george-lucas-white-slavers-disney-charlie-rose-interview-1201674262/),
+  [CBS News — the apology](https://www.cbsnews.com/news/george-lucas-apologizes-clarifies-comments-new-star-wars/).
+- Coppola vs. the franchise era — "Martin was kind when he said
+  it's not cinema. He didn't say it's despicable, which I just say
+  it is" (Prix Lumière, Lyon, Oct 2019):
+  [The Hollywood Reporter](https://www.hollywoodreporter.com/movies/movie-news/francis-ford-coppola-defends-scorsese-calls-marvel-films-despicable-1248929/),
+  [Screen Daily](https://www.screendaily.com/news/francis-ford-coppola-marvel-films-are-despicable/5144007.article).
+
 ## Related in-repo records
 
 - The episode itself: `tools/serviio/upstream-3d-issues/README.md`,
