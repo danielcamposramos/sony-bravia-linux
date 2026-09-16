@@ -63,3 +63,41 @@ above. Key points, verbatim where it matters:
   programs and devices by promoting the writing of the correct SEI
   messages. And, to answer your last question, no, I don't see
   anything wrong in what you explained so well."
+
+---
+
+# r0lZ's reply to the clarification — post #604 (2026-09-16, 13:21)
+
+- AVC3Dmodifier IS the GUI — it mainly calls h264Modify.exe to
+  set/modify the AVC 3D packing info, plus MKVPropEdit (MKV
+  stereoscopy mode) and MKVInfo (read current tag). ~90% of the code
+  is GUI and it is tied to BD3D2MK3D; what we want "is what
+  AVC3Dmodifier.tcl basically does."
+- He will "see what I can do" — maybe an independent GUI-less Tcl
+  script if it proves easy. **No promises.**
+- Why: he no longer works much at the computer, is getting older,
+  lives in the mountains; after a hot summer, walks and bike rides
+  win. Closing: "sorry, but you will have to wait. Stay tuned."
+
+## Owner's closing reply — POSTED 2026-09-16 (pending moderation — new member; add the post URL here after approval)
+
+Body as posted (owner's own rewording per doctrine):
+
+**Years check (verified 2026-09-16):** r0lZ's earliest verifiable
+statement of the deep understanding is **3 May 2020** on Doom9 —
+"AFAIK, only x264 can include the --frame-packing tag necessary to
+instruct many TVs and players to switch automatically" — i.e.
+**six-plus years ago (6y4m)**, not 7. The Samsung/YouTube remark is
+May 2021 (Doom9 Plex discussion), and the exact "many hardware
+players support only the frame-packing and ignore the MKV
+stereo-mode" phrasing is from May 2025. If the owner knows an older
+anchor post, adjust the number; otherwise "six-plus years" is the
+verifiable claim.
+
+Fully understood — mountains over monitors, and after a hot summer the good weather wins. No pressure on the CLI at all; "stay tuned" is plenty.
+
+And honestly, waiting is something this corner of the ecosystem is used to. You already had the diagnosis in May 2020 — "AFAIK, only x264 can include the --frame-packing tag necessary to instruct many TVs and players to switch automatically" — and it took six-plus years and an AI-assisted volunteer campaign before anyone streamed the fixes into the toolchain (HandBrake merged it, ffmpeg/x265/mpv are in the queue). By that measure, whatever you decide about AVC3Dmodifier, whenever you feel like it, is soon.
+
+Meanwhile Linux users aren't stuck: our own lossless injector (bravia_sei3d.py) does the same job from the command line today, and if ffmpeg accepts the bsf request (https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) the operation becomes a standard one-liner for everyone. If your standalone Tcl script ever happens, it lands on friendly ground.
+
+Enjoy the walks and the rides — the mountains have better weather than any home theater. A nice end of summer from Brazil — we're just tipping into spring down here, so someone should be enjoying the sun.
