@@ -79,7 +79,8 @@ above. Key points, verbatim where it matters:
   lives in the mountains; after a hot summer, walks and bike rides
   win. Closing: "sorry, but you will have to wait. Stay tuned."
 
-## Owner's closing reply — POSTED 2026-09-16 (pending moderation — new member; add the post URL here after approval)
+## Owner's closing reply — POSTED 2026-09-16 (cleared moderation same day)
+https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803796
 
 Body as posted (owner's own rewording per doctrine):
 
