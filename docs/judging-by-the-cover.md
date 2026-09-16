@@ -92,6 +92,45 @@ The doctrine, stated plainly:
    proverb that defends us against bad judging also obligates us to
    write books that are genuinely worth opening.
 
+## The Captain EO footnote (1986, 17 minutes, 3-D)
+
+The anthem quoted when this page was written — "we're here to change
+the world" — is Michael Jackson's, and both of the songs it comes
+from are in *Captain EO* (1986): "We Are Here to Change the World"
+(not officially released until 2004) and an early mix of "Another
+Part of Me" (later remixed on *Bad*, 1987). The film is a footnote
+here because it is also this repo's medium: 70mm 3-D, directed by
+Francis Ford Coppola, executive-produced by George Lucas, shot by
+Walt Disney Imagineering with cinematographer Peter Anderson and
+Vittorio Storaro on lighting — and, at **$1.76 million per minute**
+(budget $23.7M for 17 minutes), the most expensive film ever made
+per minute. It ran at the Disney parks from September 12, 1986 until
+the late nineties, re-opened as "Captain EO Tribute" after fan
+campaigns following Jackson's death in 2009, and closed for the
+last time at Epcot on December 6, 2015.
+
+The plot is the doctrine of this page, filmed two years before the
+first forum ever judged a post:
+
+Captain EO leads a crew of misfits — a two-headed pilot, a small
+elephant-creature, Geeks, a robot — to a dark world to deliver a
+gift to the Supreme Leader, a witch who rules it. The mission comes
+with the worthiness test stated up front: deliver an unworthy gift
+and the crew's leader is sentenced to a hundred years of torture in
+her deepest dungeon. The crew's cover could not be worse — a ragtag
+ship, a crew of outcasts, a gift nobody has seen. The authorities
+arrive in force to judge it. EO does not argue the case; he performs
+the gift. The robot crew becomes instruments, the song turns the
+whip-cracking guards into dancers, and the gift's content does what
+no argument could: the Supreme Leader is transformed, her lair
+becomes a temple, the planet blooms, and a second song plays over
+the departure.
+
+Judge the gift by the crew that carries it, and the answer is a
+hundred years in the dungeon. Judge it by what it actually contains,
+and the world changes. "Não julgue um livro pela capa" — filmed in
+70mm, in 3-D, with lasers and smoke in the theater, in 1986.
+
 ## Related in-repo records
 
 - The episode itself: `tools/serviio/upstream-3d-issues/README.md`,
