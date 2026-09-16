@@ -36,7 +36,7 @@ be shown rather than argued. Two axes, independent: **authorship**
 
 | | Substance | Slop |
 |---|---|---|
-| **Human** | HandBrake's review of PR #8100 — judged by code alone, merged in 81 minutes. r0lZ's reply — engaged every claim, corrected none, added real nuance (view-order in the SEI). | The "mucho texto" meme: 529×95 pixels, one image, zero technical content, nothing to check. "Thanks for the slop." |
+| **Human** | HandBrake's review of PR #8100 — judged by code alone, merged in 81 minutes. r0lZ's reply — engaged every claim, corrected none, added real nuance (view-order in the SEI). | The "mucho texto" ("too much text" in spanish) meme: 529×95 pixels, one image, zero technical content, nothing to check, for me talks more about the person stating such phrase, it's a lazy one. "Thanks for the slop." |
 | **AI-assisted** | PR #18490 — reproduction commands, a 9-file before/after test table, keyframe/side-data counts measured on real files, every claim specific enough to be wrong. | What the guideline rightly fears: unverified padded volume at machine speed — and the reason reviewer attention is scarce enough that cover-judging exists at all. |
 
 **The origin, stated plainly: AI slop is human slop repeated.** The
