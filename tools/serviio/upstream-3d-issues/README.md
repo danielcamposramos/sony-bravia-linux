@@ -75,6 +75,11 @@ Raw material for the owner's replies:
 `/K3D/GitHub/EchoSystems_Stereo3D/mpv-review-replies-draft.md` — the
 posted replies are the owner's own rewording, per doctrine.
 
+The episode's doctrine proverb is recorded in
+[docs/judging-by-the-cover.md](../../../docs/judging-by-the-cover.md):
+"Não julgue um livro pela capa" / "Don't judge a book by its cover" —
+judge the artifact, not the authorship.
+
 ## Research basis (verified 2026-09-15)
 
 - **HandBrake**: master commit 1d20876 (unreleased 1.12.0) preserves
