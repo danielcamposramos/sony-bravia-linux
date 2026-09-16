@@ -19,6 +19,11 @@ drafts here are raw material — the owner rewrites posts in his own
 words before posting; no AI-drafted text goes out verbatim, no
 disclaimer line on future posts.**
 
+For the record, the timestamps on PR #8100 (from the GitHub API):
+opened 2026-09-16T05:45:34Z, merged 2026-09-16T07:06:47Z — an
+interval of 81 minutes, which is just the time the repo's CI checks
+needed to run. Noted without comment; make of it what you will.
+
 Original comment (posted 2026-09-15):
 https://github.com/HandBrake/HandBrake/issues/5826#issuecomment-5685776464
 

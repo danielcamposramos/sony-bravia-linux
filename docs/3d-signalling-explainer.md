@@ -31,9 +31,11 @@
 **Campaign status:** the first source-producer fix has landed —
 HandBrake merged PR
 [#8100](https://github.com/HandBrake/HandBrake/pull/8100)
-(2026-09-16), which maps the detected stereo layout to x264's
-`i_frame_packing` on encode. HandBrake 1.12.0 is therefore the first
-mainstream ripper whose 3D output carries **both** signals.
+(2026-09-16; opened 05:45Z, merged 07:06Z — an 81-minute window, the
+time the CI checks took to run), which maps the detected stereo
+layout to x264's `i_frame_packing` on encode. HandBrake 1.12.0 is
+therefore the first mainstream ripper whose 3D output carries
+**both** signals.
 
 ## The two signals
 
