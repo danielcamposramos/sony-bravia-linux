@@ -9,7 +9,10 @@ PR #8100), 7 posted/filed by the owner, 1 skipped by owner decision
 (mkvmerge/Codeberg). The videohelp post cleared moderation 2026-09-16
 (post #2803756); the mpv player-side pair (issue #18489 + PR #18490,
 from a parallel Opus session) completes the pipeline end to end:
-encode → remux → robustness → player → DLNA. Per campaign doctrine,
+encode → remux → robustness → player → DLNA. PR #18490 is in review
+(hostile start, then 8 technical threads — all answered same day in
+the owner's own words, no apology; see the mpv review section below).
+Per campaign doctrine,
 the drafts here are raw material — the owner approves/rewords and
 posts; no AI-drafted text goes out without owner approval.
 
@@ -22,7 +25,7 @@ posts; no AI-drafted text goes out without owner approval.
 | 5 | `ffmpeg-bsf-feature.md` | FFmpeg | code.ffmpeg.org tracker (enhancement) | **POSTED 2026-09-16** — [issue #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) (owner's own reworded text) |
 | 6 | `mkvtoolnix-issue.md` | mkvmerge | codeberg.org/mbunkus/mkvtoolnix (keep it SHORT — maintainer closes verbose reports) | **SKIPPED 2026-09-16 (owner decision)** — Codeberg signup paywalled; unfilled, draft retained in case an account is ever created or another channel opens |
 | 7 | `bd3d2mk3d-forum-post.md` | BD3D2MK3D (r0lZ) | forum.videohelp.com thread 395498 | **POSTED + ANSWERED 2026-09-16** — [post #2803756](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756); r0lZ replied same day ([#2803762](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803762)): suggestion 1 accepted (custom-encoder warning dialog), suggestion 2 needs clarification, cross-brand confirmation (his Samsung behaves the same), zero corrections to the diagnosis |
-| 8 | *(Opus session)* mpv issue + PR — drafts and patch archived at `/K3D/GitHub/EchoSystems_Stereo3D/` | mpv (player side) | github.com/mpv-player/mpv | **FILED 2026-09-16** — [#18489](https://github.com/mpv-player/mpv/issues/18489) (stream-signalled stereo 3D ignored) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) (2 commits, Fixes #18489) |
+| 8 | *(Opus session)* mpv issue + PR — drafts and patch archived at `/K3D/GitHub/EchoSystems_Stereo3D/` | mpv (player side) | github.com/mpv-player/mpv | **FILED 2026-09-16, IN REVIEW** — [#18489](https://github.com/mpv-player/mpv/issues/18489) (stream-signalled stereo 3D ignored) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) (2 commits, Fixes #18489); review round 1 answered 2026-09-16 — 8 threads, owner's own words, 3 follow-ups offered (see below) |
 
 Not separately drafted: the ffmpeg `libx265.c` stereo3d wiring — fold
 it into #5 as a secondary bullet if the tracker prefers one report, or
@@ -30,6 +33,44 @@ file it standalone after x265 (#4) lands. VidCoder needs no issue: its
 maintainer already stated (RandomEngy/VidCoder#1318) that all asks
 belong upstream in HandBrake; VidCoder inherits the fix via the
 HandBrake core DLLs it ships.
+
+## mpv PR #18490 — review round 1 (2026-09-16)
+
+Hostile start: CounterPillow answered the owner's scope note with a
+"mucho texto" meme image and closed a review thread with "Thanks for
+the slop"; llyyr invoked the contribution guidelines over the AI
+disclosure ("AI-slop written commit messages"). Once the replies went
+purely factual and human-written, llyyr posted 8 technical review
+threads (18:03–18:16Z) and the owner answered every one
+(18:14–18:33Z, own words per doctrine). No apology was made; none was
+needed — the thread converted to engineering on its own.
+
+The one code objection — that the mapping switch "pointlessly
+duplicates `STEREOMODE_STEREO3D_MAPPING`" — is refutable on facts:
+the macro lives in `libavformat/matroska.h`, an FFmpeg-internal header
+that is not installed, so mpv cannot include it (mpv consumes installed
+headers only; `demux_mkv.c` vendors its own Matroska constants for the
+same reason), and it maps Matroska → AVStereo3D (muxer direction, plus
+half-width/height and WebM fields) while the patch needs the inverse,
+which FFmpeg does not export as a table. mpv's `params.stereo3d` has
+always used the Matroska StereoMode numbers, so the switch maps
+straight into mpv's own vocabulary.
+
+Follow-ups offered in-thread, pending maintainer decision:
+
+1. shared mapping helper in `csputils.c` next to `mp_stereo3d_names[]`
+   (also offered in the PR description);
+2. export `AV_FRAME_DATA_STEREO3D` from `mp_image_to_av_frame()`
+   (encode mode / lavfi symmetry);
+3. read `AV_PKT_DATA_STEREO3D` in `demux_lavf.c` — the container tag
+   currently dies at the demux layer there (`demux_lavf` frees the
+   AVPacket without reading side data; it handles only replaygain,
+   displaymatrix, DOVI config), and this becomes the second caller of
+   the shared helper.
+
+Raw material for the owner's replies:
+`/K3D/GitHub/EchoSystems_Stereo3D/mpv-review-replies-draft.md` — the
+posted replies are the owner's own rewording, per doctrine.
 
 ## Research basis (verified 2026-09-15)
 
