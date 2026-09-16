@@ -232,7 +232,7 @@ contract: each check names a live-proven behavior.
 | UPnP DMR playback | DONE — Serviio renders to both sets | liverecon notes |
 | LAN media MVP → full app | DONE — this stack, owner-verified | tv-mediabrowser README |
 | 3D lane (SEI injector) | DONE — `bravia_sei3d.py`, ffmpeg wrapper, profile fix; batch conversion runs server-side | serviio-3d-explainer |
-| Ripper/encoder upstream campaign | ACTIVE — 7 issue drafts written from verified research; GitHub targets posted 2026-09-15 (HandBrake #5826, StaxRip #1873, x265), ffmpeg + mkvmerge trackers next | `tools/serviio/upstream-3d-issues/` |
+| Ripper/encoder upstream campaign | **FIRST TARGET LANDED** — HandBrake merged PR #8100 (`b0145ad`, x264 frame-packing SEI, 2026-09-16, closes their #5826); StaxRip #1873 and x265 #970 posted; ffmpeg + mkvmerge drafts queued | `tools/serviio/upstream-3d-issues/` |
 | rd1 portal / homepage lane | DONE — Unbound DNS override on the LAN points `rd1.sony.net` at d2server; era-TLS vhost serves the TV's homepage with a media link | liverecon notes |
 | BIV / Bravia video lanes | DEAD (server-side) — registration unlocks nothing; documented so nobody retries | liverecon/biv-video-lane.md |
 | Applicast widget lane | ACTIVE — era widget archive fetched and studied offline (private side); programming model documented publicly | `research/appliwidget-programming.md` |

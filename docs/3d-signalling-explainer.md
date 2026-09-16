@@ -19,15 +19,21 @@
    auto-flip.
 3. The fix at the source is tiny:
    - **encode path:** pass the stereo layout to the encoder —
-     x264 `--frame-packing 3|4` (SBS|TAB; x265 equivalent) — or use
-     ffmpeg ≥ 9, which auto-injects from Matroska stereo side data
-     on libx264 encode;
+     x264 `--frame-packing 3|4` (SBS|TAB) — ffmpeg's libx264 wrapper
+     has auto-injected it from Matroska stereo side data since 2013;
    - **video-copy/remux path:** inject the SEI losslessly into the
      existing stream (16 bytes before every IDR, ~0.002% growth,
      no re-encode — reference implementation below);
    - either way, **write the Matroska `StereoMode` tag** on output
      so software players and the injection tools have a container
      source of truth.
+
+**Campaign status:** the first source-producer fix has landed —
+HandBrake merged PR
+[#8100](https://github.com/HandBrake/HandBrake/pull/8100)
+(2026-09-16), which maps the detected stereo layout to x264's
+`i_frame_packing` on encode. HandBrake 1.12.0 is therefore the first
+mainstream ripper whose 3D output carries **both** signals.
 
 ## The two signals
 

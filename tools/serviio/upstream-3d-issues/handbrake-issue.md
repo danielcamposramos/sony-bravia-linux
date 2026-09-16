@@ -6,7 +6,20 @@ exactly that request)
 **Do NOT frame as MVC support** — that is what got #1467 closed. This
 ask is only: preserve the in-stream SEI for already-SBS/TAB inputs.
 
-**POSTED 2026-09-15:**
+**RESOLVED — PR #8100 MERGED 2026-09-16** (merge commit `b0145ad`,
+"libhb: signal stereo 3d frame packing in the x264 encoder", closes
+this ask; #5826 closed by the merge):
+https://github.com/HandBrake/HandBrake/pull/8100
+
+Outcome notes: galad87 approved the scope in-thread ("That seems ok,
+even if it will work only in x264") and asked that further messages
+not be AI-written; the patch was then submitted in the owner's own
+voice and merged same-day. **Campaign doctrine from this thread: the
+drafts here are raw material — the owner rewrites posts in his own
+words before posting; no AI-drafted text goes out verbatim, no
+disclaimer line on future posts.**
+
+Original comment (posted 2026-09-15):
 https://github.com/HandBrake/HandBrake/issues/5826#issuecomment-5685776464
 
 ---
