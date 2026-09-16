@@ -29,9 +29,24 @@ ignore the MKV stereo-mode." The signalling is the DVB-standard one
 for frame-compatible stereo, so other era 3D brands very plausibly
 read it too. In a real-world 44-title 3D library (web rips + disc
 conversions), 43/44 carried only the MKV tag and 0/44 the SEI — all
-flat on hardware. Full write-up, with a lossless SEI injector
-(open-source, Linux/CLI — a cousin of your bundled h264Modify) here:
-https://github.com/danielcamposramos/sony-bravia-linux
+flat on hardware.
+
+**The whole chain now runs hands-off on my LAN:** both TVs play the
+library through a modified Serviio instance (renderer profile + a
+lossless SEI injector that repairs tag-only files — open source,
+Linux/CLI, a cousin of your bundled h264Modify:
+https://github.com/danielcamposramos/sony-bravia-linux), and two
+Android TV boxes (Rockchip RK322x and Allwinner H616) play the same
+files with their HDMI output auto-switched into 3D SBS/TAB mode by a
+small watcher that reads VLC's media session and keys off the
+"[3D]" filename prefix — no remote button press anywhere in the
+house.
+
+The campaign is also landing upstream: the HandBrake team just merged
+a patch from this work (x264 now writes the frame-packing SEI on
+encode, closing their long-standing 3D-metadata issue), with the
+ffmpeg reports (including a real decode bug their tracker had never
+seen) filed after it.
 
 Two feature thoughts, both small:
 
@@ -56,8 +71,7 @@ only" — the community's standing answer to "why doesn't my TV
 auto-engage 3D on my MKV?" has always been "press the 3D button
 manually". You documented the mechanism in BD3D2MK3D's help years
 ago; our contribution is the live-proven diagnosis, the remux-path
-injector, and upstream asks to HandBrake/StaxRip/x265/ffmpeg/mkvmerge
-so source producers stop emitting SEI-less files in the first place.
-If you see anything we got wrong — you know this corner of the
-ecosystem better than anyone — a correction on the thread would be
-gold.
+injector, and the upstream work so source producers stop emitting
+SEI-less files in the first place. If you see anything we got
+wrong — you know this corner of the ecosystem better than anyone —
+a correction on the thread would be gold.
