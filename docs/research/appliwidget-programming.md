@@ -219,6 +219,75 @@ After fetch, the installer (native "WidgetContents" sync channel) validates and 
 
 ---
 
+## 3.7 The shell we can already have — and what it demands of the portal
+
+Re-read of the corpus, 2026-09-17, with one question: given that the
+signature is **enforced** (§4), what is the shortest path to something
+app-shaped on the dock, and what must the portal do *now* so that path
+stays open?
+
+**The shell exists already, unmodified.** `SNY_RSSReader` is a signed,
+installable, dock-resident Sony app whose entire content is a feed URL
+it reads at runtime, and whose confirm action is
+`execBrowser(<item link>)` — live, uncommented, in `onActivate()`. Its
+feed URL is not code: it comes from `getStoredValue("Item2")` (the
+widget's own preference, since the bundle declares
+`<preference>1</preference>`), falling back to a dictionary string.
+Point that at our server and every item in the list deep-links into the
+portal through the TV browser. No forgery, no modified code, nothing
+the widget was not designed to do.
+
+**And the bundle's signature does not cover its content.** The
+RSSReader `digest.txt` lists exactly six entries — `info.xml`,
+`widget.js`, `layout.xml`, `bg.png`, `widget_fullscreen.js`,
+`layout_fullscreen.xml` — while the shipped bundle also carries `dic/`,
+`img/` and `icon.png`, none of which are digested. Combined with Arm A
+of the §4 experiment (byte-exact clone + original `digest.sig`
+installed **and executed**), the usable conclusion is: Sony's signed
+code can host our data, because the parts that carry meaning — the
+dictionary that supplies the default feed URL, and the artwork — sit
+outside the signed set.
+
+That is not a way around the signature. It is the difference between
+code and content, and it is the only part of the widget lane that is
+open to us until the platform is unlocked by another route.
+
+### What the portal must therefore do
+
+These are design constraints on `tools/serviio/tv-mediabrowser`, not
+future work — they cost nothing today and they are expensive to retrofit:
+
+1. **Publish an RSS feed.** A feed whose `<item>`s are portal
+   destinations (library sections, now-playing, recently added) and
+   whose `<link>`s are portal URLs turns the signed RSSReader into a
+   working launcher the moment we want one.
+2. **Every view must be a plain, deep-linkable URL** with no server-side
+   session state, because `execBrowser(url)` is a one-shot hand-off with
+   no way to pass anything else. The app is already built this way —
+   the constraint is to *keep* it that way.
+3. **Serve data, not only pages.** Small XML endpoints beside the HTML
+   ones mean a future widget (or any native client) consumes the server
+   with `XMLHttpRequest` instead of scraping rendered markup. The widget
+   runtime's XHR is not CORS-walled the way the browser lane is, so this
+   is the one place where the widget profile is strictly more capable.
+4. **Keep a three-state mental model** — list / focused / full — matching
+   the widget lifecycle's Normal → Focus → Active. A portal whose views
+   already decompose that way ports to a real widget without redesign if
+   the platform ever opens.
+
+### What is still unknown (and where to look)
+
+No PiP, video-window, tuner or panel API appears anywhere in the code we
+hold. That is weak evidence, not a verdict: we have **bodies for only 6
+of ~30 fetched bundles** (`RSSReader`, `Facebook`, `Twitter`,
+`WidgetGallery`, `AudioControl`, `AudioControlApp`) — the rest are
+manifests and posters with zero files. The bundles whose names suggest
+exactly those APIs — `SNY_PanelApp`, `SNY_Quality`, `SNY_VideoUnite`,
+`SNY_HomeNetwork` — are all empty shells in the archive. The one
+hardware-level API we *did* recover, `hdmiCec` (§2.2), turned up in a
+bundle nobody would have guessed held it, which is the argument for
+treating the missing bodies as a real gap rather than a closed question.
+
 ## 4. The signature question
 
 ### What is established
