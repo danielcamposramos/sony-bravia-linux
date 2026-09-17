@@ -79,6 +79,43 @@ Entry points, if a document number is ever withdrawn:
 - Global — `https://www.sony.com/electronics/support`
 - Open-source licence notices — `https://oss.sony.net/`
 
+## Per-model support pages (all regions)
+
+One row per model, one column per region — the centralised entry point.
+Pattern, confirmed in a browser for the two marked **✔**:
+
+```
+https://<region-host>/electronics/support/televisions-projectors-lcd-tvs/<model-slug>/manuals
+```
+
+Region hosts: `www.sony.com.br` (BR) · `www.sony.com` (US) · `www.sony.co.uk` (UK) · `www.sony.de` (DE) · `www.sony.fr` (FR) · `www.sony.es` (ES).
+Not every model was sold in every region, so some combinations will 404 —
+that is a distribution fact, not a broken pattern.
+
+### AZ2-F generation (2011) — one chassis, five sizes
+
+| Model | Support pages by region |
+|---|---|
+| `KDL-32EX725` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-32ex725/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-32ex725/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-32ex725/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-32ex725/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-32ex725/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-32ex725/manuals) |
+| `KDL-40EX725` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-40ex725/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-40ex725/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-40ex725/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-40ex725/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-40ex725/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-40ex725/manuals) |
+| `KDL-46EX725` ✔ | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46ex725/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-46ex725/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-46ex725/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-46ex725/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-46ex725/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-46ex725/manuals) |
+| `KDL-55EX725` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-55ex725/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-55ex725/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-55ex725/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-55ex725/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-55ex725/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-55ex725/manuals) |
+| `KDL-60EX725` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-60ex725/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-60ex725/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-60ex725/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-60ex725/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-60ex725/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-60ex725/manuals) |
+
+### AZ3F generation (2012)
+
+| Model | Support pages by region |
+|---|---|
+| `KDL-46HX855` ✔ | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/manuals) |
+| `KDL-40HX853` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-40hx853/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-40hx853/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-40hx853/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-40hx853/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-40hx853/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-40hx853/manuals) |
+| `KDL-55HX753` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) |
+| `KDL-46HX750` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) |
+
+**✔ = browser-verified 2026-09-17** (page loads, URL stable, PDFs listed and
+resolving). The rest follow the same pattern; the AZ3F rows beyond the HX855
+are from the board-census sibling list in [platform-map.md](platform-map.md)
+and their generation assignment is inferred, not confirmed from a manual.
+
 ## Service manuals — NOT from Sony
 
 Sony does not publish service manuals to the public. **Every file below

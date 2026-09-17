@@ -135,11 +135,30 @@ This page follows its own rule: the three map endpoints above are
 
 ### Re-check list (Internet Archive was offline 2026-09-17)
 
-- `local.yahooapis.com/MapsService/V1/mapImage` — response format and
-  parameters
-- `api.pmx.proatlas.net/PESWebService/v1/drawMap` — same, plus whether
-  the `appid=h684_0121` key appears in any capture
-- `maps.google.com/staticmap` v1 — parameter set the widget relies on
+- ~~`local.yahooapis.com/MapsService/V1/mapImage`~~ — **DONE
+  2026-09-17.** The Archive holds a live capture (2011-07-08, HTTP 200,
+  `text/javascript`), which preserves the contract permanently:
+
+  ```
+  mapImage?appid=<key>&latitude=<lat>&longitude=<lon>&image_type=png
+          &image_height=<h>&image_width=<w>&zoom=<z>&output=json&callback=<cb>
+  →  ydm({"ResultSet":{"Result":"http://gws.maps.yahoo.com/mapimage?MAPDATA=…"}});
+  ```
+
+  Note the shape: it returns **JSONP wrapping a URL to the map image**,
+  not the image itself. Any shim answering `mapImage` for the PhotoMap
+  widget must do the same — reply with a callback-wrapped
+  `ResultSet.Result` pointing at a rendered tile, which a modern source
+  can produce. This is exactly what the check-the-archive rule was
+  written for: the endpoint is unreachable, and its contract is now
+  documented anyway.
+- `api.pmx.proatlas.net/PESWebService/v1/drawMap` — **no captures in the
+  Archive** (checked 2026-09-17). Contract unknown; the parameter names
+  are recoverable from the widget's own code (`latitude`, `longitude`,
+  `scale`, `width`, `height`, `format`, `center`, `pos`, `dataname`,
+  `signature`) but the response format is not.
+- `maps.google.com/staticmap` v1 — **no captures in the Archive**
+  (checked 2026-09-17).
 - Sony support/eSupport pages listing models per firmware release — the
   authoritative AZ1/AZ3 model rosters
 - `sony.tvstore.opera.com` — the Opera Store lane the HX855 has and the
