@@ -321,6 +321,7 @@ confirming LPCM delivery)
 | `platform-map.md` | The hardware/software platform in depth |
 | `feasibility-roadmap.md` | Staged plan: content → widgets → root → kernel |
 | `right-to-repair.md` | Context + Rossmann/repair.wiki/FULU sharing plan |
+| `worldclock-schema-reconstruction.md` | **First reverse-engineered solution**: World Clock's `preference.xml` no longer exists on any Sony server; reconstructed from the widget's own code (Item1=GMT offset, Item2=DST, Item3=AM/PM) and deployed. Includes the reusable method for any dead settings screen |
 | `withheld-by-catalog.md` | **The evidence document**: Sony localized the widgets Brazil never got — Portuguese complete, Rio de Janeiro in the city list — and withheld them at the catalog layer. Plus the 2026-09-17 preservation sweep (3 live hosts, 137/168 URLs) |
 | `3d-origin-story.md` | Author's 3D history: the 2011 iZ3D license gift (Vadim Asadov) → the SEI campaign; the hologram line that seeded Knowledge3D |
 | `rossmann-outreach.md` | Outreach draft to Louis Rossmann |
