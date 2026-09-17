@@ -1,0 +1,48 @@
+# Appeal post for the Consumer Rights Wiki Moderators' noticeboard,
+# requesting review of the {{Incomplete}} notice on
+#   Sony BRAVIA pre-Android Linux TVs (2011-2012)
+#
+# WHERE: https://consumerrights.wiki/w/Consumer_Rights_Wiki_talk:Moderators%27_noticeboard
+#        Use the "Start a new section" link (Special:NewSection) — the
+#        noticeboard's own header says appeals to article notice templates
+#        belong here.
+#
+# SECTION TITLE (paste into the subject/headline field):
+#   Appeal: {{Incomplete}} on Sony BRAVIA pre-Android Linux TVs (2011-2012) — citations replaced with manufacturer documents and Internet Archive snapshots
+#
+# ORDER OF OPERATIONS — do these in sequence:
+#   1. Archive the five live Sony URLs at https://web.archive.org/save/
+#      (logged in; anonymous saves are rate-limited). They are the primary
+#      evidence and are not yet in the Wayback Machine.
+#   2. Save the article edit, adding archive-url= alongside each live Sony
+#      citation. The noticeboard's own "Archive everything" thread shows
+#      the community cares about this field — filling it in unprompted is
+#      the single best signal you can send here.
+#   3. THEN post this appeal, so a moderator arrives at an article that is
+#      already fixed rather than a promise that it will be.
+#
+# COI NOTE: disclosed below, following the precedent set by the Sony India
+# BRAVIA thread on the same noticeboard, where the moderator responded
+# well to an up-front disclosure. Do not skip it.
+#
+# Sign with four tildes. Everything below this line is the post.
+
+Requesting review of the {{tl|Incomplete}} notice on [[Sony BRAVIA pre-Android Linux TVs (2011-2012)]], following a rewrite of its sourcing.
+
+'''COI disclosure:''' I own two of the televisions described and I maintain the research repository the article previously cited. Because of that I am not removing the notice myself, and I have deliberately demoted my own repository to a methodology reference only — it is cited once, for how to reproduce a check, and never as the evidence for a claim.
+
+'''Why the notice was fair.''' The notice asks for verifiable, credible evidence and names forum posts and personal blogs as what to avoid. As published, the article's three citations were my own GitHub repository, a GitHub discussion I opened, and a Serviio forum thread. That is precisely the pattern the notice describes, and it was a correct call.
+
+'''What has changed.''' Every load-bearing claim is now cited to one of three source types:
+
+*'''The manufacturer's own documents, at manufacturer URLs.''' Sony's application catalogs are still served today, and they are the evidence: the European catalog for this chassis generation offers eight applications, the Brazilian catalog offers two. The Sony-supplied manifest for one withheld application carries localized names in thirty languages including Portuguese; the Sony-supplied dictionary for another covers thirty-one languages with the Portuguese entries complete, down to "Rio de Janeiro" appearing in its timezone city list. Sony's own Source Code Distribution Service states the GPL obligation in Sony's words.
+*'''Internet Archive snapshots of Sony's own pages.''' A October 2014 snapshot of Sony's source-code service lists this television generation by model number, including both sets I own; a July 2015 snapshot of the corresponding download page lists the twenty-three source packages that were offered. Those download links return HTTP 404 on Sony's live server today, while the same service currently lists 798 other KDL-series models.
+*'''Independent third-party review.''' The technical finding behind the 3D incident was submitted to the HandBrake project, which reviewed it and merged a patch implementing the fix. That is an independent project accepting the diagnosis on its merits, which seemed a better citation than my own write-up of it.
+
+'''One incident is still weakly sourced, and the article says so.''' The January 2022 firmware-removal incident rests on owner observation. I searched the Internet Archive for snapshots of Sony support pages for these models and found none. Rather than leave that implicit I have marked it inline in the article. If the preference is to remove that incident until it can be independently sourced, I will do that on request — I would rather the article be shorter and fully sourced than complete and partly unsupported.
+
+'''On archived links.''' I saw the "Archive everything" discussion above. The Sony URLs cited live were not previously in the Wayback Machine, so I have submitted them and added <code>archive-url=</code> alongside each. This matters beyond citation quality: the article's strongest evidence currently sits on servers the manufacturer could withdraw at any time, exactly as it withdrew the source-code downloads.
+
+'''Why I think it meets the inclusion guideline.''' The subject is a practice rather than a single consumer's complaint. Applications that were finished, localized and shipped to the manufacturer's servers were never offered in some markets, and the sets were then abandoned in that state; the source code the licence requires was published and later withdrawn while the same service continues for newer models. Both affect an entire television generation — one service manual alone covers five screen sizes — not the two sets I happen to own.
+
+Happy to make any changes asked for, here or on the article's talk page.
