@@ -116,6 +116,110 @@ resolving). The rest follow the same pattern; the AZ3F rows beyond the HX855
 are from the board-census sibling list in [platform-map.md](platform-map.md)
 and their generation assignment is inferred, not confirmed from a manual.
 
+## Audio-system support pages
+
+The same treatment as the televisions, for the 81 products the Home
+Theatre Control widget can drive ([full list in the README](../README.md#sony-audio-systems-hdmi-cec)). Sony, to their credit, kept
+this documentation online: manuals for hardware from 2009 are still
+published, and the KDL-46EX725 instructions carry a **2019** revision
+date. The criticism in [withheld-by-catalog.md](withheld-by-catalog.md)
+is narrow and deserves to stay narrow — it is about a catalog that gated
+finished, already-localized features by country, not about Sony
+documentation practice, which has held up better than most.
+
+Support-page pattern, same shape as the TVs:
+
+```
+https://<region-host>/electronics/support/<category-slug>/<model-slug>
+```
+
+Category slugs below were recovered from archived Sony support URLs
+(their WAF blocks direct probing). The model slug is the model name
+lowercased — e.g. `speakers-home-speakers/apm-22es` is a real archived
+example of the shape.
+
+### Sound bars
+
+Category: `sound-bars-home-theater-systems-sound-bars` — **slug confirmed from archived URLs**
+
+| Model | BR | US |
+|---|---|---|
+| `HT-CT150` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct150) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct150) |
+| `HT-CT350` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct350) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct350) |
+| `HT-CT370` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct370) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct370) |
+| `HT-CT380` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct380) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct380) |
+| `HT-CT381` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct381) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct381) |
+| `HT-CT550W` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct550w) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct550w) |
+| `HT-CT660` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct660) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct660) |
+| `HT-CT770` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct770) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct770) |
+| `HT-CT780` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct780) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct780) |
+| `HT-CT790` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct790) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct790) |
+| `HT-CT800` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct800) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-ct800) |
+| `HT-ST3` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st3) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st3) |
+| `HT-ST5` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st5) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st5) |
+| `HT-ST7` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st7) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st7) |
+| `HT-ST9` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st9) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st9) |
+| `HT-ST5000` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st5000) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-st5000) |
+| `HT-XT1` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xt1) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xt1) |
+| `HT-XT2` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xt2) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xt2) |
+| `HT-XT3` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xt3) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xt3) |
+| `HT-XF9000` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xf9000) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-xf9000) |
+| `HT-X9000F` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-x9000f) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-x9000f) |
+| `HT-NT3` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-nt3) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-nt3) |
+| `HT-NT5` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-nt5) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-nt5) |
+| `HT-MT500` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-mt500) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-mt500) |
+| `HT-RT5` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-rt5) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-rt5) |
+| `HT-Z9F` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-z9f) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-z9f) |
+| `HT-ZF9` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-zf9) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-zf9) |
+| `HT-S200F` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-s200f) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-s200f) |
+| `HT-SF200/201` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-sf200-201) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-sound-bars/ht-sf200-201) |
+
+### Blu-ray home theatre systems
+
+Category: `sound-bars-home-theater-systems-blu-ray-home-theater-systems` — **slug confirmed from archived URLs**
+
+| Model | BR | US |
+|---|---|---|
+| `RHT-G5` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g5) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g5) |
+| `RHT-G10` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g10) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g10) |
+| `RHT-G10EX` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g10ex) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g10ex) |
+| `RHT-G11` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g11) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g11) |
+| `RHT-G15` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g15) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/rht-g15) |
+| `HT-SS370/SF470` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-ss370-sf470) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-ss370-sf470) |
+| `HT-SS380` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-ss380) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-ss380) |
+| `HT-FS30` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-fs30) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-fs30) |
+| `HT-AS5/AF5` | [BR](https://www.sony.com.br/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-as5-af5) | [US](https://www.sony.com/electronics/support/sound-bars-home-theater-systems-blu-ray-home-theater-systems/ht-as5-af5) |
+
+### Receivers & amplifiers
+
+**Category slug not yet confirmed.** No archived URL for this
+family surfaced in the searches run on 2026-09-17, and Sony's WAF
+prevents probing candidates directly. Use the model search until
+someone confirms it in a browser:
+
+- BR — `https://www.sony.com.br/electronics/support` → search the model
+- US — `https://www.sony.com/electronics/support` → search the model
+
+Models in this family: `STR-DH520`, `STR-DH530`, `STR-DH540`, `STR-DH550`, `STR-DH590`, `STR-DH710`, `STR-DH720`, `STR-DH730`, `STR-DH740`, `STR-DH750`, `STR-DH770`, `STR-DH790`, `STR-DH820`, `STR-DH830`, `STR-DN840`, `STR-DN850`, `STR-DN860`, `STR-DN1020`, `STR-DN1030`, `STR-DN1040`, `STR-DN1050`, `STR-DN1060`, `STR-DN1070`, `STR-DN1080`, `STR-DN2030`, `STR-DA1800ES`, `STR-DA2800ES`, `STR-DA3700ES`, `STR-DA5700ES`, `STR-DA5800ES`, `STR-ZA810ES`, `STR-ZA1000ES`, `STR-ZA1100ES`, `STR-ZA2000ES`, `STR-ZA2100ES`, `STR-ZA3000ES`, `STR-ZA3100ES`, `STR-ZA5000ES`, `TA-DA3600ES`, `TA-DA5600ES`, `TA-DA5700ES`, `TA-DA5800ES`
+
+### Wireless headphones
+
+**Category slug not yet confirmed.** No archived URL for this
+family surfaced in the searches run on 2026-09-17, and Sony's WAF
+prevents probing candidates directly. Use the model search until
+someone confirms it in a browser:
+
+- BR — `https://www.sony.com.br/electronics/support` → search the model
+- US — `https://www.sony.com/electronics/support` → search the model
+
+Models in this family: `MDR-HW700DS`
+
+**Region hosts** are the same as for the televisions (`sony.com.br`, `sony.com`, `sony.co.uk`, `sony.de`, `sony.fr`, `sony.es`); a model not sold in a region will 404 there.
+
+**None of these links is browser-verified.** They are pattern-derived from
+confirmed category slugs, and marked as such deliberately — the same
+discipline that caught a valid Sony URL being recorded as dead earlier
+today. One spot-check in a browser would promote the lot.
 ## Service manuals — NOT from Sony
 
 Sony does not publish service manuals to the public. **Every file below

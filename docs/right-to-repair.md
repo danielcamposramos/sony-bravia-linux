@@ -66,3 +66,40 @@ for the purpose of repair, preservation, and interoperability — not
 content piracy (no DRM circumvention for protected media) and not
 attacking anyone else's devices. Sony firmware images stored here are
 for archival/research purposes.
+
+## Abandonment is the argument (2026-09-17)
+
+The strongest form of the case, stated by the owner while we were mapping
+Sony's still-live servers:
+
+> *"If the 'owner' abandons something, it's abandoned."*
+
+It is worth being precise about what that does and does not claim here,
+because this project has now measured both sides of it.
+
+**Where Sony did not abandon anything:** their documentation. Manuals for
+2009 audio hardware are still published; the KDL-46EX725 operating
+instructions carry a **2019 revision date**, eight years after the set
+shipped. The AppliCast CDN is still serving widget bundles and catalogs
+in 2026 — one AZ1 catalog is dated **2010-04-21** and still answers.
+Credit where it is due: on paperwork and hosting, Sony has outlasted most
+of the industry. See [manuals-index.md](manuals-index.md).
+
+**Where the abandonment is real:** the services those files point at. The
+smart portal is gone, the Opera Store lane is unreachable, the map APIs
+a 2010 widget depends on have disappeared — and, worst of the set,
+features that were **finished, localized and paid for** were withheld by
+a per-country catalog and then simply left dark
+([withheld-by-catalog.md](withheld-by-catalog.md)).
+
+So the argument is not "Sony are bad stewards". It is narrower and
+harder to answer: **a company that stops operating a service does not
+thereby get to keep the functionality switched off on hardware someone
+else owns.** A widget whose code, artwork and Portuguese translation all
+still exist on the manufacturer's own CDN is not a discontinued product.
+It is a working feature behind a file nobody is serving — and on a
+private LAN, serving that file is repair.
+
+Ten-plus years later, things change and companies move on. That is
+expected, and it is precisely why the right to repair cannot depend on
+the manufacturer still caring.
