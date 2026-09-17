@@ -36,6 +36,26 @@ links must use `https://` — the `http://` form returns 503.)
 | Same service, EU TV category — this generation **was** listed | *(removed from the live server)* | [2014-10-10](https://web.archive.org/web/20141010061250/https://oss.sony.net/Products/Linux/TV/category03.html) |
 | Source download page, group incl. KDL-46EX725 — 23 packages | *(returns 404 today)* | [2015-07-27](https://web.archive.org/web/20150727011435/https://oss.sony.net/Products/Linux/TV/KDL-32CX520.html) |
 
+### Where this was written up
+
+The public record of the investigation, in the order it was published.
+Snapshotted for the same reason as everything above — a post is not a
+record while it lives only on someone else's server.
+
+| Piece | Live | Snapshot |
+|---|---|---|
+| Consumer Rights Wiki (FULU) — product-line page with the incidents and their sources | [Sony BRAVIA pre-Android Linux TVs (2011-2012)](https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_%282011-2012%29) | — |
+| TabNews (pt-BR) — the investigation as a first-person account | [Em 2011 um CEO me deu de presente uma licença de 3D…](https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) | [2026-09-17](https://web.archive.org/web/20260917232833/https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) |
+| TabNews (pt-BR) — essay: what slop is, where it came from, and the hacker precedent | [Essa é a história da relação de a gente não banir o nmap…](https://www.tabnews.com.br/danielramos/essa-e-a-historia-da-relacao-de-a-gente-nao-banir-o-nmap-porque-criminoso-usa-ele-e-o-maior-evento-de-slop-da-historia-do-open-source) | saved 2026-09-17 |
+| TabNews (pt-BR) — the Zig fork, and a closed door respected | [cgm-zig: o fork do Zig que nasceu no lixão](https://www.tabnews.com.br/danielramos/cgm-zig-o-fork-do-zig-que-nasceu-no-lixao-e-compila-o-que-o-original-nao-compilava) | saved 2026-09-17 |
+
+Drafts and publication notes for these live in
+[docs/tabnews-post-pessoal.md](docs/tabnews-post-pessoal.md),
+[docs/tabnews-post-slop.md](docs/tabnews-post-slop.md) and
+[docs/tabnews-post.md](docs/tabnews-post.md) (a neutral-register
+variant of the same case, written to be quotable by someone who is not
+the owner).
+
 The last two rows are the evidence for the GPL-removal incident: the
 generation's listing and its source packages exist only in the archive
 now. Analysis in
