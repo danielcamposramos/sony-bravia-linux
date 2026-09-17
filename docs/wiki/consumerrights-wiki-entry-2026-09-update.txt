@@ -1,0 +1,93 @@
+# UPDATE to the consumerrights.wiki (FULU Foundation) product-line page
+# "Sony BRAVIA pre-Android Linux TVs". Supersedes the body of
+# consumerrights-wiki-entry.txt, which is kept as the as-first-published
+# record. Drafted 2026-09-17.
+#
+# WHY THIS UPDATE EXISTS
+#   The original page made four claims that were true but thinly sourced.
+#   Three of them can now be proved with dates, model numbers and archived
+#   URLs, and a fifth incident has been documented that the original did
+#   not know about. Nothing here is new opinion; it is the same page with
+#   evidence attached.
+#
+# WHAT CHANGED, section by section
+#   * Consumer-impact summary — rewritten: the restoration is no longer
+#     hypothetical, it runs on the owner's set; and the withheld-features
+#     finding is named.
+#   * Incidents — "GPL source releases deleted" upgraded from assertion to
+#     dated evidence (2014 listing naming both sets, today's listing with
+#     798 other KDL models and none of this generation, files 404).
+#   * Incidents — "Smart services shut down" sharpened: the CDN is STILL
+#     SERVING the bundles; what ended was the catalog and the dependent
+#     services. This is more damning, not less, and it is verifiable today.
+#   * Incidents — NEW: "Features withheld by regional catalog", the
+#     Portuguese-localization finding.
+#   * Products — expanded from 2 models to the chassis-generation scope,
+#     per Sony's own service-manual coverage.
+#   * References — new citations, all re-checkable.
+#
+# HOW TO PUBLISH
+#   1. Edit the existing page; replace from the infobox to the end.
+#   2. Suggested edit summary: "Add evidence for GPL source removal
+#      (archived 2014 listing vs current), add withheld-features incident,
+#      expand product scope to chassis generation, update restoration
+#      status".
+#   3. MEDIAWIKI FORMATTING: every list item is ONE line. A leading space
+#      on a continuation line renders as a <pre> block. Do not re-wrap.
+#   4. If any claim below has aged (Sony re-lists the generation, the CDN
+#      finally goes dark), fix it before saving — every statement is
+#      timestamped so this is easy to audit.
+
+{{ProductLineCargo
+|Company=Sony
+|ReleaseYear=2011
+|InProduction=No
+|ArticleType=Product
+|Category=Television, Smart TVs
+|Website=https://www.sony.com/,https://www.sony.com.br/
+|Description=Sony's 2011–2012 BRAVIA flat-panel television line, running a proprietary Linux-based platform that predates Sony's switch to Android TV. Included 3D-capable models such as the KDL-EX7xx and KDL-HX8xx series. The platform has since been discontinued: online services were shut down, firmware downloads were removed from Sony's support site (January 2022), and the GPL source-code releases were removed from Sony's distribution service. The widget files themselves remain on Sony's content servers and still download in 2026 — what ended was the catalog that offered them.
+}}
+The '''Sony BRAVIA pre-Android Linux TVs''' are the 2011&ndash;2012 generation of Sony BRAVIA flat-panel televisions, which ran a proprietary Linux-based platform before Sony switched the BRAVIA line to Android TV. Hardware ranged from entry models to flagships with 12-bit X-Reality PRO video processing and active (shutter-glasses) 3D. All models included DLNA media playback and an HTML/JavaScript widget platform (AppliCast) served from Sony-operated servers.
+
+==Consumer-impact summary==
+The hardware of this generation remains fully functional years after the platform was abandoned &mdash; including 12-bit video processing and active 3D on the higher-end models &mdash; but Sony discontinued every software pillar the sets depend on. Owners are left with smart functionality that no longer works through official channels, no official firmware recovery path for a failed or factory-reset set, GPL-licensed sources that are no longer obtainable from the copyright distributor, and a 3D playback feature that silently fails over DLNA.
+
+Three findings distinguish this case from an ordinary end-of-support. First, the withdrawal is not a matter of files being lost: Sony's AppliCast content servers are '''still online in 2026''' and still return the widget bundles, byte-for-byte, with their original signatures &mdash; what was switched off is the per-region catalog that tells a television those widgets exist. Second, several features that were '''finished, localized and never offered''' in some regions can be shown to have shipped complete on those same servers, including Portuguese translations down to the city list of a world clock. Third, the practical consequence is reversible by the owner: pointing a set at an owner-operated catalog restores the withheld applications, and an owner has done so, with the recovered applications running on a 2011 set and verified working.
+
+The 3D failure is notable because it was never advertised as a service that could end: the panels and 3D hardware work, but the signalling the sets were built to read is never generated by mainstream media servers, so the feature appears broken while the hardware is fine &mdash; and it too has been restored entirely through owner reverse engineering.
+
+==Incidents==
+This is a list of all consumer-protection incidents related to this product line. Any incidents not mentioned here can be found in the [[:Category:{{PAGENAME}}|{{PAGENAME}} category]].
+
+===Smart services shut down, while the files remain served===
+The AppliCast widget platform depended on Sony-operated servers for its content. Those services were wound down and the sets lost their smart functionality through official channels. The unusual detail, verified in September 2026, is that the content servers themselves were never switched off: <code>applicast.ga.sony.net</code> still answers, and still returns the original widget bundles with their original cryptographic signatures intact.<ref name="withheld">Evidence document, with commands any reader can re-run: [https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/withheld-by-catalog.md withheld-by-catalog.md].</ref> One catalog file still served is dated 2010-04-21. What ended was not the hosting but the per-region catalog that tells a television which applications exist &mdash; a single XML file per country.
+
+===Features withheld by regional catalog, after localization was completed===
+Comparing catalogs served from the same host, for the same chassis generation, on the same day: the European catalog offers eight applications; the Brazilian catalog offers two.<ref name="withheld" /> The five applications never offered in Brazil were not unfinished or unlocalized. Four of them &mdash; Calculator, Alarm, Calendar, Analogue Clock &mdash; contain no language-dependent text at all, and carry localized names in thirty languages including Portuguese. The fifth, a World Clock, ships a dictionary covering thirty-one languages in which the Portuguese entries are complete, down to the inclusion of ''Rio de Janeiro'' in its timezone list. The localization work was finished and paid for; the applications were simply not listed for those markets, and the sets were then abandoned in that state. An owner has since restored all five to a 2011 Brazilian set by serving the complete catalog from their own network; the applications install and run, because the files are Sony's own and their signatures still validate.<ref name="withheld" />
+
+===Firmware downloads removed (January 2022)===
+Sony removed the firmware update images for these models from its support site. A set that fails, or is reset to factory defaults, can no longer be brought back to working firmware through official channels &mdash; the only remaining sources are third-party archives of the files Sony once published.<ref name="repo">Owner research repository documenting the platform and its withdrawal: [https://github.com/danielcamposramos/sony-bravia-linux github.com/danielcamposramos/sony-bravia-linux].</ref>
+
+===GPL source releases removed from Sony's distribution service===
+The sets run a Linux kernel and other GPL-licensed components, for which Sony makes corresponding source code available through its ''Source Code Distribution Service'' at <code>oss.sony.net</code>. That service is still operating in 2026 and its television listings carry 798 <code>KDL-</code> models &mdash; but none from the 2010&ndash;2012 EX/HX/NX/CX generation.<ref name="licence">Licence and platform evidence: [https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/licence-basis.md licence-basis.md].</ref> Archived copies of the same service from October 2014 show that this generation '''was''' listed, naming 709 models of it explicitly, including KDL-32/37/40/46/55/60EX725 and KDL-40/46/55HX855.<ref name="oss">Recovery of the archived listings and package manifests: [https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/oss-source-recovery.md oss-source-recovery.md].</ref> The download links preserved in those archived pages return HTTP 404 on Sony's live server today, and the Internet Archive captured the index pages but never the files behind them. The recovered manifest shows what was withdrawn: twenty-three packages for this model group, comprising the kernel, the cross-compiler toolchain, glibc, the graphics stack and the browser engine &mdash; that is, the complete build environment for the platform. The televisions continue to run those binaries; the corresponding source is no longer obtainable from the distributor.
+
+===3D playback silently broken over DLNA===
+The 3D-capable models of this line auto-engage 3D from exactly one signal: a ''frame_packing_arrangement'' SEI message (H.264 D.2.4, payload type 45) embedded in the H.264 elementary stream. They ignore the Matroska StereoMode container tag &mdash; the only 3D flag standard rip files carry &mdash; so every DLNA-served 3D video plays flat. The feature was never announced as ending; it fails silently on hardware that displays 3D perfectly from other inputs. An owner reverse-engineered the detection mechanism and restored fully automatic 3D playback on stock Serviio 2.5 (free) using only standard H.264 stereoscopic signalling; no DRM or copy-protection mechanism is involved.<ref name="discussion">Write-up, evidence base and community testing ask: [https://github.com/danielcamposramos/sony-bravia-linux/discussions/1 Discussion #1].</ref><ref name="forum">Serviio forum thread: [https://forum.serviio.org/viewtopic.php?f=7&t=31269 forum.serviio.org].</ref> The same investigation was carried upstream: the HandBrake project merged a patch so that encoders write the missing signal, and further reports were filed with FFmpeg, x265 and mpv.<ref name="handbrake">Merged upstream fix: [https://github.com/HandBrake/HandBrake/pull/8100 HandBrake PR #8100].</ref>
+
+==Products==
+Sony distributed software for these televisions '''per chassis generation, not per model''' &mdash; one catalog and one set of bundles served every set in a generation, and the service manuals cover multiple sizes under a single chassis. The incidents above therefore apply to the whole generation, not only to the models verified by the owner.
+* '''AZ2-F chassis (2011)''' &mdash; one Sony service manual covers KDL-32EX725, KDL-40EX725, KDL-46EX725 and KDL-55EX725, with KDL-60EX725 documented separately. 1080p, active 3D, DLNA, AppliCast widgets.
+* '''AZ3F chassis (2012)''' &mdash; high-end line of the generation, including KDL-40/46/55HX855 and the HX853 series; 1080p, 12-bit X-Reality PRO processing, active 3D, DLNA, AppliCast widgets.
+* '''AZ1 chassis (2010)''' &mdash; the preceding generation, whose catalog is also still served and still answers in 24 languages; its listing offers a single application.
+* '''Verified by the owner''' &mdash; KDL-46EX725 (AZ2-F) and KDL-46HX855 (AZ3F). All hands-on claims on this page were tested on these two sets.
+
+==See also==
+* [https://github.com/danielcamposramos/sony-bravia-linux Owner research repository] &mdash; renderer profile, tools, recovered manifests and evidence base.
+* [https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/withheld-by-catalog.md Withheld by catalog] &mdash; the localization-completed-then-withheld finding, with re-runnable commands.
+* [https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/oss-source-recovery.md GPL source recovery] &mdash; archived 2014 listings, recovered package manifests, and what is now unobtainable.
+* [https://github.com/danielcamposramos/sony-bravia-linux/discussions/1 Community discussion and testing ask] &mdash; help confirm whether other era 3D DLNA sets behave the same.
+
+==References==
+{{reflist}}
+
+[[Category:{{PAGENAME}}]]
