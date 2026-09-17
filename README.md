@@ -17,6 +17,31 @@ the owner; the right-to-repair plan for that material is in
 notes may still reference those filenames — they refer to the owner's
 offline archive, not to anything in this repository.
 
+## Live fronts and archive snapshots
+
+Sony's own servers still serve this platform's material in 2026 — what
+was switched off was the catalog layer that told the TVs it exists, not
+the files. Every front below is also snapshotted at the Internet
+Archive, so the evidence survives even if Sony withdraws it. (Archive
+links must use `https://` — the `http://` form returns 503.)
+
+| Front | Live (2026-09) | Internet Archive snapshot |
+|---|---|---|
+| AppliCast catalog, AZ3, EU region — 8 apps | [Catalog_EU_ALL_eng.xml](https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_EU_ALL_eng.xml) | [2026-09-17](https://web.archive.org/web/20260917210301/https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_EU_ALL_eng.xml) |
+| AppliCast catalog, AZ3, Brazil region — 2 apps | [Catalog_LA_BRA_por.xml](https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_LA_BRA_por.xml) | [2026-09-17](https://web.archive.org/web/20260917204700/https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_LA_BRA_por.xml) |
+| AppliCast catalog, AZ1 (2010 generation) | [AZ1_EU_ALL_eng.xml](https://applicast.ga.sony.net/WidgetCatalogs/AZ1_EU_ALL_eng.xml) | [2026-09-17](https://web.archive.org/web/20260917210817/https://applicast.ga.sony.net/WidgetCatalogs/AZ1_EU_ALL_eng.xml) |
+| Calculator widget manifest — localized names in 30 languages | [info.xml](https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml) | [2026-09-17](https://web.archive.org/web/20260917204708/https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml) |
+| World Clock dictionary — 31 languages | [dic.txt](https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt) | [2026-09-17](https://web.archive.org/web/20260917204715/https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt) |
+| Source Code Distribution Service (search page) | [oss.sony.net](https://oss.sony.net/Products/Linux/common/search.html) | [2026-09-01](https://web.archive.org/web/20260901004026/https://oss.sony.net/Products/Linux/common/search.html) |
+| Same service, EU TV category — this generation **was** listed | *(removed from the live server)* | [2014-10-10](https://web.archive.org/web/20141010061250/https://oss.sony.net/Products/Linux/TV/category03.html) |
+| Source download page, group incl. KDL-46EX725 — 23 packages | *(returns 404 today)* | [2015-07-27](https://web.archive.org/web/20150727011435/https://oss.sony.net/Products/Linux/TV/KDL-32CX520.html) |
+
+The last two rows are the evidence for the GPL-removal incident: the
+generation's listing and its source packages exist only in the archive
+now. Analysis in
+[docs/withheld-by-catalog.md](docs/withheld-by-catalog.md) and
+[docs/oss-source-recovery.md](docs/oss-source-recovery.md).
+
 ## Why bother (the right-to-repair angle)
 
 These late-KDL sets are phenomenal hardware — the KDL-46HX855 has
@@ -120,7 +145,8 @@ CEC audio device answers. The list is Sony's, recovered from their own
 - `tools/` — extraction/analysis tooling and notes: the
   [tv-mediabrowser](tools/serviio/tv-mediabrowser/README.md) media app
   (live on the owner's LAN), Serviio renderer profiles + 3D fix,
-  the SEI 3D injector, the rd1 portal, and the [systemd
+  the SEI 3D injector, the rd1 portal, the [upstream 3D-signalling
+  campaign drafts](tools/serviio/upstream-3d-issues/), and the [systemd
   stack](tools/systemd/README.md) that runs it all
 - `certs/` — CA + leaf certificates for the era-TLS lanes
 
@@ -144,6 +170,29 @@ firmware containers confirmed whole-file encrypted (no public
 decryptor), live CERS/IRCC + UPnP API documented. Full analysis in
 `docs/platform-map.md`; staged plan (zero-mod content → UART root →
 kernel modernization) in `docs/feasibility-roadmap.md`.
+
+## The 3D-signalling campaign
+
+These sets auto-engage 3D from exactly one signal — the H.264
+frame-packing SEI (payload 45) — and ignore the Matroska StereoMode tag
+every standard rip carries, so 3D DLNA playback silently fails on
+perfectly good hardware. The diagnosis plus a working fix was taken
+upstream to every tool in the encode → remux → player pipeline. Full
+drafts, per-target status, and links live in
+[tools/serviio/upstream-3d-issues/](tools/serviio/upstream-3d-issues/).
+
+| Front | Outcome (all engaged 2026-09-16) |
+|---|---|
+| HandBrake | **[PR #8100 merged](https://github.com/HandBrake/HandBrake/pull/8100)** — encoder now writes the missing SEI; closes their #5826 |
+| FFmpeg | [bug #24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) + [enhancement #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) filed |
+| StaxRip | [answered stranded user on #1873](https://github.com/staxrip/staxrip/issues/1873#issuecomment-5685902578) |
+| x265 | [issue #970](https://github.com/Multicorewareinc/x265/issues/970) filed |
+| mpv | [issue #18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) in review — completes the pipeline end to end |
+| BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756) — answered, closed out, cross-brand confirmed |
+| LTT forums | [the guide the 3D-theater video promised](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) — first audience-facing post |
+| mkvmerge | skipped by owner decision (Codeberg signup paywall) — draft retained |
+
+No DRM or copy-protection mechanism is involved anywhere in the chain.
 
 ## Legal note
 
