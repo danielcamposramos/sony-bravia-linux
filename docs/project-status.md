@@ -270,6 +270,16 @@ These apply to any partner working on this project:
 9. **Nothing Sony-copyrighted enters this repo** — firmware images,
    widget packages, third-party app sources stay in the owner's
    offline archive. See below.
+9b. **The preservation archive stays private; distribution is not ours
+   to decide.** The AppliCast/BRAVIA material recovered from Sony's
+   still-live CDNs (2026-09-17: three hosts, the widget bundles, their
+   catalogs and assets) is held offline by the owner. The plan is to
+   **share it with the right-to-repair movement** — and if they judge
+   that it should be distributed, that call is theirs, not this
+   project's. What this repo publishes is the analysis, the paths, the
+   method and our own reconstructions; never the recovered bundles.
+   Contributing the map back to the Internet Archive is a separate
+   decision on the same terms.
 10. **Check for live streams before restarting a serving service.**
 11. **Pre-publish sweep (hard):** before publishing this repo or any
    part of it anywhere (repair.wiki, a fork, a tarball), sweep for
