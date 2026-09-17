@@ -105,6 +105,55 @@ Practical position:
   the gap worth filling. A single surviving mirror would restore the
   patched userland for an entire TV generation.
 
+## What would it have cost to keep?
+
+The stated term is three years after last shipment. That was written when
+hosting was a line item. It is worth asking what the obligation actually
+weighs today, because the answer changes how "we no longer offer this"
+should be read.
+
+**Measured, not guessed:**
+
+- The kernel tree we hold is **401 MB uncompressed**; compressing a
+  sample gives a ratio of **0.24**, so roughly **~96 MB** as a normal
+  `.tar.gz`.
+- Our model group's manifest is **23 packages**. The kernel dominates;
+  the `src.rpm` userland components of that era run from under a
+  megabyte to a few tens of megabytes each.
+- Across every archived KDL-era page, **83 distinct packages** appear in
+  total — and they are shared across model groups, which is why 709
+  models needed nothing like 709 source drops.
+
+Put together, the complete GPL source corpus for this entire television
+generation is **low single-digit gigabytes**.
+
+**What that costs to host, at 2026 prices:**
+
+| Option | Cost for ~5 GB |
+|---|---|
+| Object storage (S3-class, standard tier) | **≈ US$0.10–0.15 per month** |
+| Internet Archive | **free**, and explicitly wants this material |
+| GitHub Releases | **free**; 2 GB per file, so only the kernel needs splitting |
+| A git repository | wrong tool — but `git-lfs` or a release asset solves it |
+
+So the honest framing of the delisting is not "Sony could no longer
+afford to host this". It is that **an obligation with a three-year term
+was allowed to lapse on schedule**, at a point when continuing to meet it
+would have cost roughly the price of a cup of coffee per year, on
+infrastructure that did not exist when the term was written.
+
+**And the asymmetry is the point.** The same company still operates the
+distribution service — for 798 other `KDL-` models, plus thousands of
+products across audio, camera and professional lines. The capability is
+running. The generation was simply removed from it.
+
+This is not a legal argument; the three-year term is Sony's to rely on.
+It is a **proportionality** argument, and it is the one worth putting in
+front of policymakers: a rule that made sense when source distribution
+meant pressing and posting physical media now retires documentation
+whose storage cost has fallen by four orders of magnitude, for hardware
+that is still in people's homes and still working.
+
 ## Why this matters beyond our two sets
 
 The 2014 listing covered **709 models**. Those sets are all still out
