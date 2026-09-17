@@ -330,6 +330,7 @@ confirming LPCM delivery)
 |---|---|
 | `platform-map.md` | The hardware/software platform in depth |
 | `feasibility-roadmap.md` | Staged plan: content → widgets → root → kernel |
+| `oss-source-recovery.md` | Sony's 2014 OSS listing **did** include KDL-46EX725 and KDL-46HX855 (archived proof); today it lists 798 KDL models and none from this generation. Recovers the 23-package manifest for our model group and 83 packages KDL-era-wide (incl. the MIPS toolchain); files themselves are 404 live, unarchived, and unmirrored — the kernel survives only in the owner's archive |
 | `licence-basis.md` | **Evidence file, not legal advice**: the sets run GPL Linux and Sony shipped the source with its licence; Sony's Source Code Distribution Service is live in 2026 and lists 798 `KDL-` models — **zero** from the 2010–2012 EX/HX/NX/CX generation. Separates what the GPL grants an owner (does not lapse) from the distribution offer (three-year term), and marks the line the widget bundles sit on |
 | `right-to-repair.md` | Context + Rossmann/repair.wiki/FULU sharing plan |
 | `hdmi-cec-audio-system.md` | **Parked lane, documented**: 26 Sony vendor CEC opcodes + the 102-model audio compatibility table recovered from the AudioControl bundle; why the widget reports unavailable; the untried `device_type=4,5` direction and the zero-risk experiment that would justify it |
