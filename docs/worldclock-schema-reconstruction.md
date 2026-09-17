@@ -128,6 +128,49 @@ because the owner could serve it themselves.
 
 That is the whole of right to repair, in 1 681 bytes.
 
+## The second failure: assets that exist nowhere as text
+
+With the schema in place the settings worked — and the widget still drew
+a loading icon where its artwork belonged. Different bug, same shape:
+files the fetcher could not see.
+
+Era widgets build almost every asset path by concatenation, so the
+filename appears nowhere in the source:
+
+```js
+loadImage(node, "./parts/Normal/worldImages/" + (mapN_index+1) + ".png")
+loadImage(node, "./parts/flags/tz_" + (time_offsetArray[i] + 11) + ".png")
+loadImage(node, "./parts/FullScreen/Daylight/Lightmap_" + month + "/" + (i+1) + ".png")
+loadImage(node, "./parts/Normal/" + mode[i] + "_" + _lang + ".png")
+```
+
+Grep for `.png` in that file and you get the handful of literal paths —
+the panel backgrounds and arrows — and none of the world map, none of
+the flags, none of the daylight overlay, none of the AM/PM labels. The
+directory index is denied, so nothing else will reveal them either.
+
+The fix is to walk the **templates** instead of the literals: take the
+quoted fragments around each `+`, and expand the gap over the values the
+surrounding code can actually produce. That recovered **349 files**
+(0.45 MB) on the first pass — 22 world-map tiles, 23 timezone flags, 24
+timezone selectors, AM/PM labels in every language, error graphics, and
+12 × 24 daylight terminator frames.
+
+### The off-by-one that hid a month
+
+The first expansion used months `1..12` and came back with
+`Lightmap_1` … `Lightmap_11`. That looked like "December is missing from
+Sony's CDN". It was not: JavaScript's `Date.getMonth()` is **zero-based**,
+so the real range is `Lightmap_0` … `Lightmap_11`, and the folder the
+expansion never asked for was **January**. `Lightmap_0/1.png` returns 200;
+`Lightmap_12/1.png` returns 403.
+
+Worth stating plainly because the failure was silent in the worst way: a
+complete-looking set of eleven months, and a widget that would have drawn
+an empty daylight map for one month a year. Always probe one index below
+and one above the range you assumed, and let the server's 403 tell you
+where the real edge is.
+
 ## Reusable method
 
 For any era widget whose settings screen is dead:
@@ -142,12 +185,28 @@ For any era widget whose settings screen is dead:
    bundle still verifies.
 5. Confirm on the EX725 before the HX855 (rule 5).
 
+For missing artwork:
+
+6. `grep -oE 'loadImage\([^)]*'` → the concatenation templates, not the
+   literals.
+7. Expand each template over what the code can produce — array lengths,
+   named constants, `getMonth()` (**zero-based**), language codes.
+8. Probe one index outside every assumed range; a 403 marks the true
+   edge, and a silently short range is worse than an obvious gap.
+
+Both classes share one root cause: **the file is invisible to anything
+that follows references.** Engine-read files are named by no one;
+concatenated paths are spelled out by no one. A mirror built only from
+`digest.txt` plus literal references will look complete and will not be.
+
 ## Status
 
 - Authored and deployed to the LAN AppliCast mirror; serving 200.
 - `SNY_BasicAlarm`: Sony's own schema restored — **owner-verified
   working on the EX725, 2026-09-17**.
-- `SNY_WorldClock`: reconstruction deployed, awaiting owner test.
+- `SNY_WorldClock`: reconstructed schema **owner-verified working on the
+  EX725, 2026-09-17** — all three options present and driving the clock;
+  artwork recovered (396 files, 2.3 MB) and rendering.
 - Labels are pt-BR here; a localized `preference.xml` per language is
   being generated separately, since Sony's surviving schemas are
   hardcoded English in every locale — the configuration UI was never
