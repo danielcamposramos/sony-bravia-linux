@@ -1,4 +1,8 @@
-# TabNews post — ensaio sobre slop (matéria-prima, PT-BR, 2026-09-17)
+# TabNews post — ensaio sobre slop — PUBLICADO 2026-09-17
+# https://www.tabnews.com.br/danielramos/essa-e-a-historia-da-relacao-de-a-gente-nao-banir-o-nmap-porque-criminoso-usa-ele-e-o-maior-evento-de-slop-da-historia-do-open-source
+# Título publicado, em texto puro (o TabNews não renderiza markdown no título):
+#   Essa é a história da relação de a gente não banir o nmap porque criminoso
+#   usa ele e o maior evento de slop da história do open source.
 
 # DOUTRINA: matéria-prima. O dono reescreve na própria voz antes de
 # publicar.

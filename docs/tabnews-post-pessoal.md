@@ -24,15 +24,19 @@
 
 ---
 
-Em fevereiro de 2011 eu era um moleque brasileiro sem dinheiro para comprar um monitor 3D.
-Escrevi para o CEO da iZ3D, a empresa que fazia o driver que forçava 3D estereoscópico em jogos que não tinham 3D, propondo que eles entrassem pelo Brasil em vez de brigar por Estados Unidos e Europa. Argumentei que aqui a propaganda em TV aberta era barata.
+#Plot: Em fevereiro de 2011 eu era um moleque brasileiro sem dinheiro para comprar um monitor 3D.
+
+Escrevi para o CEO da iZ3D, a empresa que fazia o driver que forçava 3D estereoscópico em jogos que não tinham 3D, propondo que eles entrassem pelo Brasil em vez de brigar por Estados Unidos e Europa. 
+
+Argumentei que aqui a propaganda em TV aberta era barata.
+
 Ofereci ajudar a negociar.
 
 O Vadim Asadov me respondeu com a verdade do negócio: que a Ásia era o melhor lugar para fabricar monitor, e que a Samsung tinha gasto entre 10 e 20 milhões de dólares em marketing na Rússia, dinheiro que a iZ3D não tinha.
 
-E aí ele me **deu a licença**. "iZ3D All Outputs", 2 de fevereiro de 2011. Foi assim que eu joguei Max Payne em anaglifo, de óculos vermelho e azul, num monitor comum.
+E aí ele me **deu a licença**. "iZ3D All Outputs", 2 de fevereiro de 2011. Foi assim que eu **zerei Max Payne em 3D anaglifo, de óculos vermelho e azul, num monitor CRT comum**.
 
-Fechei aquele e-mail dizendo que sonhava em ver "mentes brasileiras e russas desenvolvendo algo que passasse por cima dos grandes, tipo renderização ou captura estéreo múltipla para chegar num holograma real". Eu tinha uns vinte e poucos anos e nenhuma noção de que aquilo era uma frase que eu ia passar a vida inteira tentando cumprir.
+Fechei aquele e-mail dizendo que sonhava em ver *"mentes brasileiras e russas desenvolvendo algo que passasse por cima dos grandes, tipo renderização ou captura estéreo múltipla para chegar num holograma real"*. Eu tinha uns vinte e poucos anos e nenhuma noção de que aquilo era uma frase que eu ia passar a vida inteira tentando cumprir.
 
 Quinze anos depois, um mês atrás, eu estava olhando duas TVs Sony de 2011 e 2012 na minha sala, com hardware excelente e software morto, e resolvi entender por quê.
 
@@ -52,19 +56,31 @@ Primeiro os números, porque o resto é história:
 
 ### 1. O "Rio de Janeiro" que ninguém no Brasil viu
 
-O app de Relógio Mundial nunca apareceu na minha TV.
-Fui atrás do porquê e abri o dicionário de tradução que a Sony publica no servidor dela. Trinta e uma línguas. Português completo: dias da semana abreviados, mensagens de erro, e a lista de cidades de fuso horário, com **"Rio de Janeiro"** lá dentro ([dic.txt vivo](https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt), [snapshot](https://web.archive.org/web/20260917204715/https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt)).
+O app de Relógio Mundial nunca apareceu na minha TV. Nem em nenhuma no Brasil.
+
+Fui atrás do porquê e abri o dicionário de tradução que a Sony publica no servidor dela. 
+
+**Trinta e uma línguas.**
+
+Português completo: dias da semana abreviados, mensagens de erro, e a lista de cidades de fuso horário, com **"Rio de Janeiro"** lá dentro ([dic.txt vivo](https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt), [snapshot](https://web.archive.org/web/20260917204715/https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt)).
 
 Alguém sentou, traduziu, colocou a nossa cidade na lista, e subiu para o servidor.
 **E o catálogo brasileiro nunca listou o app.**
 
-Não foi só esse. Dos cinco apps que o Brasil não recebeu, **quatro não têm texto nenhum dependente de idioma**: Calculadora, Alarme, Calendário, Relógio Analógico. Uma calculadora não tem palavra. Mesmo assim o manifest da Sony carrega o nome localizado em 30 idiomas, e `Calculadora` está lá ([info.xml vivo](https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml), [snapshot](https://web.archive.org/web/20260917204708/https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml)).
+**Não foi só esse.** 
+
+Dos cinco apps que o Brasil não recebeu, **quatro não têm texto nenhum dependente de idioma**: Calculadora, Alarme, Calendário, Relógio Analógico. 
+
+Uma calculadora não tem palavra. Mesmo assim o *manifest* da Sony carrega o nome localizado em 30 idiomas, e `Calculadora` está lá ([info.xml vivo](https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml), [snapshot](https://web.archive.org/web/20260917204708/https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml)).
 
 Não havia custo de tradução a economizar.
 O trabalho estava feito e pago.
 **O que separou uma TV brasileira de uma calculadora foi uma linha num XML.**
 
-Eu apontei a minha TV para um catálogo servido por mim, com os arquivos originais da Sony, baixados do servidor da Sony. **Os cinco apps instalaram e rodaram.** As assinaturas criptográficas validam, porque os arquivos são deles, byte a byte. Não tem nada quebrado, nada forjado, nada de DRM.
+Eu apontei a minha TV para um catálogo servido por mim, com os arquivos originais da Sony, baixados do servidor da Sony. **Os cinco apps instalaram e rodaram.** 
+
+As assinaturas criptográficas validam, porque os arquivos são deles, byte a byte. Não tem nada quebrado, nada forjado, nada de DRM.
+
 Catálogo diferente, só isso.
 
 ### 2. O schema que não existe mais em lugar nenhum do mundo
@@ -124,7 +140,9 @@ Um conjunto curto que parece completo é pior que um buraco óbvio. Ficou como r
 
 ### 4. O 3D que falha em silêncio, e a volta ao começo
 
-Essas TVs engatam 3D automático a partir de um sinal só: a SEI `frame_packing_arrangement` (H.264, payload 45) embutida no elementary stream. Elas **ignoram a tag StereoMode do Matroska**, a única que os rips padrão carregam. Todo vídeo 3D servido por DLNA roda flat, sem erro, num hardware que exibe 3D perfeito por outras entradas.
+Essas TVs ativam o 3D automático a partir de um sinal só, e só com ele: a SEI `frame_packing_arrangement` (H.264, payload 45) embutida no elementary stream. Elas **ignoram a tag StereoMode do Matroska**, a única que os rips padrão carregam. 
+
+Todo vídeo 3D servido por DLNA roda flat, sem erro, num hardware que exibe 3D perfeito por outras entradas.
 
 Na minha biblioteca: **43 de 44 títulos** tinham só a tag de container. **0 de 44** tinham a SEI.
 
@@ -136,7 +154,7 @@ Levei diagnóstico e patch para o pipeline inteiro, encode → remux → player:
 - **FFmpeg**: [bug #24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530): arquivo com a tag *e* a SEI faz a CLI abortar com `-17 EEXIST`, um bug de decode que o tracker deles não tinha. E [feature #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531)
 - **mpv** ([issue #18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490)), **x265** ([#970](https://github.com/Multicorewareinc/x265/issues/970)), **StaxRip** ([#1873](https://github.com/staxrip/staxrip/issues/1873)), e o fórum do **BD3D2MK3D** ([thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756)), onde o próprio autor confirmou o diagnóstico e contou que a Samsung dele faz igual
 
-Não tem DRM em nenhum ponto disso. Era um metadado ausente num arquivo meu, servido por mim, para a TV minha.
+**Não tem DRM em nenhum ponto disso.** Era um metadado ausente num arquivo meu, servido por mim, para a TV minha.
 
 E aqui a história fecha um círculo que eu não tinha planejado: em 2011 eu ganhei de presente um driver que **forçava** 3D em jogos que não tinham. Em 2026 eu escrevi o patch que faz o encoder **gravar** o 3D que os arquivos não tinham. É a mesma tarefa, quinze anos depois, do outro lado do problema.
 
@@ -154,15 +172,21 @@ A conta: o kernel comprime para ~96 MB, os pacotes são compartilhados entre gru
 
 O prazo de três anos é legítimo e é da Sony. O que eu acho discutível é a **proporcionalidade**: uma regra desenhada quando distribuir fonte significava prensar e postar mídia física hoje aposenta documentação cujo custo caiu quatro ordens de grandeza, de um aparelho que ainda está ligado na sala das pessoas. E o serviço continua rodando, para 798 outros modelos. A capacidade está lá. Só essa geração saiu.
 
-### 6. Sim, eu usei IA. Julgue o artefato.
+### 6. Sim, eu usei IA. Julgue o conteúdo.
 
-Preciso falar disso aqui, porque o TabNews está cansado de texto com cheiro de IA, e com razão.
+Preciso falar disso aqui, porque o TabNews está cansado de texto com cheiro de IA, **e com razão**.
 
-Eu trabalho com parceiros de IA. Este projeto inteiro foi feito assim: eu no hardware, dirigindo, verificando na TV; eles lendo código, cruzando spec, montando reprodução. Num dos pull requests upstream a discussão saiu do código e foi para a autoria do texto. Chamaram de slop antes de olhar o patch.
+**Eu trabalho com parceiros de IA.**
 
-O que aprendi ali virou a regra do projeto, e é uma frase que a gente já tem em português há séculos: **não julgue um livro pela capa**. Ou, na versão mais antiga ainda, **o hábito não faz o monge**.
+Este projeto inteiro foi feito assim: eu no hardware, dirigindo, verificando na TV; eles lendo código, cruzando spec, montando reprodução. Num dos pull requests upstream a discussão saiu do código e foi para a autoria do texto. Chamaram de slop antes de olhar o patch.
 
-Slop é propriedade do **trabalho**, não do autor. Afirmação não verificável, enchimento, baixa densidade de informação.
+O que aprendi ali virou a regra do projeto, e é uma frase que a gente já tem em português há séculos: **não julgue um livro pela capa**. 
+Ou, na versão mais antiga ainda, **o hábito não faz o monge**.
+
+*Slop* é propriedade do **trabalho**, não do autor ou da ferramenta utilizada. 
+
+**Afirmação não verificável, enchimento, baixa densidade de informação.**
+
 Humano faz isso desde sempre, a IA só aprendeu com a gente e repete mais rápido. **Slop de IA é slop humano repetido.** Naquele mesmo thread, a contribuição mais checável era a assistida por IA, e a menos checável era um meme de 529×95 pixels dizendo "texto demais, não me importo".
 
 Mas a lâmina corta para o meu lado também, e essa parte é a que importa: **IA não lava nada**. Se eu assino, tem que aguentar o mesmo teste: medido em máquina real, cada afirmação específica o suficiente para estar errada. É por isso que este post inteiro é linkado a documento da própria Sony, com snapshot no Internet Archive, ou a merge de projeto independente. Não estou pedindo confiança. Estou entregando um livro que dá para abrir.
