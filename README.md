@@ -37,6 +37,78 @@ Rossmann / repair.wiki / FULU Foundation sharing plan).
 | KDL-46HX855 | 2012 | AZ3F (main SoC codename "ATREYU") | 192.168.0.21 |
 | KDL-46EX725 | 2011 | AZ2-F ("BATV" board) | 192.168.0.22 |
 
+## Hardware this applies to
+
+### Televisions
+
+**Verified by us** — every claim in this repository was tested on these
+two sets:
+
+| Model | Year | Chassis |
+|---|---|---|
+| KDL-46HX855 | 2012 | AZ3F (SoC codename "ATREYU") |
+| KDL-46EX725 | 2011 | AZ2-F ("BATV" board) |
+
+**Same board family**, attested by board census in
+[platform-map.md](docs/platform-map.md) but not tested here:
+KDL-46EX724, KDL-40HX853, KDL-55HX753.
+
+**Generation coverage — this is the real scope.** Sony distributed
+these widgets **per chassis generation, not per model**. Their own CDN
+layout says so: the catalogs live at
+`/WidgetContents/SNY_WidgetGallery/{AZ1,AZ2,AZ3}/…`, one set of bundles
+per generation, and nothing in `info.xml` or the bundle manifests
+restricts a widget to a particular model. Every AZ2 set received the
+same files as our EX725; every AZ3 set received the same files as our
+HX855.
+
+So the compatibility unit here is the **generation**:
+
+| Generation | Year | Covers |
+|---|---|---|
+| `AZ1` | 2010 | the earlier line — its `/WidgetCatalogs/AZ1_*` tree still answers, in 24 languages |
+| `AZ2` | 2011 | EX/CX/NX/HX 2011 sets — our EX725's generation |
+| `AZ3` | 2012 | HX/EX 2012 sets — our HX855's generation |
+
+We happen to own two sets; the work applies to three generations of
+them. What we can state as *tested* is two models — what we can state
+as *distributed identically by Sony* is every set in those generations.
+Reports from other models are welcome and will sharpen this table.
+
+### Sony audio systems (HDMI-CEC)
+
+The `SNY_AudioControlApp` widget ("Home Theatre Control") is a full
+remote for a Sony audio system over HDMI-CEC — sound field, speaker
+configuration, speaker levels, tone, audio mode — not merely volume. It
+identifies the attached system by CEC vendor ID against a table Sony
+shipped inside the bundle: **102 entries, 81 distinct products**.
+
+That table is reproduced here because it is the compatibility list for
+this widget, and because it documents which hardware a recovered Sony
+control protocol can drive:
+
+| Family | Models |
+|---|---|
+| **RHT-G** (sound bases) | RHT-G5, RHT-G10, RHT-G10EX, RHT-G11, RHT-G15 |
+| **HT-CT** (soundbars) | HT-CT150, HT-CT350, HT-CT370, HT-CT380, HT-CT381, HT-CT550W, HT-CT660, HT-CT770, HT-CT780, HT-CT790, HT-CT800 |
+| **HT-ST** | HT-ST3, HT-ST5, HT-ST7, HT-ST9, HT-ST5000 |
+| **HT-XT / HT-XF / HT-X** | HT-XT1, HT-XT2, HT-XT3, HT-XF9000, HT-X9000F |
+| **HT-NT / HT-MT / HT-RT / HT-Z / HT-ZF** | HT-NT3, HT-NT5, HT-MT500, HT-RT5, HT-Z9F, HT-ZF9 |
+| **HT-S / HT-SF / HT-SS / HT-FS / HT-AS** | HT-S200F, HT-SF200/201, HT-SS370/SF470, HT-SS380, HT-FS30, HT-AS5/AF5 |
+| **STR-DH** (receivers) | STR-DH520, STR-DH530, STR-DH540, STR-DH550, STR-DH590, STR-DH710, STR-DH720, STR-DH730, STR-DH740, STR-DH750, STR-DH770, STR-DH790, STR-DH820, STR-DH830 |
+| **STR-DN** | STR-DN840, STR-DN850, STR-DN860, STR-DN1020, STR-DN1030, STR-DN1040, STR-DN1050, STR-DN1060, STR-DN1070, STR-DN1080, STR-DN2030 |
+| **STR-DA (ES)** | STR-DA1800ES, STR-DA2800ES, STR-DA3700ES, STR-DA5700ES, STR-DA5800ES |
+| **STR-ZA (ES)** | STR-ZA810ES, STR-ZA1000ES, STR-ZA1100ES, STR-ZA2000ES, STR-ZA2100ES, STR-ZA3000ES, STR-ZA3100ES, STR-ZA5000ES |
+| **TA-DA (ES)** | TA-DA3600ES, TA-DA5600ES, TA-DA5700ES, TA-DA5800ES |
+| **Headphones** | MDR-HW700DS |
+
+**We have verified none of these** — there is no Sony audio system on
+the test LAN, and the widget correctly reports "unavailable" when no
+CEC audio device answers. The list is Sony's, recovered from their own
+`model/model.json`; the 26 Sony vendor CEC opcodes the widget speaks
+(`0xF000`–`0xF21F`) are documented in
+[hdmi-cec-audio-system.md](docs/hdmi-cec-audio-system.md).
+
 ## Repository layout
 
 - `docs/` — **[project status & partner guide](docs/project-status.md)**
