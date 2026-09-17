@@ -235,12 +235,12 @@ contract: each check names a live-proven behavior.
 | Ripper/encoder upstream campaign | **ALL 8 TARGETS ENGAGED — pipeline end-to-end** — HandBrake merged PR #8100 (`b0145ad`, x264 frame-packing SEI, 2026-09-16, closes their #5826); ffmpeg [#24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) (bug) + [#24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) (bsf feature) filed; StaxRip #1873, x265 #970 posted; **mpv player side** — [#18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) **in review** (hostile start → 8 technical review threads answered same day in the owner's own words, no apology; duplication claim refuted on facts; 3 follow-ups offered — see campaign README; archive `/K3D/GitHub/EchoSystems_Stereo3D/`); BD3D2MK3D videohelp thread [fully closed out](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803796) (post #2803756 + r0lZ's reply + owner's closing reply #2803796, all 2026-09-16); mkvmerge ask skipped by owner decision (Codeberg signup paywall — draft retained); **LTT forum post live** (first audience-facing target) — [comment 16936161](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161), 2026-09-16 — the 3D-theater video thread; delivers the guide the video promised and the forum asked for | `tools/serviio/upstream-3d-issues/` |
 | rd1 portal / homepage lane | DONE — Unbound DNS override on the LAN points `rd1.sony.net` at d2server; era-TLS vhost serves the TV's homepage with a media link | liverecon notes |
 | BIV / Bravia video lanes | DEAD (server-side) — registration unlocks nothing; documented so nobody retries | liverecon/biv-video-lane.md |
-| Applicast widget lane | ACTIVE — **Sony's CDN is still live (2026-09-17)**: preservation sweep recovered 5 never-archived bundles + a second namespace (`/WsIndexes`, `/WsCatalogs`, `/WidgetCatalogs` incl. AZ1) across 3 hosts, 137/168 URLs answering. Key finding in `withheld-by-catalog.md`; programming model documented publicly | `research/appliwidget-programming.md`, `withheld-by-catalog.md` |
+| Applicast widget lane | ACTIVE — **Sony's CDN is still live (2026-09-17)**: preservation sweep recovered 5 never-archived bundles + a second namespace (`/WsIndexes`, `/WsCatalogs`, `/WidgetCatalogs` incl. AZ1) across 3 hosts, 137/168 URLs answering. Key finding in `withheld-by-catalog.md`; programming model documented publicly. **Fronts archived (2026-09-17):** the load-bearing Sony fronts (AZ3 EU/BR catalogs, AZ1 catalog, bundle manifests, OSS service) now have Internet Archive snapshots beside the live URLs — table in the repo README; archive links must use `https://` (the `http://` form returns 503) | `research/appliwidget-programming.md`, `withheld-by-catalog.md`, README "Live fronts and archive snapshots" |
 | Firmware decrypt | STALLED — whole-file AES, no public decryptor; 6-image corpus offline for differential work | platform-map, roadmap |
 | Presto engine CVEs | NOTED — 2011-2628 and era-adjacent, no exploit built; not the current focus | `research/presto-cve-2011-2628.md` |
 | Kernel survey | DONE — 2.6.35 era privesc surface mapped | `research/kernel2635-survey.md` |
 | Senior-partner reviews | DONE — 3 external reviews (Opus/DeepSeek/Kimi) folded into the roadmap | `partner-review.md` |
-| Right-to-repair sharing | PLANNED — Rossmann/repair.wiki/FULU outreach drafts | `right-to-repair.md`, `rossmann-outreach.md`, `wiki/` |
+| Right-to-repair sharing | IN FLIGHT — consumerrights.wiki (FULU) product-line update drafted 2026-09-17, answering their {{Incomplete}} sourcing notice: every load-bearing claim now cited to Sony's own live documents + IA snapshots (draft in `wiki/consumerrights-wiki-entry-2026-09-update.txt`; noticeboard appeal alongside); Rossmann/repair.wiki outreach drafts still queued | `right-to-repair.md`, `rossmann-outreach.md`, `wiki/` |
 
 ## Rules of engagement (hard constraints)
 
@@ -348,5 +348,5 @@ confirming LPCM delivery)
 | `tools/systemd/README.md` | Deploy + service-migration procedure |
 | `wiki/` | repair.wiki page drafts (public versions) |
 
-*Status doc written 2026-09-15. Keep it current: when a lane
-changes state, update this file in the same commit.*
+*Status doc written 2026-09-15, updated 2026-09-17. Keep it current:
+when a lane changes state, update this file in the same commit.*
