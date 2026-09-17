@@ -77,13 +77,27 @@ Sony's still-live servers:
 It is worth being precise about what that does and does not claim here,
 because this project has now measured both sides of it.
 
-**Where Sony did not abandon anything:** their documentation. Manuals for
-2009 audio hardware are still published; the KDL-46EX725 operating
-instructions carry a **2019 revision date**, eight years after the set
-shipped. The AppliCast CDN is still serving widget bundles and catalogs
-in 2026 — one AZ1 catalog is dated **2010-04-21** and still answers.
-Credit where it is due: on paperwork and hosting, Sony has outlasted most
-of the industry. See [manuals-index.md](manuals-index.md).
+**What is still hosted:** the documentation. Manuals for 2009 audio
+hardware remain published; the KDL-46EX725 operating instructions carry a
+**2019 revision date**, eight years after the set shipped. The AppliCast
+CDN still serves widget bundles and catalogs in 2026 — one AZ1 catalog is
+dated **2010-04-21** and still answers. See
+[manuals-index.md](manuals-index.md).
+
+**A late revision date is not evidence of stewardship, and an earlier
+draft of this page wrongly implied it was.** The owner, who lived through
+it on these sets, points out the obvious reading: *the later revisions
+are the ones that ended support and took features out.* A 2019 manual
+revision on a 2011 television is at least as likely to document a
+**removal** — services withdrawn, menus gone, functionality retired — as
+it is to represent continued care. Updating the paperwork to match a
+smaller product is not the same as maintaining the product.
+
+We cannot currently tell which it is: establishing that would mean
+diffing manual revisions and firmware builds across their release
+history, and the archive holds only the 2011 and 2012 firmware. Until
+someone does that diff, "still published" is the honest claim, and
+"still supported" is not one anyone should make on Sony's behalf.
 
 **Where the abandonment is real:** the services those files point at. The
 smart portal is gone, the Opera Store lane is unreachable, the map APIs

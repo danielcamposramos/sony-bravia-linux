@@ -330,6 +330,7 @@ confirming LPCM delivery)
 |---|---|
 | `platform-map.md` | The hardware/software platform in depth |
 | `feasibility-roadmap.md` | Staged plan: content → widgets → root → kernel |
+| `licence-basis.md` | **Evidence file, not legal advice**: the sets run GPL Linux and Sony shipped the source with its licence; Sony's Source Code Distribution Service is live in 2026 and lists 798 `KDL-` models — **zero** from the 2010–2012 EX/HX/NX/CX generation. Separates what the GPL grants an owner (does not lapse) from the distribution offer (three-year term), and marks the line the widget bundles sit on |
 | `right-to-repair.md` | Context + Rossmann/repair.wiki/FULU sharing plan |
 | `hdmi-cec-audio-system.md` | **Parked lane, documented**: 26 Sony vendor CEC opcodes + the 102-model audio compatibility table recovered from the AudioControl bundle; why the widget reports unavailable; the untried `device_type=4,5` direction and the zero-risk experiment that would justify it |
 | `worldclock-schema-reconstruction.md` | **First reverse-engineered solution**: World Clock's `preference.xml` no longer exists on any Sony server; reconstructed from the widget's own code (Item1=GMT offset, Item2=DST, Item3=AM/PM) and deployed. Includes the reusable method for any dead settings screen |

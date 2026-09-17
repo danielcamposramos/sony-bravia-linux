@@ -119,13 +119,13 @@ and their generation assignment is inferred, not confirmed from a manual.
 ## Audio-system support pages
 
 The same treatment as the televisions, for the 81 products the Home
-Theatre Control widget can drive ([full list in the README](../README.md#sony-audio-systems-hdmi-cec)). Sony, to their credit, kept
-this documentation online: manuals for hardware from 2009 are still
-published, and the KDL-46EX725 instructions carry a **2019** revision
-date. The criticism in [withheld-by-catalog.md](withheld-by-catalog.md)
-is narrow and deserves to stay narrow — it is about a catalog that gated
-finished, already-localized features by country, not about Sony
-documentation practice, which has held up better than most.
+Theatre Control widget can drive ([full list in the README](../README.md#sony-audio-systems-hdmi-cec)). Sony still hosts this
+documentation: manuals for hardware from 2009 remain published, and the
+KDL-46EX725 instructions carry a **2019** revision date. Read that as
+*still hosted*, not as *still supported* — late revisions on a
+long-discontinued set are often the ones that document what was
+**removed**. See the note in
+[right-to-repair.md](right-to-repair.md#abandonment-is-the-argument-2026-09-17).
 
 Support-page pattern, same shape as the TVs:
 
