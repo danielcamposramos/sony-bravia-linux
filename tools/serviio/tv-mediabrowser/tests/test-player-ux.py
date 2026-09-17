@@ -124,8 +124,13 @@ def single_browse(obj_id, flag='BrowseDirectChildren', start=0, count=18):
 
 server.upnp_browse = single_browse
 page = server.render_music(track_obj(0), track_obj(0)['res'][0])
-check('single track: no prev/next buttons',
-      'data-act="prv"' not in page and 'data-act="nxt"' not in page)
+# The transport bar keeps a stable shape: prev/next always render, but
+# with no sibling track they are dimmed and the cursor skips them (the
+# old behavior dropped the buttons, which shifted the rest of the bar
+# under the user's thumb depending on where a track was opened from).
+check('single track: prev/next rendered but dimmed',
+      'data-act="prv"' in page and 'data-act="nxt"' in page
+      and page.count('class="dim"') == 2)
 check('single track: prevUrl/nextUrl are empty strings',
       'prevUrl=""' in page and 'nextUrl=""' in page)
 check('single track: repeat still present', 'data-act="rep"' in page)
@@ -145,7 +150,37 @@ check('no-res item: label from title ext', 'audio/x-musepack' in page)
 # --- 8. video PLAYER_JS still resolves (no leftover %PREV% etc.)
 js = server.player_js('video/mp4', '/stream/x', tpl=server.PLAYER_JS)
 check('PLAYER_JS unaffected by new placeholders',
-      '%PREV%' not in js and '%NEXT%' not in js and '%music_rep_on%' not in js)
+      '%PREV%' not in js and '%NEXT%' not in js and '%music_rep_on%' not in js
+      and '%DUR%' not in js)
+
+print()
+
+# --- 9. transport bar: two cursor groups, glyphs, progress, duration
+page = server.render_music(track_obj(1), track_obj(1)['res'][0])
+check('bar: transport buttons are cursor group 0',
+      page.count('data-grp="0"') == 6)
+check('bar: Back row is cursor group 1', page.count('data-grp="1"') == 1)
+check('bar: every button carries a label for #blbl',
+      page.count('data-lbl="') == 7)
+check('bar: play glyph has an id so JS can track real state',
+      'id="ppg"' in page and '▶' in page)
+check('progress: bar + clock elements present',
+      'id="pb"' in page and 'id="pbf"' in page and 'id="time"' in page)
+check('progress: DUR always injected (0 when DIDL has no duration)',
+      'var DUR=0;' in page)
+# a DIDL duration must reach the page as seconds — this is what gives a
+# live-transcoded FLAC a progress bar, since the /atr/ pipe leaves the
+# element's own duration NaN
+o_dur = dict(track_obj(1))
+o_dur['res'] = [dict(track_obj(1)['res'][0], duration='0:03:05.000')]
+check('progress: DIDL duration converted to seconds and injected',
+      'var DUR=185;' in server.render_music(o_dur, o_dur['res'][0]))
+check('cursor opens on Play/Pause, not on row 0',
+      "getAttribute('data-act')=='pp'" in page)
+check('no stale %DUR% placeholder in the music page', '%DUR%' not in page)
+check('page stays within the era byte budget (<12 KB)',
+      len(page.encode('utf-8')) < 12288,
+      '%d bytes' % len(page.encode('utf-8')))
 
 print()
 print("RESULT:", "ALL PASS" if not fails else ("%d FAIL: %s" % (len(fails), fails)))

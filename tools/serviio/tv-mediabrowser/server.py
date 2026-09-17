@@ -43,6 +43,7 @@ import os
 import queue
 import re
 import signal
+import socket
 import subprocess
 import sys
 import threading
@@ -231,6 +232,22 @@ img{max-width:100%;}
 /* music page: album art centered over the on-screen button row; the
    audio element stays 1px in-flow (display:none risks era decode skips) */
 #music img{display:block;margin:8px auto;width:512px;max-width:95%;border:4px solid #333;}
+/* transport bar: inline-block is CSS 2.1 and safe on Presto (no flex,
+   no grid). #bar holds the transport buttons (cursor group 0, moved
+   with left/right); the plain <ul> under it is group 1 (up/down).
+   Buttons with no target (no previous/next track in this folder) are
+   dimmed and skipped by the cursor instead of silently doing nothing. */
+#bar{margin:10px 10px 0 10px;}
+#bar li{display:inline-block;margin:0 10px 10px 0;padding:6px 20px;text-align:center;}
+#bar li.dim{color:#666;border-left-color:#444;}
+#bar li.dim a{color:#666;}
+/* progress: two nested divs, inner width set as a percent on timeupdate */
+#pb{margin:10px;height:16px;background:#222;border-left:8px solid #3cf;}
+#pbf{height:16px;width:0;background:#3cf;}
+#time{margin:0 10px;font-size:44px;color:#ccc;}
+/* name of the currently selected transport button (the bar itself shows
+   glyphs only — six labelled buttons would not fit the era viewport) */
+#blbl{margin:0 10px 10px 10px;font-size:44px;color:#3cf;}
 """
 
 NAV_JS = """
@@ -309,16 +326,55 @@ document.onkeydown=function(e){
 MUSIC_JS = """
 var v=document.getElementById('player_object');
 var st=document.getElementById('status');
+var pbf=document.getElementById('pbf');
+var tm=document.getElementById('time');
+var ppg=document.getElementById('ppg');
+var repg=document.getElementById('repg');
+var blbl=document.getElementById('blbl');
 var items=document.getElementsByTagName('li');
 var sel=0;
 var rep=false;
 var prevUrl=%PREV%;
 var nextUrl=%NEXT%;
+// Known track length from the library probe. The live /atr/ pipe has no
+// Content-Length, so the element's own duration is NaN/Infinity there —
+// only the server can supply the real length, and without it a
+// transcoded FLAC would get no progress bar at all.
+var DUR=%DUR%;
 // remote multimedia-key codes, from config.ini [keys] (see /keys probe)
 var KM=%KEYMAP%;
 function km(a,k){var c=KM[a]||[];for(var i=0;i<c.length;i++){if(c[i]==k){return true;}}return false;}
-function show(){for(var i=0;i<items.length;i++){items[i].className=(i==sel)?'sel':'';}if(items.length){try{items[sel].scrollIntoView(false);}catch(x){}}}
-function move(d){if(!items.length){return;}sel=(sel+d+items.length)%items.length;show();}
+// Two cursor groups: the transport bar (data-grp 0, left/right) and the
+// rows beneath it (data-grp 1, reached with up/down). 'dim' buttons have
+// no target in this folder and are skipped entirely.
+var dim=[];
+for(var _i=0;_i<items.length;_i++){dim[_i]=items[_i].className.indexOf('dim')>=0;}
+function grp(i){var g=items[i].getAttribute('data-grp');return (g==null)?'1':''+g;}
+function show(){
+ for(var i=0;i<items.length;i++){items[i].className=(dim[i]?'dim':'')+((i==sel)?' sel':'');}
+ if(items[sel]){
+  try{items[sel].scrollIntoView(false);}catch(x){}
+  if(blbl){var l=items[sel].getAttribute('data-lbl');blbl.innerHTML=l?l:'';}
+ }
+}
+// move within the current group; jump crosses to the other group
+function move(d){var g=grp(sel),n=items.length,i=sel;for(var c=0;c<n;c++){i=(i+d+n)%n;if(grp(i)==g&&!dim[i]){sel=i;break;}}show();}
+function jump(d){var g=grp(sel),n=items.length,i=sel;for(var c=0;c<n;c++){i=(i+d+n)%n;if(grp(i)!=g&&!dim[i]){sel=i;break;}}show();}
+// left at the leftmost button still means "back": the sets' RETURN key
+// has never been keyCode-harvested, so left/8 must keep an exit path
+function atEdge(){var g=grp(sel);for(var i=0;i<items.length;i++){if(grp(i)==g&&!dim[i]){return i==sel;}}return false;}
+function two(n){n=Math.floor(n);return (n<10?'0':'')+n;}
+function fmt(s){if(!(s>0)){return '0:00';}return Math.floor(s/60)+':'+two(s%60);}
+function dur(){var d=v.duration;return (d&&isFinite(d)&&d>0)?d:DUR;}
+function tick(){
+ var c=v.currentTime||0,d=dur();
+ if(tm){tm.innerHTML=fmt(c)+((d>0)?(' / '+fmt(d)):'');}
+ if(pbf&&d>0){var p=Math.floor(c*100/d);pbf.style.width=((p>100)?100:p)+'%';}
+}
+// the play/pause glyph follows the element's real state, so the button
+// never lies about what pressing it will do
+function pstate(){if(ppg){ppg.innerHTML=v.paused?'\\u25b6':'\\u25ae\\u25ae';}}
+function rstate(){if(repg){repg.innerHTML=rep?'\\u00b7':'';}}
 function act(a){
  if(a=='pp'){if(v.paused){v.play();}else{v.pause();}}
  else if(a=='bk'){try{v.currentTime-=30;}catch(x){}}
@@ -330,7 +386,7 @@ function act(a){
  else if(a=='prv'){if(prevUrl){window.location=prevUrl;}}
  else if(a=='nxt'){if(nextUrl){window.location=nextUrl;}}
  // repeat-this-track toggle: rewinds and replays on 'ended'
- else if(a=='rep'){rep=!rep;st.innerHTML=rep?%music_rep_on%:%music_rep_off%;}
+ else if(a=='rep'){rep=!rep;rstate();st.innerHTML=rep?%music_rep_on%:%music_rep_off%;}
  else if(a=='back'){history.go?history.go(-1):history.back();}
 }
 function openSel(){if(!items.length||!items[sel]){return;}var a=items[sel].getElementsByTagName('a');if(a.length){act(a[0].getAttribute('data-act'));}}
@@ -339,7 +395,11 @@ s.type=%MIME%;
 s.src=%URL%;
 s.addEventListener('error',function(){st.innerHTML=%hud_err_src%;});
 v.appendChild(s);
-v.addEventListener('timeupdate',function(e){st.innerHTML=Math.round(e.target.currentTime)+'/'+Math.round(e.target.duration)+'s';});
+// #status carries messages; the clock and the bar are their own elements
+v.addEventListener('timeupdate',function(e){tick();});
+v.addEventListener('durationchange',function(e){tick();});
+v.addEventListener('play',function(){pstate();});
+v.addEventListener('pause',function(){pstate();});
 v.addEventListener('error',function(e){st.innerHTML=%hud_err_code%+(e.target.error?e.target.error.code:'?');});
 // repeat: reload-and-play (works for native /stream/ MP3s AND the live
 // /atr/ pipe — a fresh fetch spawns a fresh ffmpeg decode from zero;
@@ -347,11 +407,17 @@ v.addEventListener('error',function(e){st.innerHTML=%hud_err_code%+(e.target.err
 v.addEventListener('ended',function(){if(rep){try{v.load();}catch(x){try{v.currentTime=0;}catch(x2){}}v.play();st.innerHTML=%music_rep_on%;}else{st.innerHTML=%hud_ended%;}});
 v.load();v.play();
 st.innerHTML=%hud_load%;
-show();
+// open on Play/Pause, not on whatever happens to be row 0 (which used to
+// be "previous track" whenever the folder resolved)
+for(var _j=0;_j<items.length;_j++){var _a=items[_j].getElementsByTagName('a');
+ if(_a.length&&_a[0].getAttribute('data-act')=='pp'&&!dim[_j]){sel=_j;break;}}
+show();pstate();rstate();tick();
 document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
   // multimedia keys first: they are the remote's dedicated transport
-  // buttons (play, pause, stop, previous, next, rewind, fast-forward)
+  // buttons (play, pause, stop, previous, next, rewind, fast-forward).
+  // NOTE these codes are still unvalidated guesses on these sets — the
+  // on-screen bar below is the transport we can actually prove works.
   if(km('playpause',k)){act('pp');}
   else if(km('play',k)){if(v.paused){v.play();}}
   else if(km('pause',k)){if(!v.paused){v.pause();}}
@@ -360,11 +426,15 @@ document.onkeydown=function(e){
   else if(km('next',k)){act('nxt');}
   else if(km('rew',k)){act('bk');}
   else if(km('ff',k)){act('fw');}
-  else if(k==38){move(-1);}
-  else if(k==40){move(1);}
+  // left/right walk the transport bar; up/down cross to the row below.
+  // Left on the leftmost button still exits, so "back" survives even if
+  // this set's RETURN key turns out not to be 37 or 8.
+  else if(k==37){if(atEdge()){history.go?history.go(-1):history.back();}else{move(-1);}}
+  else if(k==39){move(1);}
+  else if(k==38){jump(-1);}
+  else if(k==40){jump(1);}
   else if(k==13){openSel();}
-  else if(k==39){act('fw');}
-  else if(k==37||k==8){history.go?history.go(-1):history.back();}
+  else if(k==8){history.go?history.go(-1):history.back();}
   else{return true;}
   return false;
 };
@@ -444,8 +514,8 @@ STRINGS = {
         'btn_rep': 'Repeat this track',
         'music_rep_on': 'repeat on',
         'music_rep_off': 'repeat off',
-        'music_foot': 'OK = select button, right = +30s, left = back',
-        'music_start': 'playing... OK = pause, right = +30s',
+        'music_foot': 'left/right = choose, OK = act, down = Back',
+        'music_start': 'playing',
         'music_live': 'live MP3 conversion',
         'music_unknown': 'unknown format',
     },
@@ -500,8 +570,8 @@ STRINGS = {
         'btn_rep': 'Repetir esta faixa',
         'music_rep_on': 'repetir ligado',
         'music_rep_off': 'repetir desligado',
-        'music_foot': 'OK = escolher botão, direita = +30s, esquerda = voltar',
-        'music_start': 'tocando... OK = pausa, direita = +30s',
+        'music_foot': 'esquerda/direita = escolher, OK = acionar, baixo = Voltar',
+        'music_start': 'tocando',
         'music_live': 'conversão MP3 ao vivo',
         'music_unknown': 'formato desconhecido',
     },
@@ -556,8 +626,8 @@ STRINGS = {
         'btn_rep': 'Repetir esta pista',
         'music_rep_on': 'repetir activado',
         'music_rep_off': 'repetir desactivado',
-        'music_foot': 'OK = elegir botón, derecha = +30s, izquierda = volver',
-        'music_start': 'reproduciendo... OK = pausa, derecha = +30s',
+        'music_foot': 'izquierda/derecha = elegir, OK = accionar, abajo = Volver',
+        'music_start': 'reproduciendo',
         'music_live': 'conversión MP3 en vivo',
         'music_unknown': 'formato desconocido',
     },
@@ -600,11 +670,14 @@ HUD_KEYS = ('hud_err_src', 'hud_loadstart', 'hud_canplay', 'hud_err_code',
 MUSIC_KEYS = ('music_rep_on', 'music_rep_off')
 
 
-def player_js(mime, url, tpl=PLAYER_JS, prev=None, nxt=None):
+def player_js(mime, url, tpl=PLAYER_JS, prev=None, nxt=None, dur=None):
     js = (tpl.replace('%MIME%', repr(mime)).replace('%URL%', repr(url)))
     js = js.replace('%KEYMAP%', json.dumps(KEYMAP))
     js = js.replace('%PREV%', json.dumps(prev or ''))
     js = js.replace('%NEXT%', json.dumps(nxt or ''))
+    # known length from the DIDL metadata — the live /atr/ pipe gives the
+    # element no duration at all, so the progress bar needs this fallback
+    js = js.replace('%DUR%', json.dumps(dur or 0))
     for k in HUD_KEYS + MUSIC_KEYS:
         js = js.replace('%%%s%%' % k, json.dumps(T(k)))
     return js
@@ -623,6 +696,37 @@ def _page(title, body, extra_js=NAV_JS, extra_head=''):
             % (esc(title), extra_head, CSS, body, extra_js))
 
 
+BRAND = 'Serviio BRAVIA 3D edition'
+_HOST_LABEL = [None]
+
+
+def serviio_label():
+    """How the Serviio host is named on screen: its resolved hostname
+    when the LAN answers a PTR lookup, the configured address otherwise.
+    Resolved once and cached — a reverse lookup on every page render
+    would put a DNS round-trip in front of the TV's browsing."""
+    if _HOST_LABEL[0] is None:
+        label = SERVIIO
+        try:
+            name = socket.gethostbyaddr(SERVIIO)[0]
+            if name:
+                label = name.split('.')[0]
+        except Exception:
+            pass  # no PTR record, no resolver, wrong network — show the IP
+        _HOST_LABEL[0] = label
+    return _HOST_LABEL[0]
+
+
+def _hdr(sub=''):
+    """Brand header, one definition instead of five copies."""
+    return ('<h2 id="hdr">%s</h2>%s'
+            % (BRAND, ('<h2>%s</h2>' % sub) if sub else ''))
+
+
+def _foot(text):
+    return '<p id="foot">%s</p>' % text
+
+
 def render_root():
     objects, total = upnp_browse('0')
     rows = ''.join(
@@ -630,10 +734,9 @@ def render_root():
         % (urllib.parse.quote(o['id'], safe=''), esc(o['title']),
            o.get('child_count', '?'))
         for o in objects)
-    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
-            '<h2>Serviio @ %s</h2><ul>%s</ul>'
-            '<p id="foot">%s</p>'
-            % (esc(SERVIIO), rows, T('nav_foot')))
+    body = (_hdr('Serviio @ %s' % esc(serviio_label()))
+            + '<ul>%s</ul>' % rows
+            + _foot(T('nav_foot')))
     return _page('BRAVIA MediaBrowser', body)
 
 
@@ -696,12 +799,11 @@ def render_list(obj_id, objects, total, start, title=''):
                 % (urllib.parse.quote(obj_id, safe=''),
                    start + PAGE_SIZE, T('next')))
     t_title = esc(title or T('browse'))
-    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
-            '<h2>%s <span style="color:#888">%d-%d %s %d</span></h2>'
-            '<ul>%s%s</ul>'
-            '<p id="foot">%s</p>'
-            % (t_title, start + 1, start + len(objects), T('of'), total,
-               ''.join(rows), nav, T('nav_foot')))
+    body = (_hdr('%s <span style="color:#888">%d-%d %s %d</span>'
+                 % (t_title, start + 1, start + len(objects), T('of'),
+                    total))
+            + '<ul>%s%s</ul>' % (''.join(rows), nav)
+            + _foot(T('nav_foot')))
     return _page(title or T('browse'), body)
 
 
@@ -895,36 +997,55 @@ def render_music(o, res):
     label = fmt + ((', ' + T('music_live')) if live else '')
     art = ('<img src="/art/%s" alt="">' % qid) if music_art_available(o) \
         else ''
-    # embedded player controls: prev/next in folder (only when the
-    # folder resolves), play/pause between them, seek, repeat toggle
+    # Transport bar (cursor group 0, walked with left/right) over a Back
+    # row (group 1, reached with up/down). The bar shows glyphs only —
+    # six labelled buttons do not fit the era viewport — and the name of
+    # the selected button is printed under it in #blbl.
+    #
+    # Prev/next always render: when the folder can't be resolved they are
+    # dimmed and skipped by the cursor, which keeps the bar's shape stable
+    # instead of silently shifting the buttons under the user's thumb.
+    #
+    # Glyphs are Unicode 1.1 geometric shapes (U+25B6/25C0/25AE) plus
+    # U+21BA — codepoints old enough for era fonts to carry. The newer
+    # transport symbols (U+23EE/U+23ED) would risk tofu boxes.
     prev_id, next_id = music_neighbors(o)
-    btns = []
-    if prev_id:
-        btns.append(('prv', 'btn_prev'))
-    btns.append(('pp', 'btn_pp'))
-    if next_id:
-        btns.append(('nxt', 'btn_next'))
-    btns += [('bk', 'btn_b30'), ('fw', 'btn_f30'),
-             ('rep', 'btn_rep'), ('back', 'btn_back')]
-    rows = ''.join('<li><a href="#" data-act="%s">%s</a></li>'
-                   % (act, esc(T(key))) for act, key in btns)
+    bar_btns = [('prv', 'btn_prev', '|◀', bool(prev_id)),
+                ('pp', 'btn_pp', '<span id="ppg">▶</span>', True),
+                ('nxt', 'btn_next', '▶|', bool(next_id)),
+                ('bk', 'btn_b30', '◀◀', True),
+                ('fw', 'btn_f30', '▶▶', True),
+                ('rep', 'btn_rep', '↺<span id="repg"></span>', True)]
+    bar = ''.join(
+        '<li data-grp="0" data-lbl="%s"%s>'
+        '<a href="#" data-act="%s">%s</a></li>'
+        % (esc(T(key)), '' if on else ' class="dim"', act, glyph)
+        for act, key, glyph, on in bar_btns)
+    back_row = ('<li data-grp="1" data-lbl="%s">'
+                '<a href="#" data-act="back">◀ %s</a></li>'
+                % (esc(T('btn_back')), esc(T('btn_back'))))
     body = ('<div id="music">'
             '<h2 id="hdr">%s</h2>'
             '<p id="fmt">%s</p>'
             '%s'
             '<video id="player_object" width="1px" height="1px" '
             'preload="none" style="width:1px;height:1px;"></video>'
-            '<p id="status">%s</p>'
+            '<p id="time">0:00</p>'
+            '<div id="pb"><div id="pbf"></div></div>'
+            '<ul id="bar">%s</ul>'
+            '<p id="blbl"></p>'
             '<ul>%s</ul>'
+            '<p id="status">%s</p>'
             '<p id="foot">%s</p>'
             '</div>'
-            % (esc(o['title']), esc(label), art, T('music_start'),
-               rows, T('music_foot')))
+            % (esc(o['title']), esc(label), art, bar, back_row,
+               T('music_start'), T('music_foot')))
     js = player_js('audio/mpeg' if live else res['mime'], url, tpl=MUSIC_JS,
                    prev=('/aud/%s' % urllib.parse.quote(prev_id, safe=''))
                    if prev_id else None,
                    nxt=('/aud/%s' % urllib.parse.quote(next_id, safe=''))
-                   if next_id else None)
+                   if next_id else None,
+                   dur=_didl_duration_seconds(o['res']))
     return _page(o['title'], body, extra_js=js)
 
 
@@ -983,10 +1104,9 @@ def render_keys():
 
 
 def render_error(where, err):
-    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
-            '<h2>%s</h2><p id="status">%s</p>'
-            '<p id="foot"><a href="/">%s</a></p>'
-            % (T('error'), esc('%s: %s' % (where, err)), T('home')))
+    body = (_hdr(T('error'))
+            + '<p id="status">%s</p>' % esc('%s: %s' % (where, err))
+            + _foot('<a href="/">%s</a>' % T('home')))
     return _page(T('error'), body)
 
 
@@ -1015,22 +1135,18 @@ def render_tracks(o, fmt):
     foot = T('conv_foot')
     if any(t['codec'] in ('ac3', 'eac3') for t in tracks):
         foot = T('dolby_note') + foot
-    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
-            '<h2>%s <span style="color:#888">%s</span></h2>'
-            '<h2>%s</h2><ul>%s</ul>'
-            '<p id="foot">%s</p>'
-            % (esc(o['title']), esc(vlabel), T('choose_track'),
-               ''.join(rows), foot))
+    body = (_hdr('%s <span style="color:#888">%s</span>'
+                 % (esc(o['title']), esc(vlabel)))
+            + '<h2>%s</h2><ul>%s</ul>' % (T('choose_track'), ''.join(rows))
+            + _foot(foot))
     return _page(o['title'], body)
 
 
 def render_progress(title, pct, note):
     head = '<meta http-equiv="refresh" content="5">'
-    body = ('<h2 id="hdr">Servioo BRAVIA 3D edition</h2>'
-            '<h2>%s</h2><h2 id="status">%s</h2>'
-            '<p id="foot">%s - %s</p>'
-            % (esc(title), T('converting') % int(pct), esc(note),
-               T('refresh_foot')))
+    body = (_hdr(esc(title))
+            + '<h2 id="status">%s</h2>' % (T('converting') % int(pct))
+            + _foot('%s - %s' % (esc(note), T('refresh_foot'))))
     return _page(T('converting_t'), body, extra_js=IMG_JS, extra_head=head)
 
 

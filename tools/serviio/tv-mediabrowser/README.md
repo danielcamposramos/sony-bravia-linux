@@ -44,6 +44,20 @@ TV browser ── plain HTTP ──> server.py :8090 ── UPnP SOAP ──> Se
   from the proxy.
 - **Navigation: arrow keys** (up/down select, OK/right open, left back) —
   the era browser maps remote keys to keydown events.
+- **The music page is the exception**: its transport is a horizontal bar
+  (glyph buttons, cursor group 0) over a Back row (group 1), so there
+  **left/right walk the bar and up/down cross between the two groups**.
+  Left on the leftmost button still exits, and Backspace still goes back,
+  because these sets' RETURN key has never been keyCode-harvested. The
+  bar shows glyphs only (six labelled buttons overflow the era viewport)
+  and prints the selected button's name underneath. Buttons with no
+  target — prev/next when the folder can't be resolved, e.g. Random
+  Music — render dimmed and are skipped by the cursor instead of
+  silently doing nothing. Progress bar and `m:ss` clock come from the
+  element, falling back to the **DIDL duration injected server-side**,
+  which is what gives a live-transcoded FLAC a progress bar at all (the
+  `/atr/` pipe has no Content-Length, so the element's own duration is
+  NaN).
 - Non-MP4 formats are handed to the player with their real MIME and a
   format label on screen — the era player's response doubles as a
   format-support probe for the transcode lane (next phase).
