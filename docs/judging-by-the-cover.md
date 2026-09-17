@@ -202,6 +202,103 @@ the gift — is mostly oral gossip, rarely cited):
   [The Hollywood Reporter](https://www.hollywoodreporter.com/movies/movie-news/francis-ford-coppola-defends-scorsese-calls-marvel-films-despicable-1248929/),
   [Screen Daily](https://www.screendaily.com/news/francis-ford-coppola-marvel-films-are-despicable/5144007.article).
 
+## Winning under their own rules — the method
+
+The doctrine above says what is true. This section says how it was
+argued, because the *method* is the transferable part: the thread was
+won without a single hostile sentence after the first exchange, using
+only two moves — **true questions** and **true affirmations** — played
+strictly inside the other side's own rulebook.
+
+**Move 1 — comply with the stated rule, exactly.** mpv's guideline
+asks a contributor to show they can answer review with human-written
+responses. That is a testable demand, so it was met on its own terms:
+eight review threads opened 18:03–18:16Z, all eight answered
+18:14–18:33Z, every reply written by the owner, every reply pointing
+at a file and a line. Nothing about the rule was disputed. Once the
+rule is satisfied in public, it cannot be re-invoked.
+
+**Move 2 — no hostility after the first exchange.** The flare-up ran
+eighteen minutes and ended. Nothing in the technical replies referred
+back to it — no scorekeeping, no "as I said earlier", no wounded
+tone. A maintainer can decline an argument; a maintainer cannot
+decline a patch that answers every question politely without the
+refusal itself becoming the visible thing.
+
+**Move 3 — true questions.** A true question is one the asker would
+genuinely accept any honest answer to, and which happens to have no
+comfortable answer under the other side's own framing. *"AI-slop —
+define this term, please?"* is answerable only two ways: define slop
+by information density, and the definition acquits the patch (nine
+test files, measured side-data counts, refutable claims) while
+convicting the one-image reply; or define it by authorship, and admit
+the term means "written with AI" rather than "bad". Either answer
+settles the matter. It was never answered — which is itself the
+answer, and why the question belongs in the record rather than in a
+follow-up post.
+
+**Move 4 — true affirmations.** Concede every true point immediately
+and in full, without softening:
+
+- *"You're right, they are not similar at the spec level"* — on the
+  st3d/Matroska comparison, where the reviewer was correct and the
+  code comment was badly worded.
+- *"Correct for master"* — on `demux_lavf` ignoring the container
+  tag.
+- *"True. Rotation is the exception among these properties"* — on
+  the precedent the patch borrowed.
+
+This is not politeness; it is load-bearing. Concessions are what make
+the refusals credible. A reply that concedes three points and refutes
+one reads as an engineer; a reply that refutes four reads as a
+defendant. And the refusal itself was carried by checkable facts, not
+by tone — see the receipts below.
+
+The asymmetry this produces is the whole game: the other side must
+either engage the content or visibly decline to, and every additional
+technical reply widens the gap between what the cover said and what
+the book contains. No hostility is required at any point. Hostility
+would in fact break it — it hands back the cover the argument was
+about.
+
+## Receipts — the one code claim, checkable in 30 seconds
+
+The doctrine demands that claims be checkable, so this page holds its
+own to that standard. The single code objection in the thread was
+that the patch's mapping switch *"pointlessly duplicates what
+`STEREOMODE_STEREO3D_MAPPING` does from `libavformat/matroska.h`"*.
+Three commands refute it, on any machine with FFmpeg's development
+headers installed:
+
+```bash
+# 1. The macro's header is FFmpeg-internal — it is not installed.
+#    The public libavformat headers are only these four:
+ls /usr/include/*/libavformat/
+#    avformat.h  avio.h  version.h  version_major.h
+
+# 2. The macro therefore appears in no installed header at all:
+grep -rl "STEREOMODE_STEREO3D_MAPPING" /usr/include/    # -> no output
+
+# 3. And mpv duplicates nothing of its own: the tree has zero
+#    references to the FFmpeg stereo3d type it would map from.
+gh api "search/code?q=AV_STEREO3D+repo:mpv-player/mpv" --jq .total_count
+#    -> 0
+```
+
+A fourth fact completes it: the macro maps Matroska → `AVStereo3D`
+(the muxer direction, carrying half-width/height and WebM fields),
+while the patch needs the inverse, which FFmpeg does not export as a
+table. And mpv's own `demux/demux_mkv.c` passes the raw Matroska
+`StereoMode` value straight through (`track->stereo_mode` →
+`sh_v->stereo_mode`), which is precisely why `params.stereo3d` uses
+Matroska numbering and why the switch targets those values.
+
+Verified independently on 2026-09-16 on the owner's Debian 13
+workstation, after the reply had already been posted. The claim
+attached to "Thanks for the slop" is the only claim in the exchange
+that does not survive being checked — which is the page's thesis,
+arriving on schedule.
+
 ## Related in-repo records
 
 - The episode itself: `tools/serviio/upstream-3d-issues/README.md`,
