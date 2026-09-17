@@ -18,43 +18,60 @@ movement, not to this project.
 
 ## How Sony serves these documents
 
-Sony's document library is **RefLib** at `docs.sony.com`, a Blazor
-WebAssembly single-page app. Every document has a Sony document number
-(the `…M` identifier), and the app resolves it at:
+**Verified in a browser, 2026-09-17.** Two different things live at
+Sony, and it matters which one you link:
+
+**1. The direct PDF (what you want).**
 
 ```
-https://docs.sony.com/release/<DOCID>.pdf
+https://www.sony.com/electronics/support/res/manuals/<FIRST-4-OF-DOCID>/<DOCID>.pdf
 ```
 
-Those routes answer for all four of our Sony-numbered documents. Note the
-path ends in `.pdf` but returns the SPA shell to a plain HTTP client —
-**a browser renders it and downloads the document; `curl` gets the app,
-not the file.** That is a property of their viewer, not a broken link.
+e.g. `42730121M` → `.../manuals/4273/42730121M.pdf`. These resolve to the
+actual file. The operating instructions for the KDL-46EX725 are listed
+there at **4.25 MB, release date 15/02/2019** — Sony was still publishing
+revisions seven years after the set shipped, and the size matches our
+offline copy (4 452 072 bytes) exactly.
 
-Per-model support pages follow:
+**2. The per-model support page (the human entry point).**
 
 ```
 https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/<model>/manuals
 https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/<model>/manuals
 ```
 
-**Unverified from here:** Sony's WAF returns an "Access Denied" page — at
-HTTP **200**, 63 KB, which is worth knowing because it looks like success
-to a naive fetcher. These patterns need confirming in a real browser
-before anyone trusts them. Flagged rather than asserted, per the
-[check-before-declaring rule](generation-model-map.md#rule-check-the-archive-before-declaring-a-service-dead).
+Confirmed loading for both `kdl-46ex725` and `kdl-46hx855`, **URL stable
+— no redirect**, each listing its PDFs with release dates.
+
+**A warning for anyone automating this.** Sony's WAF blocks non-browser
+clients, and it does so with **HTTP 200 and a 63 KB "Access Denied"
+body** — not a 403, not a 404. An earlier pass here probed exactly the
+correct `res/manuals/4273/…` URL and recorded it as dead, because the
+status code said success and only a human with a browser could tell the
+difference. Check the *content*, not the status, and confirm anything
+important in a real browser.
+
+(`docs.sony.com/release/<DOCID>.pdf` also answers for these document
+numbers, but it is **RefLib**, a Blazor single-page app — a browser
+renders a viewer there; a fetcher gets the app shell. Prefer the
+`res/manuals/` route above for linking.)
 
 ## Sony-published documents — link to these
 
 Sony's own document numbers. **Link here; do not redistribute.** Our
 copies exist only so the repair information survives a takedown.
 
-| Document | Sony doc no. | Model | Sony link |
+| Document | Sony doc no. | Model | Direct PDF (verified pattern) |
 |---|---|---|---|
-| Operating instructions (pt-BR) | `42730121M` | KDL-46EX725 | [docs.sony.com/release/42730121M.pdf](https://docs.sony.com/release/42730121M.pdf) |
-| Manual (pt-BR) | `W0012720M` | KDL-46HX855 | [docs.sony.com/release/W0012720M.pdf](https://docs.sony.com/release/W0012720M.pdf) |
-| i-Manual | `W0005743M` | KDL-46HX855 | [docs.sony.com/release/W0005743M.pdf](https://docs.sony.com/release/W0005743M.pdf) |
-| Licence agreement | `44119961M` | KDL-46HX855 | [docs.sony.com/release/44119961M.pdf](https://docs.sony.com/release/44119961M.pdf) |
+| Operating instructions (pt-BR) | `42730121M` | KDL-46EX725 | [res/manuals/4273/42730121M.pdf](https://www.sony.com/electronics/support/res/manuals/4273/42730121M.pdf) |
+| Manual (pt-BR) | `W0012720M` | KDL-46HX855 | [res/manuals/W001/W0012720M.pdf](https://www.sony.com/electronics/support/res/manuals/W001/W0012720M.pdf) |
+| i-Manual | `W0005743M` | KDL-46HX855 | [res/manuals/W000/W0005743M.pdf](https://www.sony.com/electronics/support/res/manuals/W000/W0005743M.pdf) |
+| Licence agreement | `44119961M` | KDL-46HX855 | [res/manuals/4411/44119961M.pdf](https://www.sony.com/electronics/support/res/manuals/4411/44119961M.pdf) |
+
+Per-model support pages (browser-verified, URL stable):
+
+- KDL-46EX725 — [sony.com.br/…/kdl-46ex725/manuals](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46ex725/manuals)
+- KDL-46HX855 — [sony.com.br/…/kdl-46hx855/manuals](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/manuals)
 
 Entry points, if a document number is ever withdrawn:
 
@@ -118,7 +135,5 @@ Three buckets, and only one of them is ours to offer:
   library.
 - **AZ1 (2010)** — no manual held at all, for a generation whose widget
   catalog is [still live](generation-model-map.md#what-az1-actually-got).
-- **Support-page URLs** — pattern recorded, blocked from verification
-  here, needs a browser check.
 - **Firmware** — the archive holds update packages for 2011 and 2012
   platforms; their Sony download pages are not indexed on this page yet.
