@@ -1,4 +1,6 @@
-# TabNews post — v3, perspectiva pessoal (matéria-prima, PT-BR, 2026-09-17)
+# TabNews post — v3, perspectiva pessoal — PUBLICADO 2026-09-17
+# https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo
+# snapshot: https://web.archive.org/web/20260917232833/…
 
 # DOUTRINA: matéria-prima. O dono reescreve na própria voz antes de
 # publicar. Esta versão já foi escrita TENTANDO a perspectiva dele —
@@ -14,11 +16,23 @@
 # tabelas markdown, números empilhados cedo, caveats honestos,
 # artefatos reproduzíveis no fim. Segunda ~8h.
 
-## Título — opções (sem "?")
+## Título
 
-1. **Não julgue um livro pela capa: a Sony traduziu os apps da TV pro português, subiu no servidor dela, e nunca listou pro Brasil**
-2. **Achei "Rio de Janeiro" dentro de um app que o Brasil nunca recebeu. Estava no servidor da Sony esse tempo todo.**
-3. **Em 2011 um CEO me deu de presente uma licença de 3D. Em 2026 eu devolvi o favor consertando o 3D de todo mundo.**
+PUBLICADO com a opção 3, em texto puro, com o ajuste dele ("de todo **o** mundo"):
+
+    Em 2011 um CEO me deu de presente uma licença de 3D. Em 2026 eu devolvi o favor consertando o 3D de todo o mundo.
+
+**Lição de formatação:** as opções abaixo estavam em negrito só para marcar
+que eram opções, e os asteriscos foram junto na colagem. O TabNews não
+renderiza markdown no título, então saíram literais, inclusive no
+`og:title` que aparece em busca e em preview de link. Corrigido em
+17/09 às 23:35. **Daqui em diante, opções de título sempre em texto puro.**
+
+Opções não usadas:
+
+    Não julgue um livro pela capa: a Sony traduziu os apps da TV pro português, subiu no servidor dela, e nunca listou pro Brasil
+
+    Achei "Rio de Janeiro" dentro de um app que o Brasil nunca recebeu. Estava no servidor da Sony esse tempo todo.
 
 ## O post
 
