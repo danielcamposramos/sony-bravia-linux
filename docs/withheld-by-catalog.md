@@ -126,6 +126,31 @@ A pt-BR pass over the shipped European Portuguese (`Moscovo` →
 `Moscou`, `Helsínquia` → `Helsinque`) is a genuine improvement on top,
 and it lands in the unsigned dictionary where it belongs.
 
+## The repair, deployed (2026-09-17)
+
+Done on the LAN, awaiting owner verification on the EX725:
+
+- All five withheld bundles were fetched **byte-exact from Sony's own
+  CDN** and re-verified locally: every entry in each `digest.txt`
+  recomputes to its recorded SHA-256, and each `digest.sig` is the
+  original 384-byte block. They install as genuine because they are.
+- They now sit in the LAN AppliCast mirror's `WidgetBundles/`, with
+  their `WidgetInfos/` posters and Details pages.
+- The **AZ2 catalog only** (`Catalog_LA_BRA_por.xml`, the EX725's
+  chassis) gained five entries — Calculadora, Relógio Analógico,
+  Calendário, Alarme, Relógio Mundial. The AZ3 catalog (HX855, the
+  workstation's monitor) is deliberately untouched until the EX725
+  confirms: rule 5.
+- pt-BR Details pages were written for each, since Sony only ever
+  produced `description.xml` under `EU_ALL_eng` — another small
+  artifact of the same gating. The widgets' own on-screen names come
+  from `info.xml`, which was already Portuguese.
+- The previous catalog is preserved beside it as `.pre-restore`.
+
+The whole chain answers 200 from the TV's point of view: Index →
+Gallery → Catalog → bundle `digest.txt`/`widget.js` → Details page →
+poster.
+
 ## Scope of the preservation run
 
 The same sweep that produced this finding mapped considerably more of
