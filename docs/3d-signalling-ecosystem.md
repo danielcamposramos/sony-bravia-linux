@@ -33,14 +33,36 @@ the same amendment that added the Stereo High Profile. It defines the
 frame-compatible arrangements every 3D pipeline uses: side-by-side,
 top-and-bottom, checkerboard, column and row interleave.
 
-It is also **the signalling DVB standardised for frame-compatible
-stereoscopic broadcast** (the "3DTV" frame-compatible profile). That is
-the point that turns a compatibility guess into a design fact: a
-television sold as 3D-capable in the broadcast era had to decode this
-signal to receive 3D broadcasts at all. So any such set reads the SEI by
-construction, regardless of brand. The one honest carve-out is
-**projectors**, many of which are HDMI-fed with no broadcast tuner and no
-obligation to implement it.
+It is also the signal DVB made **authoritative** for frame-compatible 3D
+broadcast. DVB's spec ETSI TS 101 547-2 (DVB A154-2), clause 6.4.1,
+requires ("shall") a frame-compatible 3DTV service to carry the H.264
+`frame_packing_arrangement` SEI **with every frame**, and clause 6.5
+states the SEI signalling "takes precedence over other signalling as
+regards video format" — over the DVB-SI descriptors (PMT/SDT/EIT), which
+the same spec limits to a presence flag and EPG hints, not the actual
+stereo format. The HEVC variant (DVB A154-4) repeats the design word for
+word. So the in-stream SEI is not one option among several; in the DVB
+broadcast standard it is the definitive carrier of the 3D arrangement.
+
+Two honest limits on how far that reaches:
+
+- It is a normative requirement on a **DVB-compliant frame-compatible
+  receiver** decoding a live broadcast. It is not, by itself, proof that
+  every "3D-ready" set of 2010-2013 implemented it — real FC-3DTV
+  broadcasts were rare and short-lived, and a spec "shall" binds
+  conformant implementations, not every shipped firmware.
+- Much era 3D content reached TVs over **HDMI** from a Blu-ray player or
+  console, a path governed by HDMI 1.4a's own frame-packing 3D
+  signalling, separate from the in-stream SEI. Projectors are the clean
+  carve-out here: typically HDMI-fed, no broadcast tuner.
+
+What makes the SEI the right target regardless is the combination: it is
+the **H.264-standard** tool (payload 45, Annex D, added to the spec in
+2010), it is the **authoritative broadcast** signal per DVB, and — the
+part this project proved directly — real hardware reads it from files.
+Our two BRAVIA sets auto-engage 3D on exactly this SEI and ignore the
+container tag, demonstrated with single-variable clips. The spec says it
+should be read; the panels in front of us do read it.
 
 ## 3D Blu-ray is a different mechanism (and why tools convert it)
 
@@ -160,6 +182,7 @@ is one 16-byte message, and this repo maps every place it needs to go.
 - H.264/AVC Amendment 1 (2009): frame packing arrangement SEI, and the
   Stereo/Multiview overview, [Vetro/Wiegand/Sullivan, "Overview of the
   Stereo and Multiview Video Coding Extensions of H.264/MPEG-4 AVC"](https://www.researchgate.net/publication/224216112_Overview_of_the_Stereo_and_Multiview_Video_Coding_Extensions_of_the_H264MPEG-4_AVC_Standard).
+- DVB frame-compatible 3DTV: [ETSI TS 101 547-2 V1.2.1 (2012-11), clauses 6.4.1 and 6.5](https://www.etsi.org/deliver/etsi_ts/101500_101599/10154702/01.02.01_60/ts_10154702v010201p.pdf); HEVC variant [DVB A154-4 (2015)](https://dvb.org/wp-content/uploads/2019/12/a154-4_dvb-3dtv_hevc.pdf). The SEI itself: ITU-T H.264 Annex D (payload type 45).
 - BD3D2MK3D support thread, videohelp #395498, via Internet Archive
   snapshots of pages 1-20 (2023-2026 captures).
 - DLNA-server symptom threads: Plex, Jellyfin, Serviio, MakeMKV, AVS
