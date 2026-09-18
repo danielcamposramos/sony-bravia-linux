@@ -1416,6 +1416,7 @@ def render_probe():
         ('/probe/art?v=10', 'R \u2014 candidato: 33%% x3, tabela'),
         ('/probe/art?v=11', 'S \u2014 candidato: v\u00eddeo, mesmo layout'),
         ('/probe/art?v=12', 'T \u2014 v\u00eddeo SEM escala (volta a imagem?)'),
+        ('/probe/art?v=13', 'U \u2014 v\u00eddeo tela cheia + controles nativos'),
         ('/probe/cookie', 'N \u2014 cookies: do they persist?'),
     ])
     body = (_hdr('Era probes')
@@ -1645,6 +1646,38 @@ def _scaled_video(poster, w, h, extra, factor, mode='clip'):
     overflow = 'overflow:hidden;' if mode == 'clip' else ''
     return ('<div style="width:%dpx;height:%dpx;%s">%s</div>'
             % (fw, fh, overflow, vid))
+
+
+def render_probe_fullvideo():
+    """/probe/art?v=13 — full-viewport video WITH native controls.
+
+    The working video player fills the viewport with a position:fixed
+    100%x100% element (Presto has no JS fullscreen API) but draws a custom
+    HUD. This asks the obvious follow-up now that native controls are
+    known to work for audio: does a full-screen video element also get the
+    set's own transport bar? If yes, the video player can drop its custom
+    HUD for the native one, same as the audio surface."""
+    url, mime, title = probe_video()
+    if not url:
+        return render_error('probe', 'no direct-play MP4 found to test with')
+    css = ('html,body{margin:0;padding:0;background:#000;overflow:hidden;}'
+           '#fv{position:fixed;left:0;top:0;width:100%;height:100%;'
+           'border:0;background:#000;}')
+    js = ("var v=document.getElementById('fv');"
+          "var s=document.createElement('source');"
+          "s.type=%s;s.src=%s;v.appendChild(s);"
+          % (json.dumps(mime), json.dumps(url)) +
+          "try{v.play();}catch(x){}"
+          "document.onkeydown=function(e){var k=(e||window.event).keyCode;"
+          # green is history-back; keep 8 as an extra exit
+          "if(k==8){window.location='/probe';return false;}return true;};")
+    # no overlay text: the owner confirmed the picture should be clean
+    # (2026-09-18). The native bar is the only chrome; GREEN exits.
+    body = '<video id="fv" controls preload="none"></video>'
+    return ('<!DOCTYPE html>\n<html><head><meta charset="utf-8">'
+            '<title>Full video</title><style>%s</style></head>'
+            '<body>%s<script>%s</script></body></html>'
+            % (css, body, js))
 
 
 def render_probe_art(variant):
@@ -2501,8 +2534,11 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_html(render_probe_caps().encode())
                 return
             elif u.path == '/probe/art':
-                self._send_html(render_probe_art(
-                    _qs_int(parse_qs(u.query), 'v', 1)).encode())
+                _v = _qs_int(parse_qs(u.query), 'v', 1)
+                if _v == 13:
+                    self._send_html(render_probe_fullvideo().encode())
+                else:
+                    self._send_html(render_probe_art(_v).encode())
                 return
             elif u.path == '/probe/ctl':
                 self._send_html(render_probe_ctl(

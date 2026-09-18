@@ -102,6 +102,24 @@ most reliable layout primitive this browser has, and an element at
 1920. Height still needs pixels, since percentage heights need a
 declared parent height all the way up.
 
+## Full-screen video: the answer, and its one limit
+
+Presto has no JavaScript fullscreen API. Full-screen video is a
+`position:fixed` `<video>` at 100% x 100%, out of document flow. Adding
+`controls` to that element gives full-screen picture **and** the set's
+own transport bar together (owner-confirmed on the EX725, 2026-09-18) —
+so the video player does not need the hand-built HUD the older code drew.
+No overlay text: on full-screen video the picture is the whole point and
+the native bar is the only chrome that belongs.
+
+The one limit: the control bar is **tiny** relative to the picture, and
+cannot be enlarged. The bar's height is fixed pixels (see below), and the
+`-o-transform:scale()` trick that enlarges it for audio destroys video —
+the picture rides a hardware plane that CSS transforms do not follow
+(measured: a scaled video element played sound with no image, an
+unscaled one showed the picture). So video gets full-screen and native
+controls, but small controls, and that is the platform's ceiling.
+
 ## Two things the native bar cannot do
 
 **No time for live-converted audio.** The bar shows elapsed time for
