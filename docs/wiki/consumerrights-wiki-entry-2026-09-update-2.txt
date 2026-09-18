@@ -1,0 +1,62 @@
+# UPDATE 2 to the consumerrights.wiki (FULU Foundation) product-line page
+#   https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)
+# Drafted 2026-09-18. Additive to the 2026-09-17 revision: it does NOT
+# rewrite the page, it (a) strengthens the "Smart services shut down"
+# incident with Sony's OWN dated end-of-service notices, archived and
+# naming our exact models; (b) adds a new incident on 3D being unavailable
+# to the platform's own content; (c) adds a neutral "Consumer-rights
+# context (Brazil)" section for the Foundation to evaluate.
+#
+# WHY THIS FURTHER ANSWERS THE {{Incomplete}} NOTICE
+#   The three new service citations are Sony Brasil's own support articles
+#   — corporate communications, the exact class the notice asked for —
+#   each dated, each naming KDL-46EX725 and KDL-46HX855 explicitly, each
+#   permanently held at the Internet Archive. This is the strongest
+#   sourcing class available and it is Sony confirming the shutdowns
+#   itself.
+#
+# NOT LEGAL ADVICE. The Brazil section states the applicable statute and
+# the matching facts, neutrally. It draws no conclusion that Sony violated
+# anything; that assessment is for the Foundation and Brazilian
+# consumer-law counsel. Framed as "may be relevant", never "Sony breached".
+#
+# MEDIAWIKI: one line per list item; a leading space renders as <pre>.
+#
+# SUGGESTED EDIT SUMMARY (about 250 chars):
+#   Add Sony's own dated end-of-service notices (TrackID, Skype, Twitter),
+#   archived and naming the exact models, as corporate-communication
+#   sources; add 3D-unavailable-to-own-content incident (Sony i-Manual);
+#   add neutral Brazil consumer-law context for the Foundation.
+
+## ========================================================================
+## (A) REPLACE the "Smart services shut down…" incident's FIRST paragraph
+##     end with the following sentence + refs (keeps the existing text,
+##     appends Sony's own confirmations):
+## ========================================================================
+
+Sony itself announced the end of individual services on its Brazilian support site, one notice per service, each naming the affected models &mdash; KDL-46EX725 and KDL-46HX855 among roughly a hundred and thirty sets. The Artist Information and TrackID music-recognition service was declared no longer functional;<ref name="eos-trackid">Sony Brasil support article S1Q2522, "Informações do Artista e Track ID não funcionarão", last modified 11 March 2025, listing KDL-46EX725 and KDL-46HX855 among affected models: [https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0522 sony.com.br]; archived copy: [https://web.archive.org/web/20260918042547/https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0522 Internet Archive snapshot, 18 September 2026].</ref> the Skype service for televisions was ended on 30 June 2017, after prior withdrawal from BRAVIA sets and Blu-ray players in June 2016;<ref name="eos-skype">Sony Brasil support article S1Q2505, Skype end-of-service notice, last modified 11 March 2025, listing KDL-46EX725 and KDL-46HX855: [https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0505 sony.com.br]; archived copy: [https://web.archive.org/web/20260918042421/https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0505 Internet Archive snapshot, 18 September 2026].</ref> and Twitter / TV Tweet was removed from the affected models in March 2018 following a Twitter login-API change.<ref name="eos-twitter">Sony Brasil support article S1Q2540, "Fim da disponibilidade do Serviço Twitter", last modified 11 March 2025, listing KDL-46EX725 and KDL-46HX855: [https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0540 sony.com.br]; archived copy: [https://web.archive.org/web/20260918042710/https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0540 Internet Archive snapshot, 18 September 2026].</ref>
+
+## ========================================================================
+## (B) NEW incident — insert after "3D playback silently broken over DLNA"
+## ========================================================================
+
+===3D display never available to the television's own internet/app content===
+The 3D processing is a display feature of the panel, documented by Sony as applying to whatever the set shows. The on-device i-Manual describes a 3D button offering three display modes &mdash; Side-by-Side, Over-Under, and ''Simulated 3D'', the last converting ordinary 2D pictures to a simulated-3D effect &mdash; and states that the mode is chosen "to suit the displayed content", with an ''Auto 3D'' setting that engages 3D automatically "when a 3D signal is detected".<ref name="imanual-3d">Sony Corporation, KDL-46HX855 i-Manual (electronic manual built into the set), "Watching in 3D": document ID W0005741M (English) / W0005743M (Portuguese). Documents the [3D Display] modes Side-by-Side, Over-Under and Simulated 3D, the [Auto 3D] setting that switches automatically when a 3D signal is detected, and the [3D Signal Notification] setting.</ref> Crucially, the manual restricts only the two ''stereoscopic'' modes by input signal or format; it places no input, format or source restriction on Simulated 3D, whose only stated caveat is that the effect "may be less pronounced with some picture sources", and it states the one precondition that 3D is available only when pictures are shown full-screen.<ref name="imanual-3d" /> On a set playing video through the platform's own browser/application surface, full-screen, an owner observed that the television detected the 3D signal but would not switch to 3D &mdash; neither automatically nor by the manual 3D button &mdash; and that the documented 2D-to-3D Simulated 3D mode was likewise unavailable, although the identical panel switches to 3D from other inputs. The panel's documented 3D processing has therefore never been reachable from the internet/app content path that Sony built into the set and later shut down.<ref name="repo" />
+
+## ========================================================================
+## (C) NEW section — insert before "==Products=="
+## ========================================================================
+
+==Consumer-rights context (Brazil)==
+The two sets verified hands-on are Brazilian-market units, and the notices above were published by Sony Brasil. The following provisions of Brazilian consumer law may be relevant to owners in that market. This section states the statute and the matching, sourced facts; it draws no legal conclusion, which is a matter for the Foundation and for Brazilian consumer-law counsel.
+*Under the ''Código de Defesa do Consumidor'' (Law 8.078/1990), advertising and product information provided by a supplier are binding and form part of the contract (art. 30). Sony Brasil published consumer material presenting "Internet TV" and "BRAVIA Internet Vídeo" as features of these sets;<ref name="br-promo">Sony Brasil consumer documents "Internet TV" (Sony doc W0001861M) and "BRAVIA Internet Vídeo" (W0001142M), presenting the internet-content capability of the BRAVIA line. Held in the owner's offline document library.</ref> those services were subsequently discontinued per Sony's own notices above.
+*The CDC treats defects that render a product unfit for its purpose or diminish its value as ''vícios do produto'' (art. 18), and Brazilian courts have recognised supplier responsibility across a product's ''vida útil'' (useful life), which can extend beyond the formal warranty period.
+*The CDC requires manufacturers and importers to ensure the availability of components and technical support while a product is offered and for a reasonable period after production ceases (art. 32).
+*The CDC voids abusive contract clauses, including those incompatible with good faith or that place the consumer at exaggerated disadvantage (art. 51) &mdash; relevant where an end-user licence purports to permit unlimited discontinuation of advertised functionality.
+*The distinction drawn elsewhere on this page holds here too: the discontinuation of online ''services'' is one question, while the removal of the GPL-licensed ''source code'' Sony's own licence documents point to is a separate obligation arising from the software licences themselves, independent of any service terms.
+
+## ========================================================================
+## NEW REFS — already inline above (eos-trackid, eos-skype, eos-twitter,
+## imanual-3d, br-promo). "repo" already exists on the page. No {{Reflist}}
+## change needed; it renders all refs.
+## ========================================================================
