@@ -1281,7 +1281,8 @@ MANUAL = {
             'them. Use the on-screen controls instead.',
             'REW and FF send the same codes as Left and Right, so the app '
             'cannot tell them apart.',
-            'RED and BLUE have not been observed doing anything.',
+            'RED jumps to the bottom of the page, BLUE to the top. All four '
+            'colour keys belong to the browser, not to the app.',
         ]),
         ('In the player', [
             'The TV draws its own transport bar: play, pause, seek and '
@@ -1315,7 +1316,8 @@ MANUAL = {
             'não as recebe. Use os controles na tela.',
             'REW e FF enviam os mesmos códigos que Esquerda e Direita, '
             'então o aplicativo não consegue distinguir.',
-            'VERMELHO e AZUL não foram observados fazendo nada.',
+            'VERMELHO vai para o fim da página, AZUL para o topo. As quatro '
+            'teclas coloridas são do navegador, não do aplicativo.',
         ]),
         ('No reprodutor', [
             'A TV desenha a própria barra: reproduzir, pausar, avançar e '
@@ -1350,7 +1352,8 @@ MANUAL = {
             'recibe. Use los controles en pantalla.',
             'REW y FF envían los mismos códigos que Izquierda y Derecha, '
             'así que la aplicación no puede distinguirlos.',
-            'ROJO y AZUL no se han observado haciendo nada.',
+            'ROJO salta al final de la página, AZUL al inicio. Las cuatro '
+            'teclas de color son del navegador, no de la aplicación.',
         ]),
         ('En el reproductor', [
             'El televisor dibuja su propia barra: reproducir, pausar, '

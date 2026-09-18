@@ -139,10 +139,12 @@ Measured on a KDL-46EX725, 2026-09-18. Full detail in
 
 **The remote sends almost nothing.** PLAY, PAUSE, STOP, PREV and NEXT
 produce no keydown at all. You get: `13` OK, `37` left (and REW), `39`
-right (and FF), `38` up, `40` down. GREEN and YELLOW are eaten by Opera
-itself as history back/forward, so GREEN is your reliable "back" on every
-page. RED and BLUE do nothing observed. **Build all transport on-screen** —
-the media keys are not there to bind.
+right (and FF), `38` up, `40` down. All four colour keys belong to Opera,
+not to the page — it says so in its status line while a link loads. Green
+and yellow navigate between pages (history back / forward); red and blue
+scroll within a page (bottom / top). So GREEN is your reliable "back"
+everywhere, but none of the four is bindable. **Build all transport
+on-screen** — the media keys are not there to bind either.
 
 **Fonts: build for the Medium size setting.** Only the Geometric Shapes
 block, Latin-1, and a few scattered symbols (`♪` U+266A, `∞` U+221E)

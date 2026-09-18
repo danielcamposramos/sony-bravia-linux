@@ -74,11 +74,14 @@ Two further findings, neither predicted:
 
 - **REW and FF are not separate keys.** They deliver 37 and 39, the same
   codes as d-pad left and right, so an app cannot tell them apart.
-- **The colour keys are not ours.** GREEN and YELLOW are consumed by
-  Opera itself as history back and forward, and never reach the page.
-  That kills the "four free actions" idea from the previous section —
-  worth recording precisely because it was the plausible-sounding
-  conclusion the corpus pointed at, and the panel refuted it.
+- **The colour keys are not ours — all four belong to Opera.** The
+  browser states this itself in the status line while a link loads.
+  Green and yellow navigate between pages (history back / forward); red
+  and blue scroll within a page (bottom / top). None reach the page, so
+  none is bindable. That
+  kills the "four free actions" idea from the previous section — worth
+  recording precisely because it was the plausible-sounding conclusion
+  the corpus pointed at, and the panel refuted it.
 
 ### What follows
 

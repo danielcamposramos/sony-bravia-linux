@@ -40,9 +40,11 @@ roots = /mnt/arquivos2/Música:/mnt/arquivos2/Vídeos
 #   13 = OK/confirm       38 = up          40 = down
 #   37 = left  AND the remote's REW button (same code)
 #   39 = right AND the remote's FF button  (same code)
-# GREEN and YELLOW are consumed by Opera itself as history back and
-# forward, and never reach the page. RED and BLUE were not observed in
-# this session, so treat them as unknown rather than free.
+# All four colour keys belong to Opera and never reach the page (the
+# browser says so in its status line while a link loads):
+#   GREEN = history back    YELLOW = history forward  (between pages)
+#   RED   = bottom of page   BLUE   = top of page      (within a page)
+# None of them is bindable by an app on this generation.
 #
 # This is why the on-screen transport bar exists: it is not a stopgap
 # until the media keys are mapped, it is the only transport the platform
