@@ -606,6 +606,56 @@ The `LEIA-ME.txt` beside the files carries the test procedure in
 pt-BR, including which folders go over the network and which need the
 pendrive.
 
+### RESULT — owner-tested on the EX725, 2026-09-18 (DLNA photo path)
+
+The inherited open test is answered, and the answer is more precise
+than a yes or no.
+
+| Tested over DLNA | Result |
+|---|---|
+| full-width SBS `.jpg` | opens **flat**, no 3D |
+| half-width (frame-compatible) SBS `.jpg` | opens **flat**, no 3D |
+| our anaglyph→SBS output `.jpg` | opens **flat**, no 3D |
+| the 3D button, with a photo on screen | **menu opens** — but offers **only 2D→3D conversion** |
+
+Two findings, and the second is the one that matters.
+
+**First: the 3D menu is not blocked on the photo path.** That is a real
+difference from the browser input, where the menu is blocked outright
+([3d-blocked-in-browser.md](3d-blocked-in-browser.md)). The photo viewer
+lets the menu open over the image.
+
+**Second: the menu has no side-by-side entry for stills at all.** Only
+the synthetic 2D→3D upconversion is offered. So this is not a case of
+the set failing to *detect* a frame-packed photo — **the option to
+unpack one does not exist in that menu**. No JPEG will ever become real
+3D on this path, no matter how it is packed or named, because there is
+nothing to select.
+
+That also explains why full-width and half-width behaved identically:
+aspect ratio was never a candidate trigger. And it is consistent with
+the campaign's core finding rather than a departure from it. Video
+auto-engages because the H.264 stream *declares* itself through the
+frame-packing SEI. **Baseline JPEG has no equivalent declaration** — no
+frame-packing field, no container stereo flag — so a SBS JPEG is a wide
+2D photo as far as any conforming reader is concerned. The panel can do
+it; nothing tells it to, and here nothing *can*.
+
+**What is left, and it is a narrow door:** the set must recognise the
+**file itself** as a stereo pair rather than be told what to do with a
+flat one. Among still formats only MPO carries that declaration in a
+standard, machine-readable way (CIPA DC-007, the Multi-frame Disparity
+type code), which is exactly what Sony's own 3D cameras wrote for these
+televisions. JPS is worth trying beside it purely because era firmware
+sometimes knew the community formats.
+
+Both need USB, because Serviio carries neither extension. The stick set
+is staged at `/mnt/arquivos/Fotos3D-USB/` (28 files): 11 `.MPO`, the 11
+original `.jps`, upper/lower-case extension probes for both — era
+firmware is sometimes case-sensitive — and three plain-JPEG controls so
+a blank listing can be told apart from a bad stick. `LEIA-ME.txt`
+carries the procedure and what to note.
+
 ### Measured: Serviio will not index the corpus at all
 
 Asked of the live server's own database, not assumed: the indexed
