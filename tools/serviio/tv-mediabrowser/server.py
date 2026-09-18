@@ -214,6 +214,9 @@ body{background:#000;color:#fff;font-family:sans-serif;margin:0;}
 a{color:#fff;text-decoration:none;}
 h2{margin:10px;font-size:60px;font-weight:normal;}
 #hdr{color:#3cf;font-size:68px;}
+/* Every size below is tuned for the TV browser's MEDIUM font setting.
+   Large or Small will overflow the viewport or drop under couch-reading
+   distance; there is no media query on this engine to compensate. */
 ul{list-style:none;margin:10px;padding:0;}
 li{padding:10px 14px;font-size:56px;background:#222;border-left:8px solid #3cf;margin:0 0 12px 0;}
 li.sel{background:#3cf;color:#000;}
@@ -487,6 +490,9 @@ STRINGS = {
     'en': {
         'nav_foot': 'Arrows navigate, OK opens, GREEN = back',
         'portal': 'Portal BRAVIA (start page)',
+        'audio_player': 'Audio player',
+        'video_player': 'Video player',
+        'manual': 'How to use it',
         'no_items': '(no items)',
         'empty': '(empty)',
         'prev': '&lt; previous',
@@ -548,6 +554,9 @@ STRINGS = {
     'pt': {
         'nav_foot': 'Setas navegam, OK abre, VERDE = voltar',
         'portal': 'Portal BRAVIA (p\u00e1gina inicial)',
+        'audio_player': 'Reprodutor de \u00e1udio',
+        'video_player': 'Reprodutor de v\u00eddeo',
+        'manual': 'Como usar',
         'no_items': '(sem itens)',
         'empty': '(vazio)',
         'prev': '&lt; anterior',
@@ -605,6 +614,9 @@ STRINGS = {
     'es': {
         'nav_foot': 'Flechas navegan, OK abre, VERDE = volver',
         'portal': 'Portal BRAVIA (p\u00e1gina de inicio)',
+        'audio_player': 'Reproductor de audio',
+        'video_player': 'Reproductor de v\u00eddeo',
+        'manual': 'C\u00f3mo usar',
         'no_items': '(sin elementos)',
         'empty': '(vacío)',
         'prev': '&lt; anterior',
@@ -780,6 +792,7 @@ def render_root():
         for o in objects)
     # a way back to the start page, because the remote has no Home key
     # that reaches a page and typing a URL on an IR remote is punishing
+    rows += _row('dir', '/manual', T('manual'))
     if PORTAL_URL:
         rows += _row('dir', esc(PORTAL_URL), T('portal'))
     body = (_hdr('Serviio @ %s' % esc(serviio_label()))
@@ -1244,6 +1257,140 @@ def probe_track():
     return None, None, None
 
 
+# ---------------------------------------------------------------- /manual
+#
+# Everything here is measured on a KDL-46EX725 (AZ2-F), 2026-09-18, not
+# copied from a spec. See docs/era-key-vocabulary.md and
+# docs/era-media-element.md for how each line was established.
+MANUAL = {
+    'en': [
+        ('Browser settings', [
+            'Font size must be Medium. Every size on these pages was chosen against that setting, and Large or Small will push text off the screen or shrink it below couch-reading distance.',
+            "The browser is the TV's own. Closing it or changing input ends the session, which is why anything worth remembering is stored in a dated cookie rather than for the session.",
+        ]),
+        ('Navigating', [
+            'Up / Down move the cursor. OK opens.',
+            'GREEN goes back. Opera handles that key itself, so it always '
+            'works, even where the page has no Back row.',
+            'YELLOW goes forward again.',
+            'Left / Right walk the buttons on a player.',
+        ]),
+        ('The remote', [
+            'PLAY, PAUSE, STOP, PREV and NEXT send nothing at all on this '
+            'generation. They are not mapped wrong, the browser never sees '
+            'them. Use the on-screen controls instead.',
+            'REW and FF send the same codes as Left and Right, so the app '
+            'cannot tell them apart.',
+            'RED and BLUE have not been observed doing anything.',
+        ]),
+        ('In the player', [
+            'The TV draws its own transport bar: play, pause, seek and '
+            'volume. It fades out, press OK to bring it back.',
+            'Elapsed time appears for files that play directly (MP3, AAC, '
+            'MP4). Lossless files are converted as they play and have no '
+            'known length, so that bar shows no time for them.',
+        ]),
+        ('Formats', [
+            'Plays directly: MP3, AAC, MP4 audio and video.',
+            'Converted live: FLAC, OGG, WAV and anything else. Nothing is '
+            'written to disk.',
+            'The set cannot play WebM or Matroska at all.',
+        ]),
+    ],
+    'pt': [
+        ('Ajustes do navegador', [
+            'O tamanho da fonte precisa estar em Médio. Todos os tamanhos destas páginas foram escolhidos para esse ajuste, e Grande ou Pequeno jogam o texto para fora da tela ou deixam ilegível de longe.',
+            'O navegador é o da própria TV. Fechá-lo ou trocar de entrada encerra a sessão, por isso o que vale a pena lembrar fica em cookie com data, não em cookie de sessão.',
+        ]),
+        ('Navegar', [
+            'Cima / Baixo movem o cursor. OK abre.',
+            'VERDE volta. Essa tecla é tratada pelo próprio Opera, então '
+            'funciona sempre, mesmo onde a página não tem linha Voltar.',
+            'AMARELO avança de novo.',
+            'Esquerda / Direita andam pelos botões do reprodutor.',
+        ]),
+        ('O controle remoto', [
+            'PLAY, PAUSE, STOP, ANTERIOR e PRÓXIMA não enviam nada nesta '
+            'geração. Não estão mapeadas errado, o navegador simplesmente '
+            'não as recebe. Use os controles na tela.',
+            'REW e FF enviam os mesmos códigos que Esquerda e Direita, '
+            'então o aplicativo não consegue distinguir.',
+            'VERMELHO e AZUL não foram observados fazendo nada.',
+        ]),
+        ('No reprodutor', [
+            'A TV desenha a própria barra: reproduzir, pausar, avançar e '
+            'volume. Ela some sozinha, aperte OK para trazer de volta.',
+            'O tempo aparece nos arquivos que tocam direto (MP3, AAC, '
+            'MP4). Os arquivos sem perdas são convertidos enquanto tocam e '
+            'não têm duração conhecida, então a barra não mostra tempo '
+            'para eles.',
+        ]),
+        ('Formatos', [
+            'Tocam direto: MP3, AAC, áudio e vídeo MP4.',
+            'Convertidos ao vivo: FLAC, OGG, WAV e o resto. Nada é gravado '
+            'em disco.',
+            'O aparelho não toca WebM nem Matroska de jeito nenhum.',
+        ]),
+    ],
+    'es': [
+        ('Ajustes del navegador', [
+            'El tamaño de fuente debe estar en Medio. Todos los tamaños de estas páginas se eligieron para ese ajuste, y Grande o Pequeño sacan el texto de la pantalla o lo vuelven ilegible de lejos.',
+            'El navegador es el del propio televisor. Cerrarlo o cambiar de entrada termina la sesión, por eso lo que vale la pena recordar se guarda en una cookie con fecha.',
+        ]),
+        ('Navegar', [
+            'Arriba / Abajo mueven el cursor. OK abre.',
+            'VERDE vuelve. Esa tecla la maneja el propio Opera, así que '
+            'siempre funciona, incluso donde la página no tiene fila Volver.',
+            'AMARILLO avanza de nuevo.',
+            'Izquierda / Derecha recorren los botones del reproductor.',
+        ]),
+        ('El mando', [
+            'PLAY, PAUSE, STOP, ANTERIOR y SIGUIENTE no envían nada en esta '
+            'generación. No están mal asignadas, el navegador nunca las '
+            'recibe. Use los controles en pantalla.',
+            'REW y FF envían los mismos códigos que Izquierda y Derecha, '
+            'así que la aplicación no puede distinguirlos.',
+            'ROJO y AZUL no se han observado haciendo nada.',
+        ]),
+        ('En el reproductor', [
+            'El televisor dibuja su propia barra: reproducir, pausar, '
+            'avanzar y volumen. Se oculta sola, pulse OK para recuperarla.',
+            'El tiempo aparece en los archivos que se reproducen directo '
+            '(MP3, AAC, MP4). Los archivos sin pérdida se convierten '
+            'mientras suenan y no tienen duración conocida, así que esa '
+            'barra no muestra tiempo para ellos.',
+        ]),
+        ('Formatos', [
+            'Se reproducen directo: MP3, AAC, audio y vídeo MP4.',
+            'Convertidos en vivo: FLAC, OGG, WAV y el resto. Nada se '
+            'escribe en disco.',
+            'El equipo no reproduce WebM ni Matroska en absoluto.',
+        ]),
+    ],
+}
+
+
+def render_manual():
+    """/manual — how to drive this thing, from the sofa.
+
+    Every statement here was measured on the panel rather than taken from
+    a specification, because on this generation the specification and the
+    hardware disagree often enough that only the hardware counts."""
+    lang = getattr(_UI, 'lang', None)
+    sections = MANUAL.get(lang if lang in MANUAL else 'en', MANUAL['en'])
+    out = []
+    for heading, items in sections:
+        out.append('<h2>%s</h2><ul>%s</ul>'
+                   % (esc(heading),
+                      ''.join('<li>%s</li>' % esc(i) for i in items)))
+    body = ('<h2 id="hdr">%s - %s</h2>' % (BRAND, T('manual'))
+            + ''.join(out)
+            + '<ul><li><a href="/">%s</a></li>'
+              '<li><a href="%s">%s</a></li></ul>'
+            % (T('browse'), esc(PORTAL_URL), T('portal')))
+    return _page(T('manual'), body)
+
+
 def render_probe():
     """/probe — index of the era probes that need eyes on the panel."""
     rows = ''.join('<li><a href="%s">%s</a></li>' % (h, t) for h, t in [
@@ -1264,6 +1411,7 @@ def render_probe():
         ('/probe/art?v=8', 'P \u2014 x3, wrapper no clip (audio?)'),
         ('/probe/art?v=9', 'Q \u2014 x3, no wrapper, spacer (audio?)'),
         ('/probe/art?v=10', 'R \u2014 candidato: 33%% x3, tabela'),
+        ('/probe/art?v=11', 'S \u2014 candidato: v\u00eddeo, mesmo layout'),
         ('/probe/cookie', 'N \u2014 cookies: do they persist?'),
     ])
     body = (_hdr('Era probes')
@@ -1342,6 +1490,25 @@ def render_probe_cookie(cookie_header):
           "catch(e){j.innerHTML='document.cookie THREW: '+e;}")
     return (_page('Cookies', body, extra_js=js),
             [bake('bravia_visits', visits)])
+
+
+def probe_video():
+    """A directly playable video for the probe: video/mp4 only.
+
+    The era player refuses Serviio's live transcode targets, so anything
+    that is not already progressive MP4 is no use as a probe subject."""
+    for container in ('V_T', 'V_M'):
+        try:
+            objects, _ = upnp_browse(container, count=18)
+        except Exception:
+            continue
+        for o in objects:
+            if o['container']:
+                continue
+            r = pick_video_res(o['res'])
+            if r and r.get('mime') == 'video/mp4':
+                return proxied_res_url(r['url']), r['mime'], o['title']
+    return None, None, None
 
 
 def render_probe_caps():
@@ -1463,10 +1630,17 @@ def render_probe_art(variant):
     natural place for Serviio's cover art. Variants 2 and 3 try to scale the
     element up, because the native bar renders at a fixed height and is
     unreadable at couch distance otherwise."""
-    url, mime, title = probe_track()
-    art = probe_art_url()
-    if not url:
-        return render_error('probe', 'no audio item found to test with')
+    if variant == 11:
+        url, mime, title = probe_video()
+        art = ''
+        if not url:
+            return render_error('probe', 'no direct-play MP4 found to test '
+                                         'with (Serviio lists none)')
+    else:
+        url, mime, title = probe_track()
+        art = probe_art_url()
+        if not url:
+            return render_error('probe', 'no audio item found to test with')
     # Measured on the EX725, 2026-09-18:
     #   * the native control bar has a FIXED pixel height. Growing the
     #     element widens the bar but never makes it taller (1 and 4).
@@ -1506,10 +1680,16 @@ def render_probe_art(variant):
         10: ('33%', '240px',
              '-o-transform:scale(3);-o-transform-origin:top left;'
              'transform:scale(3);transform-origin:top left;', 3),
+        # 11 is the same surface for video. No poster: the frames are the
+        # picture, so the art slot is the video itself.
+        11: ('33%', '240px',
+             '-o-transform:scale(3);-o-transform-origin:top left;'
+             'transform:scale(3);transform-origin:top left;', 3),
     }
     w, h, extra, factor = styles.get(variant, styles[1])
     # 5/6/7 clip, 8 wraps without clipping, 9 uses a sibling spacer
-    mode = {8: 'wrap', 9: 'spacer', 10: 'table'}.get(variant, 'clip')
+    mode = {8: 'wrap', 9: 'spacer', 10: 'table', 11: 'table'}.get(
+        variant, 'clip')
     poster = (' poster="%s"' % esc(art)) if art else ''
     what = {1: '960x540, poster only',
             2: '480x270 scaled x2 via transform',
@@ -1520,7 +1700,8 @@ def render_probe_art(variant):
             7: 'production candidate: x3, no chrome',
             8: 'x3, wrapper WITHOUT overflow:hidden',
             9: 'x3, NO wrapper - sibling spacer',
-            10: 'candidate: 33%% width x3, table, no clip'}.get(variant, '')
+            10: 'candidate: 33%% width x3, table, no clip',
+            11: 'candidate: same, video'}.get(variant, '')
     js = ("var v=document.getElementById('pv');"
           "var st=document.getElementById('status');"
           "var s=document.createElement('source');"
@@ -1548,7 +1729,19 @@ def render_probe_art(variant):
           "+((e.target&&e.target.error)?e.target.error.code:'?'));});"
           "s.addEventListener('error',function(){say('SOURCE rejected');});"
           "try{v.play();}catch(x){say('play() threw: '+x);}")
-    if variant == 7:
+    if variant in (10, 11):
+        # The owner's layout, 2026-09-18: brand line with the surface
+        # named, the file that is playing, the player, and a shortcut
+        # home. No status text — the native bar shows its own time, and a
+        # 'loading' line that never clears (loadstart/canplay/playing do
+        # not fire here) is worse than no line at all.
+        surface = T('video_player') if variant == 11 else T('audio_player')
+        body = ('<h2 id="hdr">%s - %s</h2>' % (BRAND, surface)
+                + '<p id="fmt">%s</p>' % esc(title or '')
+                + _scaled_video(poster, w, h, extra, factor, mode)
+                + '<ul><li><a href="%s">%s</a></li></ul>'
+                % (esc(PORTAL_URL), T('portal')))
+    elif variant == 7:
         # nothing above the player: the scroll bar on variant 6 came from
         # the chrome, so the candidate layout simply has none
         body = (_scaled_video(poster, w, h, extra, factor, mode)
@@ -2251,6 +2444,9 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self._sent = True  # no HTML fallback if the socket dies
                 self.wfile.write(gif)
+                return
+            elif u.path == '/manual':
+                self._send_html(render_manual().encode())
                 return
             elif u.path == '/probe':
                 self._send_html(render_probe().encode())

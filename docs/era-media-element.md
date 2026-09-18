@@ -102,6 +102,20 @@ most reliable layout primitive this browser has, and an element at
 1920. Height still needs pixels, since percentage heights need a
 declared parent height all the way up.
 
+## Two things the native bar cannot do
+
+**No time for live-converted audio.** The bar shows elapsed time for
+files that play directly (MP3, AAC, MP4) and nothing for anything coming
+down the `/atr/` pipe, because a live ffmpeg stream has no known length.
+The server does know the real duration for 38 782 indexed files, but
+there is no way to hand that to the set's own controls — only to our own
+elements. Documented for the user rather than fixed.
+
+**Font size is not ours either.** Every size in the app's CSS is tuned
+for the TV browser's **Medium** font setting. Large or Small will
+overflow the viewport or drop below couch-reading distance, and this
+engine has no media query to compensate with.
+
 ## The native bar already shows time
 
 The set's own transport draws elapsed time and a progress indicator. The
