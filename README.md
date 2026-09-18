@@ -92,12 +92,29 @@ short form linked in every upstream post is
 | LTT forums | two audience posts: [3D-theater guide](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) + [Steam Frame cross-comment](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512) |
 
 No DRM or copy-protection mechanism is involved anywhere in the chain.
-**Act three — the legacy formats** (row-interleaved, checkerboard,
-anaglyph: enable all 3D content ever made, not just the well-signalled
-rest) — is chartered in
-[docs/legacy-3d-formats.md](docs/legacy-3d-formats.md): conversion to
-SBS+SEI as the proper path, the anaglyph colorimetry chain, first
-results on the owner's own stack before any upstream ask.
+
+**Act three is the legacy formats**, chartered in
+[docs/legacy-3d-formats.md](docs/legacy-3d-formats.md): row-interleaved,
+checkerboard and anaglyph material, on the goal of enabling *all* 3D
+content ever made rather than only the well-signalled rest. Those
+packings never left the standard (`frame_packing_arrangement` types 0,
+1 and 2), so conversion to SBS+SEI is standard speaking to standard,
+and stock ffmpeg already carries both the conversion and Dubois
+anaglyph. Two additions the owner set in 2026-09-18:
+
+- **the library has to know what it is serving** — a 3D cataloger
+  lifting the detection our live transcode wrapper already performs,
+  writing it to an index, and giving the portal **an entire 3D
+  category** (*All 3D photos*, *All 3D movies / series / videos*);
+- **the 3D-photo gallery these sets never got** — Sony shipped a
+  2D-only slideshow on a 3D panel. Measured on the way in: the phereo
+  community platform's API times out while
+  [stereopix](https://stereopix.net/) answers in seconds, so the lane
+  is built source-agnostic and the private photo corpus is
+  preservation material, not just test material.
+
+First results on the owner's own stack, before any upstream ask, as
+in both earlier acts.
 The episode's authorship-politics record — who gated on what, and the
 42-line standard-based patch at the center of it — is
 [docs/judging-by-the-cover.md](docs/judging-by-the-cover.md).

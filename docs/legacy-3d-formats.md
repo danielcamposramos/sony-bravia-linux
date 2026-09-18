@@ -65,6 +65,13 @@ speaks. The pipeline is clean and every component already exists:
    HandBrake (merged, act one), or inject with
    `bravia_sei3d.py` after a plain encode.
 
+Steps 1 to 3 are one filter, not three, which is worth stating plainly
+because it shrinks the lane. Verified on ffmpeg 9.0.1 (2026-09-18):
+`stereo3d` reads the legacy packings directly (`in=irl` interleave
+rows, `in=icl` interleave columns) and writes the modern one
+(`out=sbsl`). So the conversion body is **`-vf stereo3d=irl:sbsl`**,
+and act three's own code is only the packaging and the SEI around it.
+
 **Honest scope, unlike acts one and two:** this is a *transcode* lane,
 not a remux — the pixels genuinely change (that is what deinterleaving
 is). Act one was signalling-only; act two was detection-only; act
@@ -74,12 +81,14 @@ modernizer" (legacy in, SBS + SEI out) — small, standard-based code
 in this repo, on the same ethos as the 42-line mpv patch.
 
 **Anaglyph runs in both directions (owner's call, 2026-09-18).**
-The display direction — SBS in, anaglyph out for any screen with
-glasses — is the practical one, and the reference code already exists
-(PhereoRoll3D renders it client-side; the MIT implementation is the
-reference for our server-side chain). The inverse — anaglyph in, SBS
-out, the modern format — is what the owner wants enabled too, and it
-splits into three honest sub-lanes:
+
+The display direction, SBS in and anaglyph out for any screen with
+glasses, is the practical one, and the reference code already exists.
+PhereoRoll3D renders it client-side, and that MIT implementation is
+the reference for our server-side chain.
+
+**The inverse is the one the owner wants enabled too**: anaglyph in,
+SBS out, the modern format. It splits into three honest sub-lanes:
 
 1. **Monochrome extraction — well-posed.** Each eye's luminance
    survives the color multiplex; recover two grayscale views, emit a
@@ -92,12 +101,16 @@ splits into three honest sub-lanes:
    methods recover color via depth-guided propagation; lossy,
    heavyweight, kept as the literature lane.
 
-And one honest shortcut for the phereo corpus specifically: its
-anaglyphs are *derived renditions* — the SBS original exists
-server-side, so "the inverse" there is fetch-the-original, not
-extraction. Extraction is for anaglyphs whose stereo source is gone:
-YouTube-era rips, scanned comics, community anaglyphs with no pair
-surviving. That is exactly the material this act exists for.
+One honest shortcut, for the community corpus specifically.
+Those anaglyphs are *derived renditions*, so the SBS original exists
+wherever the platform still stands, and "the inverse" there is
+fetch-the-original, not extraction.
+
+**Extraction is for the anaglyphs whose stereo source is gone**:
+YouTube-era rips, scanned material, community anaglyphs whose pair
+never survived, and, increasingly, files whose host went dark. That
+is exactly the material this act exists for, and the phereo
+measurement below is why the pile keeps growing.
 
 ## The anaglyph colorimetry lane
 
@@ -113,6 +126,21 @@ packaged as ordinary video. The owner's formulation is the charter:
 clever color filtering plus color adjustment plus clever packaging —
 the old result, on a modern display, possibly better than it ever
 looked new.
+
+**Correction, measured 2026-09-18: the Dubois half is already
+shipped.** Stock ffmpeg's `stereo3d` filter carries Dubois anaglyph
+as output modes (`arcd` red/cyan, `agmd` green/magenta, `aybd`
+yellow/blue), and `arcd` is in fact its *default* output. Verified
+on ffmpeg 9.0.1 here. So this lane does not have to implement Dubois
+at all, and the reference implementations in JackDesBwa's clients
+are confirmation rather than source material.
+
+**What actually remains custom is the panel correction layer**, and
+only that: Dubois was solved for a colorimetry that WLED does not
+have, so the work is a per-panel adjustment (`colorchannelmixer`,
+per-channel curves, `lut3d`) stacked *on top of* `arcd`, measured
+against our own two sets. That is a much smaller and much more
+honest piece of work than "build a Dubois chain".
 
 ## The iZ3D sidebar (verified 2026-09-18)
 
@@ -190,12 +218,17 @@ Contemporary record: the MTBS3D forum threads
 [2015 Stack Exchange question](https://webapps.stackexchange.com/questions/88182/what-happened-to-the-option-to-cross-your-eyes-whilst-watching-youtube)
 that has no restore answer.
 
-## The phereo lane — the portal gets a 3D-photo gallery
+## The 3D-photo lane — the gallery these sets never got
 
-The community behind the corpus is **phereo** (phereo.com) — a
-stereophoto sharing community, still active, whose members' photos
-make up the test archive above. Two open-source clients by
-JackDesBwa document how to talk to it, so nothing needs reversing:
+The community behind the corpus is **phereo** (phereo.com), the
+stereo-photo sharing platform whose members' photos make up the test
+archive above. It was described here at charter time as "still
+active". **The measurements below say otherwise**, and that changed
+this lane's design more than anything else in it.
+
+One person, **JackDesBwa**, wrote most of the open-source tooling
+that documents how to talk to that world, across four repos. Nothing
+here is reverse-engineered; his code is the map:
 
 - **[PhereoRoll3D](https://github.com/JackDesBwa/PhereoRoll3D)** (MIT,
   2018–2019, "Status: Working") — the phereo client: browse by
@@ -206,16 +239,41 @@ JackDesBwa document how to talk to it, so nothing needs reversing:
   source *is* the API map, and the Dubois conversion in it is
   reference code for our colorimetry chain.
 - **[PhotoRoll3D](https://github.com/JackDesBwa/PhotoRoll3D)** — the
-  same author's in-progress generalization ("stereo photo player
-  inspired by PhereoRoll3D but for more online sources", WIP).
-  **Verified 2026-09-18:** the "other sources" is the stated goal, not
-  shipped code — the repo holds one commit ("Add base structure for
-  the application"): a QML page shell plus an OpenGL shader renderer
-  for the display modes, with no source adapter implemented. Nothing
-  to reuse yet beyond the structure; PhereoRoll3D remains the only
-  working API map. The multi-source idea itself is the valuable
-  signal — it says the author already sees the same wall we do:
-  stereo content scattered across dying or closed platforms.
+  same author's generalization, "stereo photo player inspired by
+  PhereoRoll3D but for more online sources", still marked WIP.
+  **Verified 2026-09-18 by reading it:** the multi-source part is the
+  stated goal, not shipped code. The repo holds one commit ("Add base
+  structure for the application"), a QML page shell plus an OpenGL
+  shader renderer for the display modes, and **no source adapter at
+  all**. Nothing to reuse yet beyond the structure, and PhereoRoll3D
+  stays the only working API map.
+  **But read it next to the section below and it stops being an idle
+  generalization.** The author wrote a dedicated phereo client, and
+  then started rewriting it to not depend on phereo. That is what a
+  preservation response looks like from the client side, and it is
+  the same move this lane makes from the TV side.
+- **[StereoWebViewer](https://github.com/JackDesBwa/StereoWebViewer)**
+  (MIT, 2018) — the same author again, and this time in a browser:
+  a drop-in `<img data-swv-auto="1">` replacement that renders one
+  SBS source into parallel, cross, **anaglyph (Dubois)**, interleaved,
+  left-only or right-only, by keypress. Marked *proof of concept* and
+  *abandoned* in favour of
+  [threejs-StereoscopicEffects](https://github.com/JackDesBwa/threejs-StereoscopicEffects).
+  Two things in it matter to us more than the code does:
+
+  1. **It needs WebGL** (`canvas.getContext("webgl")`, GLSL vertex and
+     fragment shaders), and so does its three.js successor. The 2011
+     BRAVIA browser has no WebGL. **So even his *web* viewer cannot
+     run on the set**, which closes the question below for good: not
+     one of the four repos can render on this hardware, and that is
+     precisely why our lane renders server-side.
+  2. **`interleaved (i) [Not tested on actual device yet]`** — his
+     own README, still unchanged. He wrote the output mode for
+     autostereoscopic and passive panels and never had one to point
+     at it. **The owner has four**: two active-shutter BRAVIAs, the
+     parallax-barrier LG Optimus 3D (column-interleaved is its native
+     format), and the glasses-free Gadmei T883-3D. That is a real
+     contribution to offer, and it costs us one afternoon.
 
 **The open API, as documented by the MIT client** (no authentication,
 JSON with `Accept: application/vnd.phereo.v3+json`):
@@ -231,13 +289,50 @@ JSON with `Accept: application/vnd.phereo.v3+json`):
 | thumbnail | `api.phereo.com/imagestore/<id>/thumb.square/280/` |
 | avatar | `api.phereo.com/avatar/<uid>/100.100` |
 
-**Measured status at charter time (2026-09-18):** the host answers
-(nginx, http 301 → https); static assets over https return 200 in
-seconds; the API path returned **504 (gateway timeout, 60 s)** on
-both polite attempts from the workstation. The site is up, the
-backend is struggling today. Re-verify from the LAN before building —
-and build defensively: the portal lane must cache and tolerate the
-API being slow or briefly down.
+### Measured 2026-09-18: phereo is failing, and the successor is alive
+
+Two hosts, same afternoon, same workstation, polite single requests.
+
+| Host | Result |
+|---|---|
+| `phereo.com` static assets | **200**, seconds, nginx, http 301 → https |
+| `api.phereo.com` API path | **504 gateway timeout at 60 s**, both attempts |
+| `stereopix.net` | **200 in 2.5 s**, nginx, live site |
+
+The reading at charter time was "the site is up, the backend is
+struggling today".
+That was too kind, and the owner's follow-up research says why.
+Third-party reports going back years describe phereo as down, flaky
+or abandoned: the [DPReview "Phereo website is down"
+thread](https://www.dpreview.com/forums/threads/phereo-website-is-down.4483928/)
+and the [photo-3d groups.io
+topic](https://photo-3d.groups.io/g/main/topic/freevi_or_phereo_problem/34928125).
+Those are reports, not our measurements, and they are cited as
+reports. Our own number is the one that matters: **the API answers
+nothing, for 60 seconds, twice.**
+
+**[Stereopix](https://stereopix.net/) is the live one.** It serves
+stereo photos in the same formats (`.mpo`, `.jps`), browses by
+Highlights / Fresh / Random, still takes signups, and it answered in
+2.5 seconds. Whether it has an open API like phereo's is **not yet
+measured** and is the next thing to check before anything is built
+against it.
+
+**What this changes, concretely:**
+
+1. **The corpus on the owner's disks stops being only test material.**
+   If the platform that hosted it is dying, a private archive of
+   community photos is preservation, held for study, still never
+   republished. The provenance rule does not loosen because the
+   source is failing. It matters more.
+2. **The gallery is built source-agnostic from the first line.** No
+   phereo-shaped code paths. A source is an adapter: list, page,
+   fetch a rendition. Local library first because it cannot 504,
+   then whichever remote source is actually answering.
+3. **Nothing in this lane may depend on phereo being alive.** Cache
+   what we fetch, degrade to the local library, and treat every
+   remote source as temporary. That was already the defensive
+   instruction. It is now the expected case.
 
 **The lane itself — the 3D photo player the set never got.** Sony's
 own stock photo slideshow on these sets never touched the panel's 3D
@@ -261,28 +356,55 @@ And the same lane gives the restored 3D phones/tablets a shared
 target — the Gadmei and the Optimus are the community's own
 hardware lineage.
 
-**Does the set's Opera "know" what the phereo brother's software
-needs? Measured answer.** The Qt/QML clients cannot run on the TV at
-all — they are compiled OpenGL applications, not browser apps, and the
-AppliCast browser input has no plugin or download path (that wall is
-the project's origin story). But that was never the question that
-matters: our lane *reimplements* what they do, and what the
-reimplementation needs from the browser is already measured. The
-server-rendered design needs exactly three client capabilities —
-render images (measured: the probe pages validate this), paginate by
-links (measured: every lane browses this way, no JS needed), and run
-the small inline JS our pages already use (measured: the key beacons
-and native-controls player run on it). The heavy parts of the MIT
-clients — JSON API parsing, Dubois/anaglyph pixel math, shader-based
-display modes — all happen **server-side** in our design, where
-ffmpeg and the API proxy live. Two capabilities remain unmeasured and
-are *deliberately not depended on*: `JSON.parse` (native in the
-Presto lineage, but our pages never need it) and large-image scaling
-(avoided by requesting the API's `m`-size renditions). If client-side
-rendering is ever wanted, those become probe-page items — one page
-on the EX725 answers both. The honest verdict: the TV does not know
-what Qt knows, but it knows everything our lane asks of it, and
-everything it doesn't is our server's job.
+### Does the set's Opera know what that software needs?
+
+The owner's question, and it has a clean answer.
+
+**The clients themselves: no, and not one of the four.** PhereoRoll3D
+and PhotoRoll3D are compiled Qt/QML applications with an OpenGL
+shader renderer, and the AppliCast browser has no plugin path and no
+download path, which is this project's origin wall rather than a new
+one. The interesting case is the web one, because it is the case that
+should have worked: **StereoWebViewer is plain HTML and JavaScript
+and still cannot run here, because it needs WebGL** and the era
+browser has none. Its three.js successor needs WebGL twice over.
+
+That is a clean finding rather than a disappointment. **Every viewer
+this community built assumes a GPU the browser can reach.** Our sets
+have the 3D panel and no such browser, so the panel has sat unused by
+every one of these tools for fifteen years.
+
+**But the set is never asked to.** The decisive fact is one layer
+down: **the TV does not talk to phereo, or stereopix, or any modern
+host at all.** Its browser speaks an era TLS stack that today's
+certificates and ciphers already defeated, which is why this whole
+project serves the TV from an era-TLS vhost on our own box. So the
+TV talks to us, we talk to the internet, and every fetch is the
+server's job by construction. The API proxy is not an optimization
+here. It is the only way any of this reaches the panel.
+
+That leaves a short list of what our own pages actually need from
+the browser, and every item on it is already measured on these sets:
+
+| Need | Status |
+|---|---|
+| render images | **measured** — the probe pages render them |
+| paginate by plain links | **measured** — every live lane browses this way, no JS |
+| the small inline JS our pages use | **measured** — key beacons and the native-controls player run on it |
+
+Everything heavy in his clients, JSON parsing, Dubois pixel math,
+shader display modes, happens **server-side** in our design, next to
+ffmpeg.
+
+Two things stay **unmeasured, and are deliberately not depended on**:
+`JSON.parse` (probably native in the Presto lineage, but our pages
+never call it) and large-image scaling on the panel (avoided by
+requesting the `m`-size rendition rather than full). If client-side
+rendering is ever wanted, those are one probe page on the EX725.
+
+**The honest verdict: the TV does not know what Qt knows, and does
+not need to. It knows everything our lane asks of it, and what it
+does not know is the server's job.**
 
 **One open test this lane inherits:** the sets' manual 3D menu is
 blocked on the browser input
@@ -302,25 +424,42 @@ instructions, roots. Two more glasses-free displays in the lineage,
 and two more communities' worth of preservation work this project's
 method applies to.
 
-## The 3D catalog — the library has to *know* what's 3D (owner's framing: both ends)
+## The 3D catalog — the library has to know what it is serving
 
-Conversion is half the charter; the other half is that **the serving
-side must know the contents**. Nothing in the chain carries the
-knowledge today: Serviio's ContentDirectory has no 3D concept, photos
-disclose their packing only by extension at best, and the video
-stereo signal lives where act one found it — in-band (SEI) or in the
-container tag a DLNA remux strips. A library that cannot say "this is
-3D" cannot serve a 3D category, cannot route anaglyphs to the
-colorimetry chain, and cannot queue row-interleaved material for
-front-B conversion. So act three gets a catalog:
+Conversion is half the charter.
+The other half is the owner's, and it is the half everything else
+waits on: **the serving side has to know the contents.**
 
-**A scanner ("3D cataloger") walks the library and emits a 3D index**
-(JSON manifest, keyed to the same paths Serviio serves): item →
-type → detection evidence → confidence → owner override. Then the
-portal gains **an entire top-level 3D category** — *All 3D photos*,
-*All 3D movies/series/videos* — each browsable by type, so the
-content this act exists for is one click from the couch, not
-archaeology in the folder tree.
+The gap is narrower than it looks, because detection is not missing.
+**It already exists here, and it is already running in the live
+stack.** `ffmpeg-3d-wrapper.sh` decides on every Serviio transcode
+whether the input is 3D, from filename tokens (`sbs`, `hsbs`,
+`side-by-side`, `lado-a-lado`, `tb`, `tab`, `htb`, `top-bottom`,
+`cima-e-baixo`, `[3D]`) and from `ffprobe -show_entries
+stream_tags=stereo_mode`, then writes `--frame-packing` and logs why.
+
+**The flaw is that the answer is thrown away.** It decides one file's
+encode and forgets. Nothing accumulates, so nothing can be browsed.
+
+That is the whole cataloger: **the same detection, lifted out of the
+transcode path and written down.** Walk the library, type every file,
+emit an index (JSON, keyed to the paths Serviio already serves):
+item → type → evidence → confidence → owner override.
+
+And what Serviio is missing is narrower than "no 3D concept", which
+would be wrong. Serviio hands us enough to detect with, and our own
+wrapper proves it. What its ContentDirectory has no notion of is a
+**3D dimension to browse**: there is no node that means "all of it,
+by type", so the content act three exists for stays scattered across
+the folder tree that happens to hold it.
+
+So the portal grows **an entire top-level 3D category**: *All 3D
+photos*, *All 3D movies / series / videos*, each browsable by type.
+The app already has the three parts this needs. `render_root()` draws
+the root menu, `render_list()` already sorts items into `videoItem` /
+`audioItem` / `imageItem`, and `render_image()` already displays
+photos. The category is one more root row plus an index lookup at
+list time.
 
 | Flag | Photos | Video | Detection |
 |---|---|---|---|
@@ -331,17 +470,20 @@ archaeology in the folder tree.
 | `row`/`col` | interleaved legacy photos | row-interleaved legacy video (act three's type 2) | naming + measurement (odd/even row correlation); manual flag |
 | `anaglyph` | color-multiplexed | anaglyph-encoded video | channel-correlation heuristic; **manual override always wins** |
 
-Honest scope on detection: `jps`/`mpo` are certain from the file
-itself; SBS/TAB and the SEI are certain from tools we already built;
-interleaved and anaglyph detection are heuristics, which is why the
-index carries an owner-override flag — a wrong guess must never
-outvote the person who owns the content. And the Serviio side of
-"both ends": the index enriches Serviio's existing browse results at
-the portal layer, keyed by path, requiring zero changes to Serviio
-itself; the deeper ask — native 3D metadata in the servers — is the
-same finding we already carried to Jellyfin, UMS and Gerbera in act
-two, and follows the same doctrine: results on our stack first, the
-upstream filing after the demonstration works.
+**Honest scope on detection, per row.** `.jps` and `.mpo` are
+certain from the file itself. SBS/TAB by tag and the SEI are certain,
+and they are certain because act one built the tools that read them.
+Interleaved and anaglyph detection are **heuristics and will be wrong
+sometimes**, which is exactly why every entry carries an owner
+override. A guess must never outvote the person who owns the content.
+
+**The Serviio side of "both ends" needs no Serviio changes.** The
+index enriches its browse results at the portal layer, keyed by path,
+which is where we already reshape everything else the TV sees. The
+deeper ask, native 3D metadata inside the servers themselves, is the
+same finding already carried to Jellyfin, UMS and Gerbera in act two,
+and it waits for the same reason as always: **results on our own
+stack first, the upstream filing after the demonstration works.**
 
 ## Ordering and doctrine
 
@@ -352,18 +494,30 @@ DLNA transcode presets — once the conversion lane is measured and
 produces a demonstration no one can argue with. No premature upstream
 filings; bring the diagnosis + a working fix, in that order.
 
-**Status: charter (2026-09-18), prepared and held for the owner's go
-— nothing built yet.** Nothing in this lane is measured yet beyond
-the campaign-era facts above. First steps, in order: **the 3D
-cataloger** (scan the photo corpus → type the flags → emit the
-index; photos first because the corpus is the ready-made test bed,
-then videos on the SEI/tag tooling act one already built), **the
-portal's 3D category** browsing that index (*All 3D photos*, *All 3D
-movies/series/videos*, by-type views), then prove front B on one JPS
-pair (deinterleave → SBS → SEI → the EX725 switches), then the
-anaglyph color chain on one corpus photo (private test use), then
-the phereo gallery lane (re-verify the API from the LAN first), then
-decide what becomes a tool and what goes upstream.
+**Status: charter (2026-09-18). Prepared, and held for the owner's
+go. Nothing is built yet.**
+
+Nothing in this lane is measured beyond the facts above. First steps,
+in the order they unblock each other:
+
+1. **The 3D cataloger.** Lift the detection out of
+   `ffmpeg-3d-wrapper.sh`, scan the photo corpus, emit the index.
+   Photos first, because the corpus is a ready-made test bed that
+   needs no encoding at all. Video after, on the SEI/tag tooling act
+   one already built.
+2. **The portal's 3D category**, browsing that index. *All 3D
+   photos*, *All 3D movies / series / videos*, by-type views.
+3. **Front B on one JPS pair.** Deinterleave → SBS → SEI → does the
+   EX725 switch. One pair answers the whole conversion lane.
+4. **The anaglyph color chain on one corpus photo.** Private test
+   use, as always.
+5. **The remote source, last and separately.** Check whether
+   stereopix exposes an open API, re-check phereo from the LAN, and
+   build against whichever answers. The gallery must already work
+   on the local library before any of that.
+
+Then, and only then, decide what becomes a tool and what goes
+upstream.
 
 ## Related
 
