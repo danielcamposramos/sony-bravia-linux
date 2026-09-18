@@ -1,0 +1,10 @@
+<sources>
+    <video>
+        <default pathversion="1"></default>
+        <source>
+            <name>work</name>
+            <path pathversion="1">/work/share/</path>
+            <allowsharing>true</allowsharing>
+        </source>
+    </video>
+</sources>

@@ -187,6 +187,36 @@ path. This one does now:
   automatic 3D over DLNA on stock free software (this repo,
   `tools/serviio/`).
 
+## A second server, the same result (Kodi, owner-verified 2026-09-18)
+
+The signalling fix was first proven through Serviio. The obvious
+objection is that it could be a Serviio artefact. So the same experiment
+was run through a different maker's server: Kodi's built-in UPnP/DLNA
+server, from Debian main, in a throwaway container
+([tools/kodi-dlna-test/](../tools/kodi-dlna-test/README.md)), to the
+KDL-46EX725.
+
+| File | Signal | On the set |
+|---|---|---|
+| *3D Bonsai*, as published | SEI, no container tag | **3D engaged automatically** |
+| the same file minus its SEI (791 bytes, nothing else) | none | plays flat |
+| *3D Maestro* (Joe Penna), MKV remuxed losslessly to MP4 | SEI | **3D engaged automatically** |
+| *3D Maestro*, original MKV | SEI + Matroska tag | **not listed** by the set |
+
+Two conclusions for the chain. **The SEI is sufficient on its own, from
+any server that passes it through**: Kodi serves files byte-exact, so the
+signal arrives, and the set switches. And **the container is the other
+gate**: the set filters Matroska out of the list before playback, so a
+3D MKV is invisible to it however it is signalled. That makes the
+cheapest complete path for an existing 3D rip a lossless one: remux MKV
+to MP4, add the SEI if it is missing (`tools/bravia_sei3d.py`), and serve
+it from anything that does not transcode.
+
+It also closes a loop in the owner's own history: years ago Kodi's
+server "did not work" for 3D on these sets. Measured now, it could not
+have: the rips of the time were MKV, which never appeared, and no MP4
+carried an SEI because nothing wrote one.
+
 ## Why this is worth spreading
 
 The demand is current and the pain is on record from people who would

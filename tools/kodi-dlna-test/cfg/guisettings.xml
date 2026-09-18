@@ -1,0 +1,5 @@
+<settings version="2">
+    <setting id="services.upnp">true</setting>
+    <setting id="services.upnpserver">true</setting>
+    <setting id="services.upnpannounce">true</setting>
+</settings>
