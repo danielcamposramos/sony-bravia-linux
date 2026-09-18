@@ -26,17 +26,18 @@ not general, it is exact and current:
   like Sony accountable." So the path to Rossmann is not an email, it is
   a strong wiki entry, which we now have.
 - **The thesis our evidence refutes is the quote he ends on.** He signs
-  off most videos by replaying a line spoken by an opponent of
-  right-to-repair at a US government hearing (a congressional / DMCA
-  Section 1201 exemption hearing): "It is in fact the manufacturers who
-  have the relevant rights, not consumers." He uses it satirically, the
-  other side's own words against them. (Origin per Rossmann's framing and
-  secondary accounts, with the hearing record at govinfo.gov as a lead,
-  [CHRG-118hhrg53108](https://www.govinfo.gov/content/pkg/CHRG-118hhrg53108/html/CHRG-118hhrg53108.htm);
-  we have **not** independently verified the exact speaker in the primary
-  transcript, and an earlier note here that the speaker "sued Rossmann and
-  lost" was owner recollection that no source we checked corroborates, so
-  it is removed pending verification.) That sentence is exactly what the
+  off most videos by replaying a line spoken by **Parker Hartline of the
+  Automotive Service Association (ASA)** at the 2023 U.S. House of
+  Representatives hearing titled "Is There a Right to Repair?": "It is in
+  fact the manufacturers who have the relevant rights, not consumers." He
+  uses it satirically, the other side's own words against them. It is a
+  public congressional statement, so replaying it for commentary is fair
+  use, and there is **no lawsuit** (an earlier note here to the contrary
+  was owner recollection and is confirmed wrong: the speaker did not sue
+  Rossmann). Sources:
+  [Repairer Driven News, 20 Jul 2023](https://www.repairerdrivennews.com/2023/07/20/145072/);
+  [congress.gov, 118th Congress House event 116230](https://www.congress.gov/event/118th-congress/house-event/116230/text).
+  That sentence is exactly what the
   BRAVIA record answers: Sony documented the features, shipped them, then
   withdrew them while the buyer still owns the hardware, and the GPL
   source obligation the manufacturer itself points to was withdrawn. The
