@@ -40,6 +40,35 @@ sibling of the iZ3D's best-known flaw (below), and it is the one
 legacy format that plays on *any* modern display unchanged, because
 the 3D is in the pixels and the glasses are the display.
 
+### Why field-sequential needs the high refresh
+
+Type 5 is the temporal packing, and its physics were set by a
+decision made ninety years ago. Cinema runs at 24 frames per second
+because, when sync sound arrived in the late 1920s, 24 was the
+slowest speed that still carried an acceptable optical soundtrack,
+and slower film meant cheaper film. But the eye sees flicker below
+roughly 50-60 Hz, so a projector flashes each frame two or three
+times (48 or 72 Hz) to keep 24 fps from strobing.
+
+Stereo doubles the demand. Two eyes each need their 24 frames, an
+alternation of only 48 flashes per second — right on the flicker
+threshold. That is why every active-shutter 3D display, these BRAVIAs
+among them, drives the panel at 120 Hz or higher, lighting each eye
+60 times a second to clear the threshold. A 24 fps 3D film is the
+most flicker-prone thing a display can be asked to show.
+
+One consequence for this act. Types 0-4 are spatial packings — the
+two views share one frame's *area* — while type 5 is temporal, the
+two views sharing one frame's *time*, which is why it is the one
+packing the front-B SBS conversion cannot touch: there is nothing to
+interleave when no shutter is being driven. We document type 5; we do
+not convert it.
+
+The format war that set the 24 fps floor is told in one sitting in
+Slidebean's *Why Do Movies Have Black Bars?*
+(https://www.youtube.com/watch?v=Pq8YoHpmlKs); the aspect-ratio half
+of that war is the 2D fight this 3D campaign sits on top of.
+
 ## Two fronts (owner's framing)
 
 **Front A — play as-is on modern outputs (live remux).** Serve the
