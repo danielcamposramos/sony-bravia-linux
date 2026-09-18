@@ -218,6 +218,12 @@ h2{margin:10px;font-size:60px;font-weight:normal;}
    Large or Small will overflow the viewport or drop under couch-reading
    distance; there is no media query on this engine to compensate. */
 ul{list-style:none;margin:10px;padding:0;}
+/* audio player: small grey library path, and the legend of the
+   actions the native control bar has no concept of */
+.loc{font-size:26px;color:#777;margin:0 10px 6px;word-wrap:break-word;}
+.legend{margin:8px 10px;}
+.legend li{background:#111;border-left:8px solid #333;padding:8px 14px;font-size:34px;margin:0 0 8px 0;}
+#repl{color:#3cf;}
 li{padding:10px 14px;font-size:56px;background:#222;border-left:8px solid #3cf;margin:0 0 12px 0;}
 li.sel{background:#3cf;color:#000;}
 li.sel a{color:#000;}
@@ -347,124 +353,46 @@ document.onkeydown=function(e){
 """
 
 MUSIC_JS = """
-var v=document.getElementById('player_object');
+var v=document.getElementById('pv');
 var st=document.getElementById('status');
-var pbf=document.getElementById('pbf');
-var tm=document.getElementById('time');
-var ppg=document.getElementById('ppg');
-var repg=document.getElementById('repg');
-var blbl=document.getElementById('blbl');
-var items=document.getElementsByTagName('li');
-var sel=0;
-var rep=false;
+var repl=document.getElementById('repl');
 var prevUrl=%PREV%;
 var nextUrl=%NEXT%;
-// Known track length from the library probe. The live /atr/ pipe has no
-// Content-Length, so the element's own duration is NaN/Infinity there —
-// only the server can supply the real length, and without it a
-// transcoded FLAC would get no progress bar at all.
-var DUR=%DUR%;
-// remote multimedia-key codes, from config.ini [keys] (see /keys probe)
-var KM=%KEYMAP%;
 %GOBACK%
-function km(a,k){var c=KM[a]||[];for(var i=0;i<c.length;i++){if(c[i]==k){return true;}}return false;}
-// Two cursor groups: the transport bar (data-grp 0, left/right) and the
-// rows beneath it (data-grp 1, reached with up/down). 'dim' buttons have
-// no target in this folder and are skipped entirely.
-var dim=[];
-for(var _i=0;_i<items.length;_i++){dim[_i]=items[_i].className.indexOf('dim')>=0;}
-function grp(i){var g=items[i].getAttribute('data-grp');return (g==null)?'1':''+g;}
-function show(){
- for(var i=0;i<items.length;i++){items[i].className=(dim[i]?'dim':'')+((i==sel)?' sel':'');}
- if(items[sel]){
-  try{items[sel].scrollIntoView(false);}catch(x){}
-  if(blbl){var l=items[sel].getAttribute('data-lbl');blbl.innerHTML=l?l:'';}
- }
-}
-// move within the current group; jump crosses to the other group
-function move(d){var g=grp(sel),n=items.length,i=sel;for(var c=0;c<n;c++){i=(i+d+n)%n;if(grp(i)==g&&!dim[i]){sel=i;break;}}show();}
-function jump(d){var g=grp(sel),n=items.length,i=sel;for(var c=0;c<n;c++){i=(i+d+n)%n;if(grp(i)!=g&&!dim[i]){sel=i;break;}}show();}
-// left at the leftmost button still means "back": the sets' RETURN key
-// has never been keyCode-harvested, so left/8 must keep an exit path
-function two(n){n=Math.floor(n);return (n<10?'0':'')+n;}
-function fmt(s){if(!(s>0)){return '0:00';}return Math.floor(s/60)+':'+two(s%60);}
-function dur(){var d=v.duration;return (d&&isFinite(d)&&d>0)?d:DUR;}
-function tick(){
- var c=v.currentTime||0,d=dur();
- if(tm){tm.innerHTML=fmt(c)+((d>0)?(' / '+fmt(d)):'');}
- if(pbf&&d>0){var p=Math.floor(c*100/d);pbf.style.width=((p>100)?100:p)+'%';}
-}
-// The play/pause glyph must not depend on the 'play'/'pause' events: the
-// working video player deliberately listens to 'playing'/'timeupdate'
-// instead, and on the EX725 the glyph never flipped (2026-09-18). So it
-// is set optimistically the moment we issue the command — we know what we
-// just asked for — and re-synced from 'timeupdate', which is proven to
-// fire on these sets.
-function pset(paused){if(ppg){ppg.innerHTML=paused?'\\u25b6':'\\u25ae\\u25ae';}}
-function pstate(){pset(v.paused);}
-function rstate(){if(repg){repg.innerHTML=rep?'\\u00b7':'';}}
-function act(a){
- if(a=='pp'){if(v.paused){v.play();pset(false);}else{v.pause();pset(true);}}
- else if(a=='bk'){try{v.currentTime-=30;}catch(x){}}
- else if(a=='fw'){try{v.currentTime+=30;}catch(x){}}
- // next/previous in folder: plain navigation, the target page is a
- // fresh /aud/ render with its own player (era Presto cannot swap a
- // <source> in place and re-run reliably — a page load is the era-
- // proven way to change what plays)
- else if(a=='prv'){if(prevUrl){window.location=prevUrl;}}
- else if(a=='nxt'){if(nextUrl){window.location=nextUrl;}}
- // repeat-this-track toggle: rewinds and replays on 'ended'
- else if(a=='rep'){rep=!rep;rstate();st.innerHTML=rep?%music_rep_on%:%music_rep_off%;}
- else if(a=='back'){goBack();}
-}
-function openSel(){if(!items.length||!items[sel]){return;}var a=items[sel].getElementsByTagName('a');if(a.length){act(a[0].getAttribute('data-act'));}}
+// Repeat persists in a dated cookie: each track is a full page load (the
+// era player cannot swap a <source> in place), so an in-page flag would
+// reset on every next-track navigation. Cookies survive that, and a power
+// cycle (measured on the EX725, 2026-09-18).
+function ckget(n){var m=(';'+document.cookie).split('; '+n+'=');return m.length<2?'':m.pop().split(';').shift();}
+function ckset(n,val){var d=new Date();d.setTime(d.getTime()+31536000000);document.cookie=n+'='+val+'; Expires='+d.toGMTString()+'; Path=/';}
+var rep=(ckget('bravia_rep')=='1');
+function rstate(){if(repl){repl.innerHTML=rep?%music_rep_on%:%music_rep_off%;}}
+function toggleRep(){rep=!rep;ckset('bravia_rep',rep?'1':'0');rstate();}
+// attach the source the era-proven way: a bare src= attribute loaded
+// nothing on these sets, a <source> child with an explicit type plays
 var s=document.createElement('source');
-s.type=%MIME%;
-s.src=%URL%;
-s.addEventListener('error',function(){st.innerHTML=%hud_err_src%;});
+s.type=%MIME%;s.src=%URL%;
+s.addEventListener('error',function(){if(st){st.innerHTML=%hud_err_src%;}});
 v.appendChild(s);
-// #status carries messages; the clock and the bar are their own elements
-v.addEventListener('timeupdate',function(e){tick();pstate();});
-v.addEventListener('durationchange',function(e){tick();});
-v.addEventListener('play',function(){pstate();});
-v.addEventListener('pause',function(){pstate();});
-v.addEventListener('error',function(e){st.innerHTML=%hud_err_code%+(e.target.error?e.target.error.code:'?');});
-// repeat: reload-and-play (works for native /stream/ MP3s AND the live
-// /atr/ pipe — a fresh fetch spawns a fresh ffmpeg decode from zero;
-// a bare currentTime=0 seek is unreliable against the live pipe)
-v.addEventListener('ended',function(){if(rep){try{v.load();}catch(x){try{v.currentTime=0;}catch(x2){}}v.play();st.innerHTML=%music_rep_on%;}else{st.innerHTML=%hud_ended%;}});
-v.load();v.play();
-st.innerHTML=%hud_load%;
-// open on Play/Pause, not on whatever happens to be row 0 (which used to
-// be "previous track" whenever the folder resolved)
-for(var _j=0;_j<items.length;_j++){var _a=items[_j].getElementsByTagName('a');
- if(_a.length&&_a[0].getAttribute('data-act')=='pp'&&!dim[_j]){sel=_j;break;}}
-show();pstate();rstate();tick();
+v.addEventListener('error',function(e){if(st){st.innerHTML=%hud_err_code%+(e.target.error?e.target.error.code:'?');}});
+// on end: repeat this track (reload restarts the /atr/ ffmpeg pipe from
+// zero, more reliable than a currentTime seek against the live pipe), or
+// auto-advance to the next track when there is one
+v.addEventListener('ended',function(){if(rep){try{v.load();}catch(x){try{v.currentTime=0;}catch(x2){}}v.play();}else if(nextUrl){window.location=nextUrl;}});
+try{v.load();v.play();v.focus();}catch(x){}
+rstate();
+// Keys (EX725, 2026-09-18): native controls own OK (play/pause) and the
+// seek bar; we own what the native bar has no concept of. Back has three
+// routes -- RETURN(8), the GREEN button (Opera handles it, never reaches
+// here), and DOWN.
 document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
-  // multimedia keys first: they are the remote's dedicated transport
-  // buttons (play, pause, stop, previous, next, rewind, fast-forward).
-  // NOTE these codes are still unvalidated guesses on these sets — the
-  // on-screen bar below is the transport we can actually prove works.
-  if(km('playpause',k)){act('pp');}
-  else if(km('play',k)){if(v.paused){v.play();}}
-  else if(km('pause',k)){if(!v.paused){v.pause();}}
-  else if(km('stop',k)){goBack();}
-  else if(km('prev',k)){act('prv');}
-  else if(km('next',k)){act('nxt');}
-  else if(km('rew',k)){act('bk');}
-  else if(km('ff',k)){act('fw');}
-  // left/right walk the transport bar; up/down cross to the row below.
-  // Left at the leftmost button stops there rather than exiting: 37 is
-  // also the REW button, and back belongs to GREEN and the Voltar row.
-  else if(k==37){move(-1);}
-  else if(k==39){move(1);}
-  else if(k==38){jump(-1);}
-  else if(k==40){jump(1);}
-  else if(k==13){openSel();}
-  else if(k==8){goBack();}
-  else{return true;}
-  return false;
+  if(k==13){return true;}
+  if(k==37){if(prevUrl){window.location=prevUrl;}return false;}
+  if(k==39){if(nextUrl){window.location=nextUrl;}return false;}
+  if(k==38){toggleRep();return false;}
+  if(k==40||k==8){goBack();return false;}
+  return true;
 };
 """
 
@@ -904,25 +832,43 @@ def proxied_res_url(res_url):
 
 
 def render_player(o, res, back=''):
-    label = '%s / %s%s' % (res['mime'], res['pn'],
-                           T('converted') if res['ci'] == '1' else '')
+    """Video player: full-viewport picture with the set's OWN transport.
+
+    Presto has no JS fullscreen API, so full screen is a position:fixed
+    100%x100% <video>. Adding `controls` gives the picture AND the native
+    bar together (owner-confirmed on the EX725, 2026-09-18) so the old
+    hand-built HUD is gone. No overlay: the picture is the whole point.
+    The bar is small and cannot be enlarged -- the -o-transform scale that
+    grows it for audio destroys video, whose picture rides a hardware
+    plane CSS transforms do not follow. Keys: OK -> native play/pause,
+    left/right -> previous/next sibling, down/RETURN/GREEN -> back."""
     title = o['title']
-    body = ('<div id="player_page">'
-            '<video id="player_object" width="0px" height="0px" preload="none"></video>'
-            '<p class="hud" id="hud"><span id="ttl">%s</span> &mdash; '
-            '<span id="fmt">%s</span> &mdash; '
-            '<span id="status">%s</span></p>'
-            '</div>'
-            % (esc(title), esc(label), T('starting')))
-    # multimedia keys prev/next jump to the sibling videos' /tr/ pages
-    # (do_transcode handles every delivery shape: direct play, track
-    # choice, conversion, cache)
     prev_id, next_id = video_neighbors(o)
-    js = player_js(res['mime'], proxied_res_url(res['url']),
-                   prev=_tr_url(prev_id) if prev_id else None,
-                   nxt=_tr_url(next_id) if next_id else None,
-                   back=back)
-    return _page(title, body, extra_js=js)
+    prev_url = _tr_url(prev_id) if prev_id else ''
+    next_url = _tr_url(next_id) if next_id else ''
+    css = ('html,body{margin:0;padding:0;background:#000;overflow:hidden;}'
+           '#fv{position:fixed;left:0;top:0;width:100%;height:100%;'
+           'border:0;background:#000;}')
+    js = ("var v=document.getElementById('fv');"
+          "var s=document.createElement('source');"
+          "s.type=%s;s.src=%s;v.appendChild(s);"
+          % (json.dumps(res['mime']),
+             json.dumps(proxied_res_url(res['url']))) +
+          "try{v.load();v.play();v.focus();}catch(x){}"
+          "var pu=%s,nu=%s;" % (json.dumps(prev_url), json.dumps(next_url)) +
+          "document.onkeydown=function(e){var k=(e||window.event).keyCode;"
+          "if(k==13){return true;}"
+          "if(k==37){if(pu){window.location=pu;}return false;}"
+          "if(k==39){if(nu){window.location=nu;}return false;}"
+          "if(k==40||k==8){if(history.go){history.go(-1);}else{history.back();}"
+          "return false;}"
+          "return true;};")
+    body = ('<video id="fv" controls preload="none"></video>'
+            '<style>%s</style>' % css)
+    # a bare page: no _page() chrome, the video owns the whole screen
+    return ('<!DOCTYPE html>\n<html><head><meta charset="utf-8">'
+            '<title>%s</title></head><body>%s<script>%s</script>'
+            '</body></html>' % (esc(title), body, js))
 
 
 def render_image(o, res):
@@ -1100,15 +1046,19 @@ def _tr_url(obj_id):
 
 
 def render_music(o, res, back=''):
-    """Music page: album art + on-screen buttons, NOT full-screen.
+    """Audio player: cover art as poster, the set's own native transport
+    (scaled so it reads from a sofa), and a small legend for the track-nav
+    and repeat actions the native bar has no concept of.
 
-    MP3 plays era-native (proxied); anything else (FLAC/OGG/WAV/...)
-    points at the live /atr/ MP3 pipe — ffmpeg bytes straight to the
-    player, nothing written to disk.
+    Native controls do play/pause/seek/volume; our keys do previous/next
+    track (left/right), repeat toggle (up, persisted in a cookie), and
+    back (down / RETURN / GREEN). See docs/era-media-element.md and
+    docs/era-key-vocabulary.md.
 
-    res may be None: Serviio lists mpc/wv items as musicTracks with no
-    res at all (it can't serve them) — the /atr/ lane resolves the source
-    by DIDL title/duration instead, so the page renders fine either way.
+    res may be None (mpc/wv musicTracks Serviio lists with no res); the
+    /atr/ pipe resolves the source by title/duration, so the page renders
+    either way. Only MP3/AAC play natively, so the rest goes down the live
+    transcode.
     """
     qid = urllib.parse.quote(o['id'], safe='')
     live = res is None or res['mime'] != 'audio/mpeg'
@@ -1116,72 +1066,42 @@ def render_music(o, res, back=''):
     fmt = res['mime'] if res else _EXT_MIME.get(
         os.path.splitext(o['title'])[1].lower(), T('music_unknown'))
     label = fmt + ((', ' + T('music_live')) if live else '')
-    art = ('<img src="/art/%s" alt="">' % qid) if music_art_available(o) \
-        else ''
-    # Transport bar (cursor group 0, walked with left/right) over a Back
-    # row (group 1, reached with up/down). The bar shows glyphs only —
-    # six labelled buttons do not fit the era viewport — and the name of
-    # the selected button is printed under it in #blbl.
-    #
-    # Prev/next always render: when the folder can't be resolved they are
-    # dimmed and skipped by the cursor, which keeps the bar's shape stable
-    # instead of silently shifting the buttons under the user's thumb.
-    #
-    # Glyphs are measured, not assumed (EX725, 2026-09-18): this panel's
-    # font carries Geometric Shapes (U+25A0/25AE/25B6/25C0), U+266A,
-    # U+221E and Latin-1, and carries NOTHING from the Arrows block —
-    # U+2194, U+2195, U+21B5, U+21BA, U+21BB and U+23EE all render as
-    # empty boxes. "Unicode 1.1" was the wrong predictor; the block the
-    # font covers is the right one. U+221E is the repeat glyph because
-    # U+21BA was a box. See docs/era-key-vocabulary.md.
+    art = ('/art/%s' % qid) if music_art_available(o) else ''
+    where = where_line(o['title'], _didl_duration_seconds(o['res']), 'audio')
     prev_id, next_id = music_neighbors(o)
-    bar_btns = [('prv', 'btn_prev', '|◀', bool(prev_id)),
-                ('pp', 'btn_pp', '<span id="ppg">▶</span>', True),
-                ('nxt', 'btn_next', '▶|', bool(next_id)),
-                ('bk', 'btn_b30', '◀◀', True),
-                ('fw', 'btn_f30', '▶▶', True),
-                ('rep', 'btn_rep', '∞<span id="repg"></span>', True)]
-    bar = ''.join(
-        '<li data-grp="0" data-lbl="%s"%s>'
-        '<a href="#" data-act="%s">%s</a></li>'
-        % (esc(T(key)), '' if on else ' class="dim"', act, glyph)
-        for act, key, glyph, on in bar_btns)
-    back_row = ('<li data-grp="1" data-lbl="%s">'
-                '<a href="#" data-act="back">◀ %s</a></li>'
-                % (esc(T('btn_back')), esc(T('btn_back'))))
+    xf = ('-o-transform:scale(3);-o-transform-origin:top left;'
+          'transform:scale(3);transform-origin:top left;')
+    poster = (' poster="%s"' % esc(art)) if art else ''
+    player = _scaled_video(poster, '33%', '240px', xf, 3, 'table')
+    legend = ('<ul class="legend">'
+              '<li>\u25c0 / \u25b6 &nbsp; %s / %s</li>'
+              '<li>\u25b2 &nbsp; %s &nbsp; <span id="repl"></span></li>'
+              '<li>\u25bc &nbsp; %s</li>'
+              '</ul>'
+              % (esc(T('btn_prev')), esc(T('btn_next')),
+                 esc(T('btn_rep')), esc(T('btn_back'))))
+    # one tiny line under the title: where in the library (when the index
+    # resolved it) and the format/live label. The label also carries the
+    # "ao vivo" marker that tells the viewer why a transcoded track shows
+    # no time on the native bar.
+    meta = ((esc(where) + ' \u00b7 ') if where else '') + esc(label)
     body = ('<div id="music">'
-            '<h2 id="hdr">%s</h2>'
+            '<h2 id="hdr">%s - %s</h2>'
             '<p id="fmt">%s</p>'
-            '%s'
-            '<video id="player_object" width="1px" height="1px" '
-            'preload="none" style="width:1px;height:1px;"></video>'
-            '<p id="time">0:00</p>'
-            '<div id="pb"><div id="pbf"></div></div>'
-            '<ul id="bar">%s</ul>'
-            '<p id="blbl"></p>'
-            '<ul>%s</ul>'
-            '<p id="status">%s</p>'
-            '<p id="foot">%s</p>'
+            '<p class="loc">%s</p>'
+            '%s%s'
+            '<p id="status"></p>'
+            '<ul><li><a href="%s">%s</a></li></ul>'
             '</div>'
-            % (esc(o['title']), esc(label), art, bar, back_row,
-               T('music_start'), T('music_foot')))
+            % (BRAND, T('audio_player'), esc(o['title']), meta,
+               player, legend, esc(PORTAL_URL), T('portal')))
     js = player_js('audio/mpeg' if live else res['mime'], url, tpl=MUSIC_JS,
                    prev=('/aud/%s' % urllib.parse.quote(prev_id, safe=''))
                    if prev_id else None,
                    nxt=('/aud/%s' % urllib.parse.quote(next_id, safe=''))
                    if next_id else None,
-                   dur=_didl_duration_seconds(o['res']),
                    back=back)
     return _page(o['title'], body, extra_js=js)
-
-
-# ------------------------------------------------- format-probe lane (/t/)
-
-TEST_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'test')
-TEST_FILES = {'faststart': 'test-faststart.mp4',   # control: proven-playable layout
-              'fmp4': 'test-fmp4.mp4',             # probe: fragmented MP4
-              'ac3': 'test-ac3.mp4',               # probe: Dolby AC-3 5.1 (re-encoded)
-              'eac3': 'test-eac3.mp4'}             # probe: E-AC3 5.1 lossless remux
 
 
 def render_local_player(name, mime, url, prev=None, nxt=None, back=''):

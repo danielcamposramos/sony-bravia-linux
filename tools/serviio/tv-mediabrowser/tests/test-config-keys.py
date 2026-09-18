@@ -91,22 +91,31 @@ obj = {'id': TRACKS[1], 'title': 'Track 02',
                 'pn': 'p', 'ci': '0'}],
        'cls': 'object.item.audioItem.musicTrack'}
 page = server.render_music(obj, obj['res'][0])
-check('music page: km() helper injected', 'function km(' in page)
-check('music page: KM carries config codes', 'km(\'playpause\',415)' in page
-      or ('415' in page and 'var KM=' in page), page[:200])
-check('music page: %KEYMAP% resolved', '%KEYMAP%' not in page)
+# The music player no longer uses the [keys] multimedia-key machinery:
+# those codes were measured to fire nothing on this generation. It maps
+# the arrow keys directly and lets OK (13) through to the native controls.
+check('music page: OK let through to native controls',
+      'if(k==13){return true;}' in page)
+check('music page: arrows map to prev/next/repeat/back',
+      'if(k==37){if(prevUrl)' in page and 'if(k==38){toggleRep()' in page)
 check('music page: no unresolved placeholders remain',
-      '%PREV%' not in page and '%NEXT%' not in page)
+      '%PREV%' not in page and '%NEXT%' not in page and '%KEYMAP%' not in page
+      and '%GOBACK%' not in page)
 
 vobj = {'id': '%s$MI900' % FOLDER, 'title': 'a video',
         'cls': 'object.item.videoItem.movie',
         'res': [{'mime': 'video/mp4', 'url': 'http://x/v',
                  'pn': 'p', 'ci': '0'}]}
 vpage = server.render_player(vobj, vobj['res'][0])
-check('video page: km() helper injected', 'function km(' in vpage)
-check('video page: prev/next URLs present',
-      'prevUrl=' in vpage and 'nextUrl=' in vpage)
-check('video page: %KEYMAP% resolved', '%KEYMAP%' not in vpage)
+# The video page is now a full-viewport native-controls player with its
+# own inline key handler (OK -> native, left/right -> prev/next sibling).
+check('video page: full-screen native <video controls>',
+      'id="fv"' in vpage and 'controls' in vpage and 'position:fixed' in vpage)
+check('video page: OK let through, left/right = prev/next sibling',
+      'if(k==13){return true;}' in vpage
+      and 'if(k==37){if(pu)' in vpage and 'if(k==39){if(nu)' in vpage)
+check('video page: no unresolved placeholders / no km()',
+      '%KEYMAP%' not in vpage and 'function km(' not in vpage)
 
 lp = server.render_local_player('x.mp4', 'video/mp4', '/stream/x')
 check('local player: km() helper injected', 'function km(' in lp)

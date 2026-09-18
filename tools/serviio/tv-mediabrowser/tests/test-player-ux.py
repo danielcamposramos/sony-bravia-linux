@@ -1,7 +1,15 @@
 #!/usr/bin/env python3
-"""Regression battery for the player-UX additions (prev/next in folder +
-repeat-this-track toggle). Run from the tv-mediabrowser dir:
-    BRAVIA_SKIP_INDEX=1 python3 tests/player-ux.py
+"""Regression battery for the audio player.
+
+Rewritten 2026-09-18 for the native-controls design (validated on the
+EX725): the player is the set's own transport, scaled, with cover art as
+the poster; our JS owns only what the native bar cannot do — previous /
+next track (left/right), repeat (up, persisted in a cookie), and back
+(down / RETURN / the GREEN button, which Opera handles itself). The old
+custom glyph bar, virtual cursor, progress bar and injected duration are
+gone; see docs/era-media-element.md and docs/era-key-vocabulary.md.
+
+    BRAVIA_SKIP_INDEX=1 python3 tests/test-player-ux.py
 """
 import os
 import sys
@@ -53,7 +61,7 @@ def track_obj(i):
             'cls': 'object.item.audioItem.musicTrack'}
 
 
-# --- 1. neighbors: order + wrap
+# --- 1. neighbors: order + wrap (unchanged, still the source of prev/next)
 p, n = server.music_neighbors(track_obj(1))
 check('neighbors middle: prev=MI100 next=MI102',
       p == TRACKS[0] and n == TRACKS[2], 'p=%r n=%r' % (p, n))
@@ -63,13 +71,9 @@ check('neighbors first: prev wraps to last',
 p, n = server.music_neighbors(track_obj(2))
 check('neighbors last: next wraps to first',
       p == TRACKS[1] and n == TRACKS[0], 'p=%r n=%r' % (p, n))
-
-# --- 2. video/container siblings excluded
 p, n = server.music_neighbors({'id': '%s$MI900' % FOLDER, 'title': 'a video',
                                'res': [], 'cls': ''})
 check('non-audio / not-in-folder -> no neighbors', p is None and n is None)
-
-# --- 3. no $MI tail -> no neighbors
 p, n = server.music_neighbors({'id': 'A_F^FOL*R1', 'title': 'x',
                                'res': [], 'cls': ''})
 check('container-like id -> no neighbors', p is None and n is None)
@@ -87,97 +91,89 @@ server.upnp_browse = orig_browse
 
 print()
 
-# --- 4. rendered page: middle track has prev/next + repeat buttons
+# --- 2. the native-controls player: element, poster, chrome
 page = server.render_music(track_obj(1), track_obj(1)['res'][0])
-check('prev button present', "data-act=\"prv\"" in page)
-check('next button present', "data-act=\"nxt\"" in page)
-check('repeat button present', "data-act=\"rep\"" in page)
-check('prev URL in JS points at MI100',
-      'prevUrl=' in page and '$MI100' not in page and 'A_F%5EFOL%2AR1%24MI100' in page,
-      page[page.find('prevUrl='):page.find('prevUrl=') + 60])
-check('next URL in JS points at MI102',
+check('native <video controls> element present',
+      'id="pv"' in page and 'controls' in page)
+check('scaled x3 via -o-transform (enlarges the native bar)',
+      '-o-transform:scale(3)' in page and 'transform:scale(3)' in page)
+check('wrapped in a percentage-width table, nothing clipped',
+      'width="100%"' in page and 'overflow:hidden' not in page)
+check('brand header names the surface',
+      server.BRAND in page and server.T('audio_player') in page)
+check('legend lists prev / next / repeat',
+      server.T('btn_prev') in page and server.T('btn_next') in page
+      and server.T('btn_rep') in page)
+check('repeat-state span present for JS to fill', 'id="repl"' in page)
+check('portal shortcut present', server.PORTAL_URL in page)
+
+# --- 3. the JS: prev/next URLs, cookie-backed repeat, key model
+check('prevUrl points at MI100 (quoted id)',
+      'A_F%5EFOL%2AR1%24MI100' in page)
+check('nextUrl points at MI102 (quoted id)',
       'A_F%5EFOL%2AR1%24MI102' in page)
-check('no unresolved %PREV%/%NEXT% placeholders',
-      '%PREV%' not in page and '%NEXT%' not in page)
-check('repeat-on string in JS (pt)', server.T('music_rep_on') in page)
-check('repeat-off string in JS (pt)', server.T('music_rep_off') in page)
-check('ended handler replays when repeat on', 'v.load();' in page
+check('no unresolved %PREV%/%NEXT%/%GOBACK%/%BACK% placeholders',
+      not any(t in page for t in ('%PREV%', '%NEXT%', '%GOBACK%', '%BACK%')))
+check('repeat persists via the bravia_rep cookie',
+      'bravia_rep' in page and 'toggleRep' in page)
+check('repeat-on/off strings resolved (pt)',
+      server.T('music_rep_on') in page and server.T('music_rep_off') in page
       and '%music_rep_on%' not in page)
+check('ended handler: repeat-reload or auto-advance to next',
+      'v.load();' in page and 'window.location=nextUrl' in page)
+# key model: OK(13) let through to native; 37/39 prev/next; 38 repeat;
+# 40/8 back. The handler returns true for 13 so native play/pause works.
+check('OK (13) let through to native controls',
+      'if(k==13){return true;}' in page)
+check('left(37)=prev, right(39)=next in the handler',
+      'if(k==37){if(prevUrl)' in page and 'if(k==39){if(nextUrl)' in page)
+check('up(38) toggles repeat', 'if(k==38){toggleRep()' in page)
+check('down(40)/RETURN(8) go back',
+      'if(k==40||k==8){goBack()' in page)
+check('no leftover custom-bar machinery (km/data-grp/#blbl/progress)',
+      not any(t in page for t in ("function km(", 'data-grp=', 'id="blbl"',
+                                  'id="pbf"', 'id="ppg"')))
 
-# --- 5. all languages carry the new strings
-for lang in ('en', 'pt', 'es'):
-    server._UI.lang = lang
-    for key in ('btn_prev', 'btn_next', 'btn_rep',
-                'music_rep_on', 'music_rep_off'):
-        v = server.T(key)
-        check('%s [%s]' % (key, lang), bool(v) and '%' not in v, repr(v))
-server._UI.lang = 'pt'
+print()
 
-# --- 6. single-track folder -> no prev/next buttons, no JS crash
-single = [TRACKS[0]]
-
-
+# --- 4. single-track folder: prev/next are empty, no crash
 def single_browse(obj_id, flag='BrowseDirectChildren', start=0, count=18):
     return ([{'id': TRACKS[0], 'title': 'only', 'res': track_obj(0)['res'],
                'cls': 'object.item.audioItem.musicTrack'}], 1)
 
 
 server.upnp_browse = single_browse
-page = server.render_music(track_obj(0), track_obj(0)['res'][0])
-# The transport bar keeps a stable shape: prev/next always render, but
-# with no sibling track they are dimmed and the cursor skips them (the
-# old behavior dropped the buttons, which shifted the rest of the bar
-# under the user's thumb depending on where a track was opened from).
-check('single track: prev/next rendered but dimmed',
-      'data-act="prv"' in page and 'data-act="nxt"' in page
-      and page.count('class="dim"') == 2)
+page1 = server.render_music(track_obj(0), track_obj(0)['res'][0])
 check('single track: prevUrl/nextUrl are empty strings',
-      'prevUrl=""' in page and 'nextUrl=""' in page)
-check('single track: repeat still present', 'data-act="rep"' in page)
+      'prevUrl=""' in page1 and 'nextUrl=""' in page1)
+check('single track: repeat still available', 'toggleRep' in page1)
+check('single track: legend still rendered',
+      server.T('btn_rep') in page1)
 server.upnp_browse = fake_browse
 
-print()
-
-# --- 7. no-res item (mpc/wv shape) gets the full player too
+# --- 5. no-res item (mpc/wv shape) still gets the player + a label
 o_mpc = {'id': TRACKS[1], 'title': 'Lie (Edit).mpc', 'res': [],
          'cls': 'object.item.audioItem.musicTrack'}
-page = server.render_music(o_mpc, None)
-check('no-res item: prev/next + repeat present',
-      'data-act="prv"' in page and 'data-act="nxt"' in page
-      and 'data-act="rep"' in page)
-check('no-res item: label from title ext', 'audio/x-musepack' in page)
+page2 = server.render_music(o_mpc, None)
+check('no-res item: native player present',
+      'id="pv"' in page2 and 'controls' in page2)
+check('no-res item: /atr/ transcode lane', '/atr/' in page2)
+check('no-res item: format label shown (audio/x-musepack)',
+      'audio/x-musepack' in page2)
 
-# --- 8. video PLAYER_JS still resolves (no leftover %PREV% etc.)
-js = server.player_js('video/mp4', '/stream/x', tpl=server.PLAYER_JS)
-check('PLAYER_JS unaffected by new placeholders',
-      '%PREV%' not in js and '%NEXT%' not in js and '%music_rep_on%' not in js
-      and '%DUR%' not in js)
+# --- 6. all languages carry the strings the player needs
+for lang in ('en', 'pt', 'es'):
+    server._UI.lang = lang
+    for key in ('btn_prev', 'btn_next', 'btn_rep', 'audio_player',
+                'portal', 'music_rep_on', 'music_rep_off'):
+        v = server.T(key)
+        check('%s [%s]' % (key, lang), bool(v) and '%' not in v, repr(v))
+server._UI.lang = 'pt'
 
 print()
 
-# --- 9. transport bar: two cursor groups, glyphs, progress, duration
+# --- 7. byte budget: the page stays lean
 page = server.render_music(track_obj(1), track_obj(1)['res'][0])
-check('bar: transport buttons are cursor group 0',
-      page.count('data-grp="0"') == 6)
-check('bar: Back row is cursor group 1', page.count('data-grp="1"') == 1)
-check('bar: every button carries a label for #blbl',
-      page.count('data-lbl="') == 7)
-check('bar: play glyph has an id so JS can track real state',
-      'id="ppg"' in page and '▶' in page)
-check('progress: bar + clock elements present',
-      'id="pb"' in page and 'id="pbf"' in page and 'id="time"' in page)
-check('progress: DUR always injected (0 when DIDL has no duration)',
-      'var DUR=0;' in page)
-# a DIDL duration must reach the page as seconds — this is what gives a
-# live-transcoded FLAC a progress bar, since the /atr/ pipe leaves the
-# element's own duration NaN
-o_dur = dict(track_obj(1))
-o_dur['res'] = [dict(track_obj(1)['res'][0], duration='0:03:05.000')]
-check('progress: DIDL duration converted to seconds and injected',
-      'var DUR=185;' in server.render_music(o_dur, o_dur['res'][0]))
-check('cursor opens on Play/Pause, not on row 0',
-      "getAttribute('data-act')=='pp'" in page)
-check('no stale %DUR% placeholder in the music page', '%DUR%' not in page)
 check('page stays within the era byte budget (<12 KB)',
       len(page.encode('utf-8')) < 12288,
       '%d bytes' % len(page.encode('utf-8')))
