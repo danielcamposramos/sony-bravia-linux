@@ -24,6 +24,20 @@ use: the live stream to the set reads `format: S32_LE, channels: 2,
 rate: 48000` — a 32-bit container carrying up to the 24 significant bits
 the ELD allows.
 
+**Confirmed a second way, from the driver.** With the card taken
+offline for a moment so the hardware could be asked directly
+(`aplay -D hw:2,7 --dump-hw-params`):
+
+```
+FORMAT: S16_LE S32_LE      SUBFORMAT: STD MSBITS_MAX
+SAMPLE_BITS: [16 32]       RATE: [32000 48000]       CHANNELS: [2 6]
+```
+
+`RATE: [32000 48000]` is the link agreeing with the ELD: **48 kHz is the
+ceiling**, measured twice by independent means. There is no packed
+24-bit format (`S24_3LE`); 24 significant bits travel inside `S32_LE`
+frames with `MSBITS_MAX`, which is how HDA always carries them.
+
 ## 2. DLNA renderer — from the sets' own GetProtocolInfo
 
 What the TV tells the network it accepts as a *music* file
@@ -68,6 +82,30 @@ The app's player is the browser's own `<video>`/`<audio>`, which
 **bypasses the DLNA sink list entirely**: AAC in MP4 plays on the EX725
 through the app even though the EX725 advertises no AAC to the network.
 
+## The owner's own library, and what reaches the set
+
+This is not hypothetical here. A random sample of 250 of the 2,473
+lossless files in the music library:
+
+| Files | Format |
+|---|---|
+| 201 | 16-bit / 44.1 kHz |
+| **35** | **24-bit / 96 kHz** |
+| 9 | 24-bit / 44.1 kHz |
+| **2** | **24-bit / 192 kHz** |
+| 3 | 16-bit / 22 kHz |
+
+So roughly **one file in five is hi-res**, and none of it can reach
+these televisions intact.
+
+**Serviio cannot deliver 24-bit to them, verified.** The `sony2011x`
+renderer profile defines no `<Audio>` rules of its own, so it inherits
+stock `sony2011`, whose audio target is **`lpcm`** — and Serviio's LPCM
+output is `audio/L16`, the same 16-bit type the sets advertise. A
+24-bit/96 kHz FLAC is therefore downconverted **twice** on its way to
+the TV, in bit depth and in sample rate, silently. That is not a Serviio
+defect: it is the only thing the renderer accepts.
+
 ## What this means for lossless and for FLAC
 
 The question that prompted this page: *can FLAC be encoded to AC-3 or
@@ -86,7 +124,8 @@ The lossless paths that do exist:
 |---|---|---|
 | 16-bit/44.1 or 48 kHz FLAC | DLNA as `audio/L16`, or HDMI LPCM | exact, no conversion loss |
 | **24-bit/48 kHz FLAC** | **HDMI LPCM only** (from a PC) | the network path cannot carry 24-bit |
-| 24-bit/96 kHz FLAC | resample to 48 kHz first | the set declares 48 kHz maximum |
+| 24-bit/96 kHz FLAC | resample to 48 kHz first, keeping 24 bits, over HDMI | the set declares 48 kHz maximum |
+| 24-bit/192 kHz FLAC | the same; 192 kHz is four times the ceiling | — |
 | multichannel FLAC | AC-3 5.1 at 640 kbps | lossy, but the only multichannel route the HDMI input takes |
 
 For a 3D film library the same logic already applies to the soundtrack:
@@ -95,6 +134,29 @@ converting it. That is what [the ecosystem
 notes](3d-signalling-ecosystem.md) record, and it is why a lossless
 remux beats any transcode: the set does more with the original bits than
 a server's "compatible" re-encode leaves it.
+
+## The practical recipe for hi-res on these sets
+
+The television is a 48 kHz device with 24-bit LPCM on HDMI and 16-bit
+LPCM on the network. Nothing changes that. What follows from it:
+
+- **From this PC over HDMI** (the HX855 is the workstation's monitor):
+  resample 96 or 192 kHz to 48 kHz and keep 24 bits. A good resampler
+  matters more than anything else in the chain here:
+  `ffmpeg -i in.flac -af aresample=resampler=soxr:precision=28 -ar 48000 -sample_fmt s32 …`
+  No dither is needed while staying at 24 bits.
+- **Over DLNA**, accept 16-bit/48 kHz and dither properly on the way
+  down rather than letting a truncation happen by accident:
+  `-af aresample=resampler=soxr:precision=28:dither_method=triangular_hp -ar 48000 -sample_fmt s16`.
+- **Do not convert FLAC to AC-3 or E-AC3 for quality reasons.** It is
+  lossless to lossy, it cannot carry bit depth, and it cannot exceed
+  48 kHz either. The one case where Dolby is the right target is
+  multichannel over HDMI, where AC-3 5.1 at 640 kbps is the only
+  multichannel format the input accepts at all.
+- Keep expectations calibrated to the transducers: the panel's own
+  speakers are the weakest link by a wide margin, and the audible
+  question is what an **ARC-connected receiver** gets, not what the set
+  renders internally.
 
 ## Still open
 
