@@ -2,7 +2,7 @@
      Drafted 2026-09-18. Owner reviews and posts in his own words (doctrine:
      no AI-written text verbatim; factual, no meta-fight).
      DVB claim is the softened/sourced version verified against ETSI TS
-     101 547-2 directly. Keep it short — maintainers value brevity. -->
+     101 547-2 directly. Keep it short, maintainers value brevity. -->
 
 Some context that has come together since I filed this, in case it helps weigh the change: the signal this issue is about is not a Sony niche, and the gap around it is ecosystem-wide and long-standing.
 
