@@ -567,6 +567,45 @@ chain as a pure ffmpeg filtergraph (`split` → two `colorchannelmixer` →
 `hstack`), so the media app can convert per request through the ffmpeg
 it already shells out to, and `server.py` stays stdlib-only.
 
+### Staged and measured: the test set, and what reached the TV
+
+The set is on the server at `/mnt/arquivos2/Fotos3D/`, added to Serviio
+as an `IMAGE` shared folder ("Zion Fotos 3D") through the console REST
+API — `GET`/`PUT` on `:23423/rest/repository`, config backed up first to
+`~/serviio-backups/`. One practical note for anyone repeating it: a new
+folder must be sent **without** an `id`. Supplying one returns `200` and
+is silently ignored, which looks exactly like success.
+
+Four folders, four separate experiments, built from the 11 ground-truth
+JPS pairs plus five anaglyphs put through our own inverse:
+
+| Folder | What | Why |
+|---|---|---|
+| `01-sbs-full` | full-width SBS `.jpg` | both views at native size |
+| `02-sbs-half` | half-width (squished) SBS `.jpg` | frame-compatible shape, the one broadcast 3D used and the likeliest to auto-engage |
+| `03-mpo` | two-view `.mpo` | the format Sony's own 3D cameras wrote |
+| `04-de-anaglifo` | our anaglyph→SBS output, `.jpg` + `.mpo` | greyscale, honest mode |
+
+**The measured outcome, after the scan:**
+
+| On disk | Indexed by Serviio |
+|---|---|
+| 27 `.jpg` | **27 — all of them** |
+| 16 `.mpo` | **0 — none** |
+
+And Serviio does not even log a skip. The `.mpo` extension is not media
+to it, so the files are simply invisible — the same failure the
+extension survey predicted, now confirmed end to end on the live
+server. **So the MPO half of the experiment cannot be run over DLNA at
+all; it has to go to the set on a USB stick.** That is worth stating
+plainly because MPO is the one format with a real chance of triggering
+the set's own 3D-photo handling, and the network path silently cannot
+carry it.
+
+The `LEIA-ME.txt` beside the files carries the test procedure in
+pt-BR, including which folders go over the network and which need the
+pendrive.
+
 ### Measured: Serviio will not index the corpus at all
 
 Asked of the live server's own database, not assumed: the indexed
