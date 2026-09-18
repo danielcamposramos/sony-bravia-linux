@@ -1,0 +1,149 @@
+# The frame-packing SEI: the missing piece everyone suffered, no one named
+
+A cross-brand, cross-software map of why file-based 3D playback fails, and
+why the fix is one standard signal. Assembled 2026-09-18 from the
+BD3D2MK3D community thread (Internet Archive), the DLNA-server support
+forums, the H.264 specification, and this project's own hardware testing.
+Compiled here because, as far as we can find, **this map exists nowhere
+else in one place.**
+
+## The two signals, and which one was missing
+
+3D stereoscopic video can be flagged two ways:
+
+1. **The container tag** — Matroska's `StereoMode` element. It sits in
+   the MKV wrapper. Encoders, rippers, players and mpv have read it for
+   years. It was never the problem.
+2. **The in-stream signal** — the H.264 `frame_packing_arrangement` SEI
+   message (payload type 45), carried inside the video elementary stream
+   itself.
+
+The missing piece, that everyone suffered and no one pinpointed, is the
+second one. When a file is delivered by any path that keeps only the
+elementary stream and drops the container — a DLNA server remuxing MKV to
+MPEG-TS, most notably — the `StereoMode` tag is gone and **only the SEI
+survives**. If nothing wrote the SEI into the stream, the set has nothing
+to read, and 3D plays flat.
+
+## Why the SEI is the universal one, not a per-set quirk
+
+The `frame_packing_arrangement` SEI is not a manufacturer feature. It is
+part of the H.264/AVC standard, added in **Amendment 1 (October 2009)**,
+the same amendment that added the Stereo High Profile. It defines the
+frame-compatible arrangements every 3D pipeline uses: side-by-side,
+top-and-bottom, checkerboard, column and row interleave.
+
+It is also **the signalling DVB standardised for frame-compatible
+stereoscopic broadcast** (the "3DTV" frame-compatible profile). That is
+the point that turns a compatibility guess into a design fact: a
+television sold as 3D-capable in the broadcast era had to decode this
+signal to receive 3D broadcasts at all. So any such set reads the SEI by
+construction, regardless of brand. The one honest carve-out is
+**projectors**, many of which are HDMI-fed with no broadcast tuner and no
+obligation to implement it.
+
+## 3D Blu-ray is a different mechanism (and why tools convert it)
+
+3D Blu-ray does not use the frame-packing SEI. It uses **MVC (Multiview
+Video Coding)**, the other H.264 3D extension, carrying two full views.
+Frame-compatible 3D (SBS/TAB) and MVC are cousins from the same era but
+distinct. This is exactly why authoring tools like BD3D2MK3D exist: they
+take an MVC 3D Blu-ray and produce a frame-compatible SBS/TAB file, in
+which the `frame_packing_arrangement` SEI is the flag that makes it
+auto-engage. BD3D2MK3D has written that SEI (via x264 `--frame-packing`)
+for years, alongside the Matroska tag.
+
+## The symptom is ecosystem-wide, and old
+
+The "3D SBS/TAB file plays flat" problem is documented for years across
+every major DLNA/media solution, each thread describing the same
+behaviour without naming the root cause:
+
+- Plex: [Some 3D SBS and up-under MKV files not recognised](https://forums.plex.tv/t/some-3d-sbs-and-up-under-mkv-files-not-recognised/51445)
+- Jellyfin: [3D Full SBS video detection and playback](https://forum.jellyfin.org/t-3d-full-sbs-video-detection-and-playback)
+- Serviio: multiple threads on MKV recognition and 3D delivery on the
+  [serviio.org forum](https://www.serviio.org/forum/).
+- MakeMKV: [Anyone have 3D movie success?](https://forum.makemkv.com/forum/viewtopic.php?t=36903)
+- AVS Forum: [Properly Playing Back A 3D MKV](https://www.avsforum.com/threads/properly-playing-back-a-3d-mkv.3235394/)
+
+A recurring, telling detail in those threads: files **without** the
+container stereo flag sometimes play in 3D while files **with** it play
+flat, and converting through HandBrake "fixes" it. Both are explained by
+the same mechanism — what the set actually reads is the in-stream SEI, and
+whichever delivery path happens to preserve or produce it is the one that
+works. Nobody in those threads isolated that; the servers drop the tag
+and none of them write the SEI.
+
+## The cross-brand hardware seen in the BD3D2MK3D community
+
+Compiled from the BD3D2MK3D support thread (videohelp #395498), read via
+Internet Archive snapshots of pages 1-20 (partial: a first pass covered
+about half the pages; the rest are pending). Source, per page, is the
+archived thread. Categorised honestly, because the thread mixes displays,
+disc players and projectors, and because BD3D2MK3D writes both the SEI and
+the container tag, so a "works" report shows compatibility with a
+correctly-authored 3D file, not which signal a given device read.
+
+**3D televisions**
+- LG passive 3D TVs (1080p) — prominent enough that BD3D2MK3D added a
+  dedicated Half-TAB option to retain full 1080p on LG passive panels.
+- Samsung active-shutter 3D TVs — including the tool author's own set,
+  which he reports has "exactly the same problem" as the Sony sets this
+  project documents.
+- Generic passive-LED and active-shutter sets discussed throughout.
+
+**3D disc players (not TVs — recorded for completeness)**
+- LG, Sony, Panasonic, Philips, Toshiba Blu-ray/DVD players appear by
+  model across the thread as gear people fed BD3D2MK3D output to.
+
+**Projectors**
+- Active DLP projectors (the honest exception above: HDMI-fed, no
+  broadcast-decode obligation).
+
+This is the "nowhere-seen" list the compilation exists to start. It is a
+compatibility record of the frame-compatible 3D file era across brands,
+not a per-device SEI-reading proof; the clean mechanism test (serve one
+clip with the SEI and one without, see which flips) is the open ask in
+[repo discussion #1](https://github.com/danielcamposramos/sony-bravia-linux/discussions/1).
+
+## The chain, now mapped end to end
+
+The reason this went unsolved is that no single project owned the whole
+path. This one does now:
+
+- **Write the SEI** — HandBrake merged it ([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100)),
+  x264 has `--frame-packing`, x265 has an open request ([#970](https://github.com/Multicorewareinc/x265/issues/970)),
+  FFmpeg has a bug and a lossless-injector request ([#24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530),
+  [#24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531)), and this
+  repo ships `bravia_sei3d.py` for lossless in-file injection.
+- **Read the SEI** — mpv was ignoring it ([issue #18489](https://github.com/mpv-player/mpv/issues/18489),
+  [PR #18490](https://github.com/mpv-player/mpv/pull/18490)); hardware 3D
+  TVs already read it, by the DVB obligation above.
+- **Deliver it** — a Serviio profile plus SEI injection restores fully
+  automatic 3D over DLNA on stock free software (this repo,
+  `tools/serviio/`).
+
+## Why this is worth spreading
+
+3D content playback keeps being declared impossible even by people who
+would know. In his SteamVR coverage ([LTT](https://www.youtube.com/watch?v=3PGKMwgjla0))
+the complaint recurs that there is "no way to play 3D video content." The
+signal was standardised, mandated for broadcast, built into every 3D TV,
+and then abandoned by the software layer that stopped writing it into
+files. The hardware never stopped being able to read it. That is the
+same shape as the wider right-to-repair point that the sets, the
+discs and the standards outlived the vendors' willingness to keep the
+software honest: the capability is owned by the buyer and stranded by the
+licence.
+
+## Sources
+
+- H.264/AVC Amendment 1 (2009): frame packing arrangement SEI, and the
+  Stereo/Multiview overview, [Vetro/Wiegand/Sullivan, "Overview of the
+  Stereo and Multiview Video Coding Extensions of H.264/MPEG-4 AVC"](https://www.researchgate.net/publication/224216112_Overview_of_the_Stereo_and_Multiview_Video_Coding_Extensions_of_the_H264MPEG-4_AVC_Standard).
+- BD3D2MK3D support thread, videohelp #395498, via Internet Archive
+  snapshots of pages 1-20 (2023-2026 captures).
+- DLNA-server symptom threads: Plex, Jellyfin, Serviio, MakeMKV, AVS
+  (linked inline above).
+- This project: `docs/3d-signalling-explainer.md`,
+  `docs/3d-blocked-in-browser.md`, `tools/serviio/`.
