@@ -212,6 +212,29 @@ cheapest complete path for an existing 3D rip a lossless one: remux MKV
 to MP4, add the SEI if it is missing (`tools/bravia_sei3d.py`), and serve
 it from anything that does not transcode.
 
+**The same issue, on audio (owner's framing, same day).** The original
+audio tracks were tested the same way, each copied bit-exact into MP4:
+
+| File (60 s, lossless cut, original track, SEI added) | Audio | On the set |
+|---|---|---|
+| E1 *Gravity* | AC-3 5.1 | **3D engaged**, OSD **"Dolby Digital"** |
+| E2 *A Lenda do Rei Macaco* | AC-3 2.0 | **3D engaged**, **"Dolby Digital"** |
+| E3 *Brahmastra* | E-AC3 5.1 | **3D engaged**, **"Dolby Digital Plus"** |
+| E4 *Avatar: The Way of Water* | E-AC3 7.1 | **3D engaged**, **"Dolby Digital Plus"** |
+| E5 *Predador* | AAC 5.1 | **3D engaged**, no Dolby indicator (AAC) |
+| E6 *Gravity* | DTS 5.1 | 3D engaged, **no audio** |
+| E7 *Gravity* | TrueHD 7.1 | cannot be put in MP4 (FFmpeg's TrueHD-in-MP4 is experimental and failed); as MKV, **not listed** |
+
+The set decodes **Dolby Digital Plus natively** from MP4 — while this
+project's own Serviio profile converts every E-AC3 track to 384k Dolby
+Digital, because it remuxes to MPEG-TS and this set cannot take E-AC3 in
+TS. The information is in the file, the TV can use it, and the delivery
+throws it away: the container is the gate for audio exactly as it was
+for 3D. And it matters beyond the TV's own speakers, since the set
+passes Dolby on to a receiver over ARC; a converted track is what the
+receiver would get. DTS is the one format that must be converted, and
+TrueHD cannot even be carried in MP4.
+
 It also closes a loop in the owner's own history: years ago Kodi's
 server "did not work" for 3D on these sets. Measured now, it could not
 have: the rips of the time were MKV, which never appeared, and no MP4

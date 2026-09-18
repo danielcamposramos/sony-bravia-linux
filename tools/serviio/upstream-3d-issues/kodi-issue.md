@@ -14,14 +14,20 @@
      DLNA side actually measured: every MP4 advertised as MPEG4_P2_SP_AAC
      from a static Platinum table. For the BRAVIAs, which cannot run Kodi
      and are only ever DLNA renderers, the DLNA side is the only side that
-     matters. Watch: email trigger only, never poll. -->
+     matters. UPDATED again the same day (owner: "edit yet again, if confirmed")
+     with the audio side of the same label, after the EX725 decoded AC-3
+     and E-AC-3 natively from Kodi despite the AAC label. Watch: email
+     trigger only, never poll. -->
 
 **Edit (2026-09-18):** the first version of this report was wrong and has been replaced. It said Kodi never reads the H.264 frame-packing SEI. It does: `CDVDVideoCodecFFmpeg` takes `stereo_mode` from the decoded frame's metadata ([DVDVideoCodecFFmpeg.cpp#L1043](https://github.com/xbmc/xbmc/blob/6c678081054b69a1299c85ff6fd1fba9d58ba60a/xbmc/cores/VideoPlayer/DVDCodecs/Video/DVDVideoCodecFFmpeg.cpp#L1043)), which FFmpeg's H.264 decoder fills from the SEI. Verified on Kodi 21.2 (Debian trixie): an SEI-only MP4 logs `autodetected stereo mode for movie mode left_right`, and the UPnP server passes the SEI through byte-exact. Apologies for the noise. Checking the UPnP side turned up the problem below.
+
+**Update (same day):** added the audio side of the same label, with results from a real renderer.
 
 ## Bug report
 ### Describe the bug
 Kodi's UPnP server advertises every MP4 as `DLNA.ORG_PN=MPEG4_P2_SP_AAC` (MPEG-4 Part 2 Simple Profile with AAC), whatever the file contains.
 The profile comes from a fixed MIME table, [PltProtocolInfo.cpp#L95](https://github.com/xbmc/xbmc/blob/6c678081054b69a1299c85ff6fd1fba9d58ba60a/lib/libUPnP/Platinum/Source/Core/PltProtocolInfo.cpp#L95), which has no `AVC_MP4_*` entries, so H.264 MP4 files are labelled as MPEG-4 Part 2.
+The profile name also asserts AAC audio, so MP4 files carrying AC-3, E-AC-3 or DTS are advertised as AAC as well.
 `DLNA.ORG_PN` is what renderers from any maker use to decide what they are being sent.
 
 ## Expected Behavior
@@ -30,11 +36,11 @@ The advertised profile matches the stream (an `AVC_MP4_*` profile for H.264), or
 ## Actual Behavior
 `res@protocolInfo` for an H.264 + AAC MP4, from Kodi 21.2's ContentDirectory:
 `http-get:*:video/mp4:DLNA.ORG_PN=MPEG4_P2_SP_AAC;DLNA.ORG_OP=01;DLNA.ORG_CI=0;DLNA.ORG_FLAGS=01500000000000000000000000000000`
-An H.264 MP4 with no audio track gets the same profile.
+The same `MPEG4_P2_SP_AAC` is sent for H.264 MP4 files with no audio, and for files whose audio is AC-3 5.1, AC-3 2.0, E-AC-3 5.1, E-AC-3 7.1 or DTS 5.1.
 
 ## Possible Fix
 Build the profile from the stream details Kodi already has (video codec, profile, resolution, audio codec), or omit `DLNA.ORG_PN` for `video/mp4` rather than asserting Part 2.
-Renderers that accept any `video/mp4` are unaffected (Sony BRAVIA 2011–2012 sets, for example, advertise `http-get:*:video/mp4:*`); renderers that match on `DLNA.ORG_PN` receive the wrong profile.
+Renderers that accept any `video/mp4` are unaffected: a Sony KDL-46EX725 (2011, advertises `http-get:*:video/mp4:*`) played all of these files from Kodi and decoded the AC-3 and E-AC-3 tracks natively, showing Dolby Digital and Dolby Digital Plus, despite the AAC label. Renderers that match on `DLNA.ORG_PN` receive the wrong video and audio profile.
 
 ### To Reproduce
 1. `ffmpeg -f lavfi -i testsrc2=size=1280x720:rate=25 -f lavfi -i sine=frequency=440 -t 6 -c:v libx264 -pix_fmt yuv420p -c:a aac -shortest clip.mp4`

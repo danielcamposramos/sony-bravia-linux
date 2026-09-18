@@ -167,6 +167,12 @@ video the whole "transcode" is a pure remux — original picture, original
 theatrical Dolby, chosen track, new container. Non-Dolby audio (DTS,
 FLAC, MP3…) converts to AAC 5.1 48 kHz.
 
+**The set's own DLNA player does the same (owner-verified 2026-09-18,
+via a pass-through server):** AC-3 5.1 and 2.0 play with the set's
+"Dolby Digital" indicator, E-AC3 5.1 and 7.1 with **"Dolby Digital
+Plus"**, AAC 5.1 plays, DTS is silent — all from MP4 with the original
+track untouched. See `tools/kodi-dlna-test/`.
+
 ## Next steps
 
 - [x] live test on the EX725 (arrow-key nav + direct MP4 playback) —

@@ -50,3 +50,24 @@ server. Kodi serves the bytes untouched, so the SEI arrives; its wrong
 DLNA profile for H.264 MP4 (xbmc/xbmc#29337) does not matter to this set,
 which accepts any `video/mp4`. Matroska is filtered out by the set before
 playback, because `video/x-matroska` is not in its advertised list.
+
+## Audio, same day: the same issue, on audio
+
+Seven one-minute cuts from real titles, one per audio format in the
+owner's library, remuxed to MP4 with the **original track copied
+bit-exact** and the SEI added (`tools/bravia_sei3d.py`):
+
+| File (60 s, lossless cut, original track, SEI added) | Audio | On the set |
+|---|---|---|
+| E1 *Gravity* | AC-3 5.1 | **3D engaged**, OSD **"Dolby Digital"** |
+| E2 *A Lenda do Rei Macaco* | AC-3 2.0 | **3D engaged**, **"Dolby Digital"** |
+| E3 *Brahmastra* | E-AC3 5.1 | **3D engaged**, **"Dolby Digital Plus"** |
+| E4 *Avatar: The Way of Water* | E-AC3 7.1 | **3D engaged**, **"Dolby Digital Plus"** |
+| E5 *Predador* | AAC 5.1 | **3D engaged**, no Dolby indicator (AAC) |
+| E6 *Gravity* | DTS 5.1 | 3D engaged, **no audio** |
+| E7 *Gravity* | TrueHD 7.1 | cannot be put in MP4 (FFmpeg's TrueHD-in-MP4 is experimental and failed); as MKV, **not listed** |
+
+**The set decodes Dolby Digital Plus natively from MP4 on its own DLNA
+player**, 7.1 included. Every SEI-carrying MP4 engaged 3D whatever
+audio travelled with it. Kodi labels all of these `..._AAC`, Dolby and
+DTS included; the set ignores the label (xbmc/xbmc#29337 updated).
