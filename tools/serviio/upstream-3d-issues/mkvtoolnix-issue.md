@@ -1,4 +1,15 @@
-# DRAFT — MKVToolNix feature request (reword as yourself, then file)
+# POSTED 2026-09-18 — https://codeberg.org/mbunkus/mkvtoolnix/issues/6309
+**Filed as:** capitain_jack (account created for this — the Codeberg signup
+page is easy to mistake for the donate page; they look near-identical).
+**Text:** the body below, verbatim except paragraphing — the owner lightly
+restructured it while typing it as himself, per the doctrine. No AI
+disclaimer, no provenance block, filed as his own words. Comments at
+filing: 0, no labels yet.
+**Notifications:** Codeberg emails the author on every reply, so this
+joins the DLNA threads on the email-trigger watch — never poll Codeberg
+("we don't want to be flagged" applies there too; check notifications if a
+quiet period needs a manual glance, no scheduled fetches).
+
 **Tracker:** https://codeberg.org/mbunkus/mkvtoolnix/issues
 **Account:** https://join.codeberg.org/ — email + username signup
 (Codeberg is a non-profit Forgejo instance; no GitHub login.)
@@ -6,17 +17,17 @@
 § 2 (1) 7 bans *hosting projects that mostly consist of AI-generated code*
 (names Claude/Codex), for copyright/safety reasons. That is a project-
 hosting rule — it does NOT forbid filing a human-authored issue. So: do
-NOT mirror this repo to Codeberg (it stays on GitHub); DO file the issue
-below as your own human-authored text. This reinforces the no-disclaimer
-rule: file it as yourself, owning every claim.
-**Doctrine — read before filing:** mbunkus has stated publicly (tracker
-meta-issue #6278) that he will "outright close & ignore overly verbose &
-meandering issue requests", and that AI assistance is acceptable only
-when the submitter demonstrably understands every claim. So: keep it
-short, name the source files you checked, own every sentence. **No AI
-disclaimer, no provenance block — file it as yourself.** This is the
-opposite of the DLNA-server issues; do not paste our disclosure block
-here.
+NOT mirror this repo to Codeberg (it stays on GitHub); the issue below was
+filed as the owner's own human-authored text. This reinforces the
+no-disclaimer rule: file it as yourself, owning every claim.
+**Doctrine (kept for the record — it governed how this was filed):**
+mbunkus has stated publicly (tracker meta-issue #6278) that he will
+"outright close & ignore overly verbose & meandering issue requests", and
+that AI assistance is acceptable only when the submitter demonstrably
+understands every claim. So: keep it short, name the source files you
+checked, own every sentence. **No AI disclaimer, no provenance block —
+file it as yourself.** This is the opposite of the DLNA-server issues; do
+not paste our disclosure block here.
 **Own these before filing:** the two source-file references below, and
 the SEI→Matroska mapping. Verified against a mkvtoolnix dev checkout
 (configure.ac v102.0) on 2026-09-15; re-glance if you want to stand
