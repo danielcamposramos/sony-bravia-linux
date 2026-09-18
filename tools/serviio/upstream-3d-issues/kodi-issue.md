@@ -1,3 +1,12 @@
+<!-- CORRECTION (2026-09-18, same day): the central claim below is WRONG.
+     Kodi reads the frame-packing SEI through FFmpeg's decoded-frame
+     metadata (DVDVideoCodecFFmpeg.cpp:1043 reads "stereo_mode" from
+     m_pFrame->metadata). Verified in Docker on Kodi 21.2 with a neutrally
+     named SEI-only MP4: "autodetected stereo mode for movie mode
+     left_right". The claim came from gh code search alone, before running
+     Kodi. Public correction held for the owner's go; see the campaign
+     README row 11 for the DLNA-side findings that replace it. -->
+
 <!-- POSTED 2026-09-18 as https://github.com/xbmc/xbmc/issues/29337
      Filed from this session under the owner's account on his explicit
      instruction ("no AI policy, post brief and objective"). Kodi's
