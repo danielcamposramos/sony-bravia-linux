@@ -6,7 +6,7 @@
      with a precedent a reviewer can check in one grep, plus a hardware
      measurement. Keep it short if used at all. -->
 
-Another data point on the approach, in case it is useful to the review: Kodi already does this, and has for years.
+A data point on the approach, in case it is useful to the review: Kodi already does this, and has for years.
 
 `CDVDVideoCodecFFmpeg` takes the stereo mode from the **decoded frame's metadata** — FFmpeg's H.264 decoder sets a `stereo_mode` entry from the frame-packing SEI, with the Matroska strings as values (`left_right`, `top_bottom`, …):
 
