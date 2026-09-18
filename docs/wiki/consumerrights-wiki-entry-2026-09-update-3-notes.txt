@@ -1,3 +1,15 @@
+# EDIT SUMMARY for this revision (paste into the wiki's summary field;
+# MediaWiki truncates around 500 bytes, all three fit):
+#
+#   RECOMMENDED:
+#   Add incident: 3D still photographs have no stereoscopic option on the set's own photo path (owner-tested on both models; 5 new refs, all Sony support articles and i-Manuals, each archived 18 Sep 2026); strengthen the DLNA 3D incident with an independent reproduction on a second, unrelated media server plus its control case; add the eleven-language documentation to See also.
+#
+#   SHORTER:
+#   New incident on 3D still photographs (5 archived Sony sources); DLNA 3D incident strengthened with an independent second-server reproduction; See also: documentation in eleven languages.
+#
+#   FULLEST (if the field accepts it):
+#   Additive update. (1) New incident: the panel's 3D is unreachable from the television's own photo viewer (only simulated 2D-to-3D is offered for stills), and Sony's own support material describes MPO/side-by-side still support inconsistently across regions - 5 new refs, all manufacturer articles or i-Manuals, each with an Internet Archive snapshot of 18 Sep 2026; scope stated, USB case named as untested. (2) DLNA 3D incident: reproduced on the same set through an unrelated media server, with the control case. (3) See also: docs in 11 languages.
+#
 # NOTES for update 3 (2026-09-18). The paste-ready article itself is
 #   consumerrights-wiki-entry-2026-09-update-3.txt — that file is PURE
 #   wikitext, the WHOLE article, for the wiki's source/edit mode.
