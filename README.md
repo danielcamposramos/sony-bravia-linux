@@ -18,6 +18,12 @@ more internet content than the stock firmware allows.
 [Polski · znowu oglądaj filmy i zdjęcia 3D](docs/i18n/pl.md) ·
 [Nederlands · weer 3D-films en 3D-foto's afspelen](docs/i18n/nl.md)
 
+**If you searched for** *"Sony Bravia 3D side by side USB not working"*,
+*"3D mode in Sony Bravia"*, *"Bravia 3D photos MPO USB"*, *"is 3D only via
+HDMI?"* or *"how to view JPS on a Sony 3D TV"*: the video answer is the
+[3D signalling explainer](docs/3d-signalling-explainer.md), the photo answer
+is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
+
 ## What's working today
 
 **The full media experience is live and owner-verified on both TVs (through

@@ -203,9 +203,48 @@ the result measured on our sets, reported independently.
 **Korean: nothing substantive.** The likely venues (DVDPrime, Naver)
 sit behind bot checks that were not worked around.
 
-**Across every market swept, nobody reported native 3D from USB or
-DLNA on this generation.** Every thread that ends resolved ends on HDMI
-or an external player.
+**English, INDEX — the clearest single statement anywhere, about a set
+in our own board family.** AVForums' 2012 review of the KDL-55HX753:
+*"Photo's are limited to JPEG over the network but USB connected devices
+will be able to display 3D MPO files"*
+([review, June 2012](https://www.avforums.com/reviews/sony-hx753-kdl-55hx753-3d-led-lcd-tv-review.315/);
+the site now refuses fetching, read through the search index). That one
+sentence reconciles everything measured here. The network path is
+JPEG-only — exactly what the set's own GetProtocolInfo advertises, and
+why MPO bytes under a JPEG label stayed flat. The USB path takes MPO —
+what Sony's 2011 charts and the Italian owners say. The KDL-55HX753 is
+one of the three models [platform-map.md](platform-map.md) attests as
+the same board as ours, so **it predicts the pendrive test succeeds.**
+
+**English, INDEX — video from USB on a 2010 set.** A KDL-LX900 owner
+reports the side-by-side 3D mode *"seems to be disabled when playing
+back from USB media"*, and on the VGA input too
+([AVForums](https://www.avforums.com/threads/bravia-lx900-how-to-play-side-by-side-video.1538559/)).
+One data point on an earlier model, consistent with manual SBS being
+gated to HDMI.
+
+**Russian, VERIFIED (iXBT).** The dedicated MPO thread
+([*3D-фото (MPO), как лучше их просматривать на 3D-телевизоре?*, Feb 2012](https://forum.ixbt.com/topic.cgi?id=62:19982))
+resolves only through a PC or a PS3 over HDMI; nobody reports a BRAVIA's
+own USB port. A useful side fact from the 3D-TV megathread: owners state
+that the KDL-46HX850, HX853 and HX855 share electronics and panel and
+differ only by tuner
+([Dec 2012](https://forum.ixbt.com/topic.cgi?id=62:20486-64)) — owners'
+word rather than a board census, but it widens whom the HX855 results
+plausibly speak for.
+
+**AVSForum sits behind an AI-content licensing gate** (fetches redirect
+to `tollbit.avsforum.com`), so its threads — including a dedicated
+*"FQA about displaying 3D MPO photo files (Sony Sweep 3D Panorama) on 3D
+TV"* and three EX720 3D-help threads — are left for the owner to read in
+a browser and nothing from them is used here.
+
+**Across every market swept, no owner reported native 3D from USB or
+DLNA on this generation first-hand.** Every thread that ends resolved
+ends on HDMI or an external player. The affirmative statements about
+MPO over USB are Sony's own charts, the Italian posts seen only through
+the index, and one 2012 review — which is why the pendrive test on our
+own set is the thing that decides it.
 
 **One unmet need, verified: the eye swap.** A BRAVIA owner with a
 swapped-eye SBS rip: *"mi tele sony bravia no dispone de ese cambio de
