@@ -1,0 +1,19 @@
+'''Follow-up, 18 September 2026 — the work has continued and the one gap the appeal named is now closed.''' Recording this here so the thread stays current. I am not asking for a faster decision; the notice can stay until a moderator has time.
+
+'''The weakly-sourced incident is resolved, and it also corrected an overclaim of mine.''' The appeal flagged the January 2022 firmware-removal incident as resting on owner observation. Sony's own Brazilian support site now settles it: in place of a download it serves a notice headed "Encerramento do software de atualização da TV", with a model checker that returns my KDL-46HX855 as affected and names its latest software as PKG2.120BRA. I have archived that page. Reading it also showed my original wording was too strong: the page routes an affected owner to a support contact rather than leaving no path at all, so I have rewritten the incident to what the page actually supports — no self-service download remains, and recovery depends on a discretionary support request or on third-party archives. I would rather the claim be narrower and exactly true.
+
+'''Sony's own dated end-of-service notices, for five separate services, each naming both sets.''' Since the appeal I have found and archived Sony Brasil's per-service shutdown announcements, one article per service, each listing KDL-46EX725 and KDL-46HX855 by model number among roughly a hundred and thirty sets:
+*Facebook application, withdrawn from 27 April 2015 (Sony article S1Q2489).
+*Skype, ended 30 June 2017 after prior withdrawal in June 2016 (S1Q2505).
+*Video &amp; TV SideView second-screen companion, TV functions ended 24 May 2017 (S1Q2517).
+*Artist Information and TrackID music recognition, declared no longer functional (S1Q2522).
+*Twitter / TV Tweet, removed March 2018 after a Twitter login-API change (S1Q2540).
+These are corporate communications on the manufacturer's own domain, dated, model-specific, and now permanently held at the Internet Archive.
+
+'''Independent reporting, and the same notices in other regions.''' Three of the shutdowns also have independent coverage, which I have cited: TechCrunch on the Skype-for-TV shutdown, 9to5Google on the Twitter wind-down, and Android Police on TrackID (where Sony itself recommended installing Shazam on a phone, rather than restoring the feature on the set). The same Sony notices are published in English by Sony Canada and Sony Latin America under the same article numbers, which confirms these were global communications rather than a local quirk.
+
+'''One incident added, from Sony's own manual.''' I have added an incident describing that the panel's documented 3D processing, including the 2D-to-3D "Simulated 3D" mode, was never available to the television's own internet and application content, although the same panel switches to 3D from other inputs. It is cited to Sony's own i-Manual for the set, which documents the feature with no input or source restriction on the Simulated 3D mode, and to reproducible owner testing for the observed behaviour. No claim is made about intent.
+
+'''A note for the Foundation, not a legal claim.''' The two sets are Brazilian-market units and the notices above are Sony Brasil's. I have added a short "Consumer-rights context (Brazil)" section that states the applicable provisions of the Código de Defesa do Consumidor against the sourced facts and draws no legal conclusion. It is flagged in the article as not legal advice and as a matter for the Foundation and Brazilian counsel to assess, not something the article decides.
+
+'''Still ongoing.''' I am continuing to archive the manufacturer's own support pages as I find them, so more citations of this kind may follow. Happy to change, trim or restructure anything, here or on the article's talk page. If the preference is still to keep the notice in place while this settles, that is fine by me.
