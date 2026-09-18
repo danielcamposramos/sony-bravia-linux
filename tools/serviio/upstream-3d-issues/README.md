@@ -34,6 +34,35 @@ goes out without owner approval.
 | 10 | `jackdesbwa-message.md` | JackDesBwa (PhereoRoll3D / PhotoRoll3D / StereoWebViewer / threejs-StereoscopicEffects — the stereo-photo side) | his GitHub; check for an issues-welcome signal first, else profile contact | **POSTED 2026-09-18** as [PhereoRoll3D issue #2](https://github.com/JackDesBwa/PhereoRoll3D/issues/2) ("Thank you! And some other things...") by the owner; email-trigger watch, never poll — not an issue report. Opens with a **contribution offer, not a question**: StereoWebViewer's README has said `interleaved (i) [Not tested on actual device yet]` since 2018, and the owner has four devices that can test it (two active-shutter BRAVIAs, the parallax-barrier Optimus 3D, the Gadmei glasses-free tablet). Then the connect: our video-side SEI campaign is his photo-side wall from the other direction, and **not one of his four viewers can run on the set** because they all need WebGL the era browser lacks — which is exactly why our lane renders server-side. Two questions: practical anaglyph→SBS extraction on real community files, and which sources are still worth an adapter (with our measurement offered as the reason to ask: phereo API 504 at 60 s, stereopix 200 in 2.5 s, and the read that PhotoRoll3D is his own answer to phereo dying). Owner rewords and posts; re-check the 504 before sending, since being wrong about someone's community in a first message is expensive |
 | 11 | `kodi-issue.md` | Kodi (player + DLNA server, 21k★) | github.com/xbmc/xbmc | **POSTED 2026-09-18 as [#29337](https://github.com/xbmc/xbmc/issues/29337); v1 WRONG, EDITED same day** into the DLNA profile report, with an edit note saying plainly that v1 was wrong. We claimed Kodi never reads the SEI, from `gh search code` finding no stereo side-data symbols. Minutes later a Docker test (Kodi 21.2, Debian trixie, Xvfb, `--debug`) with a neutrally named SEI-only MP4 logged `autodetected stereo mode for movie mode left_right`: `DVDVideoCodecFFmpeg.cpp:1043` reads `stereo_mode` from the decoded frame's **metadata**, which FFmpeg's H.264 decoder fills from the SEI. Code search does not index everything; the lesson is in memory (verify by running before filing). The DLNA side, measured the same way through Kodi's own UPnP server as a TV would see it: files served **byte-exact** (SEI and Matroska tag intact), but **every MP4 is advertised as `DLNA.ORG_PN=MPEG4_P2_SP_AAC`** (MPEG-4 Part 2) from a static table, `lib/libUPnP/Platinum/Source/Core/PltProtocolInfo.cpp:95`, which has no `AVC_MP4_*` entries; confirmed on a plain H.264+AAC MP4; unreported. Harmless for the BRAVIAs (they advertise `video/mp4:*`); MKV is served as `video/x-matroska`, which the sets do not accept and Kodi never transcodes — which is why Kodi's server failed the owner years ago and Serviio won. **Hardware result, EX725, 2026-09-18: through Kodi's server an SEI-only MP4 auto-engages 3D, the same file minus its SEI plays flat, the MKV is not listed** — the mislabel is harmless to this set, as the edited issue says. Harness: `tools/kodi-dlna-test/`. Email-trigger watch, never poll |
 
+## Follow-ups, 2026-09-18 — posted where AI assistance is not gated, drafted where it is
+
+New measurements this day: a second, independent DLNA server (Kodi's,
+which never transcodes) reproduces the 3D result byte-exact, and the
+audio half turns out to be the same story — these sets decode **Dolby
+Digital Plus internally, 7.1 included**, from MP4, while a remux to TS
+forces it down to AC-3.
+
+**Posted:**
+
+| Target | Comment |
+|---|---|
+| Gerbera #3937 | [issuecomment-5731131092](https://github.com/gerbera/gerbera/issues/3937#issuecomment-5731131092) — the SEI alone is sufficient (second server, byte-exact), and the remux costs the soundtrack as well as the 3D flag |
+| Universal Media Server #6329 | [issuecomment-5731131343](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329#issuecomment-5731131343) — measured renderer capabilities for their Sony BRAVIA configs; **E-AC3 should not be transcoded for these sets in MP4** |
+| Jellyfin PR #18060 | [issuecomment-5731138084](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5731138084) — FFmpeg exposes the SEI as `stereo_mode` frame metadata, which is how Kodi detects it in one line |
+| repo Discussion #1 | [discussioncomment-18501864](https://github.com/danielcamposramos/sony-bravia-linux/discussions/1#discussioncomment-18501864) — the Surround profile and the second-server confirmation, for the Serviio community |
+
+**Drafted, held for the owner** (each says why in its header):
+
+| Draft | Target | Why it is not posted from here |
+|---|---|---|
+| `mpv-followup-kodi-precedent.md` | mpv #18490 / #18489 | AI-written text was objected to on that PR; owner's words only |
+| `ffmpeg-24531-followup.md` | FFmpeg #24531 | no credentials for code.ffmpeg.org in this session |
+| `mkvtoolnix-6309-followup.md` | Codeberg #6309 | the owner filed it as himself; short, and fine to send nothing |
+
+Not followed up, deliberately: x265 #970 and StaxRip #1873 (nothing new
+to add), HandBrake (merged), videohelp (left alone — our polling once
+tripped its anti-bot), LTT (audience posts, owner's voice).
+
 Not separately drafted: the ffmpeg `libx265.c` stereo3d wiring — fold
 it into #5 as a secondary bullet if the tracker prefers one report, or
 file it standalone after x265 (#4) lands. VidCoder needs no issue: its
