@@ -105,7 +105,7 @@ short form linked in every upstream post is
 | mpv | [issue #18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) in review — completes the pipeline end to end; ecosystem follow-up posted on the issue |
 | BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756) — answered, closed out, cross-brand confirmed (Samsung) |
 | mkvmerge | [Codeberg #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309) **filed 2026-09-18** — derive stereo mode from the SEI; the earlier "signup paywall" was the donate page wearing the same layout |
-| Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — **our claim was wrong**: Kodi *does* read the SEI (via FFmpeg's frame metadata, verified on Kodi 21.2); correction pending. Measured instead: its DLNA server passes the SEI byte-exact but labels every MP4 as MPEG-4 Part 2 (`MPEG4_P2_SP_AAC`) |
+| Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — first version was wrong (Kodi's player *does* read the SEI) and was corrected in place; now reports the DLNA side, the only side these TVs see: every MP4 advertised as MPEG-4 Part 2 (`MPEG4_P2_SP_AAC`), SEI served byte-exact |
 | Jellyfin | [comment on PR #18060](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078) (layout-detection point) |
 | Universal Media Server | [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) filed |
 | Gerbera | [issue #3937](https://github.com/gerbera/gerbera/issues/3937) filed — the no-remux SEI-injection step |
