@@ -1258,6 +1258,8 @@ def render_probe():
         ('/probe/art?v=2', 'I \u2014 art + transform scale x2'),
         ('/probe/art?v=3', 'J \u2014 art + zoom 2'),
         ('/probe/art?v=4', 'K \u2014 art full width'),
+        ('/probe/art?v=5', 'L \u2014 art + scale x2, wrapped'),
+        ('/probe/art?v=6', 'M \u2014 art + scale x3, wrapped'),
     ])
     body = (_hdr('Era probes')
             + '<ul>%s</ul>' % rows
@@ -1337,6 +1339,28 @@ def render_probe_caps():
     return _page('Capabilities', body, extra_js=js)
 
 
+def _scaled_video(poster, w, h, extra, factor):
+    """A <video> that may be CSS-scaled, inside a box of its FINAL size.
+
+    A transform takes no part in layout: the element keeps its pre-scale
+    footprint, so whatever follows renders underneath the scaled pixels
+    (observed on the EX725, 2026-09-18). Reserving the final size with a
+    plainly sized container is the era-safe fix — no flexbox, no calc(),
+    just declared dimensions."""
+    vid = ('<video id="pv" controls preload="none"%s width="%s" '
+           'height="%s" style="width:%s;height:%s;background:#111;%s">'
+           '</video>' % (poster, w, h, w, h, extra))
+    if factor <= 1:
+        return vid
+    try:
+        fw = '%dpx' % (int(w.replace('px', '')) * factor)
+        fh = '%dpx' % (int(h.replace('px', '')) * factor)
+    except ValueError:
+        return vid
+    return ('<div style="width:%s;height:%s;overflow:hidden;">%s</div>'
+            % (fw, fh, vid))
+
+
 def render_probe_art(variant):
     """/probe/art -- album art behind native controls, and can we enlarge them?
 
@@ -1348,20 +1372,37 @@ def render_probe_art(variant):
     art = probe_art_url()
     if not url:
         return render_error('probe', 'no audio item found to test with')
+    # Measured on the EX725, 2026-09-18:
+    #   * the native control bar has a FIXED pixel height. Growing the
+    #     element widens the bar but never makes it taller (1 and 4).
+    #   * zoom: has no effect — the element stayed 480x270 (3), even
+    #     though style.zoom exists on the object.
+    #   * -o-transform:scale() DOES scale the element and its native
+    #     controls (2), but a transform takes no part in layout, so the
+    #     text below rendered underneath it. Reserving the final size
+    #     with a sized container is the fix, which is what 5 and 6 do.
     styles = {
-        1: ('960px', '540px', ''),
+        1: ('960px', '540px', '', 1),
         2: ('480px', '270px',
             '-o-transform:scale(2);-o-transform-origin:top left;'
-            'transform:scale(2);transform-origin:top left;'),
-        3: ('480px', '270px', 'zoom:2;'),
-        4: ('100%', '600px', ''),
+            'transform:scale(2);transform-origin:top left;', 1),
+        3: ('480px', '270px', 'zoom:2;', 1),
+        4: ('100%', '600px', '', 1),
+        5: ('480px', '270px',
+            '-o-transform:scale(2);-o-transform-origin:top left;'
+            'transform:scale(2);transform-origin:top left;', 2),
+        6: ('440px', '248px',
+            '-o-transform:scale(3);-o-transform-origin:top left;'
+            'transform:scale(3);transform-origin:top left;', 3),
     }
-    w, h, extra = styles.get(variant, styles[1])
+    w, h, extra, factor = styles.get(variant, styles[1])
     poster = (' poster="%s"' % esc(art)) if art else ''
     what = {1: '960x540, poster only',
             2: '480x270 scaled x2 via transform',
             3: '480x270 with zoom:2',
-            4: 'full width, 600px tall'}.get(variant, '')
+            4: 'full width, 600px tall',
+            5: '480x270 scaled x2, wrapped at 960x540',
+            6: '440x248 scaled x3, wrapped at 1320x744'}.get(variant, '')
     js = ("var v=document.getElementById('pv');"
           "var st=document.getElementById('status');"
           "var s=document.createElement('source');"
@@ -1374,9 +1415,7 @@ def render_probe_art(variant):
     body = (_hdr('Art %d - %s' % (variant, what))
             + '<p id="fmt">%s%s</p>' % (esc(title or ''),
                                         '' if art else ' (no art found)')
-            + '<video id="pv" controls preload="none"%s width="%s" '
-              'height="%s" style="width:%s;height:%s;background:#111;%s">'
-              '</video>' % (poster, w, h, w, h, extra)
+            + _scaled_video(poster, w, h, extra, factor)
             + '<p id="status">loading</p>'
             + '<p id="fmt">Watch for: art visible while playing, and '
               'whether the control bar got bigger.</p>'
