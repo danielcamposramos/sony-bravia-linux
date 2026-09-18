@@ -92,6 +92,12 @@ short form linked in every upstream post is
 | LTT forums | two audience posts: [3D-theater guide](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) + [Steam Frame cross-comment](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512) |
 
 No DRM or copy-protection mechanism is involved anywhere in the chain.
+**Act three — the legacy formats** (row-interleaved, checkerboard,
+anaglyph: enable all 3D content ever made, not just the well-signalled
+rest) — is chartered in
+[docs/legacy-3d-formats.md](docs/legacy-3d-formats.md): conversion to
+SBS+SEI as the proper path, the anaglyph colorimetry chain, first
+results on the owner's own stack before any upstream ask.
 The episode's authorship-politics record — who gated on what, and the
 42-line standard-based patch at the center of it — is
 [docs/judging-by-the-cover.md](docs/judging-by-the-cover.md).
@@ -205,6 +211,7 @@ is in [docs/wiki/](docs/wiki/).
   **3D signalling set** ([explainer](docs/3d-signalling-explainer.md),
   [ecosystem](docs/3d-signalling-ecosystem.md),
   [browser block](docs/3d-blocked-in-browser.md),
+  [legacy formats — act three](docs/legacy-3d-formats.md),
   [origin story](docs/3d-origin-story.md)), the
   **consumer-rights set** ([legal analysis](docs/legal-eula-analysis.md),
   [regional asymmetry](docs/regional-documentation-asymmetry.md),
