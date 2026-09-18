@@ -1,4 +1,7 @@
-<!-- DRAFT — NOT POSTED. For mpv PR #18490 (or issue #18489).
+<!-- POSTED 2026-09-18 by the owner, in his own words, to mpv PR #18490:
+     https://github.com/mpv-player/mpv/pull/18490#issuecomment-5731208155
+     Watch: email trigger only, never poll.
+     The draft as prepared follows, kept for the record.
      GATED: llyyr invoked the contribution guidelines over AI-written
      text on this very PR, so nothing here goes out as written. The
      owner rewrites it in his own words, or drops it. Value: it answers

@@ -1,4 +1,7 @@
-<!-- DRAFT — NOT POSTED. Optional follow-up for Codeberg #6309
+<!-- POSTED 2026-09-18 by the owner, in his own words, to Codeberg #6309:
+     https://codeberg.org/mbunkus/mkvtoolnix/issues/6309#issuecomment-23228848
+     Watch: email trigger only, never poll.
+     The draft as prepared follows, kept for the record.
      (mkvmerge deriving the stereo mode from the SEI).
      The owner filed #6309 as himself and owns every claim there, so
      this only goes out in his words, and only if he judges it worth

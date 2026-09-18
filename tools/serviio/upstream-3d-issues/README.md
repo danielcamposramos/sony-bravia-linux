@@ -51,13 +51,18 @@ forces it down to AC-3.
 | Jellyfin PR #18060 | [issuecomment-5731138084](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5731138084) — FFmpeg exposes the SEI as `stereo_mode` frame metadata, which is how Kodi detects it in one line |
 | repo Discussion #1 | [discussioncomment-18501864](https://github.com/danielcamposramos/sony-bravia-linux/discussions/1#discussioncomment-18501864) — the Surround profile and the second-server confirmation, for the Serviio community |
 
-**Drafted, held for the owner** (each says why in its header):
+**Drafted here, then POSTED BY THE OWNER in his own words, same day** —
+the three gated targets, where AI-written text either was objected to or
+could not be sent from this session:
 
-| Draft | Target | Why it is not posted from here |
-|---|---|---|
-| `mpv-followup-kodi-precedent.md` | mpv #18490 / #18489 | AI-written text was objected to on that PR; owner's words only |
-| `ffmpeg-24531-followup.md` | FFmpeg #24531 | no credentials for code.ffmpeg.org in this session |
-| `mkvtoolnix-6309-followup.md` | Codeberg #6309 | the owner filed it as himself; short, and fine to send nothing |
+| Draft | Posted to |
+|---|---|
+| `mpv-followup-kodi-precedent.md` | [mpv PR #18490](https://github.com/mpv-player/mpv/pull/18490#issuecomment-5731208155) — the Kodi precedent: FFmpeg exposes the SEI as `stereo_mode` frame metadata, and Kodi reads it in one line |
+| `ffmpeg-24531-followup.md` | [FFmpeg #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531#issuecomment-63296) — the Matroska muxer never derives `StereoMode` from the stream, so a file can carry the SEI and no container tag |
+| `mkvtoolnix-6309-followup.md` | [Codeberg #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309#issuecomment-23228848) — the same gap from the other side, kept short |
+
+All three are now on the email-trigger watch like everything else: never
+poll, the owner pastes any reply.
 
 Not followed up, deliberately: x265 #970 and StaxRip #1873 (nothing new
 to add), HandBrake (merged), videohelp (left alone — our polling once

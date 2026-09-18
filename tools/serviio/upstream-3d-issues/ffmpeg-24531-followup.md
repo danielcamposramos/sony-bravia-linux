@@ -1,4 +1,7 @@
-<!-- DRAFT — NOT POSTED. For FFmpeg issue #24531 (bsf to write the
+<!-- POSTED 2026-09-18 by the owner, in his own words, to FFmpeg #24531:
+     https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531#issuecomment-63296
+     Watch: email trigger only, never poll.
+     The draft as prepared follows, kept for the record.
      frame-packing SEI), at code.ffmpeg.org.
      NOT GATED by policy, but this session has no credentials for that
      tracker, so the owner posts it. New, checkable observation found
