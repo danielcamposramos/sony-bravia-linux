@@ -52,6 +52,40 @@ announced exactly that.
   March 2018.
 - **Names our models:** KDL-46EX725 ✓ and KDL-46HX855 ✓.
 
+### Facebook
+
+- **Title:** "Rescisão do app do Facebook em certos televisores"
+- **Sony article ID:** S1Q2489
+- **Archive:** https://web.archive.org/web/20260918050451/https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0489
+- **What it says:** Facebook, Inc. decided to stop providing the Facebook
+  application on certain devices including some Sony TV models; from 27
+  April 2015 the app would no longer be provided.
+- **Names our model:** KDL-46HX855 ✓. Corroborates the "Facebook widget
+  shows as Deleted in the catalog" observation elsewhere on the wiki with
+  Sony's own dated announcement.
+
+### Video & TV SideView (second-screen companion)
+
+- **Title / notice:** end-of-function for Video & TV SideView
+- **Sony article ID:** S1Q2517
+- **Archive:** https://web.archive.org/web/20260918050316/https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx855/articles/S1Q0517
+- **What it says:** the TV-programme and video functions would no longer
+  be offered by Video & TV SideView after 24 May 2017.
+- **Roadmap tie-in:** the phone-as-remote / second-screen capability is a
+  candidate to reimplement from the rd1 portal (feasibility-roadmap A6).
+
+### The source hub, and a broken link on Sony's own FAQ
+
+The owner archived the model's support FAQ hub itself
+(sony.com.br/electronics/support/product/kdl-46hx855/faqs, snapshot
+20260918050407), which links out to these per-service notices. Noted for
+the record but **not** proposed as a wiki claim: one of the FAQ's own
+outbound links, article 00258962, returned HTTP 504 during archiving and
+was also down in the owner's browser on 2026-09-18. A single gateway
+timeout can be transient, so it is held as an observation to re-check,
+not cited &mdash; if it is persistently dead it becomes a small, fair
+illustration that even the vendor's live support index has decayed.
+
 ## Why this matters for the record
 
 1. **It resolves the sourcing challenge.** Every "the service ended"
