@@ -71,9 +71,46 @@ Follow-ups offered in-thread, pending maintainer decision:
    displaymatrix, DOVI config), and this becomes the second caller of
    the shared helper.
 
+Runnable evidence for the second commit:
+[mpv-sei-frequency-repro.md](mpv-sei-frequency-repro.md) — four commands
+against stock ffmpeg, no patched mpv needed, that show the side data
+landing on keyframes and nothing else (frames 1/49/97/145/193 at `-g 48`),
+with a no-SEI negative control. Verified on two hosts spanning FFmpeg
+6.1.6 and 9.0.1 on 2026-09-17.
+
 Raw material for the owner's replies:
 `/K3D/GitHub/EchoSystems_Stereo3D/mpv-review-replies-draft.md` — the
 posted replies are the owner's own rewording, per doctrine.
+
+## Issue #18489 — the quiet reading (noted 2026-09-17)
+
+Worth keeping because it is the only signal in the episode that came
+from neither side of the argument.
+
+[#18489](https://github.com/mpv-player/mpv/issues/18489) (filed
+2026-09-16T10:08:09Z) carries **two 👍 reactions and zero comments**:
+
+| reaction | account | timestamp (UTC) | after filing |
+|---|---|---|---|
+| 👍 | netExtra | 2026-09-16T12:26:59Z | 2 h 19 min |
+| 👍 | fakelok76 | 2026-09-17T06:49:26Z | 20 h 41 min |
+
+Both arrived while the PR thread was still arguing about authorship.
+Neither account took part in that thread.
+
+**netExtra is not a passing reader.** The same account filed
+[#17632](https://github.com/mpv-player/mpv/issues/17632) in March 2026
+(OSD misplaced on 3D content in fullscreen, watched through a VR headset)
+and it is still open. The 3D surface in mpv has few users filing bugs, and
+this is one of them reading ours. The map is in
+[mpv-3d-landscape.md](mpv-3d-landscape.md).
+
+No claim is being made about what a 👍 means — it is not a review, and
+two is not a groundswell. It is recorded because the reactions are the
+only datapoint in the exchange that speaks to the *bug* rather than to
+who wrote the text about it, and reactions are silently editable
+afterwards, so the counts and timestamps are captured here as read on
+2026-09-17 via `gh api repos/mpv-player/mpv/issues/18489/reactions`.
 
 The episode's doctrine proverb is recorded in
 [docs/judging-by-the-cover.md](../../../docs/judging-by-the-cover.md):

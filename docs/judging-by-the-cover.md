@@ -308,3 +308,6 @@ arriving on schedule.
   one-image comment with zero technical content) was human-made?
 - The counter-example, same day: HandBrake merged the patch —
   judging by the code alone — in an 81-minute window.
+- The quiet reading: issue #18489 collected two 👍 and no comments
+  while the PR thread argued about authorship (2026-09-16/17). Noted,
+  not claimed — see the campaign README.
