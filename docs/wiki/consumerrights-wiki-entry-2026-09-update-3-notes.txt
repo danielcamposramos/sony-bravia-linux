@@ -1,0 +1,84 @@
+# NOTES for update 3 (2026-09-18). The paste-ready article itself is
+#   consumerrights-wiki-entry-2026-09-update-3.txt — that file is PURE
+#   wikitext, the WHOLE article, for the wiki's source/edit mode.
+#   This file keeps the reasoning, the insertion map and what was
+#   deliberately left out.
+#
+# UPDATE 3 to the consumerrights.wiki (FULU Foundation) product-line page
+#   https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)
+# Drafted 2026-09-18 (later the same day as Update 2). ADDITIVE: it does
+# not rewrite the page. It (A) strengthens the existing DLNA 3D incident
+# with an independent reproduction on a second, unrelated media server,
+# (B) adds one incident on 3D still photographs, where the panel's 3D is
+# unreachable from the set's own photo path and Sony's own support
+# material describes the capability inconsistently across regions, and
+# (C) adds the multilingual documentation to "See also".
+#
+# WHY THIS FURTHER ANSWERS THE {{Incomplete}} NOTICE
+#   (A) answers the strongest objection available against the 3D incident
+#   — that it might be one media server's bug. It is now reproduced on a
+#   second server from a different project, with the control case (the
+#   same file minus one 16-byte message) included.
+#   (B) is sourced entirely to Sony's own support articles and manuals,
+#   each archived at the Internet Archive on 18 September 2026, plus
+#   reproducible owner testing on both sets. No intent is claimed
+#   anywhere, and the scope is stated exactly: the measured behaviour is
+#   the network path; the USB path with a true .mpo file is named as not
+#   yet tested rather than assumed.
+#
+# ORDER OF OPERATIONS
+#   1. Nothing to archive first this time: every citation below is
+#      already archived (URLs are in the refs).
+#   2. Paste (A) as the final sentence of the existing incident
+#      "3D playback silently broken over DLNA".
+#   3. Paste (B) as a new === section === immediately AFTER
+#      "3D display never available to the television's own internet/app content".
+#   4. Paste (C) into the existing "==See also==" list.
+#   5. The refs are inline; {{Reflist}} renders them, no change needed.
+#
+# STYLE: matches the page — neutral, sourced, no claim of intent,
+# &mdash; for dashes, British-ish register, bold used sparingly.
+
+## ========================================================================
+## (A) APPEND to the existing incident "3D playback silently broken over DLNA"
+##     (add as the last sentence of that section, before its refs close)
+## ========================================================================
+
+The defect is in the signalling chain rather than in any one media server: the same behaviour was subsequently reproduced on the same television through an unrelated server, the UPnP/DLNA server built into Kodi, which serves files byte-for-byte without transcoding. A file whose only stereoscopic signal is the in-stream frame-packing message caused the set to switch to 3D automatically, while the identical file with that message removed &mdash; a difference of 791 bytes, with the picture data untouched &mdash; played flat, and a Matroska file carrying the container-level 3D flag was not listed by the television at all.<ref name="repo" />
+
+## ========================================================================
+## (B) NEW incident — insert AFTER "3D display never available to the
+##     television's own internet/app content"
+## ========================================================================
+
+===3D still photographs: no stereoscopic option on the set's own photo path===
+The same panel that switches to 3D for video offers no stereoscopic mode for photographs shown by the television's own picture viewer. Tested on both sets over the home network, side-by-side stereo photographs are displayed flat, and pressing the remote's 3D button while a photograph is on screen does open the 3D menu but offers only the simulated 2D-to-3D conversion; no side-by-side or over-under option exists for still images, so a correctly prepared stereo photograph cannot be unpacked on this path at all.<ref name="repo" /> The behaviour was identical on both models and did not change when the same stereo pair was supplied as a full-width image, as a half-width frame-compatible image, or as a Multi-Picture Object (MPO) file delivered over the network.<ref name="repo" />
+
+Sony's own support material describes this capability inconsistently across regions. One Sony support article, published under the same reference number in German and in Russian, states that 3D photographs and films cannot be played from a USB storage device or from the home network.<ref name="sony-3d-nousb-de">Sony Deutschland, support article 00129654, "Meine 3D-Fotos und -Filme können von meinem USB-Speicherstick oder dem Heimnetzwerk aus nicht wiedergegeben werden": [https://www.sony.de/electronics/support/articles/00129654 sony.de]; archived copy: [https://web.archive.org/web/20260918105103/https://www.sony.de/electronics/support/articles/00129654 Internet Archive snapshot, 18 September 2026]. The same article in Russian: [https://www.sony.ru/electronics/support/articles/00129654 sony.ru]; archived copy: [https://web.archive.org/web/20260918104856/https://www.sony.ru/electronics/support/articles/00129654 Internet Archive snapshot, 18 September 2026].</ref> Other Sony material of the same period states the opposite: the manufacturer's USB compatibility charts for 2011 models, and its Brazilian support article on 3D photographs over USB, present MPO as the supported 3D still-image format for these televisions.<ref name="sony-mpo-usb">Sony Middle East / Asia-Pacific, "BRAVIA USB Compatibility Charts For 2011 Models", support article 00180404: [https://www.sony-mea.com/en/electronics/support/articles/00180404 sony-mea.com]; archived copy: [https://web.archive.org/web/20260918102410/https://www.sony-mea.com/en/electronics/support/articles/00180404 Internet Archive snapshot, 18 September 2026]; the same article at Sony Asia-Pacific: archived copy: [https://web.archive.org/web/20260918102640/https://www.sony-asia.com/electronics/support/articles/00180404 Internet Archive snapshot, 18 September 2026]. Sony Brasil, "Que tipo de formatos de arquivo e dispositivos são compatíveis com Fotos 3D via USB?", support article 00013979: [https://www.sony.com.br/electronics/support/articles/00013979 sony.com.br]; archived copy: [https://web.archive.org/web/20260918104336/https://www.sony.com.br/electronics/support/articles/00013979 Internet Archive snapshot, 18 September 2026].</ref> Sony Italia publishes the question itself as the title of a support article, asking whether the television can display side-by-side and over-under 3D content stored on a USB device.<ref name="sony-sbs-usb-it">Sony Italia, support article 00069624, "La mia TV è in grado di visualizzare contenuti 3D 'Side by side' e 'Over under' salvati su un dispositivo USB?": [https://www.sony.it/electronics/support/articles/00069624 sony.it]; archived copy: [https://web.archive.org/web/20260918104735/https://www.sony.it/electronics/support/articles/00069624 Internet Archive snapshot, 18 September 2026].</ref> For the later Android-based generation Sony states plainly that 3D still images in MPO format cannot be viewed at all.<ref name="sony-3d-android">Sony UK, "How to watch the TV in 3D on Android TV", support article 00172421, which states that 3D still pictures taken with a camera in .mpo file format cannot be viewed on 3D-capable Android TV models: [https://www.sony.co.uk/electronics/support/articles/00172421 sony.co.uk]; archived copy: [https://web.archive.org/web/20260918104145/https://www.sony.co.uk/electronics/support/articles/00172421 Internet Archive snapshot, 18 September 2026].</ref> The electronic manual for the affected generation does not resolve the question either: its USB playback page describes photograph, music and video playback without mentioning 3D or any stereoscopic still format.<ref name="imanual-usb">Sony Corporation, BRAVIA i-Manual for the 2012 generation (HX850 series), "USB Device" page: [https://helpguide.sony.net/apmig/bravia_i-manuals/FY12/HX850/GA/usb_europe_ga_twn.html helpguide.sony.net]; archived copy: [https://web.archive.org/web/20260918103148/https://helpguide.sony.net/apmig/bravia_i-manuals/FY12/HX850/GA/usb_europe_ga_twn.html Internet Archive snapshot, 18 September 2026]. The equivalent page for the 2011 generation is archived at [https://web.archive.org/web/20260918103825/https://www.sony-asia.com/microsite/bravia_i-manuals/FY11/SG/eng/CX520_DF/nt_usb_ga.html Internet Archive snapshot, 18 September 2026].</ref>
+
+The scope of the owner testing is stated exactly: the measured results above are for delivery over the home network, which is the path the television's media software exposes to a server. Whether a Multi-Picture Object file presented on a USB storage device behaves differently on these particular models has not yet been tested and no claim is made about it here.<ref name="repo" />
+
+## ========================================================================
+## (C) ADD to the existing "==See also==" list
+## ========================================================================
+
+*The project's technical documentation is also published in eleven languages, for owners searching in the markets where these televisions were sold: [https://github.com/danielcamposramos/sony-bravia-linux/tree/main/docs/i18n Japanese, Traditional Chinese, Korean, German, French, Italian, Spanish, Brazilian Portuguese, Russian, Polish and Dutch].
+
+## ========================================================================
+## NOTES FOR THE OWNER (do not paste)
+##
+## * All five new refs are self-contained and archived. "repo" already
+##   exists on the page and is reused, so nothing else needs adding.
+## * Deliberately NOT included, to keep the page to manufacturer conduct:
+##   the audio measurements (the sets decode Dolby Digital Plus internally
+##   while a server's remux converts it away) and the Kodi DLNA profile
+##   defect. Both are software findings about third parties, not about
+##   Sony, and they belong in the repository rather than here.
+## * If a moderator asks how the photo behaviour was verified, the method
+##   and the per-file results are in docs/3d-photos-on-bravia.md, and the
+##   second-server reproduction with its control case is in
+##   tools/kodi-dlna-test/README.md.
+## * A short noticeboard follow-up is optional and not drafted: the
+##   appeal thread already says sourcing work continues, and this update
+##   is the continuation rather than news about the notice itself.
+## ========================================================================
