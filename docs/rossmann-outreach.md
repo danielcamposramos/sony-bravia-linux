@@ -2,6 +2,50 @@
 
 The targets, verified live:
 
+## 0. Rossmann in his own words — the timing could not be better (2026-09-18)
+
+Reviewed a set of his recent videos directly (transcripts held privately,
+rule 9b; public videos cited by title and timestamp). The alignment is
+not general, it is exact and current:
+
+- **His live campaign is Sony.** He opens one episode with "welcome to
+  today's episode of how we are getting Sony back" (*Sony admits you own
+  your games*, ~0:00). The series is about Sony revoking purchased
+  content and Sony's court argument that "it is unreasonable for
+  customers to believe that they own the games that they bought and paid
+  for." Our BRAVIA entry lands on his target during his push, not into a
+  cold void.
+- **consumerrights.wiki is his channel, literally.** In his own words the
+  wiki "made about six different news sites over this," he links wiki
+  articles in his videos, and it is "designed to be a collaborative
+  effort of everybody who watches this channel ... Many of you have
+  created a table that goes into every single time Sony has mentioned on
+  their website that you own" your content (*Sony admits you own your
+  games*, ~0:20-1:30). He closes another episode with "Please do keep
+  contributing to the Consumer Rights Wiki. It is how he holds companies
+  like Sony accountable." So the path to Rossmann is not an email, it is
+  a strong wiki entry, which we now have.
+- **The thesis our evidence refutes is the quote he ends on.** He signs
+  off most videos with a corporate lawyer's public-hearing line: "It is
+  in fact the manufacturers who have the relevant rights, not consumers"
+  (the speaker later sued Rossmann over its use and lost). That sentence
+  is exactly what the BRAVIA record answers: Sony documented the features,
+  shipped them, then withdrew them while the buyer still owns the
+  hardware; the GPL source obligation the manufacturer itself points to
+  was withdrawn. The manufacturer's "rights" did not keep the product
+  working; the owner's ownership is what is stranded.
+
+**Strategic implication.** The 2026-09-13 plan below still holds, but the
+priority order shifts: the single highest-leverage move is that the
+consumerrights.wiki BRAVIA entry (posted 2026-09-18, now sourced entirely
+to Sony's own documents, dated end-of-service notices naming both models,
+and independent press) is **strong and discoverable during his active
+Sony campaign**. He and his community source from that wiki. Making noise
+directly at him is lower-value than making the wiki entry unmissable and
+letting his existing sourcing pipeline find it. A brief, factual note in
+the wiki community channels he watches (not a pitch) is the natural
+nudge.
+
 ## 1. consumerrights.wiki — FULU Foundation (Rossmann-founded)
 
 Open-edit MediaWiki, **~1,461 articles, no account required to edit**
