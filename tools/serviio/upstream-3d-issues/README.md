@@ -37,6 +37,14 @@ maintainer already stated (RandomEngy/VidCoder#1318) that all asks
 belong upstream in HandBrake; VidCoder inherits the fix via the
 HandBrake core DLLs it ships.
 
+## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
+
+Posted the Samsung data-point update on the project's own Serviio-community
+discussion: https://github.com/danielcamposramos/sony-bravia-linux/discussions/1#discussioncomment-18496283
+Kept the honest framing (r0lZ's Samsung is a symptom-level confirmation,
+not the controlled two-file mechanism test). On the email-trigger watch
+like the rest; no polling.
+
 ## mpv issue #18489 — cross-brand / ecosystem follow-up (2026-09-18)
 
 Posted a context comment on the issue (not the PR):

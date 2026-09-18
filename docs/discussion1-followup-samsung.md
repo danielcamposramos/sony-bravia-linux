@@ -1,4 +1,7 @@
-<!-- Follow-up comment for github.com/danielcamposramos/sony-bravia-linux/discussions/1
+<!-- POSTED 2026-09-18 as discussion comment 18496283:
+     https://github.com/danielcamposramos/sony-bravia-linux/discussions/1#discussioncomment-18496283
+     The accurate "symptom-level, not mechanism" framing was preserved.
+     Follow-up comment for github.com/danielcamposramos/sony-bravia-linux/discussions/1
      Drafted 2026-09-18. A NEW comment on the discussion, reporting the first
      cross-brand data point (Samsung) plus the ecosystem movement that makes
      the community test trivial now. Owner reviews and posts in his own voice.
