@@ -45,7 +45,7 @@ not general, it is exact and current:
   ownership is what is stranded.
 
 **His Sony videos reviewed (public YouTube; transcripts held privately per rule 9b):**
-- [Sony admits you own your games: here's the proof](https://www.youtube.com/watch?v=e_Ka_WshggY) — "how we are getting Sony back"; consumerrights.wiki as the collaborative channel.
+- [Sony admits you own your games: here's the proof](https://www.youtube.com/watch?v=e_Ka_WshggY) — [0:00 "how we are getting Sony back"](https://www.youtube.com/watch?v=e_Ka_WshggY&t=0s); [0:20 consumerrights.wiki as the collaborative channel](https://www.youtube.com/watch?v=e_Ka_WshggY&t=20s).
 - [Sony Steals Customers' Purchased Content - Piracy is COMPLETELY JUSTIFIED!](https://www.youtube.com/watch?v=krXH8jXefqE) (2023-12-02) — the original PlayStation content-delisting episode.
 - [Sony stole what you purchased AGAIN: piracy is COMPLETELY JUSTIFIED](https://www.youtube.com/watch?v=LYxmRaRRdc0) (2026-06-29) — the follow-up; "you sold stuff you don't even own".
 - [Sony's WORST argument](https://www.youtube.com/watch?v=U2rgyl-auF4) — on Sony's "no reasonable consumer believed they owned it" court line.

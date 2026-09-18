@@ -187,9 +187,17 @@ is one 16-byte message, and this repo maps every place it needs to go.
   snapshots of pages 1-20 (2023-2026 captures).
 - DLNA-server symptom threads: Plex, Jellyfin, Serviio, MakeMKV, AVS
   (linked inline above).
-- Linus Tech Tips / ShortCircuit videos cited above:
-  - [My Most Unnecessary Home Project in YEARS - Home 3D Movie Projector Setup!](https://www.youtube.com/watch?v=_4Sz6J49jho) (2024-11-23) — the home 3D build; content/file signalling was the hardest part.
-  - [Steam Frame Review - This Changes Everything](https://www.youtube.com/watch?v=3PGKMwgjla0) — the "so little 3D content" remark; VR as the only offered path.
-  - [Our first 30 mins with the Steam Frame](https://www.youtube.com/watch?v=u8R-bnz1MPU) — first-look context (note: LTT pulled and re-uploaded this; verify the canonical URL before citing publicly).
+- Linus Tech Tips / ShortCircuit videos cited above (timestamped jump-links):
+  - *My Most Unnecessary Home Project in YEARS - Home 3D Movie Projector Setup!* (2024-11-23),
+    [full video](https://www.youtube.com/watch?v=_4Sz6J49jho). Timed moments:
+    [0:26 "still being released on 3D Blu-ray every single year"](https://www.youtube.com/watch?v=_4Sz6J49jho&t=26s) ·
+    [0:53 "no new hardware supports 3D anymore"](https://www.youtube.com/watch?v=_4Sz6J49jho&t=53s) ·
+    [10:20 "more tinkering than anything else we've done so far"](https://www.youtube.com/watch?v=_4Sz6J49jho&t=620s) ·
+    [10:34 ripping and hand-remuxing to a 3D file format](https://www.youtube.com/watch?v=_4Sz6J49jho&t=634s).
+  - *Steam Frame Review - This Changes Everything*,
+    [full video](https://www.youtube.com/watch?v=3PGKMwgjla0). Timed moment:
+    [21:10 "so little content available for it"](https://www.youtube.com/watch?v=3PGKMwgjla0&t=1270s).
+  - *Our first 30 mins with the Steam Frame*,
+    [full video](https://www.youtube.com/watch?v=u8R-bnz1MPU) — first-look context (note: LTT pulled and re-uploaded this; verify the canonical URL before citing publicly).
 - This project: `docs/3d-signalling-explainer.md`,
   `docs/3d-blocked-in-browser.md`, `tools/serviio/`.
