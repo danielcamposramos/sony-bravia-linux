@@ -97,10 +97,15 @@ one is ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY).)
 
 **The date is the part worth keeping straight.** 30 December 2010 is
 roughly **five weeks before** Vadim Asadov gifted the author his iZ3D
-license (2011-02-02, order 368345, above). So the recommendation named
-a product the author **did not yet own** — he was not promoting
-something he had been given, he pointed a creator at iZ3D first and was
-gifted the license afterwards, in a separate correspondence of his own.
+license (2011-02-02, order 368345, above). At the time of the comment
+he was **running the iZ3D demo version** — so the recommendation came
+from hands-on use, and what he did not yet have was the paid licence.
+
+That ordering matters for exactly one reason: he was not promoting
+something he had been given. He was a user recommending software he
+had actually run, to a creator who had asked for ideas. The full "All
+Outputs" licence arrived afterwards, as a gift, out of a separate
+correspondence of his own.
 
 Stated honestly, because provenance records are worth only as much as
 their weakest claim: what is fixed is the **video's** date. YouTube's
