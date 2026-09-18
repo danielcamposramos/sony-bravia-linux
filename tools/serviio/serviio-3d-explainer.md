@@ -93,6 +93,35 @@ MPEG4 MOV full-SBS 2560×720) and lossless remux path (SEI injected in-file).
 
 With the profile + wrapper deployed on the Serviio host:
 
+## The Surround variant — keep the original Dolby (2026-09-18)
+
+`user-profiles-3d.xml` now ships **two** renderer profiles, differing
+only in what happens to the soundtrack:
+
+| Profile | Audio behaviour |
+|---|---|
+| `sony2011x` — *3D Enhanced* | everything normalised to AC-3 in MPEG-TS (the original, conservative behaviour) |
+| `sony2011xs` — *3D Enhanced, **Surround*** | **MP4 + h264 ≤L4.1 + {AC-3, E-AC3, AAC} served native**, original track untouched; only audio the set cannot decode in MP4 (DTS, TrueHD, FLAC, MP3, LPCM, Vorbis, Opus) is transcoded, to AC-3 at **640 kbps** |
+
+The Surround variant exists because of a measurement: these sets decode
+**Dolby Digital Plus internally, 7.1 included**, from MP4 over DLNA —
+the set prints "Dolby Digital Plus" on screen — even though their HDMI
+*input* does not accept E-AC3 at all
+([audio-capabilities.md](../../docs/audio-capabilities.md)). The old
+path converted every E-AC3 track down to 384 kbps AC-3, because it
+remuxes to MPEG-TS and this set cannot take E-AC3 in TS. That is a real
+loss, and it is the track an **ARC-connected receiver** would have
+received.
+
+**MKV cannot benefit**, and the reason is worth knowing: Serviio has no
+`mp4` target container (its targets are mpegts, mpeg, m2ts, lpcm, mp3,
+asf, applehttp), so a Matroska source can only reach these sets through
+TS. The fix for a 3D MKV library is therefore a one-time lossless
+conversion to MP4, after which Serviio serves it untouched.
+
+640 kbps is not arbitrary: it is the maximum the sets' own EDID declares
+(`sad1 ... max_bitrate 640000`).
+
 | File situation | 3D handling |
 |---|---|
 | Non-h264 video (MPEG4-ASP AVI/MOV, VC-1/WMV, msmpeg4, MJPEG, DV, theora…) | **On the fly** — re-encode path; wrapper injects SEI; TV flips. Proven on AVI, WMV, MOV. |

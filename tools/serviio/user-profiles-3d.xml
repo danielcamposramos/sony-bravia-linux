@@ -7,9 +7,7 @@
   frame-packing SEI on both sets).
 
   Deploy as:   <serviio-install>/config/user-profiles.xml
-               (target host 192.168.0.60, path /opt/serviio/config/
-               — /opt/serviio is a symlink to the current install,
-               serviio-2.5/ as of 2026-09)
+               (target host 192.168.0.60, path /opt/serviio-2.5/config/)
   Then:        FULLY restart the Serviio server process (Linux process / service,
                NOT just the console UPnP restart buttons), and in
                Console > Status > Devices assign profile
@@ -386,4 +384,240 @@
     </Subtitles>
 
   </Profile>
+
+<Profile id="sony2011xs" name="Sony Bravia EX7xx/HX8xx (3D Enhanced, Surround)" extendsProfileId="sony2011">
+
+    <!-- SURROUND VARIANT (2026-09-18). Same 3D handling as sony2011x; the
+         difference is audio. This one PRESERVES THE ORIGINAL DOLBY TRACK:
+         MP4 + h264<=L4.1 + {ac3, eac3, aac} is served native, so AC-3 and
+         E-AC3 reach the set untouched (measured: the set shows "Dolby
+         Digital" and "Dolby Digital Plus", 7.1 included) and an ARC
+         receiver gets the original bitstream. Only audio the set cannot
+         decode in MP4 (DTS, TrueHD, FLAC, MP3, LPCM, Vorbis, Opus) is
+         transcoded, to AC-3 at 640 kbps, the maximum the sets' own ELD
+         declares. Use sony2011x instead to have everything normalised to
+         AC-3 in MPEG-TS.
+
+         ONE profile for the whole era family: EX7xx (2011 entry line, e.g.
+         KDL-46EX725) and HX8xx (2012 high-end line, e.g. KDL-46HX855) - both
+         ends live-tested 2026-09-13; identical sink PN matrices, same
+         generation DLNA stack, no audio-track UI on either. The 855's extra
+         audio/mp4 sink wildcards are covered via the inherited sony2011
+         mp4->LPCM audio rule instead of native delivery (works on both).
+         Detection is not in the wiki's list of inherited elements, so the
+         child redefines it. Forced assignment by IP (PUT /rest/status, or
+         Console > Status > Devices) overrides detection either way. -->
+    <Detection>
+      <UPnPSearch>
+        <FriendlyName>BRAVIA KDL-\d{2}([A-Z]X\d5(\d|G)|[A-Z]X\d2\d|CX400).*</FriendlyName>
+      </UPnPSearch>
+    </Detection>
+
+    <MediaFormatProfiles>
+      <!-- Neutralise the native MKV resource's DLNA_PN (same trick stock uses
+           for AVI: empty name, mime kept). Neither TV's sink matrix contains
+           ANY matroska line (no PN, no wildcard), so the native resource can
+           never be sink-matched; the transcoded MPEG-TS resource (sink-listed
+           AVC_TS_HD_*_ISO via the inherited stock renames) is what lists and
+           plays. This is belt-and-braces: if the TV's filter is MIME-strict
+           this rule is a no-op (harmless), if it is PN-lenient it prevents an
+           unplayable native resource from being preferred. -->
+      <MediaFormatProfile mime-type="video/x-matroska" name="">MATROSKA</MediaFormatProfile>
+    </MediaFormatProfiles>
+
+    <!-- ORDER IS PRECEDENCE: the first Video block whose Matches fit a file is
+         used; the child's own blocks are evaluated before every inherited
+         sony2012 block (inherited forceInheritance blocks are appended at the
+         end of the list with lowest priority - documented on the Serviio
+         transcoding wiki). These blocks are a superset of every DAR-carrying
+         inherited match (except av1, see header note), so stock DAR="16:9"
+         targets never fire. -->
+    <Transcoding>
+
+      <!-- (B1) OVER-SPEC VIDEO -> FULL RE-ENCODE to h264 + AC-3 in MPEG-TS.
+               Everything the TV's AVC decoder cannot take: h264 above L4.1
+               (all profiles incl. c_baseline), 10-bit / 4:2:2 / 4:4:4 h264 at
+               ANY level (the "audio plays, no picture" HDR symptom), HEVC,
+               and anything wider than 1920 (4K downscaled to <=1080p via
+               maxWidth/maxHeight). h264 target instead of stock mpeg2video:
+               legal per the /v/ XSDs and used by shipped 2.5 profiles; the
+               TV accepts h264-in-TS via the AVC_TS_HD_* sink PNs. No DAR ->
+               1920x8xx cinemascope is never squeezed. -->
+      <Video targetContainer="mpegts" targetVCodec="h264" maxVBitrate="17000"
+             targetACodec="ac3" aBitrate="640" maxWidth="1920" maxHeight="1080">
+        <Matches container="*" vCodec="h264" profile="high"     levelGreaterThan="4.1" />
+        <Matches container="*" vCodec="h264" profile="main"     levelGreaterThan="4.1" />
+        <Matches container="*" vCodec="h264" profile="baseline" levelGreaterThan="4.1" />
+        <Matches container="*" vCodec="h264" profile="extended" levelGreaterThan="4.1" />
+        <Matches container="*" vCodec="h264" profile="c_baseline" levelGreaterThan="4.1" />
+        <Matches container="*" vCodec="h264" profile="high_10" />
+        <Matches container="*" vCodec="h264" profile="high_422" />
+        <Matches container="*" vCodec="h264" profile="high_444" />
+        <Matches container="*" vCodec="h265" />
+        <Matches container="*" widthGreaterThan="1920" />
+      </Video>
+
+      <!-- (2026-09-18) DOLBY PRESERVED ON THE MP4 PATH. Measured on both sets
+               through a pass-through server: MP4 carrying AC-3 (5.1 and 2.0)
+               plays with the set's "Dolby Digital" indicator and E-AC3 (5.1 and
+               7.1) with "Dolby Digital Plus" — the set decodes DD+ internally
+               even though its HDMI input does not accept E-AC3 at all. AAC in
+               MP4 plays too. So MP4 + h264<=L4.1 + {ac3,eac3,aac} is now served
+               NATIVE: no TS remux, no audio re-encode, original track intact
+               (it is also what an ARC receiver gets). Only audio this set
+               cannot decode in MP4 (DTS, TrueHD, FLAC, MP3, LPCM, Vorbis,
+               Opus) still transcodes. MKV cannot benefit: Serviio has no mp4
+               target container, so MKV must still go to TS, where this set
+               cannot take E-AC3 — convert those files to MP4 once instead.
+               AC-3 target raised 384 -> 640 kbps, the maximum the sets' ELD
+               declares (sad1 max_bitrate 640000). -->
+      <!-- (B2) PURE REMUX: h264 (guaranteed <=L4.1 8-bit by B1 - streams whose
+               level cannot be determined may still slip through, same as
+               stock) + AC-3 -> MPEG-TS, untouched. No re-encode, no filters,
+               no DAR, no size caps: 3D SBS 1920x1080 frames and cinemascope
+               h264 pass through bit-exact (SPS aspect signaling preserved). -->
+      <Video targetContainer="mpegts">
+        <Matches container="matroska" vCodec="h264" aCodec="ac3" />
+        <Matches container="avi"      vCodec="h264" aCodec="ac3" />
+        <Matches container="flv"      vCodec="h264" aCodec="ac3" />
+        <Matches container="wtv"      vCodec="h264" aCodec="ac3" />
+      </Video>
+
+      <!-- (B3) VIDEO COPY + AUDIO ALWAYS TO AC-3. Every h264 with non-AC-3
+               audio (aac - incl. the 22 aac-only MKVs; eac3/E-AC-3 and
+               truehd/Atmos - the "video plays, no audio" symptom; dts,
+               dts-hd, flac, mp3, lpcm), plus TS/PS sources whose audio the
+               sink cannot decode (AC-3 and MPEG-1 L2 stay native). The
+               mpegts/mpeg lines are vCodec-scoped so MPEG4-ASP or VC-1 video
+               in TS is never blindly copied (falls through to B4). Note the
+               sink has NO AAC-in-TS PN except the JP-market AVC_TS_JP_AAC_T,
+               so AAC is never remuxed - always transcoded to AC-3. -->
+      <Video targetContainer="mpegts" targetACodec="ac3" aBitrate="640">
+        <Matches container="matroska" vCodec="h264" />
+        <Matches container="avi"      vCodec="h264" />
+        <Matches container="flv"      vCodec="h264" />
+        <Matches container="mp4"      vCodec="h264" aCodec="dca" />
+        <Matches container="mp4"      vCodec="h264" aCodec="dts-hd" />
+        <Matches container="mp4"      vCodec="h264" aCodec="truehd" />
+        <Matches container="mp4"      vCodec="h264" aCodec="flac" />
+        <Matches container="mp4"      vCodec="h264" aCodec="mp3" />
+        <Matches container="mp4"      vCodec="h264" aCodec="lpcm" />
+        <Matches container="mp4"      vCodec="h264" aCodec="vorbis" />
+        <Matches container="mp4"      vCodec="h264" aCodec="opus" />
+        <Matches container="wtv"      vCodec="h264" />
+        <Matches container="mpegts" vCodec="h264" aCodec="aac" />
+        <Matches container="mpegts" vCodec="h264" aCodec="eac3" />
+        <Matches container="mpegts" vCodec="h264" aCodec="dca" />
+        <Matches container="mpegts" vCodec="h264" aCodec="dts-hd" />
+        <Matches container="mpegts" vCodec="h264" aCodec="truehd" />
+        <Matches container="mpegts" vCodec="h264" aCodec="flac" />
+        <Matches container="mpegts" vCodec="h264" aCodec="mp3" />
+        <Matches container="mpegts" vCodec="h264" aCodec="lpcm" />
+        <Matches container="mpegts" vCodec="mpeg2video" aCodec="aac" />
+        <Matches container="mpegts" vCodec="mpeg2video" aCodec="eac3" />
+        <Matches container="mpegts" vCodec="mpeg2video" aCodec="dca" />
+        <Matches container="mpegts" vCodec="mpeg2video" aCodec="dts-hd" />
+        <Matches container="mpegts" vCodec="mpeg2video" aCodec="mp3" />
+        <Matches container="mpeg"   vCodec="mpeg2video" aCodec="aac" />
+        <Matches container="mpeg"   vCodec="mpeg2video" aCodec="eac3" />
+        <Matches container="mpeg"   vCodec="mpeg2video" aCodec="dca" />
+        <Matches container="mpeg"   vCodec="mpeg2video" aCodec="dts-hd" />
+        <Matches container="mpeg"   vCodec="mpeg2video" aCodec="mp3" />
+      </Video>
+
+      <!-- (B4) FULL TRANSCODE CATCH-ALL: h264 re-encode + AC-3. MPEG4-ASP
+               (incl. AVI: the EX725 sink has NO video/avi wildcard, so native
+               AVI never lists there), VC-1 in TS, msmpeg4, DV, MJPEG, theora/
+               vp8/vp9 in MKV (via the matroska catch-all), odd containers.
+               Shadows every inherited DAR-carrying fallback. WMV/ASF and
+               MPEG-PS/VOB/MPEG1 are deliberately NOT caught: both sinks list
+               their native PNs (WMVMED_BASE/FULL, VC1_ASF_AP_L1/L2_WMA,
+               MPEG_PS_PAL/NTSC, MPEG1) - native delivery is correct there. -->
+      <Video targetContainer="mpegts" targetVCodec="h264" maxVBitrate="17000"
+             targetACodec="ac3" aBitrate="640" maxWidth="1920" maxHeight="1080">
+        <Matches container="matroska" />
+        <Matches container="mpegts" vCodec="vc1" />
+        <Matches container="mpegts" vCodec="mpeg4" />
+        <Matches container="avi" vCodec="mpeg4" />
+        <Matches container="mp4" vCodec="mpeg4" />
+        <Matches container="avi" vCodec="msmpeg4" />
+        <Matches container="avi" vCodec="mjpeg" />
+        <Matches container="mp4" vCodec="mjpeg" />
+        <Matches container="avi" vCodec="dvvideo" />
+        <Matches container="mp4" vCodec="dvvideo" />
+        <Matches container="asf" vCodec="vc1" aCodec="wmapro" />
+        <Matches container="flv" />
+        <Matches container="wtv" />
+        <Matches container="ogg" />
+        <Matches container="rm" />
+        <Matches container="3gp" vCodec="mpeg4" />
+        <Matches container="3gp" vCodec="h263" />
+      </Video>
+
+      <!-- (B5) DVR-MS monotone-timestamp fix, kept from stock but WITHOUT
+               stock's DAR="16:9". -->
+      <Video targetContainer="mpegts" targetACodec="ac3" forceVTranscoding="true">
+        <Matches container="asf" vCodec="mpeg2video" />
+      </Video>
+
+      <!-- Audio (mp4/flac/ogg/... -> lpcm) and Image (jpeg YUV444) transcoding
+           are intentionally NOT redefined: the stock sony2011/sony2012 blocks
+           carry forceInheritance="true" and are inherited unchanged, landing
+           on sink-listed LPCM / JPEG PNs. -->
+    </Transcoding>
+
+    <!-- Online feeds: mirrors the shipped sony2012 OnlineTranscoding minus the
+         DAR="16:9" on the re-encode block (wide online video is no longer
+         squeezed). OnlineTranscoding is inherited only as a whole, so this
+         replacement also guards against community-era parents that remuxed
+         online h264 into TS while KEEPING AAC audio (unsupported by the sink). -->
+    <OnlineTranscoding>
+      <Video targetContainer="mpegts" targetACodec="ac3" aBitrate="640">
+        <Matches container="mp4" vCodec="h264" />
+        <Matches container="flv" vCodec="h264" />
+        <Matches container="applehttp" vCodec="h264" />
+      </Video>
+      <Video targetContainer="mpegts" targetVCodec="h264" maxVBitrate="17000"
+             targetACodec="ac3" aBitrate="640" maxWidth="1920" maxHeight="1080">
+        <Matches container="asf" />
+        <Matches container="flv" />
+        <Matches container="rtp" />
+        <Matches container="rtsp" />
+        <Matches container="applehttp" />
+      </Video>
+    </OnlineTranscoding>
+
+    <!-- Burn-path transcode (hard subs / video stacking): attributes ONLY -
+         GenericTranscoding's Video element takes no Matches children (it
+         matches all content by default). h264 + AC-3, no DAR: replaces the
+         stock mpeg2video@17M + DAR="16:9" burn path that squeezed cinemascope
+         during subtitle burn-in. -->
+    <GenericTranscoding>
+      <Video targetContainer="mpegts" targetVCodec="h264" maxVBitrate="17000"
+             targetACodec="ac3" aBitrate="640" />
+    </GenericTranscoding>
+
+    <!-- Explicit (same as parent sony2011): these TVs cannot select audio
+         tracks, so Serviio must not expose multi-audio-track resources.
+         This also keeps the inherited sony2012 AudioTrackRemux block inert. -->
+    <MultipleAudioTrackAware>false</MultipleAudioTrackAware>
+
+    <!-- Subtitles: no SoftSubs (this Bravia generation has no external
+         subtitle delivery); everything burns. TextBased covers external .srt
+         (incl. .forced.srt - forced-only behaviour and charset are console
+         settings, see header), BitmapBased covers embedded PGS. Burn engages
+         only when a subtitle is present and enabled - sub-free files stay on
+         the native/remux paths, avoiding this generation's burn penalties
+         (slow clip start, restarts needed, broken seeking). -->
+    <Subtitles>
+      <HardSubs>
+        <BitmapBased supported="true" />
+        <TextBased supported="true">
+          <RequiredFor container="*" />
+        </TextBased>
+      </HardSubs>
+    </Subtitles>
+
+  </Profile>
+
 </Profiles>
