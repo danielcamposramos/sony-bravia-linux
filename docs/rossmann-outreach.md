@@ -26,14 +26,22 @@ not general, it is exact and current:
   like Sony accountable." So the path to Rossmann is not an email, it is
   a strong wiki entry, which we now have.
 - **The thesis our evidence refutes is the quote he ends on.** He signs
-  off most videos with a corporate lawyer's public-hearing line: "It is
-  in fact the manufacturers who have the relevant rights, not consumers"
-  (the speaker later sued Rossmann over its use and lost). That sentence
-  is exactly what the BRAVIA record answers: Sony documented the features,
-  shipped them, then withdrew them while the buyer still owns the
-  hardware; the GPL source obligation the manufacturer itself points to
-  was withdrawn. The manufacturer's "rights" did not keep the product
-  working; the owner's ownership is what is stranded.
+  off most videos by replaying a line spoken by an opponent of
+  right-to-repair at a US government hearing (a congressional / DMCA
+  Section 1201 exemption hearing): "It is in fact the manufacturers who
+  have the relevant rights, not consumers." He uses it satirically, the
+  other side's own words against them. (Origin per Rossmann's framing and
+  secondary accounts, with the hearing record at govinfo.gov as a lead,
+  [CHRG-118hhrg53108](https://www.govinfo.gov/content/pkg/CHRG-118hhrg53108/html/CHRG-118hhrg53108.htm);
+  we have **not** independently verified the exact speaker in the primary
+  transcript, and an earlier note here that the speaker "sued Rossmann and
+  lost" was owner recollection that no source we checked corroborates, so
+  it is removed pending verification.) That sentence is exactly what the
+  BRAVIA record answers: Sony documented the features, shipped them, then
+  withdrew them while the buyer still owns the hardware, and the GPL
+  source obligation the manufacturer itself points to was withdrawn. The
+  manufacturer's "rights" did not keep the product working; the owner's
+  ownership is what is stranded.
 
 **Strategic implication.** The 2026-09-13 plan below still holds, but the
 priority order shifts: the single highest-leverage move is that the
