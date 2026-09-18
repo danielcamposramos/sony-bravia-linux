@@ -2,6 +2,13 @@
 **Tracker:** https://codeberg.org/mbunkus/mkvtoolnix/issues
 **Account:** https://join.codeberg.org/ — email + username signup
 (Codeberg is a non-profit Forgejo instance; no GitHub login.)
+**Codeberg ToU note (verified live 2026-09-18):** Codeberg's Terms of Use
+§ 2 (1) 7 bans *hosting projects that mostly consist of AI-generated code*
+(names Claude/Codex), for copyright/safety reasons. That is a project-
+hosting rule — it does NOT forbid filing a human-authored issue. So: do
+NOT mirror this repo to Codeberg (it stays on GitHub); DO file the issue
+below as your own human-authored text. This reinforces the no-disclaimer
+rule: file it as yourself, owning every claim.
 **Doctrine — read before filing:** mbunkus has stated publicly (tracker
 meta-issue #6278) that he will "outright close & ignore overly verbose &
 meandering issue requests", and that AI assistance is acceptable only

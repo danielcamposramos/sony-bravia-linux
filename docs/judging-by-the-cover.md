@@ -299,6 +299,44 @@ attached to "Thanks for the slop" is the only claim in the exchange
 that does not survive being checked — which is the page's thesis,
 arriving on schedule.
 
+## The AI-policy landscape draws the same line (2026-09-18)
+
+A fair survey of how the projects and platforms in this campaign actually
+gate AI, because the thesis holds only if it is stated fairly:
+
+- **mpv**: AI-assisted contributions "are not forbidden"; the requirement
+  is understanding the code and answering review with human-written
+  responses.
+- **mkvtoolnix (mbunkus)**: AI assistance "acceptable only when the
+  submitter demonstrably understands every claim" (tracker meta-issue
+  #6278). Notably this project is hosted *on* Codeberg.
+- **HandBrake (galad87)**: merged the AI-assisted patch on its merits;
+  the only objection was to AI-*written messages*, not the code.
+- **Codeberg** (the host): its Terms of Use § 2 (1) 7 prohibits *sharing
+  projects that mostly consist of code written by generative-AI tools*
+  (naming Claude and OpenAI Codex), with the stated rationale of unclear
+  copyright status and little safeguard against harmful code. This is a
+  project-hosting rule aimed at unreviewed AI code dumps, not a ban on
+  AI-assisted contributions a human owns.
+
+Read fairly, none of these gates on "was AI used" — the cover. They gate
+on whether the work is **understood, owned, reviewed and correct** — the
+artifact. Even Codeberg's proportion rule is justified by artifact
+concerns (copyright, safety) and targets the *unowned dump*, which is the
+same failure mode this page calls slop. The line the whole landscape
+draws is **owned-and-understood vs unowned slop**, not human vs AI. That
+is "don't judge by the cover", stated by the projects themselves — and it
+is why a disclosed, human-owned, source-cited contribution is welcomed
+where an unreviewed generation is not.
+
+The corollary this project lives by: on trackers that gate this way, the
+work must be genuinely owned — reworded in the submitter's words, every
+claim understood and checkable — and disclosure is a courtesy, not a
+substitute for ownership. Where a host bans hosting AI-heavy *projects*
+(Codeberg), we simply do not host there; the AI-assisted repository
+stays on GitHub, and only human-authored *issues* go to the Codeberg
+project.
+
 ## Related in-repo records
 
 - The episode itself: `tools/serviio/upstream-3d-issues/README.md`,
