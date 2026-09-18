@@ -1,3 +1,14 @@
+<!-- POSTED LOG (2026-09-18) — the owner authorised filing on projects with
+     no AI gate. Outcome:
+     - Jellyfin: comment posted on PR #18060 (layout-detection point):
+       https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078
+     - Universal Media Server: feature-request issue filed:
+       https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329
+     - Gerbera: HELD. It primarily direct-serves rather than remuxing, so the
+       container tag is not dropped and the SEI-drop problem does not apply;
+       filing there would be off-target. Skip unless it is confirmed to remux.
+     The draft below is the Jellyfin text as posted (lightly trimmed). -->
+
 <!-- DRAFT ONLY — not posted. Target: jellyfin/jellyfin PR #18060 "Flatten
      frame packed 3D video to a single view when transcoding".
      Jellyfin has no written AI-content policy, so per repo doctrine this is
