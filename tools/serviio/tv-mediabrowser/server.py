@@ -1260,6 +1260,9 @@ def render_probe():
         ('/probe/art?v=4', 'K \u2014 art full width'),
         ('/probe/art?v=5', 'L \u2014 art + scale x2, wrapped'),
         ('/probe/art?v=6', 'M \u2014 art + scale x3, wrapped'),
+        ('/probe/art?v=7', 'O \u2014 candidate: x3, no chrome'),
+        ('/probe/art?v=8', 'P \u2014 x3, wrapper no clip (audio?)'),
+        ('/probe/art?v=9', 'Q \u2014 x3, no wrapper, spacer (audio?)'),
         ('/probe/cookie', 'N \u2014 cookies: do they persist?'),
     ])
     body = (_hdr('Era probes')
@@ -1400,26 +1403,41 @@ def render_probe_caps():
     return _page('Capabilities', body, extra_js=js)
 
 
-def _scaled_video(poster, w, h, extra, factor):
-    """A <video> that may be CSS-scaled, inside a box of its FINAL size.
+def _scaled_video(poster, w, h, extra, factor, mode='clip'):
+    """A <video> that may be CSS-scaled, plus room for the scaled pixels.
 
     A transform takes no part in layout: the element keeps its pre-scale
-    footprint, so whatever follows renders underneath the scaled pixels
-    (observed on the EX725, 2026-09-18). Reserving the final size with a
-    plainly sized container is the era-safe fix — no flexbox, no calc(),
-    just declared dimensions."""
+    footprint, so whatever follows renders underneath it (EX725,
+    2026-09-18). Reserving the final size is therefore necessary — but
+    HOW it is reserved is not free. Wrapping the element in a sized,
+    clipped <div> killed audio on the panel (variants 5 and 6 both went
+    silent while the unwrapped scaled element played), which is the same
+    class of quirk as the standing rules about <audio> and display:none:
+    this engine cares where the media element sits.
+
+      clip   — sized wrapper with overflow:hidden (SILENT on the EX725)
+      wrap   — sized wrapper, no overflow property
+      spacer — no wrapper at all; a sibling <div> after the element
+               reserves the height, leaving the <video> a direct child
+    """
     vid = ('<video id="pv" controls preload="none"%s width="%s" '
            'height="%s" style="width:%s;height:%s;background:#111;%s">'
            '</video>' % (poster, w, h, w, h, extra))
     if factor <= 1:
         return vid
     try:
-        fw = '%dpx' % (int(w.replace('px', '')) * factor)
-        fh = '%dpx' % (int(h.replace('px', '')) * factor)
+        pw, ph = int(w.replace('px', '')), int(h.replace('px', ''))
     except ValueError:
         return vid
-    return ('<div style="width:%s;height:%s;overflow:hidden;">%s</div>'
-            % (fw, fh, vid))
+    fw, fh = pw * factor, ph * factor
+    if mode == 'spacer':
+        # the element keeps its own footprint (pw x ph); the spacer adds
+        # only the DIFFERENCE, so the total reserved height is fh
+        return ('%s<div style="width:%dpx;height:%dpx;"></div>'
+                % (vid, fw, fh - ph))
+    overflow = 'overflow:hidden;' if mode == 'clip' else ''
+    return ('<div style="width:%dpx;height:%dpx;%s">%s</div>'
+            % (fw, fh, overflow, vid))
 
 
 def render_probe_art(variant):
@@ -1455,32 +1473,61 @@ def render_probe_art(variant):
         6: ('440px', '248px',
             '-o-transform:scale(3);-o-transform-origin:top left;'
             'transform:scale(3);transform-origin:top left;', 3),
+        # 7 is the production candidate: scale x3 like 6, but with the
+        # explanatory chrome removed. On the panel 6 scrolled vertically
+        # and the cause was the text above the player, not the player.
+        7: ('420px', '236px',
+            '-o-transform:scale(3);-o-transform-origin:top left;'
+            'transform:scale(3);transform-origin:top left;', 3),
+        8: ('440px', '248px',
+            '-o-transform:scale(3);-o-transform-origin:top left;'
+            'transform:scale(3);transform-origin:top left;', 3),
+        9: ('440px', '248px',
+            '-o-transform:scale(3);-o-transform-origin:top left;'
+            'transform:scale(3);transform-origin:top left;', 3),
     }
     w, h, extra, factor = styles.get(variant, styles[1])
+    # 5/6/7 clip, 8 wraps without clipping, 9 uses a sibling spacer
+    mode = {8: 'wrap', 9: 'spacer'}.get(variant, 'clip')
     poster = (' poster="%s"' % esc(art)) if art else ''
     what = {1: '960x540, poster only',
             2: '480x270 scaled x2 via transform',
             3: '480x270 with zoom:2',
             4: 'full width, 600px tall',
             5: '480x270 scaled x2, wrapped at 960x540',
-            6: '440x248 scaled x3, wrapped at 1320x744'}.get(variant, '')
+            6: '440x248 scaled x3, wrapped at 1320x744',
+            7: 'production candidate: x3, no chrome',
+            8: 'x3, wrapper WITHOUT overflow:hidden',
+            9: 'x3, NO wrapper - sibling spacer'}.get(variant, '')
     js = ("var v=document.getElementById('pv');"
           "var st=document.getElementById('status');"
           "var s=document.createElement('source');"
           "s.type=%s;s.src=%s;v.appendChild(s);"
           % (json.dumps(mime), json.dumps(url)) +
-          "v.addEventListener('playing',function(){"
-          "st.innerHTML='playing - is the art still visible?';});"
-          "v.addEventListener('error',function(){st.innerHTML='error';});"
-          "try{v.play();}catch(x){}")
-    body = (_hdr('Art %d - %s' % (variant, what))
-            + '<p id="fmt">%s%s</p>' % (esc(title or ''),
-                                        '' if art else ' (no art found)')
-            + _scaled_video(poster, w, h, extra, factor)
-            + '<p id="status">loading</p>'
-            + '<p id="fmt">Watch for: art visible while playing, and '
-              'whether the control bar got bigger.</p>'
-            + _foot('<a href="/probe">back to probes</a>'))
+          "function say(t){st.innerHTML=t;}"
+          "v.addEventListener('loadstart',function(){say('loadstart');});"
+          "v.addEventListener('canplay',function(){say('canplay');});"
+          "v.addEventListener('playing',function(){say('PLAYING');});"
+          "v.addEventListener('pause',function(){say('paused');});"
+          "v.addEventListener('stalled',function(){say('STALLED');});"
+          "v.addEventListener('error',function(e){say('ERROR code '"
+          "+((e.target&&e.target.error)?e.target.error.code:'?'));});"
+          "s.addEventListener('error',function(){say('SOURCE rejected');});"
+          "try{v.play();}catch(x){say('play() threw: '+x);}")
+    if variant == 7:
+        # nothing above the player: the scroll bar on variant 6 came from
+        # the chrome, so the candidate layout simply has none
+        body = (_scaled_video(poster, w, h, extra, factor, mode)
+                + '<p id="status" style="font-size:34px;">loading</p>')
+    else:
+        body = (_hdr('Art %d - %s' % (variant, what))
+                + '<p id="fmt">%s%s</p>' % (esc(title or ''),
+                                            '' if art else ' (no art found)')
+                + _scaled_video(poster, w, h, extra, factor, mode)
+                + '<p id="status">loading</p>'
+                + '<p id="fmt">Watch for: art visible while playing, and '
+                  'whether the control bar got bigger.</p>'
+                + _foot('<a href="/probe">back to probes</a>'))
     return _page('Art probe %d' % variant, body, extra_js=js)
 
 
