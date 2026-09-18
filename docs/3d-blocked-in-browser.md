@@ -39,6 +39,44 @@ It also confirms, from the panel side, the premise of
 in-stream 3D signal is real, present, and read by real hardware. mpv was
 ignoring a signal this television detects live.
 
+## What Sony's own manual documents (the decisive part)
+
+The KDL-46HX855 i-Manual (English, Sony doc `W0005741M`; the pt-BR
+`W0005743M` matches) documents the 3D control as a display-mode button
+with three modes: Side-by-Side, Over-Under, and **Simulated 3D**, the
+latter described as displaying regular 2D pictures in simulated 3D. The
+procedure is content-agnostic: display content on screen, press the 3D
+button, pick a mode "to suit the displayed content".
+
+Two documented facts settle the framing:
+
+1. **The restriction is scoped to the stereoscopic modes only.** The
+   manual says Side-by-Side / Over-Under may be unavailable *depending on
+   the input signal or format* — because those need a real 3D source.
+   **Simulated 3D carries no such restriction anywhere in the section.**
+   Its only caveat is that the effect "may be less pronounced with some
+   picture sources" — a statement about effect strength, never about
+   availability. A full grep of the i-Manual finds no line making
+   Simulated 3D unavailable by input or source.
+2. **The auto-switch is documented and signal-driven.** The `[Auto 3D]`
+   setting "automatically switches to 3D display mode when a 3D signal is
+   detected", and `[3D Signal Notification]` notifies on detection —
+   exactly the detection the owner observed on the browser-played file.
+
+The one genuine precondition the manual states is **"3D effect is
+available only when pictures are displayed in full screen."** The
+promoted video player is full-screen (`position:fixed` 100%), so that
+condition is met — which rules out full-screen as the reason 3D is
+absent for browser content.
+
+So Sony documents a display feature (Simulated 3D) that, by its own
+manual, applies to any full-screen content with no input or source
+restriction, and an auto-switch driven by signal detection. On the set's
+own browser-served video, full-screen, with the signal detected, none of
+it engages — automatically or manually. That is a documentation-versus-
+behavior gap shown entirely in Sony's own words, with no claim about
+intent required.
+
 ## Corroboration from the widget corpus
 
 The AppliCast widget layer (the browser-era app surface) exposes **no
