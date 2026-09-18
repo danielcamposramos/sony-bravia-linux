@@ -264,6 +264,33 @@ with the service in 2021. No Latin-American thread on SBS or MPO
 surfaced at all. The Spanish-language discussion of this era is
 effectively all Spain.
 
+## The owners' threads, archived
+
+Captured by hand on 2026-09-18 so the owners' own words outlive the forums. The ones the Wayback Machine could not take are held in the owner's private research archive as HTML and PDF, cited by title only.
+
+| Market | Thread | Snapshot |
+|---|---|---|
+| FR | [HardWare.fr — *Film via USB sur Sony Bravia* (KDL-46HX750, Dec 2012)](https://forum.hardware.fr/hfr/VideoSon/Traitement-Video/film-sony-bravia-sujet_138759_1.htm) | [2026-09-18](https://web.archive.org/web/20260918111241/https://forum.hardware.fr/hfr/VideoSon/Traitement-Video/film-sony-bravia-sujet_138759_1.htm) |
+| ES | [ForoDVD — *Problema con una peli en 3D* (the eye swap, Feb 2013)](https://www.forodvd.com/tema/116691-problema-con-peli-3d/) | [2026-09-18](https://web.archive.org/web/20260918111513/https://www.forodvd.com/tema/116691-problema-con-peli-3d/) |
+| BR | [Clube do Hardware — *Como assistir filmes Blu-ray 3D baixados no PC na minha TV 3D*](https://www.clubedohardware.com.br/forums/topic/908862-como-assistir-filmes-bluray-3d-baixados-no-pc-na-minha-tv-3d/) | [2026-09-18](https://web.archive.org/web/20260918111717/https://www.clubedohardware.com.br/forums/topic/908862-como-assistir-filmes-bluray-3d-baixados-no-pc-na-minha-tv-3d/) |
+| PT | [Sony community PT — *Assistir filmes 3D .mkv em TV Sony Bravia*](https://community.sony.pt/t5/televisores/assistir-filmes-3d-mkv-em-tv-sony-bravia/td-p/638654) | [2026-09-18](https://web.archive.org/web/20260918112249/https://community.sony.pt/t5/televisores/assistir-filmes-3d-mkv-em-tv-sony-bravia/td-p/638654) |
+| ES | [Sony community ES — *Visualización de películas en 3D, cómo conseguirlas ver*](https://community.sony.es/t5/televisores/visualizacion-de-peliculas-en-3d-como-conseguirlas-ver/td-p/191664) | [2026-09-18](https://web.archive.org/web/20260918112411/https://community.sony.es/t5/televisores/visualizacion-de-peliculas-en-3d-como-conseguirlas-ver/td-p/191664) |
+| ES | [Sony community ES — *Ver película 3D almacenada en un pendrive*](https://community.sony.es/t5/televisores/ver-pelicula-3d-almacenada-en-un-pendraid/td-p/700488) | [2026-09-18](https://web.archive.org/web/20260918112545/https://community.sony.es/t5/televisores/ver-pelicula-3d-almacenada-en-un-pendraid/td-p/700488) |
+| DE | [hifi-forum.de — KDL-40EX725, the *Nebeneinander / Untereinander* menu (Sep 2011)](https://www.hifi-forum.de/viewthread-144-6530.html) | [2026-09-18](https://web.archive.org/web/20260918113115/https://www.hifi-forum.de/viewthread-144-6530.html) |
+| DE | [hifi-forum.de — *3D iso und mkv*, KDL-46EX727 sent to Serviio (Jan 2012)](https://www.hifi-forum.de/viewthread-144-6784.html) | [2026-09-18](https://web.archive.org/web/20260918113217/https://www.hifi-forum.de/viewthread-144-6784.html) |
+| IT | [Sony community IT — *Leggere .mkv 3D tramite porta USB*](https://community.sony.it/t5/televisori/leggere-mkv-3d-tramite-porta-usb/td-p/1428518) | [2026-09-18](https://web.archive.org/web/20260918113458/https://community.sony.it/t5/televisori/leggere-mkv-3d-tramite-porta-usb/td-p/1428518) |
+| IT | [Sony community IT — *Chiarimenti su visualizzazione in 3D* (EX720, told HDMI-only)](https://community.sony.it/t5/televisori/chiarimenti-su-visualizzazione-in-3d/td-p/365264) | [2026-09-18](https://web.archive.org/web/20260918113621/https://community.sony.it/t5/televisori/chiarimenti-su-visualizzazione-in-3d/td-p/365264) |
+| RU | [iXBT — 3D-TV megathread p.64 (HX850/HX853/HX855 differ only by tuner)](https://forum.ixbt.com/topic.cgi?id=62:20486-64) | [2025-05-31](https://web.archive.org/web/20250531005204/https://forum.ixbt.com/topic.cgi?id=62:20486-64) |
+| RU | [iXBT — *3D-фото (MPO), как лучше их просматривать на 3D-телевизоре?* (Feb 2012)](https://forum.ixbt.com/topic.cgi?id=62:19982) | [2026-09-18](https://web.archive.org/web/20260918115003/https://forum.ixbt.com/topic.cgi?id=62:19982) |
+| EN | [Kodi forum — *3D mode in Sony Bravia*](https://forum.kodi.tv/showthread.php?tid=283109) | [2026-09-18](https://web.archive.org/web/20260918115203/https://forum.kodi.tv/showthread.php?tid=283109) |
+| EN | [3d-forums.com — *3D problem on Sony Bravia KDL-32EX720*](https://www.3d-forums.com/threads/3d-problem-on-sony-bravia-kdl-32-ex720.591/) | [2026-09-18](https://web.archive.org/web/20260918115353/https://www.3d-forums.com/threads/3d-problem-on-sony-bravia-kdl-32-ex720.591/) |
+| EN | [AVSForum — *The official Sony EX720 owners thread*](https://www.avsforum.com/threads/the-official-sony-ex720-owners-thread.1334479/) | [2026-09-18](https://web.archive.org/web/20260918115608/https://www.avsforum.com/threads/the-official-sony-ex720-owners-thread.1334479/) |
+| EN | [AVSForum — *Help with Sony Bravia KDL-55EX720 3D playing*](https://www.avsforum.com/threads/help-with-me-sony-bravia-kdl55ex720-3d-playing.1324728/) | [2026-09-18](https://web.archive.org/web/20260918115913/https://www.avsforum.com/threads/help-with-me-sony-bravia-kdl55ex720-3d-playing.1324728/) |
+| EN | [AVSForum — *Sony Bravia KDL-40EX720 3D help*](https://www.avsforum.com/threads/sony-bravia-kdl-40ex720-3d-help.1323189/) | [2026-09-18](https://web.archive.org/web/20260918121031/https://www.avsforum.com/threads/sony-bravia-kdl-40ex720-3d-help.1323189/) |
+| EN | [AVSForum — *FQA about displaying 3D MPO photo files (Sony Sweep 3D Panorama) on 3D TV*](https://www.avsforum.com/threads/fqa-about-displaying-3d-mpo-photo-files-sony-sweep-3d-panorama-on-3d-tv.1270918/) | [2026-09-18](https://web.archive.org/web/20260918121353/https://www.avsforum.com/threads/fqa-about-displaying-3d-mpo-photo-files-sony-sweep-3d-panorama-on-3d-tv.1270918/) |
+
+Two notes on access. The 3d-forums.com thread refused the owner's own IP address, probably a geographic fence, but not the Wayback Machine. And AVSForum gates AI access behind a content-licensing wall, so those four threads are archived for people to read and are linked here, not read by this project's tooling.
+
 ## What this adds up to
 
 **The capability was documented into existence and then never wired to
