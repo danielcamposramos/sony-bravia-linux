@@ -704,6 +704,21 @@ inspects the `MPF` segment when the MIME says JPEG. If it does, 3D
 photos work over DLNA. If it does not, USB remains the only route, and
 the stick set is already staged for that.
 
+### RESULT — the renamed MPO test, both sets: still flat
+
+Owner-tested on **both** the EX725 and the HX855: `05-renomeado` behaves
+exactly like the re-encoded folders. No 3D, and **no side-by-side entry
+in the 3D menu**. So delivering genuine MPO bytes, byte-exact and with
+`MPF` intact, under a `.jpg` name and a JPEG profile the set advertises,
+changes nothing.
+
+That is a clean negative and it narrows the question usefully: the set
+either ignores `MPF` when the MIME says JPEG, or it never inspects
+content at all and dispatches on the resource URL's extension. The
+multi-market documentation sweep, the contradictions in Sony's own
+support pages, and the two tests still worth running are written up
+separately in **[3d-photos-on-bravia.md](3d-photos-on-bravia.md)**.
+
 ### Measured: Serviio will not index the corpus at all
 
 Asked of the live server's own database, not assumed: the indexed
