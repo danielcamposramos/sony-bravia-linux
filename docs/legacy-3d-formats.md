@@ -485,6 +485,99 @@ same finding already carried to Jellyfin, UMS and Gerbera in act two,
 and it waits for the same reason as always: **results on our own
 stack first, the upstream filing after the demonstration works.**
 
+## The tools — built and measured 2026-09-18
+
+Two tools, both in `tools/`, both with their numbers stated rather than
+claimed.
+
+### `bravia_3dcatalog.py` — the index
+
+Detection lifted out of `ffmpeg-3d-wrapper.sh` and written down, exactly
+as chartered. It walks the library, types every file, and emits one JSON
+index keyed by path, with **evidence and confidence on every row**:
+`certain` (the file declares it: `.jps`/`.mpo`, `stereo_mode`, an SEI, or
+an owner override), `likely` (a filename token the wrapper already trusts
+in production), `guess` (measured from pixels). An owner override always
+wins, because a guess must never outvote the person who owns the content.
+
+**First run on the corpus: 140 files scanned, 122 indexed — 81 anaglyph,
+30 SBS, 11 JPS.** The anaglyph detector is a red-vs-cyan channel
+decorrelation test, which is a guess by construction and labelled one.
+
+### `bravia_anaglyph.py` — the inverse, and the end file
+
+The owner's case for this is the whole point: **old anaglyph movies and
+photos that survive only in that format**. There is no stereo original to
+go back to, so either the anaglyph is converted or the content stays
+locked to red/cyan glasses forever.
+
+**What works, and the measurement behind it.** The stereo is recoverable
+because the red channel carries the left eye and green/blue carry the
+right. Reconstructing each eye *only* from the channels that carry it
+recovers the true disparity **exactly on 11 of 11 corpus JPS pairs**
+(+70/+70, +69/+69, +20/+21, −48/−48 …), with left-eye luminance at
+23–37 dB PSNR against ground truth.
+
+**Two traps, both hit and both measured, because they would have shipped
+silently:**
+
+1. **A pointwise operator cannot create disparity.** The first attempt
+   fused the channels to recover colour properly, and it worked
+   beautifully as colour — while measuring **0 px of disparity on every
+   image**. Left and right differ by *where* content sits, and no
+   function of a single pixel can move content sideways. A "reverse
+   Dubois colour chain" that looks perfect can be a 2D photo.
+2. **Naive channel-borrowing is the same trap wearing a disguise.** Left
+   supplies 1 channel, right supplies 2, total 3. If both eyes are
+   allowed all three, the two outputs are **byte-identical**. Colour
+   without disparity-aware warping is not colour; it is a flat image.
+
+**So the modes are honest about what they are.** `--mode mono` is the
+default: both eyes greyscale, nothing invented, and robust on *any*
+red/cyan anaglyph because the channel assignment is universal.
+`--mode color` estimates a dense disparity map, warps the missing
+channels across, and iterates to remove the right eye's own red from its
+green (a 0.378 coefficient that contaminates the naive 2×2 inverse). It
+**beats mono where matching is solid and loses on repetitive texture**,
+which is the classic stereo-matching failure, so it is off by default.
+
+**The caveat that matters most in the wild:** the round-trip test proves
+the inverse against anaglyphs *we* encoded with Dubois. Found material
+often is not Dubois at all — plain, optimised or half-colour red/cyan
+were all common — and inverting the wrong matrix gives wrong colour.
+Mono does not care. Colour does.
+
+**The end file.** `bravia_anaglyph.py video in.mkv out.mkv` converts an
+anaglyph movie to SBS and writes the frame-packing SEI (`x264
+frame-packing=3`), verified present in the output. So the material that
+only ever existed as anaglyph comes out the other side as a first-class
+modern 3D file, on the same signal act one restored.
+
+**And the campaign's own finding turned up inside our own tool.** ffmpeg
+writes the SEI but does **not** derive the Matroska StereoMode tag from
+it, so the output satisfies the TV and leaves software players blind —
+the exact asymmetry this campaign documented, met from the other
+direction. The tool now says so and prints the lossless `mkvmerge
+--stereo-mode 0:1` fix-up, which is precisely what
+[Codeberg #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309)
+asks mkvmerge to do automatically.
+
+**On-the-fly.** `bravia_anaglyph.py filter` emits the whole reverse
+chain as a pure ffmpeg filtergraph (`split` → two `colorchannelmixer` →
+`hstack`), so the media app can convert per request through the ffmpeg
+it already shells out to, and `server.py` stays stdlib-only.
+
+### Measured: Serviio will not index the corpus at all
+
+Asked of the live server's own database, not assumed: the indexed
+extensions are `.mp3 .jpg .flac .wma .mkv .avi .mp4 .m4a .flv .wav`.
+**No `.jps`, no `.mpo`, not even `.png`.** So the stereo formats the
+community actually exchanges are invisible to the DLNA layer — a
+`.jps` is a JPEG that no library will admit is a JPEG, purely because
+of its extension. For the native-photo 3D test on the set, the material
+has to be handed over as `.jpg` (and `.mpo`, which is what Sony's own
+3D cameras wrote), not as `.jps`.
+
 ## Ordering and doctrine
 
 The owner's rule, same as every act of this campaign: **results on

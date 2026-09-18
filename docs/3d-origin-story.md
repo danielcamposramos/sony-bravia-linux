@@ -73,6 +73,43 @@ died twice (gaming, then TV), and the people who kept depth alive were
 the ones doing it for love, on secondhand hardware, with gift
 licenses.
 
+## The other thread: Joe Penna's first 3D test (2011-era)
+
+The iZ3D license was not the only place this ran. On a
+**MysteryGuitarMan** video where Joe Penna asked his audience for
+ideas, the author left a suggestion — and YouTube marked it a
+**highlighted comment**, so the creator surfaced it. His words, posted
+bilingually as he wrote them:
+
+> That's what I'm talking about MGM!! You're THE guy to use your
+> imagination man. You should contact iZ3D people, they sell 3D
+> monitors and a driver to use with existing tecnologies.
+
+> É disso que eu tô falando MGM! Você com certeza é O CARA pra usar sua
+> imaginação. Você poderia entrar em contato com o pessoal da iZ3D,
+> eles vendem monitores 3D e um driver para utilizar com as tecnologias
+> já existentes.
+
+([the comment](https://www.youtube.com/watch?v=KE-KUPJzxwU&lc=UgzHS33vZM3ZO37UcqR4AaABAg),
+on the video that was Penna's first 3D test; the later, more produced
+one is ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY).)
+
+Joe Penna went on to direct features — *Arctic*, *Stowaway*. The
+suggestion pointed him at **the same company whose CEO had gifted the
+author the iZ3D license**, which is the detail worth keeping: one
+teenager in Brazil with a gifted 3D license was, in the same period,
+pitching iZ3D a market strategy and pointing a rising creator at their
+hardware.
+
+**He was never cited for it, and this document does not ask him to
+be.** It is recorded here for the same reason everything else in this
+repo is recorded: because the record should exist and be checkable.
+The artifact is the author's own comment, still public, still
+highlighted. Nothing in this project's posting doctrine turns that into
+an approach to anyone — it stays a fact in a file, stated flat. See
+[legacy-3d-formats.md](legacy-3d-formats.md) for where the same
+fifteen years of hands-on depth is now pointed.
+
 ## The arc, stated plainly
 
 - **2011:** anaglyph Max Payne through the gifted iZ3D driver — 3D
