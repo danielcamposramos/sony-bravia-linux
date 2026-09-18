@@ -4,6 +4,16 @@
 
 Questo progetto riporta in vita i BRAVIA precedenti ad Android (serie KDL, 2010–2012) dopo che Sony ne ha spento i servizi online, interamente sulla rete di casa del proprietario. Il firmware non viene modificato e nessun DRM viene toccato. Il **diritto alla riparazione**, in pratica.
 
+## Cercavi questo?
+
+Questa pagina risponde a domande come:
+
+- "Leggere .mkv 3D tramite porta USB sul Bravia"
+- "Film in 3D su chiavetta USB: il televisore non va in 3D"
+- "Visualizzazione foto 3D (.mpo) sul Sony Bravia"
+- "Il 3D funziona solo in HDMI?"
+- "Formato 3D Fianco a Fianco: l'immagine resta divisa"
+
 ## Perché il tuo film 3D si vede piatto
 
 - Questi televisori **passano automaticamente in 3D** solo se il **flusso video stesso** contiene l'informazione H.264 di "frame packing" (SEI).

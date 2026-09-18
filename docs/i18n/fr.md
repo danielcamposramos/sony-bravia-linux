@@ -4,6 +4,16 @@
 
 Ce projet redonne vie aux BRAVIA d'avant Android (série KDL, 2010–2012) après l'arrêt de leurs services en ligne par Sony, entièrement sur le réseau domestique du propriétaire. Aucun firmware n'est modifié, aucun DRM n'est touché. Le **droit à la réparation**, en pratique.
 
+## Vous cherchiez peut-être…
+
+Cette page répond à des questions comme :
+
+- « Regarder un film en 3D sur une Sony Bravia depuis une clé USB »
+- « Voir un film 3D côte à côte : la télé reste en 2D »
+- « Visionner des MPO (photos 3D) sur un téléviseur Sony »
+- « La 3D ne marche qu'en HDMI ? »
+- « Côte à côte ou Dessus-Dessous dans le menu 3D »
+
 ## Pourquoi votre film 3D s'affiche à plat
 
 - Ces téléviseurs ne **basculent automatiquement en 3D** que si le **flux vidéo lui-même** contient l'information H.264 de « frame packing » (SEI).

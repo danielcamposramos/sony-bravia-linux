@@ -156,6 +156,25 @@ DLNA did better than USB: the working Spanish answer was PS3 Media
 Server over Wi-Fi with the menu on *Lado a Lado*
 ([ES, INDEX](https://community.sony.es/t5/televisores/peliculas-3d-descargadas-de-internet/td-p/279007)).
 
+**German, VERIFIED (hifi-forum.de) — the campaign's own problem, in
+2012.** A KDL-46EX727 owner asks how to watch his 3D Blu-ray rips (ISO
+and MKV) from the PC on the TV, is steered away from USB and toward
+**DLNA through Serviio** — the exact stack this repository runs — and
+the thread never reports reaching 3D
+([*3D iso und mkv*, ~Jan 2012](http://www.hifi-forum.de/viewthread-144-6784.html)).
+That is the founding problem of the whole signalling campaign, asked in
+German fourteen years ago, stopping exactly where the missing SEI stops
+everyone. A companion thread from a **KDL-40EX725** owner (Sep 2011)
+confirms the video 3D menu offers *Nebeneinander* and *Untereinander*
+as manual formats
+([thread](http://www.hifi-forum.de/viewthread-144-6530.html)) — the
+side-by-side entry that the photo menu, on the same sets, does not
+have.
+
+**Dutch and Polish yielded nothing confirmable.** tweakers.net cannot
+be fetched from here at all, and the Polish forums returned only
+off-topic EX720 threads. Stated plainly rather than padded.
+
 **One unmet need, verified: the eye swap.** A BRAVIA owner with a
 swapped-eye SBS rip: *"mi tele sony bravia no dispone de ese cambio de
 sentido"* — the set plays the file and offers no way to flip left and

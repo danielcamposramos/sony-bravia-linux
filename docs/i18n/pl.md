@@ -4,6 +4,16 @@
 
 Ten projekt przywraca do życia telewizory BRAVIA sprzed ery Androida (seria KDL, 2010–2012) po tym, jak Sony wyłączyło ich usługi online, w całości w domowej sieci właściciela. Firmware nie jest modyfikowany, a zabezpieczenia DRM nie są naruszane. **Prawo do naprawy** w praktyce.
 
+## Czy tego szukasz?
+
+Ta strona odpowiada na pytania takie jak:
+
+- „Sony Bravia film 3D z pendrive'a nie działa”
+- „3D side by side przez sieć domową (DLNA) wyświetla się płasko”
+- „Czy 3D działa tylko przez HDMI?”
+- „Bravia nie wykrywa zdjęć 3D (plik MPO)”
+- „Obraz obok siebie w menu 3D”
+
 ## Dlaczego film 3D wyświetla się płasko
 
 - Te telewizory **same przełączają się w tryb 3D** tylko wtedy, gdy **sam strumień wideo** zawiera informację H.264 „frame packing” (SEI).

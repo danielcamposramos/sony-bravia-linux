@@ -4,10 +4,21 @@
 
 Dieses Projekt belebt die BRAVIA-Fernseher der Vor-Android-Zeit (KDL-Serie, 2010–2012) wieder, nachdem Sony ihre Online-Dienste abgeschaltet hat, und zwar vollständig im eigenen Heimnetz des Besitzers. Die Firmware wird nicht verändert, DRM wird nicht angetastet. **Recht auf Reparatur**, praktisch umgesetzt.
 
+## Haben Sie danach gesucht?
+
+Diese Seite beantwortet Fragen wie:
+
+- „Sony Bravia 3D-Film über USB-Stick abspielen geht nicht“
+- „3D iso und mkv auf dem Bravia anschauen“
+- „3D-Film über Heimnetzwerk (DLNA) wird nicht in 3D erkannt“
+- „Nebeneinander / Untereinander im 3D-Menü, was ist das?“
+- „Funktioniert 3D nur über HDMI?“
+- „Bravia 3D-Fotos (MPO-Datei) anzeigen“
+
 ## Warum Ihr 3D-Film nur flach läuft
 
 - Diese Fernseher schalten **nur dann automatisch auf 3D**, wenn der **Videostrom selbst** die H.264-Kennung „Frame Packing“ (SEI) enthält.
-- Übliche 3D-Dateien (MKV Side-by-Side / Top-and-Bottom) tragen nur eine Kennung im Container, und die geht verloren, sobald ein DLNA-Server die Datei ausliefert. Ergebnis: zwei Bilder nebeneinander, kein 3D.
+- Übliche 3D-Dateien (MKV Side-by-Side, im 3D-Menü „Nebeneinander“, oder Top-and-Bottom, „Untereinander“) tragen nur eine Kennung im Container, und die geht verloren, sobald ein DLNA-Server die Datei ausliefert. Ergebnis: zwei Bilder nebeneinander, kein 3D.
 - **Die Lösung (verlustfrei, ohne Neukodierung):** `tools/bravia_sei3d.py` schreibt die SEI einmalig in die Datei. Danach schaltet der Fernseher auch über DLNA von selbst auf 3D. HandBrake hat die Funktion übernommen (PR #8100, ab der nächsten Version). Das mitgelieferte Serviio-Profil fügt die SEI beim Transkodieren automatisch hinzu.
 - Linkes und rechtes Auge vertauscht? Der Fernseher kann die Seiten nicht tauschen, ein ffmpeg-Filter schon (`stereo3d=sbsl:sbsr`).
 

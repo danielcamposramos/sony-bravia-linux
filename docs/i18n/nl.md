@@ -4,6 +4,16 @@
 
 Dit project brengt de BRAVIA-televisies van vóór Android (KDL-serie, 2010–2012) weer tot leven nadat Sony hun onlinediensten heeft uitgeschakeld, volledig binnen het thuisnetwerk van de eigenaar. De firmware wordt niet aangepast en er wordt niet aan DRM gekomen. **Recht op reparatie**, in de praktijk.
 
+## Zocht je hiernaar?
+
+Deze pagina beantwoordt vragen zoals:
+
+- "Sony Bravia 3D-film via USB-stick afspelen werkt niet"
+- "3D side by side via thuisnetwerk (DLNA) geeft geen 3D"
+- "Werkt 3D alleen via HDMI?"
+- "Bravia 3D-foto's (MPO) worden niet herkend"
+- "Naast elkaar of boven-onder in het 3D-menu"
+
 ## Waarom je 3D-film plat wordt weergegeven
 
 - Deze televisies **schakelen alleen automatisch naar 3D** als de **videostream zelf** de H.264-informatie "frame packing" (SEI) bevat.
