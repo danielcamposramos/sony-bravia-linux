@@ -1412,6 +1412,7 @@ def render_probe():
         ('/probe/art?v=9', 'Q \u2014 x3, no wrapper, spacer (audio?)'),
         ('/probe/art?v=10', 'R \u2014 candidato: 33%% x3, tabela'),
         ('/probe/art?v=11', 'S \u2014 candidato: v\u00eddeo, mesmo layout'),
+        ('/probe/art?v=12', 'T \u2014 v\u00eddeo SEM escala (volta a imagem?)'),
         ('/probe/cookie', 'N \u2014 cookies: do they persist?'),
     ])
     body = (_hdr('Era probes')
@@ -1490,6 +1491,26 @@ def render_probe_cookie(cookie_header):
           "catch(e){j.innerHTML='document.cookie THREW: '+e;}")
     return (_page('Cookies', body, extra_js=js),
             [bake('bravia_visits', visits)])
+
+
+def where_line(title, didl_dur, want):
+    """A small "where in the library is this" line.
+
+    The DIDL title alone does not say which album, which disc, or which
+    of two copies is playing. The duration index already maps a title to
+    its file, so the relative path answers all three and costs nothing we
+    are not computing anyway for the transcode lanes. Falls back to empty
+    when the library is unindexed or the file cannot be resolved."""
+    try:
+        path, _err = resolve_source(title, didl_dur, want=want)
+    except Exception:
+        return ''
+    if not path:
+        return ''
+    for root in MEDIA_ROOTS:
+        if path.startswith(root):
+            return path[len(root):].lstrip('/') or path
+    return path
 
 
 def probe_video():
@@ -1630,7 +1651,7 @@ def render_probe_art(variant):
     natural place for Serviio's cover art. Variants 2 and 3 try to scale the
     element up, because the native bar renders at a fixed height and is
     unreadable at couch distance otherwise."""
-    if variant == 11:
+    if variant in (11, 12):
         url, mime, title = probe_video()
         art = ''
         if not url:
@@ -1685,11 +1706,18 @@ def render_probe_art(variant):
         11: ('33%', '240px',
              '-o-transform:scale(3);-o-transform-origin:top left;'
              'transform:scale(3);transform-origin:top left;', 3),
+        # 12 is variant 11 with NO transform. On the panel 11 played the
+        # audio of an MP4 but showed no picture, and the transform is the
+        # obvious suspect: video on these sets goes to a hardware plane
+        # that CSS may not follow. If 12 shows the picture, scaling is
+        # simply unavailable for video and that surface must be sized
+        # rather than scaled.
+        12: ('99%', '600px', '', 1),
     }
     w, h, extra, factor = styles.get(variant, styles[1])
     # 5/6/7 clip, 8 wraps without clipping, 9 uses a sibling spacer
-    mode = {8: 'wrap', 9: 'spacer', 10: 'table', 11: 'table'}.get(
-        variant, 'clip')
+    mode = {8: 'wrap', 9: 'spacer', 10: 'table', 11: 'table',
+            12: 'table'}.get(variant, 'clip')
     poster = (' poster="%s"' % esc(art)) if art else ''
     what = {1: '960x540, poster only',
             2: '480x270 scaled x2 via transform',
@@ -1701,7 +1729,9 @@ def render_probe_art(variant):
             8: 'x3, wrapper WITHOUT overflow:hidden',
             9: 'x3, NO wrapper - sibling spacer',
             10: 'candidate: 33%% width x3, table, no clip',
-            11: 'candidate: same, video'}.get(variant, '')
+            11: 'candidate: same, video',
+            12: 'video, NO transform (does the picture come back?)'
+            }.get(variant, '')
     js = ("var v=document.getElementById('pv');"
           "var st=document.getElementById('status');"
           "var s=document.createElement('source');"
@@ -1729,15 +1759,20 @@ def render_probe_art(variant):
           "+((e.target&&e.target.error)?e.target.error.code:'?'));});"
           "s.addEventListener('error',function(){say('SOURCE rejected');});"
           "try{v.play();}catch(x){say('play() threw: '+x);}")
-    if variant in (10, 11):
+    if variant in (10, 11, 12):
         # The owner's layout, 2026-09-18: brand line with the surface
         # named, the file that is playing, the player, and a shortcut
         # home. No status text — the native bar shows its own time, and a
         # 'loading' line that never clears (loadstart/canplay/playing do
         # not fire here) is worse than no line at all.
-        surface = T('video_player') if variant == 11 else T('audio_player')
+        video = variant in (11, 12)
+        surface = T('video_player') if video else T('audio_player')
+        where = where_line(title, 0, 'video' if video else 'audio')
         body = ('<h2 id="hdr">%s - %s</h2>' % (BRAND, surface)
                 + '<p id="fmt">%s</p>' % esc(title or '')
+                + ('<p style="font-size:26px;color:#777;margin:0 10px 6px;'
+                   'word-wrap:break-word;">%s</p>' % esc(where)
+                   if where else '')
                 + _scaled_video(poster, w, h, extra, factor, mode)
                 + '<ul><li><a href="%s">%s</a></li></ul>'
                 % (esc(PORTAL_URL), T('portal')))
