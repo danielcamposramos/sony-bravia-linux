@@ -29,6 +29,7 @@ Usage:
   bravia_sei3d.py "0 3D" --recursive --dry-run     # report only
   bravia_sei3d.py "0 3D" --recursive --in-place    # fix the library
   bravia_sei3d.py Movie.mkv --mode sbs             # single file, forced mode
+  bravia_sei3d.py Clip.mp4 --in-place --keep-container   # stays MP4 (Kodi etc.)
 
 Requires: mkvmerge, mkvextract, ffmpeg+ffprobe (any 6.x+), python3.
 """
@@ -53,6 +54,7 @@ STEREO_MAP = {  # ffprobe stereo_mode -> (mode, Matroska StereoMode number)
 }
 MODE_TO_MKV = {"sbs": 1, "tb": 4, "row": 7}
 MKV_EXTRACT_EXTS = {".mkv", ".mk3d", ".webm"}
+MP4_EXTS = {".mp4", ".m4v"}
 FFMPEG_EXTS = {".mp4", ".m4v", ".mov", ".avi", ".flv", ".ts", ".m2ts", ".mpg"}
 VIDEO_EXTS = MKV_EXTRACT_EXTS | FFMPEG_EXTS
 NAME_TOKENS = [
@@ -230,17 +232,37 @@ def handle_file(path, a):
         out_path.unlink(missing_ok=True)
         return (f"FAIL  {path.name}: verify failed "
                 f"(sei={ok} streams={sc_ok} dur {orig_dur:.0f}->{dur:.0f})")
+    keep_mp4 = a.keep_container and path.suffix.lower() in MP4_EXTS
+    if keep_mp4:
+        # Pass-through DLNA servers (Kodi, minidlna) never remux, and the set
+        # does not list Matroska at all, so an MP4 must stay an MP4. The SEI
+        # lives in the video elementary stream, so a stream-copy remux of the
+        # verified Matroska result carries it over unchanged.
+        mp4_tmp = out_path.with_suffix(".mp4")
+        r = run(["ffmpeg", "-nostdin", "-y", "-v", "error", "-i", str(out_path),
+                 "-map", "0", "-c", "copy", "-dn", "-map_chapters", "-1",
+                 "-strict", "-2", "-movflags", "+faststart", str(mp4_tmp)])
+        out_path.unlink(missing_ok=True)
+        if r.returncode or count_sei(mp4_tmp) == 0 or \
+                stream_counts(mp4_tmp) != stream_counts(path):
+            mp4_tmp.unlink(missing_ok=True)
+            return (f"FAIL  {path.name}: could not keep MP4 "
+                    f"(remux rc={r.returncode}; subtitles MP4 cannot carry?)")
+        out_path = mp4_tmp
     if a.in_place:
         if a.backup:
             path.rename(path.with_name(path.name + ".bak"))
         else:
             os.remove(path)
-        final = path.with_suffix(".mkv")  # remuxed container is Matroska
+        # the remuxed container is Matroska unless the MP4 was kept
+        final = path if keep_mp4 else path.with_suffix(".mkv")
         os.rename(out_path, final)
     else:
-        final = out_path
+        final = out_path.with_name(path.stem + a.suffix + out_path.suffix)
+        os.rename(out_path, final)
     sz = final.stat().st_size / 2**30
-    return f"FIXED {path.name}: {mode} ({reason}), {n} IDRs, +{added}B, {sz:.2f}GiB"
+    return (f"FIXED {path.name} -> {final.name}: {mode} ({reason}), "
+            f"{n} IDRs, +{added}B, {sz:.2f}GiB")
 
 
 def main():
@@ -251,6 +273,9 @@ def main():
     ap.add_argument("--in-place", action="store_true",
                     help="replace the original file after verified remux (else write alongside)")
     ap.add_argument("--suffix", default=".sei3d", help="suffix for non-in-place output")
+    ap.add_argument("--keep-container", action="store_true",
+                    help="keep MP4 input as MP4 (for pass-through DLNA servers such "
+                         "as Kodi; the default output is Matroska, for Serviio's remux)")
     ap.add_argument("--backup", action="store_true", help="with --in-place, keep NAME.bak")
     ap.add_argument("--default-sbs", action="store_true",
                     help="treat untagged/unsigned files as SBS (default already applies to [3D] names / 3D folders)")
