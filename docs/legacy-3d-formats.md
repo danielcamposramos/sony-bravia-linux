@@ -774,3 +774,7 @@ upstream.
   road here
 - `tools/bravia_sei3d.py` — the SEI injector act one built, reused as
   step 4 of the conversion pipeline
+- [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy)
+  — the curated list of the wider field this act belongs to: anaglyph
+  colour codes, the legacy packings, the devices that produced them, and
+  the history that explains why the formats look the way they do

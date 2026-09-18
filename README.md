@@ -135,6 +135,12 @@ anaglyph. Two additions the owner set in 2026-09-18:
 
 First results on the owner's own stack, before any upstream ask, as
 in both earlier acts.
+**The wider subject has a curated list now**, started because none
+existed: [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy)
+collects the formats, standards, tools, players, servers, displays,
+headsets and history of stereoscopic 3D, from Wheatstone's 1838
+stereoscope to spatial video.
+
 The episode's authorship-politics record — who gated on what, and the
 42-line standard-based patch at the center of it — is
 [docs/judging-by-the-cover.md](docs/judging-by-the-cover.md).
