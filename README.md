@@ -43,6 +43,13 @@ is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
   signed bundles.
 - Everything runs as systemd services with a config file —
   **"VLC on a 2011 TV" is reached.**
+- **The original soundtrack survives too (measured 2026-09-18).** These
+  sets decode **Dolby Digital Plus, 7.1 included**, from MP4 over DLNA,
+  so the Serviio profile now ships a *Surround* variant that serves MP4
+  with AC-3, E-AC3 or AAC **untouched** rather than converting every
+  track to 384k AC-3. What each set actually accepts, by path and read
+  from its own EDID, is in
+  [audio-capabilities.md](docs/audio-capabilities.md).
 - **The whole method is published** for anyone with one of these sets:
   [build-your-own-bravia-portal.md](docs/build-your-own-bravia-portal.md) —
   two DNS overrides, the era-TLS vhost, the media app, the widget-restore
