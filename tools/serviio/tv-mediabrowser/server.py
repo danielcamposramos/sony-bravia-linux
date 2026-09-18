@@ -111,6 +111,9 @@ RES_BASE = 'http://%s:%d' % (SERVIIO, SERVIIO_PORT)
 # from this server instead. The proxy URL is RELATIVE (see
 # proxied_res_url) so it survives host moves.
 PAGE_SIZE = 18
+# The TV's own start page (the rd1.sony.net host we serve on the LAN).
+# Configurable because the spoof target is a deployment detail.
+PORTAL_URL = _cfg_get('app', 'portal_url', 'https://rd1.sony.net/tv1/')
 # CLI arg still wins (the systemd unit passes its port), then the config
 # file, then the built-in default
 PORT = (int(sys.argv[1]) if len(sys.argv) > 1 else
@@ -274,10 +277,12 @@ document.onkeydown=function(e){
   if(k==38){move(-1);}
   else if(k==40){move(1);}
   else if(k==13||k==39){openSel();}
-  // era InettvBrowser ignores history.back() (live 2026-09-15, owner
-  // report: "voltar" dead on the music page); history.go(-1) is honored.
-  // Back must be relative — the player is reachable by many paths.
-  else if(k==37||k==8){goBack();}
+  // Back is the remote's GREEN button, which Opera itself handles as
+  // history-back and never delivers to the page (measured 2026-09-18).
+  // LEFT is deliberately NOT bound to back: keyCode 37 is also the
+  // remote's REW button, so binding it meant REW quit the page.
+  // keyCode 8 is kept as a harmless extra on sets that send it.
+  else if(k==8){goBack();}
   else{return true;}
   return false;
 };
@@ -327,8 +332,12 @@ document.onkeydown=function(e){
   else if(km('rew',k)){try{v.currentTime-=30;}catch(x){}}
   else if(km('ff',k)){try{v.currentTime+=30;}catch(x){}}
   else if(k==13){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
+  // 37/39 are d-pad left/right AND the remote's REW/FF buttons — the set
+  // sends the same code for both — so they seek, symmetrically. Back is
+  // the GREEN button (handled by Opera) or the on-screen control.
   else if(k==39){try{v.currentTime+=30;}catch(x){}}
-  else if(k==37||k==8){goBack();}
+  else if(k==37){try{v.currentTime-=30;}catch(x){}}
+  else if(k==8){goBack();}
   else{return true;}
   return false;
 };
@@ -374,7 +383,6 @@ function move(d){var g=grp(sel),n=items.length,i=sel;for(var c=0;c<n;c++){i=(i+d
 function jump(d){var g=grp(sel),n=items.length,i=sel;for(var c=0;c<n;c++){i=(i+d+n)%n;if(grp(i)!=g&&!dim[i]){sel=i;break;}}show();}
 // left at the leftmost button still means "back": the sets' RETURN key
 // has never been keyCode-harvested, so left/8 must keep an exit path
-function atEdge(){var g=grp(sel);for(var i=0;i<items.length;i++){if(grp(i)==g&&!dim[i]){return i==sel;}}return false;}
 function two(n){n=Math.floor(n);return (n<10?'0':'')+n;}
 function fmt(s){if(!(s>0)){return '0:00';}return Math.floor(s/60)+':'+two(s%60);}
 function dur(){var d=v.duration;return (d&&isFinite(d)&&d>0)?d:DUR;}
@@ -444,9 +452,9 @@ document.onkeydown=function(e){
   else if(km('rew',k)){act('bk');}
   else if(km('ff',k)){act('fw');}
   // left/right walk the transport bar; up/down cross to the row below.
-  // Left on the leftmost button still exits, so "back" survives even if
-  // this set's RETURN key turns out not to be 37 or 8.
-  else if(k==37){if(atEdge()){goBack();}else{move(-1);}}
+  // Left at the leftmost button stops there rather than exiting: 37 is
+  // also the REW button, and back belongs to GREEN and the Voltar row.
+  else if(k==37){move(-1);}
   else if(k==39){move(1);}
   else if(k==38){jump(-1);}
   else if(k==40){jump(1);}
@@ -460,7 +468,7 @@ document.onkeydown=function(e){
 IMG_JS = """
 document.onkeydown=function(e){
   e=e||window.event;var k=e.keyCode;
-  if(k==37||k==8){history.go?history.go(-1):history.back();}
+  if(k==8){history.go?history.go(-1):history.back();}
   else{return true;}
   return false;
 };
@@ -477,27 +485,28 @@ _UI = threading.local()
 
 STRINGS = {
     'en': {
-        'nav_foot': 'Arrows navigate, OK opens, left = back',
+        'nav_foot': 'Arrows navigate, OK opens, GREEN = back',
+        'portal': 'Portal BRAVIA (start page)',
         'no_items': '(no items)',
         'empty': '(empty)',
         'prev': '&lt; previous',
         'next': 'next &gt;',
         'of': 'of',
         'browse': 'Browse',
-        'starting': 'starting... OK=pause, right=+30s, left=back',
-        'back_foot': 'left = back',
+        'starting': 'starting... OK=pause, right=+30s, left=-30s, GREEN=back',
+        'back_foot': 'GREEN = back',
         'error': 'Error',
         'home': 'home',
         'audio': 'Audio',
         'no_audio': 'Play (no audio track)',
         'choose_track': 'Choose the audio track',
         'conv_foot': ('OK starts conversion (first time only; '
-                      'later views play instantly). left = back'),
+                      'later views play instantly). GREEN = back'),
         'dolby_note': 'Dolby tracks play bit-exact (no conversion). ',
         'converting': 'Converting... %d%%',
         'converting_t': 'Converting',
         'refresh_foot': ('this page refreshes every 5s and plays '
-                         'automatically when ready. left = back'),
+                         'automatically when ready. GREEN = back'),
         'converted': ' (converted)',
         'retry': 'conversion failed — OK to try again (cache/%s.log)',
         'lib_building': ('library index still building — '
@@ -537,27 +546,28 @@ STRINGS = {
         'music_unknown': 'unknown format',
     },
     'pt': {
-        'nav_foot': 'Setas navegam, OK abre, esquerda = voltar',
+        'nav_foot': 'Setas navegam, OK abre, VERDE = voltar',
+        'portal': 'Portal BRAVIA (p\u00e1gina inicial)',
         'no_items': '(sem itens)',
         'empty': '(vazio)',
         'prev': '&lt; anterior',
         'next': 'próximo &gt;',
         'of': 'de',
         'browse': 'Navegar',
-        'starting': 'iniciando... OK=pausa, direita=+30s, esquerda=voltar',
-        'back_foot': 'esquerda = voltar',
+        'starting': 'iniciando... OK=pausa, direita=+30s, esquerda=-30s, VERDE=voltar',
+        'back_foot': 'VERDE = voltar',
         'error': 'Erro',
         'home': 'início',
         'audio': 'Áudio',
         'no_audio': 'Reproduzir (sem faixa de áudio)',
         'choose_track': 'Escolha a faixa de áudio',
         'conv_foot': ('OK inicia a conversão (só na primeira vez; '
-                      'depois toca na hora). esquerda = voltar'),
+                      'depois toca na hora). VERDE = voltar'),
         'dolby_note': 'Faixas Dolby tocam bit-exatas (sem conversão). ',
         'converting': 'Convertendo... %d%%',
         'converting_t': 'Convertendo',
         'refresh_foot': ('esta página atualiza a cada 5s e toca '
-                         'automaticamente quando ficar pronta. esquerda = voltar'),
+                         'automaticamente quando ficar pronta. VERDE = voltar'),
         'converted': ' (convertido)',
         'retry': 'conversão falhou — OK para tentar de novo (cache/%s.log)',
         'lib_building': ('índice da biblioteca ainda em construção — '
@@ -593,27 +603,28 @@ STRINGS = {
         'music_unknown': 'formato desconhecido',
     },
     'es': {
-        'nav_foot': 'Flechas navegan, OK abre, izquierda = volver',
+        'nav_foot': 'Flechas navegan, OK abre, VERDE = volver',
+        'portal': 'Portal BRAVIA (p\u00e1gina de inicio)',
         'no_items': '(sin elementos)',
         'empty': '(vacío)',
         'prev': '&lt; anterior',
         'next': 'siguiente &gt;',
         'of': 'de',
         'browse': 'Explorar',
-        'starting': 'iniciando... OK=pausa, derecha=+30s, izquierda=volver',
-        'back_foot': 'izquierda = volver',
+        'starting': 'iniciando... OK=pausa, derecha=+30s, izquierda=-30s, VERDE=volver',
+        'back_foot': 'VERDE = volver',
         'error': 'Error',
         'home': 'inicio',
         'audio': 'Audio',
         'no_audio': 'Reproducir (sin pista de audio)',
         'choose_track': 'Elija la pista de audio',
         'conv_foot': ('OK inicia la conversión (solo la primera vez; '
-                      'luego reproduce al instante). izquierda = volver'),
+                      'luego reproduce al instante). VERDE = volver'),
         'dolby_note': 'Las pistas Dolby se reproducen bit-exactas (sin conversión). ',
         'converting': 'Convirtiendo... %d%%',
         'converting_t': 'Convirtiendo',
         'refresh_foot': ('esta página se actualiza cada 5s y reproduce '
-                         'automáticamente al estar lista. izquierda = volver'),
+                         'automáticamente al estar lista. VERDE = volver'),
         'converted': ' (convertido)',
         'retry': 'conversión fallida — OK para reintentar (cache/%s.log)',
         'lib_building': ('índice de la biblioteca aún en construcción — '
@@ -767,6 +778,10 @@ def render_root():
         % (urllib.parse.quote(o['id'], safe=''), esc(o['title']),
            o.get('child_count', '?'))
         for o in objects)
+    # a way back to the start page, because the remote has no Home key
+    # that reaches a page and typing a URL on an IR remote is punishing
+    if PORTAL_URL:
+        rows += _row('dir', esc(PORTAL_URL), T('portal'))
     body = (_hdr('Serviio @ %s' % esc(serviio_label()))
             + '<ul>%s</ul>' % rows
             + _foot(T('nav_foot')))
@@ -1237,12 +1252,136 @@ def render_probe():
         ('/probe/ctl?v=2', 'C \u2014 native controls, 640x360 element'),
         ('/probe/ctl?v=3', 'D \u2014 native controls, 640x360, no key handler'),
         ('/probe/ctl?v=4', 'E \u2014 native controls, full width, no key handler'),
-        ('/keys', 'F \u2014 remote keycode probe (unrelated, still unrun)'),
+        ('/keys', 'F \u2014 remote keycode probe (done 2026-09-18)'),
+        ('/probe/caps', 'G \u2014 what this player supports'),
+        ('/probe/art?v=1', 'H \u2014 album art 960x540'),
+        ('/probe/art?v=2', 'I \u2014 art + transform scale x2'),
+        ('/probe/art?v=3', 'J \u2014 art + zoom 2'),
+        ('/probe/art?v=4', 'K \u2014 art full width'),
     ])
     body = (_hdr('Era probes')
             + '<ul>%s</ul>' % rows
             + _foot('Report what you see; nothing here changes the player.'))
     return _page('Probes', body)
+
+
+def probe_art_url():
+    """Album art for a track that has some, for the poster probes."""
+    try:
+        objects, _ = upnp_browse('A_R', count=8)
+        for o in objects:
+            if not o['container'] and music_art_available(o):
+                return '/art/%s' % urllib.parse.quote(o['id'], safe='')
+    except Exception:
+        pass
+    return ''
+
+
+def render_probe_caps():
+    """/probe/caps -- what does this set's media element actually support?
+
+    Every answer is read off the live object on the panel rather than
+    inferred from the browser version, and written into the page so it can
+    be read from the couch and reported back."""
+    url, mime, _title = probe_track()
+    if not url:
+        return render_error('probe', 'no audio item found to test with')
+    js = (
+        "var v=document.getElementById('pv');"
+        "var out=document.getElementById('out');"
+        "var fired=document.getElementById('fired');"
+        "var seen='';"
+        "var s=document.createElement('source');"
+        "s.type=%s;s.src=%s;v.appendChild(s);"
+        % (json.dumps(mime), json.dumps(url)) +
+        "function row(k,val){out.innerHTML+='<li>'+k+' = <b>'+val+'</b></li>';}"
+        "function has(o,k){try{return (typeof o[k]!='undefined')?'yes':'no';}"
+        "catch(e){return 'throws';}}"
+        "var props=['controls','volume','muted','playbackRate','duration',"
+        "'currentTime','paused','readyState','networkState','preload',"
+        "'poster','seekable','buffered','loop','autoplay','videoWidth'];"
+        "for(var i=0;i<props.length;i++){row(props[i],has(v,props[i]));}"
+        "row('controls value',v.controls);"
+        "row('volume value',v.volume);"
+        "var mimes=['audio/mpeg','audio/mp4','audio/aac','audio/flac',"
+        "'audio/ogg','audio/wav','video/mp4','video/webm','video/x-matroska'];"
+        "for(var j=0;j<mimes.length;j++){var r='n/a';"
+        "try{r=v.canPlayType(mimes[j])||'(empty)';}catch(e){r='throws';}"
+        "row('canPlayType '+mimes[j],r);}"
+        "var stl=v.style;"
+        "var css=['transform','OTransform','WebkitTransform','zoom'];"
+        "for(var c=0;c<css.length;c++){row('style.'+css[c],has(stl,css[c]));}"
+        "var fs=['requestFullscreen','webkitRequestFullScreen',"
+        "'oRequestFullscreen'];"
+        "for(var f=0;f<fs.length;f++){row(fs[f],has(v,fs[f]));}"
+        "var evs=['loadstart','durationchange','loadedmetadata','loadeddata',"
+        "'progress','canplay','canplaythrough','play','playing','pause',"
+        "'timeupdate','ended','volumechange','ratechange','seeking','seeked',"
+        "'error','stalled','suspend','waiting'];"
+        "function mk(n){return function(){if(seen.indexOf('['+n+']')<0){"
+        "seen+='['+n+']';fired.innerHTML=seen;}};}"
+        "for(var e=0;e<evs.length;e++){"
+        "try{v.addEventListener(evs[e],mk(evs[e]),false);}catch(x){}}"
+        "try{v.play();}catch(x){}"
+    )
+    body = (_hdr('G - player capabilities')
+            + '<p id="fmt">%s</p>' % esc(mime)
+            + '<video id="pv" controls preload="none" width="480" '
+              'height="270" style="width:480px;height:270px;'
+              'background:#111;"></video>'
+            + '<p id="fmt">events that fired:</p>'
+            + '<p id="fired" style="color:#3cf;font-size:30px;'
+              'word-wrap:break-word;">(none yet)</p>'
+            + '<ul id="out" style="font-size:30px;"></ul>'
+            + _foot('<a href="/probe">back to probes</a>'))
+    return _page('Capabilities', body, extra_js=js)
+
+
+def render_probe_art(variant):
+    """/probe/art -- album art behind native controls, and can we enlarge them?
+
+    Audio in a <video> element leaves the frame empty, so the poster is the
+    natural place for Serviio's cover art. Variants 2 and 3 try to scale the
+    element up, because the native bar renders at a fixed height and is
+    unreadable at couch distance otherwise."""
+    url, mime, title = probe_track()
+    art = probe_art_url()
+    if not url:
+        return render_error('probe', 'no audio item found to test with')
+    styles = {
+        1: ('960px', '540px', ''),
+        2: ('480px', '270px',
+            '-o-transform:scale(2);-o-transform-origin:top left;'
+            'transform:scale(2);transform-origin:top left;'),
+        3: ('480px', '270px', 'zoom:2;'),
+        4: ('100%', '600px', ''),
+    }
+    w, h, extra = styles.get(variant, styles[1])
+    poster = (' poster="%s"' % esc(art)) if art else ''
+    what = {1: '960x540, poster only',
+            2: '480x270 scaled x2 via transform',
+            3: '480x270 with zoom:2',
+            4: 'full width, 600px tall'}.get(variant, '')
+    js = ("var v=document.getElementById('pv');"
+          "var st=document.getElementById('status');"
+          "var s=document.createElement('source');"
+          "s.type=%s;s.src=%s;v.appendChild(s);"
+          % (json.dumps(mime), json.dumps(url)) +
+          "v.addEventListener('playing',function(){"
+          "st.innerHTML='playing - is the art still visible?';});"
+          "v.addEventListener('error',function(){st.innerHTML='error';});"
+          "try{v.play();}catch(x){}")
+    body = (_hdr('Art %d - %s' % (variant, what))
+            + '<p id="fmt">%s%s</p>' % (esc(title or ''),
+                                        '' if art else ' (no art found)')
+            + '<video id="pv" controls preload="none"%s width="%s" '
+              'height="%s" style="width:%s;height:%s;background:#111;%s">'
+              '</video>' % (poster, w, h, w, h, extra)
+            + '<p id="status">loading</p>'
+            + '<p id="fmt">Watch for: art visible while playing, and '
+              'whether the control bar got bigger.</p>'
+            + _foot('<a href="/probe">back to probes</a>'))
+    return _page('Art probe %d' % variant, body, extra_js=js)
 
 
 def render_probe_glyphs():
@@ -1302,7 +1441,7 @@ def render_probe_ctl(variant):
     if keys:
         js += ("document.onkeydown=function(e){var k=(e||window.event).keyCode;"
                "if(k==13){if(v.paused){v.play();}else{v.pause();}return false;}"
-               "if(k==8||k==37){window.location='/probe';return false;}"
+               "if(k==8){window.location='/probe';return false;}"
                "return true;};")
     body = (_hdr('Variant %d \u2014 native controls' % variant)
             + '<p id="fmt">%s &nbsp; %s x %s</p>' % (esc(mime), w, h)
@@ -1328,7 +1467,7 @@ def render_keys():
             '<p id="fmt">press every media button on the remote</p>'
             '<p id="status">(press keys)</p>'
             '<p id="foot">codes on screen + KEYPROBE lines in server.log; '
-            'left = back</p>'
+            'GREEN = back</p>'
             '</div>')
     return _page('key probe', body, extra_js=KEYS_JS)
 
@@ -1937,6 +2076,13 @@ class Handler(BaseHTTPRequestHandler):
                 return
             elif u.path == '/probe/glyphs':
                 self._send_html(render_probe_glyphs().encode())
+                return
+            elif u.path == '/probe/caps':
+                self._send_html(render_probe_caps().encode())
+                return
+            elif u.path == '/probe/art':
+                self._send_html(render_probe_art(
+                    _qs_int(parse_qs(u.query), 'v', 1)).encode())
                 return
             elif u.path == '/probe/ctl':
                 self._send_html(render_probe_ctl(
