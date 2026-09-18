@@ -1,14 +1,10 @@
-<!-- DRAFT — NOT POSTED. Prepared 2026-09-18, held for the owner's go.
-     Target: JackDesBwa, author of PhereoRoll3D / PhotoRoll3D.
-     Channel: his GitHub. PhereoRoll3D is the finished repo and the
-     natural place; check it shows an issues-welcome signal first,
-     otherwise the profile contact is the lower-noise route.
-     Doctrine: raw material only. The owner rewords in his own voice
-     and posts. Factual and additive, no pitch, no AI disclaimer.
-     Timing: ideally after the first act-three measurements exist, so
-     it links a working thing instead of a plan. Owner decides.
-     Style: one sentence per line, no mid-sentence em dashes, bold on
-     the verdicts — the shape he rewrites drafts into anyway. -->
+<!-- POSTED 2026-09-18 10:51 UTC by the owner as PhereoRoll3D issue #2,
+     "Thank you! And some other things...":
+     https://github.com/JackDesBwa/PhereoRoll3D/issues/2
+     Watch: email trigger only (GitHub notifies the author) — never poll.
+     If JackDesBwa answers, the owner pastes it and the reply is drafted
+     together; a question from him needs the owner's own answer.
+     What follows is the draft as prepared, kept for the record. -->
 
 Hi JackDesBwa,
 

@@ -5,6 +5,19 @@ pre-Android, Linux-based BRAVIA platform (~2005–2015). Goal: understand the
 platform well enough to run third-party software on it (e.g. VLC) and unlock
 more internet content than the stock firmware allows.
 
+**In your language** — the problem and the fix, for owners searching in their own words:
+[日本語 · ブラビア 3Dテレビで3D映像・3D写真をもう一度](docs/i18n/ja.md) ·
+[繁體中文 · BRAVIA 3D 電視重新播放 3D 影片與照片](docs/i18n/zh-TW.md) ·
+[한국어 · 브라비아 3D TV에서 3D 영상과 사진 다시 보기](docs/i18n/ko.md) ·
+[Deutsch · 3D-Filme und 3D-Fotos wieder abspielen](docs/i18n/de.md) ·
+[Français · relire les films et photos 3D](docs/i18n/fr.md) ·
+[Italiano · rivedere film e foto 3D](docs/i18n/it.md) ·
+[Español · volver a ver películas y fotos 3D](docs/i18n/es.md) ·
+[Português (BR) · assistir de novo a filmes e fotos 3D](docs/i18n/pt-BR.md) ·
+[Русский · снова смотреть 3D-фильмы и 3D-фото](docs/i18n/ru.md) ·
+[Polski · znowu oglądaj filmy i zdjęcia 3D](docs/i18n/pl.md) ·
+[Nederlands · weer 3D-films en 3D-foto's afspelen](docs/i18n/nl.md)
+
 ## What's working today
 
 **The full media experience is live and owner-verified on both TVs (through
@@ -229,6 +242,7 @@ is in [docs/wiki/](docs/wiki/).
   [ecosystem](docs/3d-signalling-ecosystem.md),
   [browser block](docs/3d-blocked-in-browser.md),
   [legacy formats — act three](docs/legacy-3d-formats.md),
+  [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md),
   [origin story](docs/3d-origin-story.md)), the
   **consumer-rights set** ([legal analysis](docs/legal-eula-analysis.md),
   [regional asymmetry](docs/regional-documentation-asymmetry.md),

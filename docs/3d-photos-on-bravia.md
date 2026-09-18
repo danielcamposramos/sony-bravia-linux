@@ -79,6 +79,101 @@ titled, in its own words, *"is there any way to view 3D photos (JPS or
 MPO) on a Sony BRAVIA"* — captured to the owner's private research
 archive (Sony folder, HTML + PDF) rather than reproduced here.
 
+## The Sony pages, archived
+
+Every Sony support page cited above refuses automated fetching (HTTP
+403); this repo does not work around that. The owner captured each one
+by hand on 2026-09-18, so the claims stay checkable if Sony withdraws
+them — which, for 2011 hardware, is a matter of when.
+
+| Page | Claim | Snapshot |
+|---|---|---|
+| [DE 00129654](https://www.sony.de/electronics/support/articles/00129654) | 3D photos/films do not play from USB or home network | [2026-09-18](https://web.archive.org/web/20260918105103/https://www.sony.de/electronics/support/articles/00129654) |
+| [RU 00129654](https://www.sony.ru/electronics/support/articles/00129654) | same article, Russian | [2026-09-18](https://web.archive.org/web/20260918104856/https://www.sony.ru/electronics/support/articles/00129654) |
+| [IT 00069624](https://www.sony.it/electronics/support/articles/00069624) | the question itself, as an article title | [2026-09-18](https://web.archive.org/web/20260918104735/https://www.sony.it/electronics/support/articles/00069624) |
+| [RU S700023021](https://www.sony.ru/electronics/support/articles/S700023021) | MPO is the 3D photo format over USB | [2024-03-02](https://web.archive.org/web/20240302201917/https://www.sony.ru/electronics/support/articles/S700023021) (earlier capture already existed) |
+| [BR 00013979](https://www.sony.com.br/electronics/support/articles/00013979) | 3D photos via USB: formats and devices | [2026-09-18](https://web.archive.org/web/20260918104336/https://www.sony.com.br/electronics/support/articles/00013979) |
+| [MEA 00180404](https://www.sony-mea.com/en/electronics/support/articles/00180404) | USB compatibility charts, **2011 models** | [2026-09-18](https://web.archive.org/web/20260918102410/https://www.sony-mea.com/en/electronics/support/articles/00180404) |
+| [AP 00180404](https://www.sony-asia.com/electronics/support/articles/00180404) | same, Asia-Pacific | [2026-09-18](https://web.archive.org/web/20260918102640/https://www.sony-asia.com/electronics/support/articles/00180404) |
+| [FY11 CX520 i-Manual, USB](https://www.sony-asia.com/microsite/bravia_i-manuals/FY11/SG/eng/CX520_DF/nt_usb_ga.html) | 2011 generation USB page | [2026-09-18](https://web.archive.org/web/20260918103825/https://www.sony-asia.com/microsite/bravia_i-manuals/FY11/SG/eng/CX520_DF/nt_usb_ga.html) |
+| [FY12 HX850 i-Manual, USB](https://helpguide.sony.net/apmig/bravia_i-manuals/FY12/HX850/GA/usb_europe_ga_twn.html) | the HX855's own generation — **never mentions 3D** | [2026-09-18](https://web.archive.org/web/20260918103148/https://helpguide.sony.net/apmig/bravia_i-manuals/FY12/HX850/GA/usb_europe_ga_twn.html) |
+| [UK 00172421](https://www.sony.co.uk/electronics/support/articles/00172421) | Android TV: `.mpo` stills **cannot** be viewed | [2026-09-18](https://web.archive.org/web/20260918104145/https://www.sony.co.uk/electronics/support/articles/00172421) |
+
+The Japanese knowledge-base page (S1206199004299, 2010–2012 USB
+formats), the JP i-manual pages and the forum mirrors are held in the
+owner's private research archive or are no longer online; they are
+cited by title only.
+
+## What owners reported, market by market
+
+A forum sweep in Italian, French, Spanish and Portuguese (2026-09-18).
+Sony's regional communities (`community.sony.it/.fr/.es/.pt`, one
+platform) return 403 to every page, so most Sony-community items below
+were read **only through the search index**: the thread, its title and
+its substance are real, but the post was not opened and its date is
+unverified. They are marked **INDEX**. Pages actually read are marked
+**VERIFIED**. INDEX items are leads to confirm in a browser before
+anyone quotes them.
+
+**The finding that reframes the photo question — MPO stills did work on
+the KDL generation, from USB (INDEX, Italian).** A Fuji Real 3D owner
+reports the camera's full-HD MPO stills *"correttamente interpretato da
+Sony (bellissime!)"* on a BRAVIA, while its 3D video did not play from
+USB
+([thread](https://community.sony.it/t5/televisori/visualizzare-i-video-3d-di-fuji-real-3d-su-bravia/td-p/1958137)).
+A second thread traces a Sony Bloggie 3D MPO failure to malformed
+files that displayed correctly after a plain re-save on a PC, and
+states MPO from other 3D cameras was read correctly
+([thread](https://community.sony.it/t5/videocamere/visualizzazione-foto-3d-mpo-fatte-con-bloggie-3d/td-p/313441)).
+That agrees with Sony's 2011 USB charts, and it means **our test so far
+asked the wrong question**: we delivered MPO bytes over DLNA under a
+`.jpg` name. What these owners describe is a real `.mpo` file on a USB
+stick. That test is staged and not yet run.
+
+**Then it was taken away (INDEX, Italian).** On the Android generation
+a KD-65ZD9 owner reports the folder of `.mpo` files as simply *empty*;
+the stills render only when the same stick goes into an Oppo UDP-205
+over HDMI
+([thread](https://community.sony.it/t5/televisori/kd-65zd9-non-legge-immagini-3d-con-estensione-mpo/td-p/2534714)).
+Sony's own Android-era article says the same in plain words (UK
+00172421, above). If the KDL reports hold, that is a **documented
+capability regression on the same brand**, noticed by owners in more
+than one language.
+
+**Video: the procedure was common knowledge, the outcome was not.**
+Across IT/ES/FR/PT the recipe is identical — play the file, press 3D,
+pick *Fianco a Fianco / Lado a Lado / Côte à côte* — and several threads
+report it working from USB. An equal number were told 3D is offered
+only on an HDMI input, including an EX720 owner whose same file played
+in 3D on a Samsung
+([IT, INDEX](https://community.sony.it/t5/televisori/chiarimenti-su-visualizzazione-in-3d/td-p/365264)).
+Underneath most failures sat the container, not the stereo: MKV refused
+over USB, FAT32 only (a 4 GB ceiling that rules out a real 3D rip), and
+DivX refusals owners read as licensing
+([HardWare.fr, KDL-46HX750, Dec 2012, VERIFIED](https://forum.hardware.fr/hfr/VideoSon/Traitement-Video/film-sony-bravia-sujet_138759_1.htm);
+[ForoCoches, 2015, VERIFIED](https://forocoches.com/foro/showthread.php?t=4316746)).
+DLNA did better than USB: the working Spanish answer was PS3 Media
+Server over Wi-Fi with the menu on *Lado a Lado*
+([ES, INDEX](https://community.sony.es/t5/televisores/peliculas-3d-descargadas-de-internet/td-p/279007)).
+
+**One unmet need, verified: the eye swap.** A BRAVIA owner with a
+swapped-eye SBS rip: *"mi tele sony bravia no dispone de ese cambio de
+sentido"* — the set plays the file and offers no way to flip left and
+right, so the advice was to wear the glasses backwards
+([ForoDVD, Feb 2013, VERIFIED](https://www.forodvd.com/tema/116691-problema-con-peli-3d/)).
+Brazilian owners hit the same wall
+([Adrenaline, INDEX](https://forum.adrenaline.com.br/threads/tem-como-ver-3d-em-filmes-baixados.517899/)).
+It is a one-filter fix on our side (`stereo3d=sbsl:sbsr`), and it
+belongs in the 3D catalogue as a per-file flag.
+
+**Portuguese (Brazil) is under-evidenced for a mechanical reason**:
+the two big Brazilian forums sit behind Cloudflare, and the 2011 Yahoo
+Respostas threads — including one titled *"Não consigo assistir vídeo
+3D pela minha Sony 3D Bravia 725"* (Oct 2011, an EX725-class set) — died
+with the service in 2021. No Latin-American thread on SBS or MPO
+surfaced at all. The Spanish-language discussion of this era is
+effectively all Spain.
+
 ## What this adds up to
 
 **The capability was documented into existence and then never wired to
@@ -106,11 +201,14 @@ either.
 
 ## Still open, in order
 
-1. **USB with a real `.MPO` extension.** Staged at
+1. **USB with a real `.MPO` extension — now the decisive test.** Sony's
+   2011 USB charts list MPO, and Italian owners of the same generation
+   report MPO stills displaying in 3D from a stick. Staged at
    `/mnt/arquivos/Fotos3D-USB/` — 11 `.MPO`, 11 original `.jps`,
-   upper/lower-case probes, three JPEG controls. Sony's own 2011
-   compatibility material claims MPO works over USB; the set has not
-   been asked with the correct extension yet.
+   upper/lower-case probes, three JPEG controls. If it works, the
+   network path failed only because Serviio and the set's DLNA profile
+   list cannot carry `.mpo` — and the portal can hand the set a stick's
+   worth of MPOs another way.
 2. **The resource-URL extension hypothesis.** The DLNA test delivered
    correct MPO bytes under a `.jpg` URL. If the set dispatches on the
    URL's extension rather than the content, a `.mpo` resource URL might
