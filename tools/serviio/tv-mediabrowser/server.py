@@ -250,9 +250,19 @@ img{max-width:100%;}
 #blbl{margin:0 10px 10px 10px;font-size:44px;color:#3cf;}
 """
 
+# goBack() in one place instead of three: every template that binds LEFT or
+# BACKSPACE must also DEFINE it, and an undefined goBack() is a silent
+# ReferenceError that kills the whole inline script on these sets.
+GOBACK_JS = """
+var backUrl=%BACK%;
+function goBack(){if(backUrl){window.location=backUrl;}else if(history.go){history.go(-1);}else{history.back();}}
+"""
+
 NAV_JS = """
+%GOBACK%
 var items=document.getElementsByTagName('li');
-var sel=0;
+// start on the row the server pre-selected (the one you came back from)
+var sel=%SEL0%;
 // big-font rows overflow the era viewport: without this the highlight
 // walks off-screen and the arrows never scroll (onkeydown returns false)
 function show(){for(var i=0;i<items.length;i++){items[i].className=(i==sel)?'sel':'';}if(items.length){try{items[sel].scrollIntoView(false);}catch(x){}}}
@@ -267,7 +277,7 @@ document.onkeydown=function(e){
   // era InettvBrowser ignores history.back() (live 2026-09-15, owner
   // report: "voltar" dead on the music page); history.go(-1) is honored.
   // Back must be relative — the player is reachable by many paths.
-  else if(k==37||k==8){history.go?history.go(-1):history.back();}
+  else if(k==37||k==8){goBack();}
   else{return true;}
   return false;
 };
@@ -282,6 +292,7 @@ var hud=document.getElementById('hud');
 var prevUrl=%PREV%;
 var nextUrl=%NEXT%;
 var KM=%KEYMAP%;
+%GOBACK%
 function km(a,k){var c=KM[a]||[];for(var i=0;i<c.length;i++){if(c[i]==k){return true;}}return false;}
 function hideshow(v2){if(hud){hud.style.visibility=v2?'visible':'hidden';}}
 var s=document.createElement('source');
@@ -310,14 +321,14 @@ document.onkeydown=function(e){
   if(km('playpause',k)){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
   else if(km('play',k)){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}}
   else if(km('pause',k)){if(!v.paused){v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
-  else if(km('stop',k)){history.go?history.go(-1):history.back();}
+  else if(km('stop',k)){goBack();}
   else if(km('prev',k)){if(prevUrl){window.location=prevUrl;}}
   else if(km('next',k)){if(nextUrl){window.location=nextUrl;}}
   else if(km('rew',k)){try{v.currentTime-=30;}catch(x){}}
   else if(km('ff',k)){try{v.currentTime+=30;}catch(x){}}
   else if(k==13){if(v.paused){v.play();st.innerHTML=%hud_play%;hideshow(false);}else{v.pause();st.innerHTML=%hud_pause%;hideshow(true);}}
   else if(k==39){try{v.currentTime+=30;}catch(x){}}
-  else if(k==37||k==8){history.go?history.go(-1):history.back();}
+  else if(k==37||k==8){goBack();}
   else{return true;}
   return false;
 };
@@ -343,6 +354,7 @@ var nextUrl=%NEXT%;
 var DUR=%DUR%;
 // remote multimedia-key codes, from config.ini [keys] (see /keys probe)
 var KM=%KEYMAP%;
+%GOBACK%
 function km(a,k){var c=KM[a]||[];for(var i=0;i<c.length;i++){if(c[i]==k){return true;}}return false;}
 // Two cursor groups: the transport bar (data-grp 0, left/right) and the
 // rows beneath it (data-grp 1, reached with up/down). 'dim' buttons have
@@ -387,7 +399,7 @@ function act(a){
  else if(a=='nxt'){if(nextUrl){window.location=nextUrl;}}
  // repeat-this-track toggle: rewinds and replays on 'ended'
  else if(a=='rep'){rep=!rep;rstate();st.innerHTML=rep?%music_rep_on%:%music_rep_off%;}
- else if(a=='back'){history.go?history.go(-1):history.back();}
+ else if(a=='back'){goBack();}
 }
 function openSel(){if(!items.length||!items[sel]){return;}var a=items[sel].getElementsByTagName('a');if(a.length){act(a[0].getAttribute('data-act'));}}
 var s=document.createElement('source');
@@ -421,7 +433,7 @@ document.onkeydown=function(e){
   if(km('playpause',k)){act('pp');}
   else if(km('play',k)){if(v.paused){v.play();}}
   else if(km('pause',k)){if(!v.paused){v.pause();}}
-  else if(km('stop',k)){history.go?history.go(-1):history.back();}
+  else if(km('stop',k)){goBack();}
   else if(km('prev',k)){act('prv');}
   else if(km('next',k)){act('nxt');}
   else if(km('rew',k)){act('bk');}
@@ -429,12 +441,12 @@ document.onkeydown=function(e){
   // left/right walk the transport bar; up/down cross to the row below.
   // Left on the leftmost button still exits, so "back" survives even if
   // this set's RETURN key turns out not to be 37 or 8.
-  else if(k==37){if(atEdge()){history.go?history.go(-1):history.back();}else{move(-1);}}
+  else if(k==37){if(atEdge()){goBack();}else{move(-1);}}
   else if(k==39){move(1);}
   else if(k==38){jump(-1);}
   else if(k==40){jump(1);}
   else if(k==13){openSel();}
-  else if(k==8){history.go?history.go(-1):history.back();}
+  else if(k==8){goBack();}
   else{return true;}
   return false;
 };
@@ -670,7 +682,21 @@ HUD_KEYS = ('hud_err_src', 'hud_loadstart', 'hud_canplay', 'hud_err_code',
 MUSIC_KEYS = ('music_rep_on', 'music_rep_off')
 
 
-def player_js(mime, url, tpl=PLAYER_JS, prev=None, nxt=None, dur=None):
+def _resolve_js(js, back='', sel=0):
+    """Fill the placeholders every template shares.
+
+    %GOBACK% expands first because the snippet it inserts itself contains
+    %BACK%. _page() calls this again as a backstop: an unresolved %SEL0%
+    is not a cosmetic slip, it is a JS syntax error that silently disables
+    the arrow keys on whatever page it lands in."""
+    js = js.replace('%GOBACK%', GOBACK_JS)
+    js = js.replace('%BACK%', json.dumps(back or ''))
+    js = js.replace('%SEL0%', str(sel))
+    return js
+
+
+def player_js(mime, url, tpl=PLAYER_JS, prev=None, nxt=None, dur=None,
+              back=None):
     js = (tpl.replace('%MIME%', repr(mime)).replace('%URL%', repr(url)))
     js = js.replace('%KEYMAP%', json.dumps(KEYMAP))
     js = js.replace('%PREV%', json.dumps(prev or ''))
@@ -678,6 +704,7 @@ def player_js(mime, url, tpl=PLAYER_JS, prev=None, nxt=None, dur=None):
     # known length from the DIDL metadata — the live /atr/ pipe gives the
     # element no duration at all, so the progress bar needs this fallback
     js = js.replace('%DUR%', json.dumps(dur or 0))
+    js = _resolve_js(js, back=back)
     for k in HUD_KEYS + MUSIC_KEYS:
         js = js.replace('%%%s%%' % k, json.dumps(T(k)))
     return js
@@ -690,6 +717,7 @@ def _latin1(s):
 
 
 def _page(title, body, extra_js=NAV_JS, extra_head=''):
+    extra_js = _resolve_js(extra_js)
     return ('<!DOCTYPE html>\n<html><head><meta charset="utf-8">'
             '<title>%s</title>%s<style>%s</style></head>'
             '<body>%s<script>%s</script></body></html>'
@@ -740,13 +768,33 @@ def render_root():
     return _page('BRAVIA MediaBrowser', body)
 
 
-def render_list(obj_id, objects, total, start, title=''):
+# Row glyphs. Unicode 1.1 geometric shapes plus U+266A, old enough for era
+# fonts to carry; anything newer risks tofu boxes on these sets. The point is
+# scannability at couch distance — you should know what a row IS before you
+# read its name.
+GLYPH = {'dir': '\u25b8', 'aud': '\u266a', 'vid': '\u25b6',
+         'tr': '\u25b6', 'img': '\u25a3', 'na': '\u00b7'}
+
+
+def _row(kind, href, label, extra=''):
+    """One list row: glyph, then the name. href='' renders an unclickable
+    row (Serviio listed it but nothing can play it)."""
+    inner = '%s %s%s' % (GLYPH.get(kind, GLYPH['na']), esc(label), extra)
+    if not href:
+        return '<li>%s</li>' % inner
+    return '<li><a href="%s">%s</a></li>' % (href, inner)
+
+
+def render_list(obj_id, objects, total, start, title='', sel=0):
     rows = ['<li>%s</li>' % T('no_items')] if not objects else []
+    # the listing's own address, handed to each item so its player can come
+    # back to this page AND this row instead of the top of the list
+    pq = '%s~%d' % (urllib.parse.quote(obj_id, safe=''), start)
     for o in objects:
         qid = urllib.parse.quote(o['id'], safe='')
         if o['container']:
-            rows.append('<li><a href="/b/%s">%s (%s)</a></li>'
-                        % (qid, esc(o['title']), o['child_count']))
+            rows.append(_row('dir', '/b/%s' % qid, o['title'],
+                             ' (%s)' % o['child_count']))
         else:
             # route by upnp:class, not res order: audio tracks carry a
             # JPEG_TN cover-art res that would otherwise win the pick
@@ -772,24 +820,27 @@ def render_list(obj_id, objects, total, start, title=''):
                 if kind == 'tr':
                     # no playable res at all — still offer the transcode
                     # lane: it locates the source by DIDL title/duration
-                    rows.append('<li><a href="/tr/%s">%s</a></li>'
-                                % (qid, esc(o['title'])))
+                    rows.append(_row('tr', '/tr/%s?s=%d&p=%s'
+                                     % (qid, len(rows), pq), o['title']))
                 elif kind == 'aud':
                     # Serviio lists some audio items with NO res at all
                     # (live 2026-09-15: mpc/wv items are musicTracks with
                     # empty res — Serviio can't serve them). The /atr/
                     # lane can still resolve the source by DIDL
                     # title/duration, so keep them clickable.
-                    rows.append('<li><a href="/aud/%s">%s</a></li>'
-                                % (qid, esc(o['title'])))
+                    rows.append(_row('aud', '/aud/%s?s=%d&p=%s'
+                                     % (qid, len(rows), pq), o['title']))
                 else:
-                    rows.append('<li>%s</li>' % esc(o['title']))
+                    rows.append(_row('na', '', o['title']))
                 continue
-            rows.append('<li><a href="/%s/%s">%s</a></li>'
-                        % (kind, qid, esc(o['title'])))
+            rows.append(_row(kind, '/%s/%s?s=%d&p=%s'
+                             % (kind, qid, len(rows), pq), o['title']))
     nav = ''
     if rows:
-        rows[0] = rows[0].replace('<li>', '<li class="sel">', 1)
+        # restore the cursor to the row the viewer left from (?sel=), not the
+        # top of the list; NAV_JS picks the same index up so the two agree
+        i = sel if 0 <= sel < len(rows) else 0
+        rows[i] = rows[i].replace('<li>', '<li class="sel">', 1)
     if start > 0:
         nav += ('<li><a href="/b/%s?start=%d">%s</a></li>'
                 % (urllib.parse.quote(obj_id, safe=''),
@@ -804,7 +855,8 @@ def render_list(obj_id, objects, total, start, title=''):
                     total))
             + '<ul>%s%s</ul>' % (''.join(rows), nav)
             + _foot(T('nav_foot')))
-    return _page(title or T('browse'), body)
+    js = _resolve_js(NAV_JS, sel=sel if 0 <= sel < len(rows) else 0)
+    return _page(title or T('browse'), body, extra_js=js)
 
 
 def proxied_res_url(res_url):
@@ -818,7 +870,7 @@ def proxied_res_url(res_url):
     return '/stream/%s' % urllib.parse.quote(res_url, safe='')
 
 
-def render_player(o, res):
+def render_player(o, res, back=''):
     label = '%s / %s%s' % (res['mime'], res['pn'],
                            T('converted') if res['ci'] == '1' else '')
     title = o['title']
@@ -835,7 +887,8 @@ def render_player(o, res):
     prev_id, next_id = video_neighbors(o)
     js = player_js(res['mime'], proxied_res_url(res['url']),
                    prev=_tr_url(prev_id) if prev_id else None,
-                   nxt=_tr_url(next_id) if next_id else None)
+                   nxt=_tr_url(next_id) if next_id else None,
+                   back=back)
     return _page(title, body, extra_js=js)
 
 
@@ -974,11 +1027,46 @@ def video_neighbors(o):
     return folder_neighbors(o, 'videoItem')
 
 
+def _qs_int(q, name, default=0):
+    """A query value the TV echoes back is not necessarily a number:
+    stale bookmarks and hand-typed URLs reach here too, and int() raising
+    inside the handler turns a listing into an error page."""
+    try:
+        return int((q.get(name) or [str(default)])[0])
+    except (TypeError, ValueError):
+        return default
+
+
+def back_url(query):
+    """The listing URL a player was opened from, cursor included.
+
+    List rows carry ?s=<row index>&p=<quoted parent>~<page start>, so a
+    player can return to the exact row instead of the top of the list.
+    history.go(-1) would re-fetch the listing (pages are no-store) and land
+    the cursor back on row 0, which is the small daily annoyance this fixes.
+    Returns '' when the item was reached by a path that carries no origin."""
+    q = parse_qs(query or '')
+    p_ = (q.get('p') or [''])[0]
+    if '~' not in p_:
+        return ''
+    parent, _, start = p_.partition('~')
+    try:
+        start = int(start)
+    except ValueError:
+        start = 0
+    sel = (q.get('s') or ['0'])[0]
+    sel = sel if sel.isdigit() else '0'
+    # parse_qs already decoded the parent ('1%244' -> '1$4'); it has to go
+    # back out quoted or Serviio object ids round-trip wrong in the path
+    return '/b/%s?start=%d&sel=%s' % (
+        urllib.parse.quote(parent, safe=''), start, sel)
+
+
 def _tr_url(obj_id):
     return '/tr/%s' % urllib.parse.quote(obj_id, safe='')
 
 
-def render_music(o, res):
+def render_music(o, res, back=''):
     """Music page: album art + on-screen buttons, NOT full-screen.
 
     MP3 plays era-native (proxied); anything else (FLAC/OGG/WAV/...)
@@ -1045,7 +1133,8 @@ def render_music(o, res):
                    if prev_id else None,
                    nxt=('/aud/%s' % urllib.parse.quote(next_id, safe=''))
                    if next_id else None,
-                   dur=_didl_duration_seconds(o['res']))
+                   dur=_didl_duration_seconds(o['res']),
+                   back=back)
     return _page(o['title'], body, extra_js=js)
 
 
@@ -1058,7 +1147,7 @@ TEST_FILES = {'faststart': 'test-faststart.mp4',   # control: proven-playable la
               'eac3': 'test-eac3.mp4'}             # probe: E-AC3 5.1 lossless remux
 
 
-def render_local_player(name, mime, url, prev=None, nxt=None):
+def render_local_player(name, mime, url, prev=None, nxt=None, back=''):
     body = ('<div id="player_page">'
             '<video id="player_object" width="0px" height="0px" preload="none"></video>'
             '<p class="hud" id="hud"><span id="ttl">%s</span> &mdash; '
@@ -1066,7 +1155,7 @@ def render_local_player(name, mime, url, prev=None, nxt=None):
             '<span id="status">%s</span></p>'
             '</div>'
             % (esc(name), esc(mime), T('starting')))
-    js = player_js(mime, url, prev=prev, nxt=nxt)
+    js = player_js(mime, url, prev=prev, nxt=nxt, back=back)
     return _page(name, body, extra_js=js)
 
 
@@ -1669,7 +1758,9 @@ class Handler(BaseHTTPRequestHandler):
                 body = render_root()
             elif u.path.startswith('/b/'):
                 obj_id = urllib.parse.unquote(u.path[3:])
-                start = int((parse_qs(u.query).get('start') or ['0'])[0])
+                _q = parse_qs(u.query)
+                start = _qs_int(_q, 'start')
+                sel = _qs_int(_q, 'sel')
                 objects, total = upnp_browse(obj_id, start=start)
                 if not objects and total == 0:
                     body = render_list(obj_id, [], 0, 0, T('empty'))
@@ -1682,7 +1773,8 @@ class Handler(BaseHTTPRequestHandler):
                             title = meta[0]['title']
                     except Exception:
                         pass
-                    body = render_list(obj_id, objects, total, start, title)
+                    body = render_list(obj_id, objects, total, start, title,
+                                       sel=sel)
             elif u.path.startswith('/keylog/'):
                 # probe beacon from the /keys page: log and answer a
                 # tiny transparent gif (Image() src fetches)
@@ -1727,6 +1819,7 @@ class Handler(BaseHTTPRequestHandler):
             elif u.path.startswith(('/vid/', '/img/', '/aud/')):
                 kind = u.path.split('/')[1]
                 obj_id = urllib.parse.unquote(u.path.split('/', 2)[2])
+                back = back_url(u.query)
                 o = _oid_for_item(obj_id)
                 if not o:
                     body = render_error('item', T('no_meta') % obj_id)
@@ -1737,10 +1830,11 @@ class Handler(BaseHTTPRequestHandler):
                     # r may be None (mpc/wv: Serviio lists them with no
                     # res) — render_music handles that via the /atr/ lane
                     r = pick_audio_res(o['res'])
-                    body = render_music(o, r)
+                    body = render_music(o, r, back=back)
                 else:
                     r = pick_video_res(o['res'])
-                    body = render_player(o, r) if r else render_error('item', T('no_video_res'))
+                    body = (render_player(o, r, back=back) if r
+                            else render_error('item', T('no_video_res')))
             else:
                 self.send_error(404)
                 return
@@ -2019,7 +2113,8 @@ class Handler(BaseHTTPRequestHandler):
                 return
             r = pick_video_res(o['res'])
             if track is None and r and r['mime'] == 'video/mp4':
-                self._send_html(render_player(o, r).encode())  # direct-play
+                self._send_html(render_player(
+                    o, r, back=back_url(u.query)).encode())  # direct-play
                 return
             dur = _didl_duration_seconds(o['res'])
             src, err = resolve_source(
@@ -2082,7 +2177,8 @@ class Handler(BaseHTTPRequestHandler):
                 self._send_html(render_local_player(
                     o['title'], 'video/mp4', '/tcf/%s' % key,
                     prev=_tr_url(prev_id) if prev_id else None,
-                    nxt=_tr_url(next_id) if next_id else None).encode())
+                    nxt=_tr_url(next_id) if next_id else None,
+                    back=back_url(u.query)).encode())
             else:
                 self._send_html(render_progress(
                     o['title'], pct, _lib_note).encode())
