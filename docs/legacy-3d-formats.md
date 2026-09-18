@@ -57,6 +57,16 @@ among them, drives the panel at 120 Hz or higher, lighting each eye
 60 times a second to clear the threshold. A 24 fps 3D film is the
 most flicker-prone thing a display can be asked to show.
 
+The symptom is ordinary, not exotic, and the public voice that
+describes it best is Linus Tech Tips' 3D projector build
+(https://www.youtube.com/watch?v=_4Sz6J49jho): active-shutter glasses
+gave Linus's wife a splitting headache — the reason that build went
+passive at all — and the dual-projector pair showed the exact failure
+above in motion, still shots clean but frames alternating instead of
+synchronised. He reaches the same point from the hardware side that
+this section reaches from the standard's side: temporal stereo is the
+hard case, and the 24 fps floor is why.
+
 One consequence for this act. Types 0-4 are spatial packings — the
 two views share one frame's *area* — while type 5 is temporal, the
 two views sharing one frame's *time*, which is why it is the one

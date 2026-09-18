@@ -4,6 +4,7 @@ Reverse-engineering and software porting for **Sony BRAVIA KDL-era TVs** — the
 pre-Android, Linux-based BRAVIA platform (~2005–2015). Goal: understand the
 platform well enough to run third-party software on it (e.g. VLC) and unlock
 more internet content than the stock firmware allows.
+*AI was leveraged as a partner in the development of this work — [more information here](PROVENANCE.md).*
 
 **In your language** — the problem and the fix, for owners searching in their own words:
 [日本語 · ブラビア 3Dテレビで3D映像・3D写真をもう一度](docs/i18n/ja.md) ·
