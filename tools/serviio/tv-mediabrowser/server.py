@@ -383,12 +383,17 @@ function tick(){
  if(tm){tm.innerHTML=fmt(c)+((d>0)?(' / '+fmt(d)):'');}
  if(pbf&&d>0){var p=Math.floor(c*100/d);pbf.style.width=((p>100)?100:p)+'%';}
 }
-// the play/pause glyph follows the element's real state, so the button
-// never lies about what pressing it will do
-function pstate(){if(ppg){ppg.innerHTML=v.paused?'\\u25b6':'\\u25ae\\u25ae';}}
+// The play/pause glyph must not depend on the 'play'/'pause' events: the
+// working video player deliberately listens to 'playing'/'timeupdate'
+// instead, and on the EX725 the glyph never flipped (2026-09-18). So it
+// is set optimistically the moment we issue the command — we know what we
+// just asked for — and re-synced from 'timeupdate', which is proven to
+// fire on these sets.
+function pset(paused){if(ppg){ppg.innerHTML=paused?'\\u25b6':'\\u25ae\\u25ae';}}
+function pstate(){pset(v.paused);}
 function rstate(){if(repg){repg.innerHTML=rep?'\\u00b7':'';}}
 function act(a){
- if(a=='pp'){if(v.paused){v.play();}else{v.pause();}}
+ if(a=='pp'){if(v.paused){v.play();pset(false);}else{v.pause();pset(true);}}
  else if(a=='bk'){try{v.currentTime-=30;}catch(x){}}
  else if(a=='fw'){try{v.currentTime+=30;}catch(x){}}
  // next/previous in folder: plain navigation, the target page is a
@@ -408,7 +413,7 @@ s.src=%URL%;
 s.addEventListener('error',function(){st.innerHTML=%hud_err_src%;});
 v.appendChild(s);
 // #status carries messages; the clock and the bar are their own elements
-v.addEventListener('timeupdate',function(e){tick();});
+v.addEventListener('timeupdate',function(e){tick();pstate();});
 v.addEventListener('durationchange',function(e){tick();});
 v.addEventListener('play',function(){pstate();});
 v.addEventListener('pause',function(){pstate();});
@@ -1094,16 +1099,20 @@ def render_music(o, res, back=''):
     # dimmed and skipped by the cursor, which keeps the bar's shape stable
     # instead of silently shifting the buttons under the user's thumb.
     #
-    # Glyphs are Unicode 1.1 geometric shapes (U+25B6/25C0/25AE) plus
-    # U+21BA — codepoints old enough for era fonts to carry. The newer
-    # transport symbols (U+23EE/U+23ED) would risk tofu boxes.
+    # Glyphs are measured, not assumed (EX725, 2026-09-18): this panel's
+    # font carries Geometric Shapes (U+25A0/25AE/25B6/25C0), U+266A,
+    # U+221E and Latin-1, and carries NOTHING from the Arrows block —
+    # U+2194, U+2195, U+21B5, U+21BA, U+21BB and U+23EE all render as
+    # empty boxes. "Unicode 1.1" was the wrong predictor; the block the
+    # font covers is the right one. U+221E is the repeat glyph because
+    # U+21BA was a box. See docs/era-key-vocabulary.md.
     prev_id, next_id = music_neighbors(o)
     bar_btns = [('prv', 'btn_prev', '|◀', bool(prev_id)),
                 ('pp', 'btn_pp', '<span id="ppg">▶</span>', True),
                 ('nxt', 'btn_next', '▶|', bool(next_id)),
                 ('bk', 'btn_b30', '◀◀', True),
                 ('fw', 'btn_f30', '▶▶', True),
-                ('rep', 'btn_rep', '↺<span id="repg"></span>', True)]
+                ('rep', 'btn_rep', '∞<span id="repg"></span>', True)]
     bar = ''.join(
         '<li data-grp="0" data-lbl="%s"%s>'
         '<a href="#" data-act="%s">%s</a></li>'
@@ -1173,6 +1182,138 @@ document.onkeydown=function(e){
   return false;
 };
 """
+
+
+# ---------------------------------------------------- /probe (era facts)
+
+# Candidate glyphs, each with an ASCII name the owner can read back to us
+# off the screen. U+21BA is in here as the known-bad control: it is the
+# repeat button that rendered as a box on the EX725 (2026-09-17), which is
+# how we learned the "Unicode 1.1 is safe" rule had an exception the code
+# comment claimed it did not.
+PROBE_GLYPHS = [
+    ('U+25B6 play',        '\u25b6', '1.1'),
+    ('U+25C0 left',        '\u25c0', '1.1'),
+    ('U+25AE bar (pause)', '\u25ae', '1.1'),
+    ('U+25A0 square',      '\u25a0', '1.1'),
+    ('U+266A note',        '\u266a', '1.1'),
+    ('U+221E infinity',    '\u221e', '1.1'),
+    ('U+2195 updown',      '\u2195', '1.1'),
+    ('U+2194 leftright',   '\u2194', '1.1'),
+    ('U+21B5 return',      '\u21b5', '1.1'),
+    ('U+00AB guillemet',   '\u00ab', 'Latin-1'),
+    ('U+00BB guillemet',   '\u00bb', 'Latin-1'),
+    ('U+21BA loop BAD?',   '\u21ba', '3.2'),
+    ('U+21BB loop',        '\u21bb', '3.2'),
+    ('U+23EE prev',        '\u23ee', '4.0'),
+]
+
+
+def probe_track():
+    """An audio URL for the controls probe: first item of Random Music.
+
+    Returns (url, mime, title) or (None, None, None). The probe must not
+    be the reason a page 500s, so every failure here is silent."""
+    try:
+        objects, _ = upnp_browse('A_R', count=4)
+        for o in objects:
+            if o['container']:
+                continue
+            r = pick_audio_res(o['res'])
+            live = r is None or r['mime'] != 'audio/mpeg'
+            qid = urllib.parse.quote(o['id'], safe='')
+            url = ('/atr/%s' % qid) if live else proxied_res_url(r['url'])
+            return url, ('audio/mpeg' if live else r['mime']), o['title']
+    except Exception:
+        pass
+    return None, None, None
+
+
+def render_probe():
+    """/probe — index of the era probes that need eyes on the panel."""
+    rows = ''.join('<li><a href="%s">%s</a></li>' % (h, t) for h, t in [
+        ('/probe/glyphs', 'A \u2014 glyph coverage (which are boxes?)'),
+        ('/probe/ctl?v=1', 'B \u2014 native controls, 1px element (today\u0027s shape)'),
+        ('/probe/ctl?v=2', 'C \u2014 native controls, 640x360 element'),
+        ('/probe/ctl?v=3', 'D \u2014 native controls, 640x360, no key handler'),
+        ('/probe/ctl?v=4', 'E \u2014 native controls, full width, no key handler'),
+        ('/keys', 'F \u2014 remote keycode probe (unrelated, still unrun)'),
+    ])
+    body = (_hdr('Era probes')
+            + '<ul>%s</ul>' % rows
+            + _foot('Report what you see; nothing here changes the player.'))
+    return _page('Probes', body)
+
+
+def render_probe_glyphs():
+    """Which codepoints does this panel's font actually carry?
+
+    Each row prints the glyph big, then its ASCII name, so a box can be
+    reported precisely instead of as "the third one"."""
+    rows = ''.join(
+        '<li>%s &nbsp; <span style="font-size:28px;color:#888">%s (%s)</span></li>'
+        % (g, esc(name), era) for name, g, era in PROBE_GLYPHS)
+    body = (_hdr('A \u2014 glyph coverage')
+            + '<p id="fmt">Every row should show a symbol before its name. '
+              'Tell me which rows show an empty box instead.</p>'
+            + '<ul>%s</ul>' % rows
+            + _foot('<a href="/probe">back to probes</a>'))
+    return _page('Glyphs', body)
+
+
+def render_probe_ctl(variant):
+    """Does this browser draw native transport chrome for AUDIO?
+
+    The video page gets the set\u0027s own fading play/pause and progress bar,
+    so the chrome exists on this platform. The open question is whether an
+    audio source in a *visibly sized* element gets it too, and whether the
+    remote can reach it. Variants 3 and 4 install no onkeydown handler at
+    all, because ours returns false and that may be what stops the browser
+    doing its own focus handling."""
+    url, mime, title = probe_track()
+    if not url:
+        return render_error('probe', 'no audio item found to test with')
+    sizes = {1: ('1px', '1px'), 2: ('640px', '360px'),
+             3: ('640px', '360px'), 4: ('100%', '480px')}
+    w, h = sizes.get(variant, sizes[2])
+    keys = variant in (1, 2)
+    vid = ('<video id="pv" controls preload="none" '
+           'width="%s" height="%s" style="width:%s;height:%s;'
+           'background:#111;"></video>' % (w, h, w, h))
+    note = ('Arrow keys are handled by the page (like the real player).'
+            if keys else
+            'No key handler on this page: the browser keeps the arrows, so '
+            'the remote may be able to focus the native controls.')
+    # the bare src= attribute loaded nothing on the EX725 (2026-09-18);
+    # the era-proven attach is a <source> child carrying an explicit type,
+    # exactly as MUSIC_JS does it
+    js = ("var v=document.getElementById('pv');"
+          "var st=document.getElementById('status');"
+          "var s=document.createElement('source');"
+          "s.type=%s;s.src=%s;v.appendChild(s);"
+          % (json.dumps(mime), json.dumps(url))
+          + "function say(t){if(st){st.innerHTML=t;}}"
+          "v.addEventListener('loadedmetadata',function(){say('metadata ok');});"
+          "v.addEventListener('playing',function(){say('playing');});"
+          "v.addEventListener('play',function(){say('play event FIRED');});"
+          "v.addEventListener('pause',function(){say('pause event FIRED');});"
+          "v.addEventListener('error',function(){say('error');});"
+          "try{v.play();}catch(x){}")
+    if keys:
+        js += ("document.onkeydown=function(e){var k=(e||window.event).keyCode;"
+               "if(k==13){if(v.paused){v.play();}else{v.pause();}return false;}"
+               "if(k==8||k==37){window.location='/probe';return false;}"
+               "return true;};")
+    body = (_hdr('Variant %d \u2014 native controls' % variant)
+            + '<p id="fmt">%s &nbsp; %s x %s</p>' % (esc(mime), w, h)
+            + vid
+            + '<p id="status">loading</p>'
+            + '<p id="fmt">%s</p>' % note
+            + '<p id="fmt">Watch for: (1) does a transport bar appear over '
+              'the element, (2) can the remote move onto it, (3) do the '
+              'play/pause EVENTS fire above.</p>'
+            + _foot('<a href="/probe">back to probes</a>'))
+    return _page('Controls probe %d' % variant, body, extra_js=js)
 
 
 def render_keys():
@@ -1790,6 +1931,16 @@ class Handler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self._sent = True  # no HTML fallback if the socket dies
                 self.wfile.write(gif)
+                return
+            elif u.path == '/probe':
+                self._send_html(render_probe().encode())
+                return
+            elif u.path == '/probe/glyphs':
+                self._send_html(render_probe_glyphs().encode())
+                return
+            elif u.path == '/probe/ctl':
+                self._send_html(render_probe_ctl(
+                    _qs_int(parse_qs(u.query), 'v', 2)).encode())
                 return
             elif u.path == '/keys':
                 self._send_html(render_keys().encode())

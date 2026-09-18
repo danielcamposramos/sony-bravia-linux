@@ -27,11 +27,29 @@ roots = /mnt/arquivos2/Música:/mnt/arquivos2/Vídeos
 
 [keys]
 # Remote multimedia-key codes: which keyCodes the TV's era browser
-# reports for the remote's transport buttons. The shipped values are a
-# GUESS (Android-TV keyCode family) — discover your set's truth at the
-# app's /keys page: every press shows its code on the TV screen AND is
-# logged as a KEYPROBE line in server.log. Paste the observed numbers
-# here and restart. Comma-separate for aliases; 0 disables an action.
+# reports for the remote's transport buttons.
+#
+# MEASURED on a KDL-46EX725 (AZ2-F) 2026-09-18, and the answer is that
+# there are none. The remote's PLAY, PAUSE, STOP, PREV and NEXT buttons
+# produce NO keydown event at all — 15 KEYPROBE captures at /keys yielded
+# only 37, 38, 39, 40 and 13. The values below are the original
+# Android-TV guess, kept only so the config shape stays documented; on
+# this generation they are inert.
+#
+# What the browser actually receives:
+#   13 = OK/confirm       38 = up          40 = down
+#   37 = left  AND the remote's REW button (same code)
+#   39 = right AND the remote's FF button  (same code)
+# GREEN and YELLOW are consumed by Opera itself as history back and
+# forward, and never reach the page. RED and BLUE were not observed in
+# this session, so treat them as unknown rather than free.
+#
+# This is why the on-screen transport bar exists: it is not a stopgap
+# until the media keys are mapped, it is the only transport the platform
+# can give an app. See docs/era-key-vocabulary.md.
+#
+# Your set may differ: /keys shows each code on screen and logs it as a
+# KEYPROBE line in server.log. Comma-separate for aliases; 0 disables.
 playpause = 85
 play = 126
 pause = 127
