@@ -51,40 +51,79 @@ def _split_jpeg_header(data):
     return i
 
 
-def _mpf_segment(sizes, offsets, attrs):
-    """Build the APP2 MPF segment. Little-endian ('II') throughout."""
-    n = len(sizes)
-    ifd = struct.pack("<H", 3)                                  # 3 entries
-    ifd += struct.pack("<HHI", 0xB000, 7, 4) + b"0100"          # MPFVersion
-    ifd += struct.pack("<HHII", 0xB001, 4, 1, n)                # NumberOfImages
-    entry_off = 8 + (2 + 3 * 12 + 4)                            # after the IFD
-    ifd += struct.pack("<HHII", 0xB002, 7, 16 * n, entry_off)   # MPEntry
-    ifd += struct.pack("<I", 0)                                 # no next IFD
-    entries = b""
-    for a, s, o in zip(attrs, sizes, offsets):
-        entries += struct.pack("<IIIHH", a, s, o, 0, 0)
-    body = b"II" + struct.pack("<HI", 0x2A, 8) + ifd + entries
+def _ifd(entries, next_off=0):
+    """entries: list of (tag, type, count, value_bytes4) -> IFD bytes (LE)."""
+    b = struct.pack("<H", len(entries))
+    for tag, typ, cnt, val in entries:
+        b += struct.pack("<HHI", tag, typ, cnt) + val
+    return b + struct.pack("<I", next_off)
+
+
+def _u32(v):
+    return struct.pack("<I", v)
+
+
+def _app2(body):
     return b"\xff\xe2" + struct.pack(">H", len(body) + 4 + 2) + b"MPF\x00" + body
 
 
+def _mpf_index_segment(sizes, offsets, attrs):
+    """First image: MP Index IFD, then an MP Attribute IFD for view 1, then
+    the MP entries — the layout real 3D cameras write (CIPA DC-007)."""
+    n = len(sizes)
+    ifd_len = 2 + 3 * 12 + 4
+    attr_at = 8 + ifd_len                        # attribute IFD after the index IFD
+    entry_at = attr_at + ifd_len                 # entries after both IFDs
+    index = _ifd([(0xB000, 7, 4, b"0100"),                     # MPFVersion
+                  (0xB001, 4, 1, _u32(n)),                     # NumberOfImages
+                  (0xB002, 7, 16 * n, _u32(entry_at))],        # MPEntry
+                 next_off=attr_at)
+    attr = _ifd([(0xB000, 7, 4, b"0100"),
+                 (0xB101, 4, 1, _u32(1)),                      # MPIndividualNum
+                 (0xB204, 4, 1, _u32(1))])                     # BaseViewpointNum
+    entries = b"".join(struct.pack("<IIIHH", a, sz, o, 0, 0)
+                       for a, sz, o in zip(attrs, sizes, offsets))
+    return _app2(b"II" + struct.pack("<HI", 0x2A, 8) + index + attr + entries)
+
+
+def _mpf_attr_segment(individual_num):
+    """Second and later images carry their own MP Attribute IFD."""
+    attr = _ifd([(0xB000, 7, 4, b"0100"),
+                 (0xB101, 4, 1, _u32(individual_num)),
+                 (0xB204, 4, 1, _u32(1))])
+    return _app2(b"II" + struct.pack("<HI", 0x2A, 8) + attr)
+
+
 def build_mpo(left_bytes, right_bytes):
+    # second view gets its own MP Attribute IFD, inserted after its Exif
+    ins2 = _split_jpeg_header(right_bytes)
+    right = right_bytes[:ins2] + _mpf_attr_segment(2) + right_bytes[ins2:]
     ins = _split_jpeg_header(left_bytes)
     n = 2
-    # marker(2) + length(2) + 'MPF\0'(4) + TIFF header(8) + IFD(2+3*12+4) + entries
-    seg_len = 2 + 2 + 4 + (8 + (2 + 3 * 12 + 4) + 16 * n)
+    seg_len = len(_mpf_index_segment([0] * n, [0] * n, [0] * n))   # fixed size
     tiff_at = ins + 2 + 2 + 4                                   # MP endian field
     size1 = len(left_bytes) + seg_len
-    size2 = len(right_bytes)
     offset2 = size1 - tiff_at                                   # from MP endian field
-    seg = _mpf_segment([size1, size2], [0, offset2],
-                       [ATTR_REPRESENTATIVE | MP_TYPE_PRIMARY, MP_TYPE_DISPARITY])
+    seg = _mpf_index_segment([size1, len(right)], [0, offset2],
+                             [ATTR_REPRESENTATIVE | MP_TYPE_PRIMARY, MP_TYPE_DISPARITY])
     assert len(seg) == seg_len, (len(seg), seg_len)
-    return left_bytes[:ins] + seg + left_bytes[ins:] + right_bytes
+    return left_bytes[:ins] + seg + left_bytes[ins:] + right
 
 
 def _encode(img, quality=95):
+    """JPEG with a minimal, honest Exif block. Real camera MPOs are Exif
+    files (CIPA DC-007 builds on Exif), and a reader may insist on it; the
+    values name this tool rather than impersonate a camera."""
+    from PIL import Image
+    ex = Image.Exif()
+    ex[0x010F] = "sony-bravia-linux"          # Make
+    ex[0x0110] = "bravia_mpo"                 # Model
+    ex[0x0132] = "2026:09:18 12:00:00"        # DateTime
+    sub = ex.get_ifd(0x8769)
+    sub[0x9000] = b"0230"                     # ExifVersion
+    sub[0x9003] = "2026:09:18 12:00:00"       # DateTimeOriginal
     b = io.BytesIO()
-    img.convert("RGB").save(b, format="JPEG", quality=quality)
+    img.convert("RGB").save(b, format="JPEG", quality=quality, exif=ex.tobytes())
     return b.getvalue()
 
 

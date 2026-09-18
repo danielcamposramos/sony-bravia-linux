@@ -175,6 +175,38 @@ have.
 be fetched from here at all, and the Polish forums returned only
 off-topic EX720 threads. Stated plainly rather than padded.
 
+**Japanese, VERIFIED (Yahoo!知恵袋) — the clearest first-hand failure.**
+A KDL-46HX800 owner (February 2012) loads 3D photos from a Nintendo
+3DS, which writes MPO, through a USB SD-card reader: no 3D. The best
+answer says USB is probably not recognised as 3D and to use HDMI or a
+PS3
+([q1181508851](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1181508851)).
+An HX800 owner confirms the menu's *左右分割方式 / 上下分割方式*
+(side-by-side / top-bottom) for broadcast and HDMI
+([q1052618940](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1052618940)),
+and an HX720 owner saw those entries missing on a Blu-ray input until a
+bad HDMI cable was replaced
+([q1165065376](https://detail.chiebukuro.yahoo.co.jp/qa/question_detail/q1165065376)):
+the menu's contents depend on the input. Keep the dates straight: the
+HX800 is a **2010** set, a generation before the 2011 USB charts that
+list MPO, so it does not settle the question for our 2011/2012 sets —
+it sharpens it. And a finding about language rather than hardware:
+**Japanese owners never search for "MPO"** — zero results on 知恵袋 —
+they write 3D写真, or 3DSの3D写真.
+
+**Traditional Chinese, INDEX only (Mobile01 refuses fetching).** A 2013
+owner loads self-shot side-by-side JPGs through an SD-card reader and
+the 3D menu offers only Off and 2D-simulated-3D
+([thread](https://www.mobile01.com/topicdetail.php?f=257&t=3204570)) —
+the result measured on our sets, reported independently.
+
+**Korean: nothing substantive.** The likely venues (DVDPrime, Naver)
+sit behind bot checks that were not worked around.
+
+**Across every market swept, nobody reported native 3D from USB or
+DLNA on this generation.** Every thread that ends resolved ends on HDMI
+or an external player.
+
 **One unmet need, verified: the eye swap.** A BRAVIA owner with a
 swapped-eye SBS rip: *"mi tele sony bravia no dispone de ese cambio de
 sentido"* — the set plays the file and offers no way to flip left and
@@ -224,7 +256,13 @@ either.
    2011 USB charts list MPO, and Italian owners of the same generation
    report MPO stills displaying in 3D from a stick. Staged at
    `/mnt/arquivos/Fotos3D-USB/` — 11 `.MPO`, 11 original `.jps`,
-   upper/lower-case probes, three JPEG controls. If it works, the
+   upper/lower-case probes, three JPEG controls. **Restaged (v2)** after
+   the sweeps: the MPOs now sit where a camera puts them
+   (`DCIM/100MSDCF/DSC000nn.MPO`, the folder layout Sony's manual
+   requires for camera photos) and carry Exif plus a per-view MP
+   attribute IFD, as camera MPOs do, so a "no" cannot be blamed on the
+   files. The best control of all is a photo shot in 3D on the owner's
+   own Optimus 3D or a 3DS. If it works, the
    network path failed only because Serviio and the set's DLNA profile
    list cannot carry `.mpo` — and the portal can hand the set a stick's
    worth of MPOs another way.
