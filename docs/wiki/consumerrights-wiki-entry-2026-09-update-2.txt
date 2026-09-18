@@ -15,6 +15,12 @@
 #   sourcing class available and it is Sony confirming the shutdowns
 #   itself.
 #
+# TECHCRUNCH BACKSTOP: the Skype article (techcrunch.com/2016/03/08/
+# skype-is-killing-its-smart-tv-app) will not capture on the Wayback
+# Machine (it redirects), so the wiki cites the live link only. A full
+# private copy (PDF + complete HTML) is held in the private research
+# archive as a preservation backstop, per rule 9b — not in this repo.
+#
 # NOT LEGAL ADVICE. The Brazil section states the applicable statute and
 # the matching facts, neutrally. It draws no conclusion that Sony violated
 # anything; that assessment is for the Foundation and Brazilian
