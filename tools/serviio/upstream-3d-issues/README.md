@@ -37,6 +37,20 @@ maintainer already stated (RandomEngy/VidCoder#1318) that all asks
 belong upstream in HandBrake; VidCoder inherits the fix via the
 HandBrake core DLLs it ships.
 
+## mpv issue #18489 — cross-brand / ecosystem follow-up (2026-09-18)
+
+Posted a context comment on the issue (not the PR):
+https://github.com/mpv-player/mpv/issues/18489#issuecomment-5726271480
+
+It reframes the change as fixing a standardized, ecosystem-wide gap
+rather than a two-TV special case: the frame_packing SEI is H.264 (2010)
+and DVB's authoritative frame-compatible carrier (ETSI TS 101 547-2 cl
+6.4.1/6.5, stated with honest scope — binds DVB receivers; HDMI 1.4a is a
+separate path); the "3D file plays flat" symptom is documented for years
+across Plex/Jellyfin/Serviio/MakeMKV/AVS; and it is cross-brand (r0lZ's
+Samsung, with the BD3D2MK3D-writes-both caveat). Full basis in
+docs/3d-signalling-ecosystem.md. Owner posted in his own words.
+
 ## mpv PR #18490 — review round 1 (2026-09-16)
 
 Hostile start: CounterPillow answered the owner's scope note with a
