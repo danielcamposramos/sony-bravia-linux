@@ -119,22 +119,56 @@ contemporary reviews:
   addressed in 2009 with redesigned glasses
   ([MTBS3D](https://www.mtbs3d.com/articles/editorial/2868-new-iz3d-glasses-preview.html)).
 
-## Test material — the owner's stereo corpus
+## Test material — the 3D-photography community corpus
 
-`/media/Arquivos/Pictures/3D` (owner's archive, not the repo): 140
-files from 2010–2011. **11 `.jps`** — JPEG Stereo, the native
-stereo-pair format of that camera generation — plus SBS PNG pairs and
-a full anaglyph set. Provenance is mixed: the owner's own photos and
-period-collected samples; **public work uses the owner's own photos
-only.**
+`/media/Arquivos/Pictures/3D` (owner's private archive, not the repo):
+140 files from 2010–2011 — **11 `.jps`** (JPEG Stereo, the
+community's native stereo-pair exchange format), SBS PNG pairs, and a
+full anaglyph set. **Provenance: these are NOT the owner's photos.**
+They are shared material from the 3D-photography community — which
+is still active — held in the archive for study and testing. They are
+never republished by this project; test use only. What the owner
+contributes is the hardware and the knowledge: two LG Optimus 3D
+(P920) exemplars — the dual-5MP stereo camera of that generation,
+and the actual glasses-free (parallax-barrier) display in this
+lineage — plus years of hands-on depth on these formats. The corpus
+is still the ideal first test: ground-truth SBS pairs with matching
+anaglyphs for A/B-testing the colorimetry chain, and photos are the
+cheapest place to prove both fronts before touching video.
 
-The camera origin is the **LG Optimus 3D (P920, 2011)** — dual 5MP
-stereoscopic cameras, and a glasses-free parallax-barrier screen: the
-actual autostereoscopic display in this lineage. The owner has two
-exemplars. The corpus is the ideal first test for this lane: small,
-own-copyright, ground-truth SBS pairs (JPS/`stereo3d` decode) with
-matching anaglyphs for A/B-testing the colorimetry chain — and photos
-are the cheapest place to prove both fronts before touching video.
+## The YouTube 3D player — the platform-scale instance
+
+The largest single corpus of legacy 3D is YouTube, and its history is
+this project's pattern at platform scale:
+
+- **~2009:** the YT3D player — a 3D dropdown with anaglyph, cross-eye
+  side-by-side, row-interleaved, checkerboard, and NVIDIA 3D Vision
+  output modes, driven by `yt3d:` tags.
+- **2011:** standardized on frame-compatible squished SBS; full-res
+  3D upload support dropped.
+- **Oct 2014:** the HTML5 player switch silently removed the 3D
+  options; ~2015–2016 the player decayed to anaglyph-only. No official
+  announcement was ever made — users still note they cannot find one.
+- **Today:** an SBS upload survives on the backend but is exposed
+  only as anaglyph; the community workaround is to upload plain SBS
+  "2D" video and let 3D hardware detect it natively — which is act
+  one of this campaign, arrived at independently. YouTube's own upload
+  guidance names our signals (Matroska `stereo_mode`, x264
+  `--frame-packing 3`): the platform reads the SEI on ingest and then
+  declines to show 3D.
+
+The contrast with the sets this repo serves is worth stating: Sony
+documented its end-of-service — five dated notices naming the models
+([sony-end-of-service-statements.md](sony-end-of-service-statements.md)).
+YouTube removed a working 3D capability without a word. The ecosystem
+gap this campaign mapped was not only never fixed by the tools —
+where it existed, it was silently withdrawn.
+
+Contemporary record: the MTBS3D forum threads
+([2011](https://www.mtbs3d.com/phpBB/viewtopic.php?f=3&t=12840),
+[2014](https://www.mtbs3d.com/phpbb/viewtopic.php?t=20301)) and the
+[2015 Stack Exchange question](https://webapps.stackexchange.com/questions/88182/what-happened-to-the-option-to-cross-your-eyes-whilst-watching-youtube)
+that has no restore answer.
 
 ## Ordering and doctrine
 
@@ -148,8 +182,8 @@ filings; bring the diagnosis + a working fix, in that order.
 **Status: charter (2026-09-18).** Nothing in this lane is measured
 yet beyond the campaign-era facts above. First steps, in order:
 prove front B on one JPS pair (deinterleave → SBS → SEI → the EX725
-switches), then prove the anaglyph color chain on one owner photo,
-then decide what becomes a tool.
+switches), then prove the anaglyph color chain on one corpus photo
+(private test use), then decide what becomes a tool.
 
 ## Related
 
