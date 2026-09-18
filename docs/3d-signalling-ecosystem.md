@@ -125,16 +125,35 @@ path. This one does now:
 
 ## Why this is worth spreading
 
-3D content playback keeps being declared impossible even by people who
-would know. In his SteamVR coverage ([LTT](https://www.youtube.com/watch?v=3PGKMwgjla0))
-the complaint recurs that there is "no way to play 3D video content." The
-signal was standardised, mandated for broadcast, built into every 3D TV,
-and then abandoned by the software layer that stopped writing it into
-files. The hardware never stopped being able to read it. That is the
-same shape as the wider right-to-repair point that the sets, the
-discs and the standards outlived the vendors' willingness to keep the
-software honest: the capability is owned by the buyer and stranded by the
-licence.
+The demand is current and the pain is on record from people who would
+know. Linus Sebastian (LTT) built a home 3D projector setup specifically
+because, to his surprise, "dozens of movies are still being released on
+3D Blu-ray every single year" (''Home 3D Movie Projector Setup'', ~0:26),
+while "no new hardware supports 3D anymore" (~0:53). The single hardest
+part of the whole build was not the optics or the screen, it was getting
+the content to play: he says the file side "required more tinkering
+behind the scenes than believe it or not anything else we've done so
+far" (~10:20), ending up ripping his own 3D Blu-rays and following a
+Reddit thread to remux them into a working 3D file format by hand
+(~10:34). That is exactly the gap this map is about: the signalling
+exists, the discs exist, the hardware reads it, and the last mile,
+getting the flag into the file, is left to hand-tooling.
+
+The modern "answer" underlines it rather than closing it. In the Steam
+Frame review ([LTT](https://www.youtube.com/watch?v=3PGKMwgjla0)) the 3D
+question is met with "I'm as much of a 3D guy as I think anyone is these
+days, but there's so little content available for it" (~21:10), and the
+only comfortable 3D-movie path offered is a third-party VR app, in a
+headset, rather than the 3D TV or projector the buyer already owns.
+
+The through-line: the signal was standardised (H.264 Amendment 1),
+adopted for broadcast, built into every 3D TV, and then abandoned by the
+software layer that stopped writing it into files. The hardware never
+stopped being able to read it. That is the wider right-to-repair point in
+one domain, the sets, the discs and the standards outlived the vendors'
+and toolmakers' willingness to keep the pipe honest: the capability is
+owned by the buyer and stranded above it. The fix is not new hardware. It
+is one 16-byte message, and this repo maps every place it needs to go.
 
 ## Sources
 
