@@ -250,6 +250,7 @@ is in [docs/wiki/](docs/wiki/).
   [browser block](docs/3d-blocked-in-browser.md),
   [legacy formats — act three](docs/legacy-3d-formats.md),
   [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md),
+  [audio capabilities, measured](docs/audio-capabilities.md),
   [origin story](docs/3d-origin-story.md)), the
   **consumer-rights set** ([legal analysis](docs/legal-eula-analysis.md),
   [regional asymmetry](docs/regional-documentation-asymmetry.md),
