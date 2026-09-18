@@ -656,6 +656,54 @@ firmware is sometimes case-sensitive — and three plain-JPEG controls so
 a blank listing can be told apart from a bad stick. `LEIA-ME.txt`
 carries the procedure and what to note.
 
+### Can Serviio be made to "see" these formats? Yes — by renaming, not converting
+
+The owner's question, and his reasoning was the right one: *JPS is part
+of the JPEG standard.* Close enough to be decisive. A `.jps` **is** a
+valid JPEG whose stereo meaning rides in a standard `COM` marker (the
+convention is the community's, the container is the standard's), and an
+`.mpo` **is** a valid JPEG too — its first view is an ordinary JPEG
+carrying an extra `APP2` segment. Neither needs a new decoder. **Only
+the extension was ever in the way.**
+
+Two things had to be checked before that could work.
+
+**What the TV will accept at all.** From its own advertised
+`GetProtocolInfo` (`docs/research/liverecon/ex725_GetProtocolInfo.xml`),
+the EX725 offers exactly four image entries, all JPEG:
+`image/jpeg:*`, plus `JPEG_LRG`, `JPEG_MED`, `JPEG_SM`. **There is no
+MPO profile and no 3D image profile at all.** So no new MIME type will
+ever reach this set over DLNA — but `image/jpeg` will, and MPO bytes
+are legal JPEG bytes.
+
+**An error in our own first staging.** Folders 01/02/04 were written
+through PIL, which **re-encodes** and therefore strips exactly the
+markers that carry the stereo meaning. Measured on the corpus: only
+`curtin10.jps` of the eleven carries `_JPSJPS_` at all (the other ten
+are plain JPEG bytes where the extension is the only signal), and our
+re-encoded copies carried nothing. A test of re-encoded files could
+never have answered the question.
+
+So `05-renomeado/` holds **byte-identical copies with only the name
+changed**: `MPORAW01..11.jpg` (MPO bytes) and `JPSRAW01..11.jpg` (JPS
+bytes). Verified end to end from the workstation, before the set was
+touched:
+
+| Check | Result |
+|---|---|
+| Serviio indexes them | **yes, all 22** |
+| served MIME / DLNA profile | `image/jpeg`, **`DLNA.ORG_PN=JPEG_LRG`** — a profile the EX725 advertises |
+| delivered size | **1,129,097 bytes = the MPO exactly** — not re-encoded |
+| `MPF` APP2 in the delivered bytes | **preserved** |
+
+**So the answer to "can we make Serviio see and talk these formats" is
+yes, and it needed no patch, no property and no new decoder.** The set
+now receives a genuine stereo pair over the network, wearing a label it
+accepts. The one thing still outside our control is whether its decoder
+inspects the `MPF` segment when the MIME says JPEG. If it does, 3D
+photos work over DLNA. If it does not, USB remains the only route, and
+the stick set is already staged for that.
+
 ### Measured: Serviio will not index the corpus at all
 
 Asked of the live server's own database, not assumed: the indexed
