@@ -79,6 +79,29 @@ Slidebean's *Why Do Movies Have Black Bars?*
 (https://www.youtube.com/watch?v=Pq8YoHpmlKs); the aspect-ratio half
 of that war is the 2D fight this 3D campaign sits on top of.
 
+### A future path: generated frames (owner's hypothesis)
+
+The 24 fps floor is the problem this section keeps returning to, and
+the newest tools attack it from the other direction: instead of raising
+the display's flash rate, raise the frame rate of what is shown.
+Generative frame interpolation — a model that draws the in-between
+frames that were never filmed — can lift a 24 fps-per-eye stream toward
+48 or 60 per eye, which is exactly the motion the alternating-frame
+judder LTT measured was missing.
+
+This is the owner's working thesis, recorded here as hypothesis rather
+than result. Interpolated frames are invented frames, and in stereo
+they must be invented twice — once per eye — and kept consistent with
+each other, or the two views drift into rivalry and the depth breaks.
+That same consistency is what a "world model" already promises (Sora
+and its successors stay geometrically coherent between generated
+frames), so the thesis is that the tool which can synthesise the second
+eye from the first — the generated-views lane — is the tool which will
+smooth the temporal judder. The honest caveat stands: generated motion
+is invented motion, good for watchability, not a recovery of what was
+filmed — which is why this is a future path and not one of the
+conversion lanes this repo ships.
+
 ## Two fronts (owner's framing)
 
 **Front A — play as-is on modern outputs (live remux).** Serve the
