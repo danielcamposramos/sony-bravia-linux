@@ -47,6 +47,34 @@ Three measured limits:
    the element.** This is the lever for making the transport readable at
    couch distance.
 
+### Never clip an ancestor
+
+Wrapping the element in a sized `<div>` with `overflow:hidden` **silenced
+the audio** while the identical wrapper without `overflow:hidden` played,
+and so did a layout with no wrapper at all. Measured on the panel
+2026-09-18 across four variants:
+
+| layout | audio |
+|---|---|
+| plain element, any size | plays |
+| scaled element, no wrapper | plays |
+| scaled element, sized wrapper, **`overflow:hidden`** | **silent** |
+| scaled element, sized wrapper, no overflow property | plays |
+| scaled element, sibling spacer instead of a wrapper | plays |
+
+A parent is fine. **A clipped ancestor is not** — it evidently takes the
+engine down a path where the decoder never starts. This belongs with the
+standing rules about never using `<audio>` and never `display:none`:
+this engine cares about the element's context, not only its appearance.
+
+### Events: almost none of them fire
+
+The probe left "loading" on screen throughout playback, which means
+`loadstart`, `canplay` and `playing` never fired. `timeupdate` does fire
+and is the only event worth building on — which is why the music page's
+play/pause glyph is set optimistically and re-synced from `timeupdate`
+rather than waiting for `play`/`pause`.
+
 ### The transform caveat
 
 A transform takes no part in layout. The element keeps its pre-scale
@@ -65,6 +93,21 @@ container:
 
 No flexbox, no `calc()`, just declared dimensions — which is all this
 browser can be trusted with.
+
+## Sizing
+
+Percentages work and are preferable: a `<table width="100%">` is the
+most reliable layout primitive this browser has, and an element at
+`width:33%` scaled x3 fills the viewport without anyone hard-coding
+1920. Height still needs pixels, since percentage heights need a
+declared parent height all the way up.
+
+## The native bar already shows time
+
+The set's own transport draws elapsed time and a progress indicator. The
+app does not need to render its own clock or progress bar when the native
+controls are visible — with the one caveat that this bar fades out, so
+anything that must be readable at all times still belongs to the page.
 
 ## Album art
 

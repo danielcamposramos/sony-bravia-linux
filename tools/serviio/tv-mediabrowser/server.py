@@ -1263,6 +1263,7 @@ def render_probe():
         ('/probe/art?v=7', 'O \u2014 candidate: x3, no chrome'),
         ('/probe/art?v=8', 'P \u2014 x3, wrapper no clip (audio?)'),
         ('/probe/art?v=9', 'Q \u2014 x3, no wrapper, spacer (audio?)'),
+        ('/probe/art?v=10', 'R \u2014 candidato: 33%% x3, tabela'),
         ('/probe/cookie', 'N \u2014 cookies: do they persist?'),
     ])
     body = (_hdr('Era probes')
@@ -1415,10 +1416,16 @@ def _scaled_video(poster, w, h, extra, factor, mode='clip'):
     class of quirk as the standing rules about <audio> and display:none:
     this engine cares where the media element sits.
 
-      clip   — sized wrapper with overflow:hidden (SILENT on the EX725)
-      wrap   — sized wrapper, no overflow property
-      spacer — no wrapper at all; a sibling <div> after the element
-               reserves the height, leaving the <video> a direct child
+      clip   — sized wrapper with overflow:hidden  (SILENT on the EX725)
+      wrap   — sized wrapper, no overflow property  (plays)
+      spacer — no wrapper; a sibling <div> reserves the height, leaving
+               the <video> a direct child           (plays)
+
+    Measured 2026-09-18: 'wrap' and 'spacer' both play, 'clip' does not.
+    So a parent element is fine and **overflow:hidden is what silences
+    the audio** — a clipped ancestor evidently takes this engine down a
+    path where the decoder never starts. Never clip an ancestor of the
+    media element.
     """
     vid = ('<video id="pv" controls preload="none"%s width="%s" '
            'height="%s" style="width:%s;height:%s;background:#111;%s">'
@@ -1426,15 +1433,24 @@ def _scaled_video(poster, w, h, extra, factor, mode='clip'):
     if factor <= 1:
         return vid
     try:
-        pw, ph = int(w.replace('px', '')), int(h.replace('px', ''))
+        ph = int(h.replace('px', ''))
+        pw = int(w.replace('px', '')) if w.endswith('px') else 0
     except ValueError:
         return vid
     fw, fh = pw * factor, ph * factor
+    if mode == 'table':
+        # A table with width="100%" is the most reliable layout primitive
+        # this browser has, and percentages mean the player follows the
+        # screen instead of assuming 1920 wide. The cell reserves the
+        # scaled height; nothing is clipped.
+        return ('<table width="100%%" border="0" cellpadding="0" '
+                'cellspacing="0"><tr><td height="%d" valign="top">%s'
+                '</td></tr></table>' % (ph * factor, vid))
     if mode == 'spacer':
         # the element keeps its own footprint (pw x ph); the spacer adds
         # only the DIFFERENCE, so the total reserved height is fh
-        return ('%s<div style="width:%dpx;height:%dpx;"></div>'
-                % (vid, fw, fh - ph))
+        return ('%s<div style="width:%s;height:%dpx;"></div>'
+                % (vid, ('%dpx' % fw) if pw else '100%%', fh - ph))
     overflow = 'overflow:hidden;' if mode == 'clip' else ''
     return ('<div style="width:%dpx;height:%dpx;%s">%s</div>'
             % (fw, fh, overflow, vid))
@@ -1485,10 +1501,15 @@ def render_probe_art(variant):
         9: ('440px', '248px',
             '-o-transform:scale(3);-o-transform-origin:top left;'
             'transform:scale(3);transform-origin:top left;', 3),
+        # 10 sizes by percentage so it follows the screen instead of
+        # assuming 1920 wide: 33% scaled x3 fills ~99% of the viewport.
+        10: ('33%', '240px',
+             '-o-transform:scale(3);-o-transform-origin:top left;'
+             'transform:scale(3);transform-origin:top left;', 3),
     }
     w, h, extra, factor = styles.get(variant, styles[1])
     # 5/6/7 clip, 8 wraps without clipping, 9 uses a sibling spacer
-    mode = {8: 'wrap', 9: 'spacer'}.get(variant, 'clip')
+    mode = {8: 'wrap', 9: 'spacer', 10: 'table'}.get(variant, 'clip')
     poster = (' poster="%s"' % esc(art)) if art else ''
     what = {1: '960x540, poster only',
             2: '480x270 scaled x2 via transform',
@@ -1498,17 +1519,30 @@ def render_probe_art(variant):
             6: '440x248 scaled x3, wrapped at 1320x744',
             7: 'production candidate: x3, no chrome',
             8: 'x3, wrapper WITHOUT overflow:hidden',
-            9: 'x3, NO wrapper - sibling spacer'}.get(variant, '')
+            9: 'x3, NO wrapper - sibling spacer',
+            10: 'candidate: 33%% width x3, table, no clip'}.get(variant, '')
     js = ("var v=document.getElementById('pv');"
           "var st=document.getElementById('status');"
           "var s=document.createElement('source');"
           "s.type=%s;s.src=%s;v.appendChild(s);"
           % (json.dumps(mime), json.dumps(url)) +
           "function say(t){st.innerHTML=t;}"
-          "v.addEventListener('loadstart',function(){say('loadstart');});"
-          "v.addEventListener('canplay',function(){say('canplay');});"
-          "v.addEventListener('playing',function(){say('PLAYING');});"
-          "v.addEventListener('pause',function(){say('paused');});"
+          "var hits='';"
+          "function mark(n){if(hits.indexOf(n)<0){hits+=n+' ';}}"
+          # 'loading' stayed on screen while audio played (EX725,
+          # 2026-09-18), so loadstart/canplay/playing do NOT fire here.
+          # timeupdate is the one event this platform is proven to send,
+          # so the clock is driven from it and the others are only noted.
+          "v.addEventListener('timeupdate',function(){mark('timeupdate');"
+          "say('t='+Math.round(v.currentTime||0)+'s  paused='+v.paused"
+          "+'  ['+hits+']');});"
+          "v.addEventListener('loadstart',function(){mark('loadstart');});"
+          "v.addEventListener('canplay',function(){mark('canplay');});"
+          "v.addEventListener('playing',function(){mark('playing');});"
+          "v.addEventListener('play',function(){mark('play');});"
+          "v.addEventListener('pause',function(){mark('pause');});"
+          "v.addEventListener('durationchange',function(){"
+          "mark('durationchange');});"
           "v.addEventListener('stalled',function(){say('STALLED');});"
           "v.addEventListener('error',function(e){say('ERROR code '"
           "+((e.target&&e.target.error)?e.target.error.code:'?'));});"
