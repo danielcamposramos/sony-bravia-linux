@@ -91,8 +91,23 @@ bilingually as he wrote them:
 > já existentes.
 
 ([the comment](https://www.youtube.com/watch?v=KE-KUPJzxwU&lc=UgzHS33vZM3ZO37UcqR4AaABAg),
-on the video that was Penna's first 3D test; the later, more produced
+on the video that was Penna's first 3D test — **dated 30 December 2010**,
+captioned *"testing it out"*, 554,247 views. The later, more produced
 one is ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY).)
+
+**The date is the part worth keeping straight.** 30 December 2010 is
+roughly **five weeks before** Vadim Asadov gifted the author his iZ3D
+license (2011-02-02, order 368345, above). So the recommendation named
+a product the author **did not yet own** — he was not promoting
+something he had been given, he pointed a creator at iZ3D first and was
+gifted the license afterwards, in a separate correspondence of his own.
+
+Stated honestly, because provenance records are worth only as much as
+their weakest claim: what is fixed is the **video's** date. YouTube's
+permalink view does not surface the **comment's** own timestamp, so
+"on or after 30 December 2010" is what the artifact itself proves.
+Whether the comment preceded or followed the February license is the
+author's own recollection, not something this page can evidence.
 
 Joe Penna went on to direct features — *Arctic*, *Stowaway*. The
 suggestion pointed him at **the same company whose CEO had gifted the
