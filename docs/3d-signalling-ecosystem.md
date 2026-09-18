@@ -211,8 +211,9 @@ is one 16-byte message, and this repo maps every place it needs to go.
 
 Cross-comment plan: each LTT video's description links its own forum
 thread. The project comment on the older *3D Movie Projector Setup*
-thread is already posted; the next, chronologically, is the Steam Frame
+thread is already posted; the next, chronologically, was the Steam Frame
 review thread (1642726 above), cross-referencing the projector one so the
-two build a timeline.
+two build a timeline. Posted 2026-09-18:
+https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/#findComment-16936512
 - This project: `docs/3d-signalling-explainer.md`,
   `docs/3d-blocked-in-browser.md`, `tools/serviio/`.
