@@ -204,7 +204,15 @@ is one 16-byte message, and this repo maps every place it needs to go.
   - *Steam Frame Review - This Changes Everything*,
     [full video](https://www.youtube.com/watch?v=3PGKMwgjla0). Timed moment:
     [21:10 "so little content available for it"](https://www.youtube.com/watch?v=3PGKMwgjla0&t=1270s).
+    Companion LTT forum thread (each LTT video links one in its description):
+    [The Steam Frame Changes Everything - Full Review, topic 1642726](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/).
   - *Our first 30 mins with the Steam Frame*,
-    [full video](https://www.youtube.com/watch?v=u8R-bnz1MPU) — first-look context (note: LTT pulled and re-uploaded this; verify the canonical URL before citing publicly).
+    [full video](https://www.youtube.com/watch?v=u8R-bnz1MPU) — first-look context (note: LTT pulled and re-uploaded this; verify the canonical URL before citing publicly). Likely companion thread [topic 1626620](https://linustechtips.com/topic/1626620-valve-blew-away-my-expectations-steam-frame-first-look/) (confirm from the video description).
+
+Cross-comment plan: each LTT video's description links its own forum
+thread. The project comment on the older *3D Movie Projector Setup*
+thread is already posted; the next, chronologically, is the Steam Frame
+review thread (1642726 above), cross-referencing the projector one so the
+two build a timeline.
 - This project: `docs/3d-signalling-explainer.md`,
   `docs/3d-blocked-in-browser.md`, `tools/serviio/`.
