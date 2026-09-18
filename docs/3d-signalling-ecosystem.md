@@ -99,19 +99,26 @@ and none of them write the SEI.
 ## The cross-brand hardware seen in the BD3D2MK3D community
 
 Compiled from the BD3D2MK3D support thread (videohelp #395498), read via
-Internet Archive snapshots of pages 1-20 (partial: a first pass covered
-about half the pages; the rest are pending). Source, per page, is the
+Internet Archive snapshots (survey covers 18 of the 20 pages; pages 15
+and 20 did not return a usable snapshot). Source, per page, is the
 archived thread. Categorised honestly, because the thread mixes displays,
 disc players and projectors, and because BD3D2MK3D writes both the SEI and
 the container tag, so a "works" report shows compatibility with a
 correctly-authored 3D file, not which signal a given device read.
 
-**3D televisions**
-- LG passive 3D TVs (1080p) — prominent enough that BD3D2MK3D added a
-  dedicated Half-TAB option to retain full 1080p on LG passive panels.
-- Samsung active-shutter 3D TVs — including the tool author's own set,
-  which he reports has "exactly the same problem" as the Sony sets this
-  project documents.
+**3D televisions** (the two brands that recur across the thread)
+- Samsung 3D TVs — the tool author (r0lZ) actively tests against his own
+  "capricious" Samsung 3D set: his encodes "play correctly with 10
+  different software players, and with my Samsung 3D TV", and he plays
+  them by connecting a hard disc to the set directly. He also reports that
+  Samsung set has "exactly the same problem" as the Sony sets this project
+  documents. (Note: hard-disc/USB playback can read the Matroska tag, so
+  this shows compatibility, not that the Samsung reads the SEI
+  specifically.)
+- LG 3D TVs — LG passive 3D panels are prominent enough that BD3D2MK3D
+  added a dedicated Half-TAB option to keep full 1080p on them, and a user
+  reports the built-in Plex app on an LG smart TV plays the files
+  natively.
 - Generic passive-LED and active-shutter sets discussed throughout.
 
 **3D disc players (not TVs — recorded for completeness)**
