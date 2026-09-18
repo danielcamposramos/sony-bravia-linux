@@ -1,10 +1,12 @@
-<!-- Draft cross-comment for the LTT forum thread on the Steam Frame review:
-     https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/
-     Chronological cross-reference to the project's earlier comment on the
-     3D Movie Projector Setup thread. Owner reviews and posts in his own
-     words (drafts are raw material; keep it additive, not a pitch; no slop).
-     Post here only because this video DOES discuss 3D content (~21:10);
-     the "first 30 mins" video does not, so that thread is skipped. -->
+<!-- POSTED 2026-09-18 as findComment-16936512:
+     https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512
+     Second audience-facing post (companion to the 3D-theater comment
+     16936161, which it cross-cites chronologically).
+     Original draft note: cross-comment for the LTT forum thread on the
+     Steam Frame review. Post here only because this video DOES discuss
+     3D content (~21:10); the "first 30 mins" video does not, so that
+     thread is skipped. Owner reviews and posts in his own words (drafts
+     are raw material; keep it additive, not a pitch; no slop). -->
 
 The bit at ~21:10 about "so little 3D content available" connects straight back to Linus's own 3D projector build a couple of years ago, where getting the content to actually play took, in his words, "more tinkering behind the scenes than anything else we've done so far" (ripping Blu-rays, following a Reddit thread to remux by hand).
 

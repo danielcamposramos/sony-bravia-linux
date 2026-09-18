@@ -1,4 +1,4 @@
-# Project status & partner guide — 2026-09-15
+# Project status & partner guide — 2026-09-15, updated through 2026-09-18
 
 This is the one document a **cold-start partner — AI or human — reads
 first**. It maps everything the project has done, what is live and
@@ -35,7 +35,7 @@ The EX725 is the test bed for everything. The HX855 is the better
 set (12-bit, active 3D) and gets changes only after they are
 owner-verified on the EX725.
 
-## Where the project stands (2026-09-15)
+## Where the project stands (2026-09-18)
 
 **The media experience is DONE and owner-verified live.** Both TVs
 browse the full Serviio library on d2server via an era-lean web app
@@ -49,10 +49,21 @@ and play:
   1080p High@L4.0 SBS 3D); MKV/AVI/WMV/WebM/RMVB via an on-demand
   cached faststart-MP4 transcode lane; mpg/mpeg direct. Dolby AC-3/
   E-AC3 bit-exact through the set's own decoder. Owner-verified.
-- **Player UX** — prev/next in folder (wrap-around, both lanes),
-  repeat-this-track toggle, on-screen controls, album art.
-- **Multimedia remote keys** — play/pause/stop/prev/next/rew/ff wired
-  with a config-driven keyCode map plus an on-TV key probe page.
+- **Player UX (rewritten 2026-09-18 for the era's real limits)** — the
+  player is now the set's own native transport, enlarged ~3x with
+  `-o-transform:scale()` for couch distance, cover art as the poster.
+  Our JS owns only what the native bar cannot do: prev/next in folder
+  (wrap-around), repeat-this-track persisted in a dated cookie (the
+  browser dies on every input change, so state must survive page
+  reloads), and back. A `/manual` page on the TV documents the keys
+  and codecs in the user's language. Design history and the measured
+  platform facts behind it: `era-media-element.md`,
+  `era-key-vocabulary.md`, and the public method guide
+  `build-your-own-bravia-portal.md`.
+- **The remote's real key model is now measured, not guessed** (see
+  the key section below) — the multimedia keys do not exist as
+  keydowns on this platform; the on-screen native transport is the
+  only transport an app can have.
 
 All of it runs as **systemd services on d2server** under a single
 bucket target, surviving reboots, with a config file making the
@@ -163,19 +174,29 @@ Everything host- and install-specific is in `config.ini` next to
 `BRAVIA_CONFIG=/path`. Precedence per option: **env var > config
 file > built-in default**. Sections: `[app]` bind_host/port,
 `[serviio]` host/port, `[library]` roots/cache_dir, `[keys]` the
-eight multimedia actions. A CLI port arg still wins over the file
-(the systemd unit passes 8090). On startup the app prints the
-resolved config path, media roots and keymap to `server.log`
-(the unit runs Python unbuffered so this appears immediately).
+measured key table (see the key section above — the era media keys do
+not exist as keydowns, so the block maps what does arrive). A CLI port
+arg still wins over the file (the systemd unit passes 8090). On
+startup the app prints the resolved config path, media roots and
+keymap to `server.log` (the unit runs Python unbuffered so this appears
+immediately).
 
-### Discovering the TV remote's real key codes
+### The remote's real key codes — measured, not guessed
 
-The `[keys]` defaults are Android-TV-family **guesses**. To learn
-the truth: open `http://192.168.0.60:8090/keys` on the TV, press
-each remote media button — codes show on screen and beacon to
-`/keylog/`, which appends `KEYPROBE code=<n>` lines to server.log.
-Paste observed codes into `config.ini [keys]` (comma-list aliases,
-`0` disables an action) and restart the service.
+The original `[keys]` defaults were Android-TV-family **guesses**. The
+`/keys` probe page plus glyph/font/cookie probe pages settled it on
+the EX725 (2026-09-18): **the multimedia keys produce no keydown at
+all** — PLAY, PAUSE, STOP, PREV, NEXT are simply not delivered to the
+page. What arrives is `13` OK, `37` left (and REW), `39` right (and
+FF), `38` up, `40` down; the four colour keys belong to Opera (GREEN/
+YELLOW = history back/forward, RED/BLUE = page bottom/top) and are not
+bindable. The `[keys]` block in `config.ini.example` now carries the
+**measured** table, and the full map — keys, glyph coverage, the
+Medium-font caveat — lives in
+[era-key-vocabulary.md](era-key-vocabulary.md). The on-screen native
+transport is the only transport this platform can give an app; that is
+why the player was rewritten around it. `/keys` stays: run it on any
+*other* set before trusting these numbers there.
 
 ### Regression batteries
 
@@ -232,7 +253,7 @@ contract: each check names a live-proven behavior.
 | UPnP DMR playback | DONE — Serviio renders to both sets | liverecon notes |
 | LAN media MVP → full app | DONE — this stack, owner-verified | tv-mediabrowser README |
 | 3D lane (SEI injector) | DONE — `bravia_sei3d.py`, ffmpeg wrapper, profile fix; batch conversion runs server-side | serviio-3d-explainer |
-| Ripper/encoder upstream campaign | **ALL 8 TARGETS ENGAGED — pipeline end-to-end** — HandBrake merged PR #8100 (`b0145ad`, x264 frame-packing SEI, 2026-09-16, closes their #5826); ffmpeg [#24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) (bug) + [#24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) (bsf feature) filed; StaxRip #1873, x265 #970 posted; **mpv player side** — [#18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) **in review** (hostile start → 8 technical review threads answered same day in the owner's own words, no apology; duplication claim refuted on facts; 3 follow-ups offered — see campaign README; archive `/K3D/GitHub/EchoSystems_Stereo3D/`); BD3D2MK3D videohelp thread [fully closed out](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803796) (post #2803756 + r0lZ's reply + owner's closing reply #2803796, all 2026-09-16); mkvmerge ask skipped by owner decision (Codeberg signup paywall — draft retained); **LTT forum post live** (first audience-facing target) — [comment 16936161](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161), 2026-09-16 — the 3D-theater video thread; delivers the guide the video promised and the forum asked for | `tools/serviio/upstream-3d-issues/` |
+| 3D-signalling campaign | **Pipeline end-to-end + serving side engaged.** Encode→remux→player chain (2026-09-16): HandBrake **PR #8100 merged** (x264 frame-packing SEI, closes their #5826); ffmpeg [#24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) + [#24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) filed; StaxRip #1873, x265 #970 posted; mpv [#18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) **in review** (hostile start → 8 technical threads answered same day in the owner's own words; CI still never ran — first-time-contributor gate; follow-up context comment posted on #18489); BD3D2MK3D videohelp thread [closed out](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803796) with r0lZ's cross-brand confirmation; two LTT audience posts (3D-theater [16936161](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161), Steam Frame [16936512](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512)). Second wave (2026-09-18), the serving side: mkvmerge [Codeberg #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309) **filed as the owner** (no AI disclaimer per mbunkus doctrine); Jellyfin [PR #18060 comment](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078), UMS [#6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329), Gerbera [#3937](https://github.com/gerbera/gerbera/issues/3937) (no-remux SEI injection). **All upstream threads are email-trigger watch only — never poll.** Ecosystem evidence base: `3d-signalling-ecosystem.md` | `tools/serviio/upstream-3d-issues/`, `docs/3d-signalling-ecosystem.md` |
 | rd1 portal / homepage lane | DONE — Unbound DNS override on the LAN points `rd1.sony.net` at d2server; era-TLS vhost serves the TV's homepage with a media link | liverecon notes |
 | BIV / Bravia video lanes | DEAD (server-side) — registration unlocks nothing; documented so nobody retries | liverecon/biv-video-lane.md |
 | Applicast widget lane | ACTIVE — **Sony's CDN is still live (2026-09-17)**: preservation sweep recovered 5 never-archived bundles + a second namespace (`/WsIndexes`, `/WsCatalogs`, `/WidgetCatalogs` incl. AZ1) across 3 hosts, 137/168 URLs answering. Key finding in `withheld-by-catalog.md`; programming model documented publicly. **Fronts archived (2026-09-17):** the load-bearing Sony fronts (AZ3 EU/BR catalogs, AZ1 catalog, bundle manifests, OSS service) now have Internet Archive snapshots beside the live URLs — table in the repo README; archive links must use `https://` (the `http://` form returns 503) | `research/appliwidget-programming.md`, `withheld-by-catalog.md`, README "Live fronts and archive snapshots" |
@@ -240,7 +261,11 @@ contract: each check names a live-proven behavior.
 | Presto engine CVEs | NOTED — 2011-2628 and era-adjacent, no exploit built; not the current focus | `research/presto-cve-2011-2628.md` |
 | Kernel survey | DONE — 2.6.35 era privesc surface mapped | `research/kernel2635-survey.md` |
 | Senior-partner reviews | DONE — 3 external reviews (Opus/DeepSeek/Kimi) folded into the roadmap | `partner-review.md` |
-| Right-to-repair sharing | IN FLIGHT — consumerrights.wiki (FULU) product-line update drafted 2026-09-17, answering their {{Incomplete}} sourcing notice: every load-bearing claim now cited to Sony's own live documents + IA snapshots (draft in `wiki/consumerrights-wiki-entry-2026-09-update.txt`; noticeboard appeal alongside); Rossmann/repair.wiki outreach drafts still queued | `right-to-repair.md`, `rossmann-outreach.md`, `wiki/` |
+| Right-to-repair sharing | **Wiki update POSTED 2026-09-18** — consumerrights.wiki (FULU) product-line page now carries the five dated Sony end-of-service notices (each naming both models, archived), the regional-documentation asymmetry, the browser-3D incident, the corrected firmware-removal claim (an overclaim of ours, narrowed to exactly what Sony's page supports), and a Brazil CDC context section flagged not-legal-advice. Noticeboard follow-up post drafted paste-ready alongside. Rossmann/repair.wiki outreach drafts queued, grounded in his own live Sony campaign (quotes pinned to source) | `right-to-repair.md`, `rossmann-outreach.md`, `wiki/`, `sony-end-of-service-statements.md` |
+| Era browser & media element | DONE 2026-09-18 — the platform's input/render/storage model measured end to end: no media-key keydowns, colour keys are Opera's, glyph coverage (Arrows block = tofu), the `<video>` element's context rules, native controls + transform scaling, dated cookies, `timeupdate` only. The probe pages that produced it ship in the app (`/probe`, `/keys`) | `era-key-vocabulary.md`, `era-media-element.md`, `build-your-own-bravia-portal.md` |
+| Browser 3D blocked | DOCUMENTED, one open lead — the panel detects the 3D signal in browser video but cannot switch (auto or manual) although the same panel switches from other inputs; i-Manual documents the feature with no input restriction. Filed as a wiki incident. Open test: does the TV's *native DLNA* player switch 3D for the same file? (that lane is not browser-gated) | `3d-blocked-in-browser.md` |
+| TrackID / BGMSearch | DOCUMENTED, NOT REVIVABLE without a spare set — the buttons emit zero packets (firmware-local tombstone); the Gracenote path (SMRP → playstation.net) and the client bundle are mapped from Wayback. Deferred, not dead: an older firmware might carry the code | `trackid-bgmsearch-recovered.md` |
+| Judge-by-the-cover record | DONE — the AI-policy landscape survey across the video-tooling industry (mpv, mkvtoolnix, HandBrake, Codeberg): everyone gates on owned/understood/reviewed, no one on "was AI used"; our 42-line standard-based patch is the case study | `judging-by-the-cover.md` |
 
 ## Rules of engagement (hard constraints)
 
@@ -305,14 +330,29 @@ unroutable, needed for the docs to make sense).
 ## What's next (pick-up menu)
 
 **Media stack polish** (low risk, high value):
-- thumbnails on list pages (Serviio serves cover art on :8895)
+- thumbnails on list pages (poster art is already in the players; the
+  list pages still have none)
 - audio-track selection for direct-playable MP4s
-- auto-advance to next track on `ended` (deliberately not built —
-  the era reload flash made manual prev/next feel better; revisit)
 - receiver pass-through test (HDMI 5.1 advertised, no AVR on the
   verified setup yet)
-- real keyCode harvest from the TV remotes via `/keys` (deployed
-  2026-09-15, awaiting a session in front of the TVs)
+- album art on top of the music list in album view (instead of
+  beside it)
+- cookie power-cycle survival check on the set (dated cookies
+  persisted across a browser relaunch; a full AC power cycle is
+  unconfirmed)
+
+**Closed out of this menu 2026-09-18:** auto-advance/repeat on `ended`
+(now built — cookie-persisted repeat, auto-advance to next; the reload
+flash is acceptable inside the native-controls player) and the real
+key harvest (done on the EX725; the answer is that the media keys
+produce no keydowns at all — see the key section).
+
+**Verification tests on the sets** (owner's timing, EX725 first):
+- the native-DLNA 3D hypothesis: does the TV's *own* DLNA player
+  switch 3D for the same SEI-carrying file the browser cannot switch?
+  (the browser-input block is documented; the DLNA lane may not be)
+- HX855 promotion of the restored widgets (verified on EX725 only so
+  far)
 
 **Pending deploys**: (none — tvbox-vlc renderer profile was deployed
 and assigned 2026-09-15; verify on the boxes by browsing mpc/wv and
@@ -335,12 +375,24 @@ confirming LPCM delivery)
 | `right-to-repair.md` | Context + Rossmann/repair.wiki/FULU sharing plan |
 | `hdmi-cec-audio-system.md` | **Parked lane, documented**: 26 Sony vendor CEC opcodes + the 102-model audio compatibility table recovered from the AudioControl bundle; why the widget reports unavailable; the untried `device_type=4,5` direction and the zero-risk experiment that would justify it |
 | `worldclock-schema-reconstruction.md` | **First reverse-engineered solution**: World Clock's `preference.xml` no longer exists on any Sony server; reconstructed from the widget's own code (Item1=GMT offset, Item2=DST, Item3=AM/PM) and deployed. Includes the reusable method for any dead settings screen |
+| `build-your-own-bravia-portal.md` | **The public method guide** — how to give these sets a working portal + media browser on your own LAN with your own hardware: the two (and only two) DNS overrides, era-TLS vhost, the media app, the widget-restore catalog edit, and every measured platform gotcha |
+| `era-key-vocabulary.md` | The measured remote/key model: no media-key keydowns, colour keys are Opera's, the glyph coverage table (the whole Arrows block is tofu), the Medium-font caveat |
+| `era-media-element.md` | The measured `<video>` element rules: `<source>`+type or nothing loads, never clip an ancestor (silences audio), `-o-transform` scaling + table sizing, `timeupdate` only, dated cookies, the codec canPlayType table behind the transcode lanes |
+| `3d-signalling-explainer.md` | The short explainer linked in every upstream post: two signals, which side reads which, the fix |
+| `3d-signalling-ecosystem.md` | **The nowhere-else map**: the DVB mandate with honest scope (ETSI TS 101 547-2), the decade of ecosystem symptom threads (Plex/Jellyfin/Serviio/MakeMKV), the cross-brand survey (18/20 videohelp pages, Samsung/LG), recorded-broadcast history (Sky 3D), the fix chain end to end, with timed LTT/Rossmann video citations |
+| `3d-blocked-in-browser.md` | The panel detects 3D in browser video but cannot switch (auto or manual) while the same panel switches from other inputs; i-Manual documents the feature with no input restriction; the native-DLNA test that would close it |
+| `judging-by-the-cover.md` | The AI-policy-landscape record: mpv, mkvtoolnix, HandBrake, Codeberg all gate on owned/understood/reviewed, never on "was AI used"; the 42-line standard-based patch as the case study — the "não julgue pela capa" campaign's proof |
+| `legal-eula-analysis.md` | Three pillars from Sony's own documents: GPL source (non-disclaimable), 3D display as a function not a "Service", services discontinuation expressly reserved — consumer-rights framing, not a breach claim |
+| `regional-documentation-asymmetry.md` | The same product, "different" by region: US i-Manual/EULA/warranty vs BR marketing tips; the CDC framework (art. 18/26/30/32/51), flagged not-legal-advice |
+| `sony-end-of-service-statements.md` | Sony's five dated end-of-service notices (Facebook, Skype, SideView, TrackID, Twitter), each naming both models, plus the firmware-removal page — all archived at the Internet Archive with regional copies (Canada/LatAm) |
+| `trackid-bgmsearch-recovered.md` | TrackID/BGMSearch: what the service was, the Gracenote SMRP path mapped from Wayback, why the buttons emit zero packets (firmware-local tombstone), and the deferred older-firmware path |
 | `manuals-index.md` | Where Sony's own documents live (RefLib doc numbers + links, hosting nothing) and the **provenance split** that decides what may be shared: four Sony-published documents vs. six third-party service manuals, with SHA-256s and the coverage proof that one AZ2-F manual spans 32/40/46/55" |
 | `generation-model-map.md` | Which TVs this applies to: AZ1/AZ2/AZ3 generations, service-manual model coverage (32–60" EX725 on one chassis), tier differences (subwoofer/anti-glare/Opera Store), the AZ1 harvest (one widget, dated 2010-04-21; `PAC2.0` XMB plugin; GPSPhotoWidget), and the **check-the-archive-before-declaring-dead** rule |
 | `withheld-by-catalog.md` | **The evidence document**: Sony localized the widgets Brazil never got — Portuguese complete, Rio de Janeiro in the city list — and withheld them at the catalog layer. Plus the 2026-09-17 preservation sweep (3 live hosts, 137/168 URLs) |
 | `3d-origin-story.md` | Author's 3D history: the 2011 iZ3D license gift (Vadim Asadov) → the SEI campaign; the hologram line that seeded Knowledge3D |
-| `rossmann-outreach.md` | Outreach draft to Louis Rossmann |
+| `rossmann-outreach.md` | Outreach draft to Louis Rossmann, grounded in his own live Sony campaign: quotes pinned to source (Parker Hartline, ASA, the 2023 House hearing — verified, no lawsuit claim), the five Sony videos with timed jump-links |
 | `partner-review.md` | 3-partner senior review of the roadmap (2026-09-13) |
+| `wiki/` | repair.wiki + consumerrights.wiki page drafts (public versions) — incl. the 2026-09-18 wiki update as posted: five archived Sony notices, the browser-3D incident, the Brazil CDC section, the corrected firmware claim |
 | `research/` | Live recon, protocols, CVE notes, kernel survey |
 | `research/liverecon/` | Wire captures + analysis from the live sets |
 | `tools/serviio/` | Serviio profiles, 3D fix, forum posts, app |
@@ -348,5 +400,6 @@ confirming LPCM delivery)
 | `tools/systemd/README.md` | Deploy + service-migration procedure |
 | `wiki/` | repair.wiki page drafts (public versions) |
 
-*Status doc written 2026-09-15, updated 2026-09-17. Keep it current:
-when a lane changes state, update this file in the same commit.*
+*Status doc written 2026-09-15, updated 2026-09-17 and 2026-09-18. Keep
+it current: when a lane changes state, update this file in the same
+commit.*

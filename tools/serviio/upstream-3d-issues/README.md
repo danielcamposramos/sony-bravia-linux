@@ -4,19 +4,21 @@ One draft per upstream target, built from the four verified research
 lanes (2026-09-15). Every draft follows the campaign framing: we bring
 the **diagnosis + a working fix**, not just a feature request.
 
-**Status: all 9 targets engaged (2026-09-16).** 1 merged (HandBrake
-PR #8100), 6 posted/filed on trackers/forums, 1 skipped by owner decision
-(mkvmerge/Codeberg), and — first audience-facing target of the campaign —
-the LTT forum post (target #9): the guide the theater video promised in
-its description and the thread spent two weeks asking for. The videohelp post cleared moderation 2026-09-16
-(post #2803756); the mpv player-side pair (issue #18489 + PR #18490,
-from a parallel Opus session) completes the pipeline end to end:
-encode → remux → robustness → player → DLNA. PR #18490 is in review
-(hostile start, then 8 technical threads — all answered same day in
-the owner's own words, no apology; see the mpv review section below).
-Per campaign doctrine,
-the drafts here are raw material — the owner approves/rewords and
-posts; no AI-drafted text goes out without owner approval.
+**Status: all 9 original targets engaged + 4 more filed 2026-09-18 (see
+the ecosystem section below).** 1 merged (HandBrake PR #8100), the rest
+posted/filed — including mkvmerge, whose Codeberg signup had read as a
+paywall but turned out to be the donate page wearing the same layout
+(account created; issue filed). First audience-facing target: the LTT
+forum post (target #9): the guide the theater video promised in its
+description and the thread spent two weeks asking for. The videohelp
+post cleared moderation 2026-09-16 (post #2803756); the mpv player-side
+pair (issue #18489 + PR #18490, from a parallel Opus session) completes
+the pipeline end to end: encode → remux → robustness → player → DLNA.
+PR #18490 is in review (hostile start, then 8 technical threads — all
+answered same day in the owner's own words, no apology; see the mpv
+review section below). Per campaign doctrine, the drafts here are raw
+material — the owner approves/rewords and posts; no AI-drafted text
+goes out without owner approval.
 
 | # | Draft file | Target | Where it goes | Priority |
 |---|---|---|---|---|
@@ -25,7 +27,7 @@ posts; no AI-drafted text goes out without owner approval.
 | 3 | `staxrip-issue.md` | StaxRip | comment on open issue #1873 (answers a stranded user) | **POSTED 2026-09-15** — [#issuecomment-5685902578](https://github.com/staxrip/staxrip/issues/1873#issuecomment-5685902578) |
 | 4 | `x265-issue.md` | x265 | github.com/Multicorewareinc/x265 (issues enabled) | **POSTED 2026-09-15** — [issue #970](https://github.com/Multicorewareinc/x265/issues/970) |
 | 5 | `ffmpeg-bsf-feature.md` | FFmpeg | code.ffmpeg.org tracker (enhancement) | **POSTED 2026-09-16** — [issue #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) (owner's own reworded text) |
-| 6 | `mkvtoolnix-issue.md` | mkvmerge | codeberg.org/mbunkus/mkvtoolnix (keep it SHORT — maintainer closes verbose reports) | **SKIPPED 2026-09-16 (owner decision)** — Codeberg signup paywalled; unfilled, draft retained in case an account is ever created or another channel opens |
+| 6 | `mkvtoolnix-issue.md` | mkvmerge | codeberg.org/mbunkus/mkvtoolnix (keep it SHORT — maintainer closes verbose reports) | **FILED 2026-09-18 as [Codeberg issue #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309)** (account: capitain_jack) — the owner reworded the draft as himself and filed it, no AI disclaimer per the mbunkus doctrine (understand every claim; the two source-file references are owned, not pasted). The earlier "signup paywalled" reading was a mix-up: the page in question was Codeberg's donate page, not a paywall. Codeberg ToU §2(1)7 verified first: it bans hosting AI-generated code *projects*, not human-authored issues — the repo is not mirrored there, the issue is |
 | 7 | `bd3d2mk3d-forum-post.md` | BD3D2MK3D (r0lZ) | forum.videohelp.com thread 395498 | **POSTED + ANSWERED + CLOSED 2026-09-16** — [post #2803756](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756); r0lZ replied same day ([#2803762](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803762)): suggestion 1 accepted (custom-encoder warning dialog), suggestion 2 needs clarification, cross-brand confirmation (his Samsung behaves the same), zero corrections to the diagnosis; his #604 (CLI = maybe, no promises — mountains win) answered by the owner's closing reply (POSTED 2026-09-16, [post #2803796](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803796)): no pressure, six-plus-years callback to his May 2020 Doom9 diagnosis, Linux gap already covered (bravia_sei3d.py + ffmpeg #24531), end-of-summer wishes from Brazil. **Friendship request sent to r0lZ** (he had 0 friends) |
 | 8 | *(Opus session)* mpv issue + PR — drafts and patch archived at `/K3D/GitHub/EchoSystems_Stereo3D/` | mpv (player side) | github.com/mpv-player/mpv | **FILED 2026-09-16, IN REVIEW** — [#18489](https://github.com/mpv-player/mpv/issues/18489) (stream-signalled stereo 3D ignored) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) (2 commits, Fixes #18489); review round 1 answered 2026-09-16 — 8 threads, owner's own words, 3 follow-ups offered (see below) |
 | 9 | `ltt-3d-theater-post.md` | LTT forums (**first audience-facing target**) | [linustechtips.com/topic/1589907](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/) (reply to the 3D-theater video thread) | **POSTED 2026-09-16** — [comment 16936161](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) — the guide the video promised and the thread begged for; hooks: the never-delivered guide complaint + WeeemRCB's MakeMKV→BD3D2MK3D→HandBrake VR pipeline (their x265 gap = our x265 #970); iZ3D origin story as the human footnote. Pre/post snapshots in the private repo (`docs/research/`, "…after my comment.html") |
@@ -44,6 +46,43 @@ discussion: https://github.com/danielcamposramos/sony-bravia-linux/discussions/1
 Kept the honest framing (r0lZ's Samsung is a symptom-level confirmation,
 not the controlled two-file mechanism test). On the email-trigger watch
 like the rest; no polling.
+
+## DLNA-server ecosystem — SEI finding filed on three projects (2026-09-18)
+
+The campaign's second wave: the servers that *serve* the files, not the
+tools that make them. A DLNA server that remuxes MKV → TS drops the
+Matroska StereoMode tag, and a file that carries only the SEI is the one
+hardware reads — so the finding applies to the serving side too. All
+three filed by the owner from here after he confirmed no AI gate
+existed; disclosure block kept where the project's norms expect it.
+
+- **Jellyfin** — comment on PR #18060 ("Flatten frame packed 3D video",
+  the layout-detection point): [#issuecomment-5726381078](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078).
+  Draft + posted log: `docs/jellyfin-18060-comment-draft.md`
+- **Universal Media Server** — feature request: [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329)
+- **Gerbera** — issue #3937, framed as an *optional no-remux SEI
+  injection* step after the owner's correction (they can keep "no
+  remux" and still inject the signal): [issue #3937](https://github.com/gerbera/gerbera/issues/3937).
+  The initial hold ("direct-serves so the bug doesn't apply") was wrong
+  — the SEI must be present regardless of remux.
+
+**Watch (email-trigger only, never poll — owner's rule):** all three
+threads are the owner's, so GitHub emails him on every reply. Baselines
+2026-09-18: Jellyfin #18060 (7 comments), UMS #6329 (0), Gerbera #3937
+(0). When a reply lands he pastes it; the technical answer is drafted
+together. mkvmerge #6309 joins the same rule on Codeberg's own
+notifications.
+
+## LTT forums — Steam Frame cross-comment posted (2026-09-18)
+
+Second audience-facing post, chronological companion to the 3D-theater
+comment: [findComment-16936512](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512)
+— the Steam Frame review thread, posted because that video *does*
+discuss 3D content (~21:10); the "first 30 minutes" video does not, so
+its thread was deliberately skipped (campaign rule: only where 3D
+content is actually discussed). Cross-cites the earlier projector
+comment; the two posts now reference each other chronologically.
+Draft: `docs/ltt-steamframe-forum-comment.md`
 
 ## mpv issue #18489 — cross-brand / ecosystem follow-up (2026-09-18)
 
