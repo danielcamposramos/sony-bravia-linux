@@ -4,9 +4,13 @@
        https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078
      - Universal Media Server: feature-request issue filed:
        https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329
-     - Gerbera: HELD. It primarily direct-serves rather than remuxing, so the
-       container tag is not dropped and the SEI-drop problem does not apply;
-       filing there would be off-target. Skip unless it is confirmed to remux.
+     - Gerbera: issue FILED after owner correction (the SEI must be present
+       regardless of remux; a served file lacking it still plays flat):
+       https://github.com/gerbera/gerbera/issues/3937 — framed as an
+       OPTIONAL, no-remux SEI-injection step.
+     WATCH LIST (baselines 2026-09-18): Jellyfin #18060 (7 comments),
+     UMS #6329 (0), Gerbera #3937 (0). New comments beyond these =
+     maintainer activity to read and answer.
      The draft below is the Jellyfin text as posted (lightly trimmed). -->
 
 <!-- DRAFT ONLY — not posted. Target: jellyfin/jellyfin PR #18060 "Flatten

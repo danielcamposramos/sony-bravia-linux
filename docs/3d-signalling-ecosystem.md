@@ -135,6 +135,41 @@ not a per-device SEI-reading proof; the clean mechanism test (serve one
 clip with the SEI and one without, see which flips) is the open ask in
 [repo discussion #1](https://github.com/danielcamposramos/sony-bravia-linux/discussions/1).
 
+## Recorded 3D broadcasts — another SEI-carrying source, another stranded owner
+
+The frame-packing SEI was not only an authoring choice, it was on the air.
+Sky 3D, Europe's first dedicated 3D channel, launched 3 April 2010 and
+broadcast **side-by-side frame-compatible** H.264 so it would work over
+the existing Sky+ HD boxes; the channel closed 9 June 2015. Other DVB
+frame-compatible 3D services and trials ran in the same window. By the DVB
+spec above, every one of those services carried the `frame_packing`
+SEI with every frame.
+
+A DVB recorder captures the transport stream as broadcast, so **a
+recording of one of those 3D broadcasts carries the SEI verbatim** — the
+digital equivalent of taping a broadcast on a VCR, except the tape is a
+`.ts` file that already contains the exact signal a 3D TV needs. Played
+back on modern software that ignores the SEI, it shows flat, the same gap
+as everywhere else in this document.
+
+This adds another affected group with a clean right-to-repair shape: an
+owner who time-shifted a 3D broadcast they were entitled to record now
+holds the surviving copy of content whose channel no longer exists (Sky
+3D has been off air since 2015), and software will not play it in 3D
+although the recording carries the correct, standardized flag.
+
+Two honest limits:
+- **Encrypted PVRs are a separate problem.** Sky's own recordings are
+  stored encrypted and locked to the box, so a Sky+ HD recording is not a
+  portable file regardless of the SEI. The clean case is an
+  **unencrypted / free-to-air** DVB 3D broadcast recorded on a generic
+  DVB PVR or tuner card, which yields a plain `.ts` carrying the SEI.
+- How much 3D broadcasting was recorded is niche, not mass-market. The
+  point is that the recordings exist, they carry the standard signal, and
+  the same software gap strands them.
+
+Sources: [Sky 3D, launch and side-by-side format](https://en.wikipedia.org/wiki/Sky+_HD); community/technical detail on the side-by-side choice and Sky+ HD compatibility ([TV Forum thread](https://www.tvforum.co.uk/tvhome/sky3d-30917/page-2)). DVB SEI mandate as cited above (ETSI TS 101 547-2).
+
 ## The chain, now mapped end to end
 
 The reason this went unsolved is that no single project owned the whole
