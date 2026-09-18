@@ -187,5 +187,9 @@ is one 16-byte message, and this repo maps every place it needs to go.
   snapshots of pages 1-20 (2023-2026 captures).
 - DLNA-server symptom threads: Plex, Jellyfin, Serviio, MakeMKV, AVS
   (linked inline above).
+- Linus Tech Tips / ShortCircuit videos cited above:
+  - [My Most Unnecessary Home Project in YEARS - Home 3D Movie Projector Setup!](https://www.youtube.com/watch?v=_4Sz6J49jho) (2024-11-23) — the home 3D build; content/file signalling was the hardest part.
+  - [Steam Frame Review - This Changes Everything](https://www.youtube.com/watch?v=3PGKMwgjla0) — the "so little 3D content" remark; VR as the only offered path.
+  - [Our first 30 mins with the Steam Frame](https://www.youtube.com/watch?v=u8R-bnz1MPU) — first-look context (note: LTT pulled and re-uploaded this; verify the canonical URL before citing publicly).
 - This project: `docs/3d-signalling-explainer.md`,
   `docs/3d-blocked-in-browser.md`, `tools/serviio/`.
