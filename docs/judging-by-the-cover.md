@@ -319,15 +319,35 @@ gate AI, because the thesis holds only if it is stated fairly:
   project-hosting rule aimed at unreviewed AI code dumps, not a ban on
   AI-assisted contributions a human owns.
 
-Read fairly, none of these gates on "was AI used" — the cover. They gate
-on whether the work is **understood, owned, reviewed and correct** — the
-artifact. Even Codeberg's proportion rule is justified by artifact
+This is not one project's stance, it is **the same line drawn across an
+entire industry and across time**: the video-tooling chain end to end
+(the H.264 standard body, encoders x264/x265, muxers mkvmerge, the
+transcoder HandBrake, players mpv/FFmpeg, DLNA servers Jellyfin/UMS/
+Gerbera, the host Codeberg), and a problem that spans from the 2009 H.264
+amendment through 2010-2015 DVB 3D broadcast to a decade-long ecosystem
+gap and its 2026 fix. Read fairly, none of these gates on "was AI used" —
+the cover. They gate on whether the work is **understood, owned, reviewed
+and correct** — the artifact. Even Codeberg's proportion rule is justified by artifact
 concerns (copyright, safety) and targets the *unowned dump*, which is the
 same failure mode this page calls slop. The line the whole landscape
 draws is **owned-and-understood vs unowned slop**, not human vs AI. That
 is "don't judge by the cover", stated by the projects themselves — and it
 is why a disclosed, human-owned, source-cited contribution is welcomed
 where an unreviewed generation is not.
+
+And the artifact here is the strongest possible answer to the "AI dump"
+fear the policies guard against. The contributions are **small,
+standards-derived, high-impact** — read a 16-byte SEI the H.264 spec
+already defines, write it, map five enum values, persist one field across
+frames. The mpv patch is 42 lines. None of it is bulk generated code of
+"unclear copyright status"; it is the minimal, checkable change a
+competent engineer writes and owns, derived from a published standard.
+The owner's own words: standard-based, small code, huge impact, "and I
+could have written those." That is exactly the case the cover-judging
+reflex misreads: a tiny, understood, standard-grounded patch dismissed
+because a tool touched it, when the same patch hand-typed would sail
+through. Judge the artifact and it is obviously sound; judge the cover
+and you throw away the fix to a decade-old, industry-wide bug.
 
 The corollary this project lives by: on trackers that gate this way, the
 work must be genuinely owned — reworded in the submitter's words, every
