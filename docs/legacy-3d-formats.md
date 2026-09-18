@@ -73,11 +73,31 @@ packings. The missing piece is packaging: a one-command "legacy-3D
 modernizer" (legacy in, SBS + SEI out) — small, standard-based code
 in this repo, on the same ethos as the 42-line mpv patch.
 
-**Anaglyph's front B — extraction to true stereo — is parked.**
-Recovering two full-color views from two color channels is
-ill-posed; disparity-aware methods exist in the literature but are
-research-grade and lossy. Not promised. Front A (colorimetry) is the
-practical anaglyph lane.
+**Anaglyph runs in both directions (owner's call, 2026-09-18).**
+The display direction — SBS in, anaglyph out for any screen with
+glasses — is the practical one, and the reference code already exists
+(PhereoRoll3D renders it client-side; the MIT implementation is the
+reference for our server-side chain). The inverse — anaglyph in, SBS
+out, the modern format — is what the owner wants enabled too, and it
+splits into three honest sub-lanes:
+
+1. **Monochrome extraction — well-posed.** Each eye's luminance
+   survives the color multiplex; recover two grayscale views, emit a
+   monochrome SBS. Not the original color, but real stereo in the
+   modern packing.
+2. **Re-color by borrowing — heuristic.** Borrow chroma from the
+   anaglyph's own channels or a palette/reference; better than gray,
+   never faithful. A refinement, not a promise.
+3. **Disparity-aware reconstruction — research-grade.** Published
+   methods recover color via depth-guided propagation; lossy,
+   heavyweight, kept as the literature lane.
+
+And one honest shortcut for the phereo corpus specifically: its
+anaglyphs are *derived renditions* — the SBS original exists
+server-side, so "the inverse" there is fetch-the-original, not
+extraction. Extraction is for anaglyphs whose stereo source is gone:
+YouTube-era rips, scanned comics, community anaglyphs with no pair
+surviving. That is exactly the material this act exists for.
 
 ## The anaglyph colorimetry lane
 
@@ -187,8 +207,15 @@ JackDesBwa document how to talk to it, so nothing needs reversing:
   reference code for our colorimetry chain.
 - **[PhotoRoll3D](https://github.com/JackDesBwa/PhotoRoll3D)** — the
   same author's in-progress generalization ("stereo photo player
-  inspired by PhereoRoll3D but for more online sources", WIP): the
-  beginning of a multi-source stereo-web client.
+  inspired by PhereoRoll3D but for more online sources", WIP).
+  **Verified 2026-09-18:** the "other sources" is the stated goal, not
+  shipped code — the repo holds one commit ("Add base structure for
+  the application"): a QML page shell plus an OpenGL shader renderer
+  for the display modes, with no source adapter implemented. Nothing
+  to reuse yet beyond the structure; PhereoRoll3D remains the only
+  working API map. The multi-source idea itself is the valuable
+  signal — it says the author already sees the same wall we do:
+  stereo content scattered across dying or closed platforms.
 
 **The open API, as documented by the MIT client** (no authentication,
 JSON with `Accept: application/vnd.phereo.v3+json`):
@@ -234,6 +261,29 @@ And the same lane gives the restored 3D phones/tablets a shared
 target — the Gadmei and the Optimus are the community's own
 hardware lineage.
 
+**Does the set's Opera "know" what the phereo brother's software
+needs? Measured answer.** The Qt/QML clients cannot run on the TV at
+all — they are compiled OpenGL applications, not browser apps, and the
+AppliCast browser input has no plugin or download path (that wall is
+the project's origin story). But that was never the question that
+matters: our lane *reimplements* what they do, and what the
+reimplementation needs from the browser is already measured. The
+server-rendered design needs exactly three client capabilities —
+render images (measured: the probe pages validate this), paginate by
+links (measured: every lane browses this way, no JS needed), and run
+the small inline JS our pages already use (measured: the key beacons
+and native-controls player run on it). The heavy parts of the MIT
+clients — JSON API parsing, Dubois/anaglyph pixel math, shader-based
+display modes — all happen **server-side** in our design, where
+ffmpeg and the API proxy live. Two capabilities remain unmeasured and
+are *deliberately not depended on*: `JSON.parse` (native in the
+Presto lineage, but our pages never need it) and large-image scaling
+(avoided by requesting the API's `m`-size renditions). If client-side
+rendering is ever wanted, those become probe-page items — one page
+on the EX725 answers both. The honest verdict: the TV does not know
+what Qt knows, but it knows everything our lane asks of it, and
+everything it doesn't is our server's job.
+
 **One open test this lane inherits:** the sets' manual 3D menu is
 blocked on the browser input
 ([3d-blocked-in-browser.md](3d-blocked-in-browser.md)) — but does
@@ -252,6 +302,47 @@ instructions, roots. Two more glasses-free displays in the lineage,
 and two more communities' worth of preservation work this project's
 method applies to.
 
+## The 3D catalog — the library has to *know* what's 3D (owner's framing: both ends)
+
+Conversion is half the charter; the other half is that **the serving
+side must know the contents**. Nothing in the chain carries the
+knowledge today: Serviio's ContentDirectory has no 3D concept, photos
+disclose their packing only by extension at best, and the video
+stereo signal lives where act one found it — in-band (SEI) or in the
+container tag a DLNA remux strips. A library that cannot say "this is
+3D" cannot serve a 3D category, cannot route anaglyphs to the
+colorimetry chain, and cannot queue row-interleaved material for
+front-B conversion. So act three gets a catalog:
+
+**A scanner ("3D cataloger") walks the library and emits a 3D index**
+(JSON manifest, keyed to the same paths Serviio serves): item →
+type → detection evidence → confidence → owner override. Then the
+portal gains **an entire top-level 3D category** — *All 3D photos*,
+*All 3D movies/series/videos* — each browsable by type, so the
+content this act exists for is one click from the couch, not
+archaeology in the folder tree.
+
+| Flag | Photos | Video | Detection |
+|---|---|---|---|
+| `sbs` | squished SBS image, `_L`/`_R` pair | frame-compatible SBS | extension/naming + aspect heuristics; ffprobe `stereo_mode`; SEI side-data (act-one tooling) |
+| `jps` | JPEG Stereo | — | extension (JPEG SOI + `.jps`, the community's native exchange format) |
+| `mpo` | multi-picture object (Fuji W1/W3 lineage) | — | extension + MPO markers |
+| `tab` | top-bottom image | frame-compatible TAB | aspect/naming; `stereo_mode`; SEI |
+| `row`/`col` | interleaved legacy photos | row-interleaved legacy video (act three's type 2) | naming + measurement (odd/even row correlation); manual flag |
+| `anaglyph` | color-multiplexed | anaglyph-encoded video | channel-correlation heuristic; **manual override always wins** |
+
+Honest scope on detection: `jps`/`mpo` are certain from the file
+itself; SBS/TAB and the SEI are certain from tools we already built;
+interleaved and anaglyph detection are heuristics, which is why the
+index carries an owner-override flag — a wrong guess must never
+outvote the person who owns the content. And the Serviio side of
+"both ends": the index enriches Serviio's existing browse results at
+the portal layer, keyed by path, requiring zero changes to Serviio
+itself; the deeper ask — native 3D metadata in the servers — is the
+same finding we already carried to Jellyfin, UMS and Gerbera in act
+two, and follows the same doctrine: results on our stack first, the
+upstream filing after the demonstration works.
+
 ## Ordering and doctrine
 
 The owner's rule, same as every act of this campaign: **results on
@@ -261,11 +352,18 @@ DLNA transcode presets — once the conversion lane is measured and
 produces a demonstration no one can argue with. No premature upstream
 filings; bring the diagnosis + a working fix, in that order.
 
-**Status: charter (2026-09-18).** Nothing in this lane is measured
-yet beyond the campaign-era facts above. First steps, in order:
-prove front B on one JPS pair (deinterleave → SBS → SEI → the EX725
-switches), then prove the anaglyph color chain on one corpus photo
-(private test use), then decide what becomes a tool.
+**Status: charter (2026-09-18), prepared and held for the owner's go
+— nothing built yet.** Nothing in this lane is measured yet beyond
+the campaign-era facts above. First steps, in order: **the 3D
+cataloger** (scan the photo corpus → type the flags → emit the
+index; photos first because the corpus is the ready-made test bed,
+then videos on the SEI/tag tooling act one already built), **the
+portal's 3D category** browsing that index (*All 3D photos*, *All 3D
+movies/series/videos*, by-type views), then prove front B on one JPS
+pair (deinterleave → SBS → SEI → the EX725 switches), then the
+anaglyph color chain on one corpus photo (private test use), then
+the phereo gallery lane (re-verify the API from the LAN first), then
+decide what becomes a tool and what goes upstream.
 
 ## Related
 
