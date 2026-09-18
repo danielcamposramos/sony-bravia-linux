@@ -1260,6 +1260,7 @@ def render_probe():
         ('/probe/art?v=4', 'K \u2014 art full width'),
         ('/probe/art?v=5', 'L \u2014 art + scale x2, wrapped'),
         ('/probe/art?v=6', 'M \u2014 art + scale x3, wrapped'),
+        ('/probe/cookie', 'N \u2014 cookies: do they persist?'),
     ])
     body = (_hdr('Era probes')
             + '<ul>%s</ul>' % rows
@@ -1277,6 +1278,66 @@ def probe_art_url():
     except Exception:
         pass
     return ''
+
+
+def read_cookies(header):
+    """Parse a Cookie: header into a dict. Era browsers send the plain
+    name=value; form, so nothing fancier is needed."""
+    out = {}
+    for part in (header or '').split(';'):
+        name, _, value = part.strip().partition('=')
+        if name:
+            out[name] = urllib.parse.unquote(value)
+    return out
+
+
+def bake(name, value, days=365, path='/'):
+    """A Set-Cookie value with an explicit expiry.
+
+    Session cookies would die with the browser, and on a TV the browser
+    closes whenever the set changes input. Anything worth remembering
+    needs a real Expires."""
+    when = time.strftime('%a, %d %b %Y %H:%M:%S GMT',
+                         time.gmtime(time.time() + days * 86400))
+    return '%s=%s; Expires=%s; Path=%s' % (
+        name, urllib.parse.quote(str(value), safe=''), when, path)
+
+
+def render_probe_cookie(cookie_header):
+    """/probe/cookie — do cookies survive a navigation, and a power cycle?
+
+    Three separate questions, because they fail independently: does the
+    browser return a Set-Cookie on the next request, can script read and
+    write document.cookie, and does an Expires-dated cookie outlive the
+    browser being closed (which on a TV happens on every input change)."""
+    jar = read_cookies(cookie_header)
+    visits = 0
+    try:
+        visits = int(jar.get('bravia_visits', '0'))
+    except ValueError:
+        visits = 0
+    visits += 1
+    rows = ''.join('<li>%s = <b>%s</b></li>' % (esc(k), esc(v))
+                   for k, v in sorted(jar.items())) or '<li>(none sent)</li>'
+    body = (_hdr('N \u2014 cookies')
+            + '<p id="fmt">server saw <b>%d</b> cookie(s) on this request; '
+              'visit counter is now <b>%d</b></p>' % (len(jar), visits)
+            + '<p id="fmt">cookies the browser sent us:</p>'
+            + '<ul style="font-size:32px;">%s</ul>' % rows
+            + '<p id="fmt">document.cookie says:</p>'
+            + '<p id="js" style="color:#3cf;font-size:32px;'
+              'word-wrap:break-word;">(reading)</p>'
+            + '<ul><li><a href="/probe/cookie">reload \u2014 the counter '
+              'should go up by one</a></li>'
+            + '<li><a href="/probe">back to probes</a></li></ul>'
+            + _foot('If the counter survives turning the TV off and on, '
+                    'cookies are durable storage here.'))
+    js = ("var j=document.getElementById('js');"
+          "try{document.cookie='bravia_js=written; Path=/';"
+          "j.innerHTML=document.cookie||'(empty)';}"
+          "catch(e){j.innerHTML='document.cookie THREW: '+e;}")
+    return (_page('Cookies', body, extra_js=js),
+            [bake('bravia_visits', visits)])
 
 
 def render_probe_caps():
@@ -2116,6 +2177,11 @@ class Handler(BaseHTTPRequestHandler):
             elif u.path == '/probe/glyphs':
                 self._send_html(render_probe_glyphs().encode())
                 return
+            elif u.path == '/probe/cookie':
+                html, cookies = render_probe_cookie(
+                    self.headers.get('Cookie'))
+                self._send_html(html.encode(), cookies=cookies)
+                return
             elif u.path == '/probe/caps':
                 self._send_html(render_probe_caps().encode())
                 return
@@ -2521,7 +2587,7 @@ class Handler(BaseHTTPRequestHandler):
         except Exception as e:
             self._send_html(render_error('transcode', e).encode())
 
-    def _send_html(self, payload):
+    def _send_html(self, payload, cookies=None):
         if self._sent:
             return
         self._sent = True
@@ -2530,6 +2596,11 @@ class Handler(BaseHTTPRequestHandler):
             self.send_header('Content-Type', 'text/html; charset=utf-8')
             self.send_header('Content-Length', str(len(payload)))
             self.send_header('Cache-Control', 'no-store')
+            # pages are no-store, so any state that must outlive a page
+            # load has to ride in a cookie: every track change here is a
+            # full navigation (the era player cannot swap a <source>)
+            for c in (cookies or []):
+                self.send_header('Set-Cookie', c)
             self.end_headers()
             self.wfile.write(payload)
         except (BrokenPipeError, ConnectionResetError):
