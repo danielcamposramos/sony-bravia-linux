@@ -27,7 +27,8 @@ I do, and they are all in one room:
 
 - **Two active-shutter 3D televisions**, Sony KDL-46HX855 and KDL-46EX725, both working, both driven from the PC over HDMI. One of them is this machine's main display.
 - **Anaglyph**, on anything, including material authored for CRT phosphors.
-- **Both vendors on one machine**: a Ryzen 5 5600G with its integrated Radeon, and a GeForce RTX 3060, 93 GB of RAM. The iGPU is not worth a performance number, but it is a genuine AMD path for correctness testing, and the 3060 covers the Nvidia side.
+- **Both vendors on one machine**: a Ryzen 5 5600G with its integrated Radeon, and a GeForce RTX 3060, 93 GB of RAM. The iGPU is not worth a performance number, but it is a genuine AMD path for correctness testing.
+- **Period-correct Nvidia hardware, still owned**: a GTX 970 and a GTX 550. The 970 is on Nvidia's own 3D Vision compatibility list, and both are old enough to run a driver branch from when 3D Vision was still supported. So if it is useful, I can stand up a **real 3D Vision reference rig** next to wiz3D and compare them directly on the same game, the same scene and the same display, rather than judging wiz3D's output on its own.
 
 So I can cover side-by-side, top-and-bottom, shutter and anaglyph on displays that natively expect them, rather than checking that the output "looks right" in a window.
 I do not have a working parallax-barrier or lenticular panel to offer, so I cannot speak for the interlaced modes.
@@ -43,6 +44,7 @@ The same discipline applies here: one variable at a time, the exact build, the e
 1. Which output plugins and which build do you want covered first? The status notes say half the HD3D games display correctly in half-TAB and half-SBS and the rest do not, so that list seems the obvious place to start, but you know where the gaps hurt most.
 2. You ask for game results as edits to the README tables and a PR. Do you want output-mode results in the same tables, or somewhere separate, since they are a property of the display rather than the game?
 3. Does the HD3D path still initialise on a current Radeon with current drivers, or does that side need a card of the HD 5000/6000 era that the API was built for? My AMD side is a 5600G's integrated Radeon, so if HD3D needs period hardware I would rather know before reporting a failure that is really just the wrong card.
+4. For the 3D Vision work, would a side-by-side comparison against genuine 3D Vision be useful, and if so which driver version do you want me to pin? Your notes say the Automatic Mode games still need convergence and separation wired through to iZ3D and the shader fixes are not triggering yet, and that is exactly the kind of thing that is easier to judge against the original behaviour than against a description of it.
 
 One thing you may not have data on, and I can answer: the 3D televisions of this generation accept stereo over HDMI in two different ways, an automatic path and a manual one, and which of them a given output mode lands on is not obvious from the PC side. If that is useful to you, I will write it up properly.
 
