@@ -417,6 +417,16 @@ Closed history in the same family, none of them about the frame-packing SEI path
 
 Characterization evidence for the four closed ones: #1458 = user expected L/R swap to change pixels, not just the metadata flag (closed as designed); #2444 = same theme via propedit on 3D MVC files (closed); #1106 = SSIF/MVC Blu-ray feature request, sibling of #2709 (closed); #625 = StereoMode=0 elided vs EBML header version (closed).
 
+## 9.6 HEVC samples-uploaded comment on !6312 — **POSTED 2026-09-20 as [comment 23296627](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312#issuecomment-23296627)** (body verified byte-identical server-side)
+
+The !6312 body offered "I can upload the set … to your FTP area like the AVC ones if you want"; Daniel uploaded the HEVC set to `/6309/` on the maintainer's SFTP server, and this comment closes the loop. Text reviewed by Daniel ("post as is") before posting:
+
+```
+The HEVC companion set from the body is uploaded, same place as the AVC ones: /6309/ on your server.
+It is the plain x265 base streams, the injected left/right variants for side by side (type 3) and top and bottom (type 4), each wrapped to MP4 and TS, the remuxes made with mkvmerge v101 (SEI present, no StereoMode element — the direct before/after fixture), the README and the injector script.
+The README covers the provenance from the body, including the x265 frame-packing gap and the byte check against H.265 D.2.7.
+```
+
 ## 10. HEVC checklist for Daniel
 
 - [x] Commit trailer chosen by Daniel; committed as `48cec25cf`.
