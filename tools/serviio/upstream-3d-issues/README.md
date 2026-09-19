@@ -5,7 +5,8 @@ lanes (2026-09-15). Every draft follows the campaign framing: we bring
 the **diagnosis + a working fix**, not just a feature request.
 
 **Status: all 9 original targets engaged + 4 more filed 2026-09-18 (see
-the ecosystem section below).** 1 merged (HandBrake PR #8100), the rest
+the ecosystem section below).** 1 merged (HandBrake PR #8100), **1 code
+PR open at a maintainer's request** (UMS PR #6330, 2026-09-19), the rest
 posted/filed — including mkvmerge, whose Codeberg signup had read as a
 paywall but turned out to be the donate page wearing the same layout
 (account created; issue filed). First audience-facing target: the LTT
@@ -74,6 +75,58 @@ file it standalone after x265 (#4) lands. VidCoder needs no issue: its
 maintainer already stated (RandomEngy/VidCoder#1318) that all asks
 belong upstream in HandBrake; VidCoder inherits the fix via the
 HandBrake core DLLs it ships.
+
+## Universal Media Server — issue became code, PR #6330 (2026-09-19)
+
+**The second project to ask for a patch, and the first to ask for it
+unprompted.** After the measured-capabilities comment on
+[#6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329),
+maintainer **SubJunk** replied: *"thanks for these details, do you have
+any interest in providing code for these improvements?"* — so the issue
+was converted into a patch the same day.
+
+**[PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)
+carries both halves of the finding:**
+
+- **The 3D signal.** `FFMpegVideo.getVideoTranscodeOptions()` now passes
+  `-x264-params frame-packing=N` on libx264 transcodes whose output is
+  frame-packed: side-by-side 3, top-bottom 4, row-interleaved 2. It reads
+  `Output3DFormat` when the renderer sets one (that is the layout actually
+  leaving the encoder) and falls back to the source layout; anaglyph and
+  2D output are skipped, and it defers to an existing `-x264-params` in
+  `CustomFFmpegOptions`. Same shape as the merged HandBrake change.
+- **The audio and container profiles**, for the generation rather than one
+  model: `Sony-BraviaEX725.conf`, `Sony-BraviaHX.conf`,
+  `Sony-BraviaHX75.conf`. The EX725 profile **had no `f:mp4` line at all**,
+  so every MP4 was transcoded on a set that plays H.264 in MP4 directly;
+  E-AC3 is now declared for MP4 on all three (decoded up to 7.1, shown as
+  "Dolby Digital Plus"); DTS-silent and Matroska-not-advertised are
+  recorded as comments so the next person does not rediscover them.
+
+**Issue #6329 answered in the owner's words and closed**, pointing at the
+PR ([issuecomment-5738661601](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329#issuecomment-5738661601)).
+
+**Two triage comments posted** so the maintainer does not have to search
+([5738663407](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330#issuecomment-5738663407),
+[5738674855](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330#issuecomment-5738674855)).
+Swept `3D`, `stereoscopic`, `frame packing`, `SBS`, `Output3DFormat`,
+`anaglyph`, `Dolby`, `AC3`, `E-AC3`, `passthrough`, `5.1`,
+`transcode audio`, `Bravia`, `KDL`. Honest result: **only #6329 is closed
+by the PR.** #1775 (transcodes video when only the audio is unsupported)
+and #5974 (no per-resolution level limits in a profile) are the same
+family, different mechanism. **#6099 ruled out explicitly** — same brand
+and the same word "MP4", but a 2017 Android-era KDL-43WF665 and a v15
+regression, so conflating them would waste the maintainer's time. The old
+3D tickets (#587, #878, #893, #745, #3486, #3723) are subtitles and
+2D-to-3D requests, not the in-stream signal.
+
+**Two limits stated in the PR itself, not left for review to find:** the
+test suite could not be run here (no Maven on this machine, Java 25
+against the project's 17), so the Java change has had a **syntax check
+only** and needs CI; and the profile changes are applied to the configs
+matching the two measured sets' chassis generations, leaving
+`Sony-BraviaEX.conf`, `Sony-BraviaNX70x.conf` and `Sony-BraviaNX800.conf`
+untouched because that hardware is not here to measure.
 
 ## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
 
