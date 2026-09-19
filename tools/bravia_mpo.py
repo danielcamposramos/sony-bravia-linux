@@ -19,9 +19,18 @@ Structure written (CIPA DC-007 Multi-Picture Format):
     image 2: plain JPEG, concatenated
     MP entries carry each image's size and its offset from the MP
     endian field, with the first image's offset fixed at 0 by the spec.
-    view 0 is the Baseline MP Primary Image (0x030000) and carries the
-    representative flag; view 1 is Multi-frame Image: Disparity (0x020002),
-    which is what marks the file as a stereo pair.
+    BOTH views are Multi-frame Image: Disparity (0x020002), numbered from
+    the leftmost viewpoint (MP Individual Image Number 1, 2), and view 0
+    carries the representative flag. That is what marks the file as a
+    stereo pair.
+
+    An earlier version typed view 0 as Baseline MP Primary Image
+    (0x030000). That is wrong for stereo: CIPA DC-007 §6.1 defines a
+    Baseline MP File as a primary image plus at most two Large Thumbnails,
+    and §6.1.1.1 forbids an MP Attribute IFD on a Baseline Primary. A
+    player that honours the spec treats such a file as a photo with a
+    preview and shows the first image in 2D — which is exactly what both
+    BRAVIA sets did with it (tested 2026-09-19, HX855 and EX725).
 
 Usage
     bravia_mpo.py build LEFT.jpg RIGHT.jpg OUT.mpo
@@ -33,8 +42,10 @@ import argparse, io, struct, sys
 # CIPA DC-007 MPType codes. Getting these right matters: a reader deciding
 # "is this a 3D still?" looks here, and 0x030002 (which looks plausible) is
 # not a defined code at all — exiftool reports it as Unknown.
-MP_TYPE_PRIMARY = 0x030000      # Baseline MP Primary Image
-MP_TYPE_DISPARITY = 0x020002    # Multi-frame Image: Disparity (a stereo pair)
+MP_TYPE_PRIMARY = 0x030000      # Baseline MP Primary Image: a photo plus Large
+                                # Thumbnails (DC-007 §6.1). NOT for stereo.
+MP_TYPE_DISPARITY = 0x020002    # Multi-frame Image: Disparity — every view of a
+                                # stereo pair, the first one included
 ATTR_REPRESENTATIVE = 0x20000000
 
 
@@ -105,7 +116,7 @@ def build_mpo(left_bytes, right_bytes):
     size1 = len(left_bytes) + seg_len
     offset2 = size1 - tiff_at                                   # from MP endian field
     seg = _mpf_index_segment([size1, len(right)], [0, offset2],
-                             [ATTR_REPRESENTATIVE | MP_TYPE_PRIMARY, MP_TYPE_DISPARITY])
+                             [ATTR_REPRESENTATIVE | MP_TYPE_DISPARITY, MP_TYPE_DISPARITY])
     assert len(seg) == seg_len, (len(seg), seg_len)
     return left_bytes[:ins] + seg + left_bytes[ins:] + right
 
