@@ -51,10 +51,52 @@ right-eye-first JPS, so a swap is plausible there. Swapped and re-windowed
 variants of both are built for the next test; this is a property of those
 two source pictures, not of the format.
 
-**Still to confirm:** the same test on the KDL-46HX855 (same platform,
-expected to match, not yet run); and the **home-network path with a
-correct MPO**. Every network-delivered MPO in the section below was built
-by the broken writer, so that path is now untested rather than negative.
+**Confirmed on the KDL-46HX855 too** (owner, 2026-09-19): same result
+from USB, both sets.
+
+**The two outliers are the source pictures, not the pipeline.** Swapped
+and re-windowed variants were built from the same pixels: swapping made
+both worse, pushing the stereo window back 110 px (`DSC00201`) and 50 px
+(`DSC00202`) made them better but still too strong. So our eye order is
+right, and those two photos simply carry too much parallax.
+
+### Over the home network: the TV declares JPEG only
+
+The network path was retested on the **KDL-46HX855** (the EX725 was off)
+with **correct** MPOs, served byte-exact by Serviio under `.jpg` names (the
+inherited Sony image rule transcodes only 4:4:4-chroma JPEGs; these are
+4:2:0, so they pass through untouched): **no 3D, one view, flat.** The
+EX725 is expected to match — its declaration below is the same — but that
+is inferred, not measured. Three layers explain it, each measured:
+
+- **The TV's own DLNA declaration.** Both sets' `GetProtocolInfo` sink
+  lists (`research/liverecon/*_GetProtocolInfo.xml`) declare images as
+  `image/jpeg` only — `JPEG_LRG`, `JPEG_MED`, `JPEG_SM` and a catch-all
+  `image/jpeg:*`. No MPO profile, no MPO MIME type, nothing 3D for stills,
+  out of 69 entries (EX725) and 75 (HX855). The capability exists — USB
+  proves it — but the network path was never declared for it.
+- **Serviio's library.** Its indexer added every `.jpg` and never logged
+  the `.mpo` at all: the extension is filtered before any renderer
+  profile is consulted, and no profile Serviio ships has an MPO entry.
+- **The decode.** Served as `image/jpeg`, the file is decoded as a JPEG,
+  so the set shows the first view, exactly as a JPEG decoder should.
+
+This is what AVForums' 2012 review of the KDL-55HX753 (this board family)
+said: *"Photo's are limited to JPEG over the network but USB connected
+devices will be able to display 3D MPO files"* (cited in full below).
+
+**So the gate is software, as far as we know.** The same set, the same
+file, the same decoder behind the same 3D switch: from USB it engages 3D,
+from the network it is never offered the chance, because the network
+photo path neither declares MPO nor hands it to the stereo decoder. No
+hardware limit explains that split. It is one more concrete target for
+the firmware work: the capability is already on the board, only the
+network path's dispatch keeps it off.
+
+**One lead is still open:** whether the network player chooses its
+decoder from the file extension in the resource URL. Serviio's resource
+URLs carry no filename; a server whose URLs end in `.mpo` while still
+announcing `image/jpeg` would test it.
 
 ## What our own sets do (owner-measured 2026-09-18)
 
