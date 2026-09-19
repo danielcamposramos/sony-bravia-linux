@@ -56,6 +56,16 @@ is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
   two DNS overrides, the era-TLS vhost, the media app, the widget-restore
   catalog edit, and every platform gotcha we hit.
 
+**And the fix is landing upstream, not just here.** The missing 3D
+signal is now written by **HandBrake** ([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100),
+merged 2026-09-16) and by **Universal Media Server**
+([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
+merged 2026-09-19, after its maintainer read the measurements and asked
+for the code) — the encoder end and the server end of the same chain.
+Everyone with one of these televisions benefits from those two merges
+without ever finding this repository. See
+[the campaign](#the-3d-signalling-campaign) for the whole front.
+
 The single partner entry point, kept current, is
 [docs/project-status.md](docs/project-status.md) — read it first.
 
@@ -95,7 +105,18 @@ frame-packing SEI (payload 45) — and ignore the Matroska StereoMode tag
 every standard rip carries, so 3D DLNA playback silently fails on
 perfectly good hardware. The diagnosis plus a working fix was taken
 upstream to every tool in the encode → remux → player pipeline, and then
-to the DLNA servers that serve the files. Full drafts, per-target status,
+to the DLNA servers that serve the files.
+
+**Two merges so far: the encoder end and the server end are fixed
+upstream.** HandBrake now writes the SEI when it encodes
+([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100)), and
+Universal Media Server now writes it when it transcodes *and* stops
+transcoding what these sets already play
+([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
+merged 2026-09-19). The UMS patch was written after its maintainer read
+the measurements and asked for code.
+
+Full drafts, per-target status,
 and links live in
 [tools/serviio/upstream-3d-issues/](tools/serviio/upstream-3d-issues/);
 the ecosystem evidence base (DVB mandate with honest scope, a decade of
@@ -115,8 +136,12 @@ short form linked in every upstream post is
 | mkvmerge | [Codeberg #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309) **filed 2026-09-18** — derive stereo mode from the SEI; the earlier "signup paywall" was the donate page wearing the same layout |
 | Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — DLNA profile mislabel (first version was wrong and corrected in place). **Owner-verified on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |
 | Jellyfin | [comment on PR #18060](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078) (layout-detection point) |
-| Universal Media Server | [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) filed |
+| Universal Media Server | **[PR #6330 merged](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)** (2026-09-19) — the maintainer read the measurements on [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) and asked for code. Writes the frame-packing SEI on libx264 transcodes, and corrects the 2011–2012 Bravia profiles: the EX725 profile had **no MP4 line at all**, so every MP4 was transcoded on a set that plays it directly, and **E-AC3 is now declared** (decoded to 7.1, shown as *Dolby Digital Plus*) |
 | Gerbera | [issue #3937](https://github.com/gerbera/gerbera/issues/3937) filed — the no-remux SEI-injection step |
+| Media3 / ExoPlayer | [issue #3419](https://github.com/androidx/media/issues/3419) filed 2026-09-19 — Android never parses this SEI at all. Revives [ExoPlayer #7869](https://github.com/google/ExoPlayer/issues/7869), whose 2020 answer was *"as you are the first one to ask for it, we will probably not look into it"*. Second asker, five years later, with measurements |
+| VLC | **gap measured, owner to file** — 3.0.23 decodes the SEI and renders stereo from it, then drops it on re-encode unless `--sout-x264-frame-packing` is passed by hand. VideoLAN bans AI-generated contributions in its GSoC programme, so this one goes up in the owner's own words |
+| GStreamer · MPC-BE | **already correct — cited as prior art, not filed against.** GStreamer parses payload 45 in `h264parse`, publishes it on caps, and `x264enc` derives the write-side parameter automatically. That loop is the answer to "is this practical?" everywhere else |
+| Chromecast | **not contributable** — receiver and Cast SDK are closed, the public repos are sample apps, and the Cast media documentation never mentions 3D, stereo or frame packing. A cast cannot carry automatic 3D anyway: the device decodes the stream and outputs HDMI |
 | LTT forums | two audience posts: [3D-theater guide](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) + [Steam Frame cross-comment](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512) |
 
 No DRM or copy-protection mechanism is involved anywhere in the chain.
