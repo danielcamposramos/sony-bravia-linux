@@ -43,9 +43,22 @@ The same discipline applies here: one variable at a time, the exact build, the e
 
 1. Which output plugins and which build do you want covered first? The status notes say half the HD3D games display correctly in half-TAB and half-SBS and the rest do not, so that list seems the obvious place to start, but you know where the gaps hurt most.
 2. You ask for game results as edits to the README tables and a PR. Do you want output-mode results in the same tables, or somewhere separate, since they are a property of the display rather than the game?
-3. Does the HD3D path still initialise on a current Radeon with current drivers, or does that side need a card of the HD 5000/6000 era that the API was built for? My AMD side is a 5600G's integrated Radeon, so if HD3D needs period hardware I would rather know before reporting a failure that is really just the wrong card.
+3. On the AMD side I have a 5600G's integrated Radeon, which looks close to the 5600U iGPU reported working in #6, so I assume the path is fine. Is there anything specific you want checked there, or is the Radeon side better served by game coverage than by another hardware report?
 4. For the 3D Vision work, would a side-by-side comparison against genuine 3D Vision be useful? Your notes say the Automatic Mode games still need convergence and separation wired through to iZ3D and that the shader fixes are not triggering yet, and that is easier to judge against the original behaviour than against a description of it. One question about the reference only, not about wiz3D: the last driver supporting 3D Vision is 425.31, listed by Nvidia for Windows 10, 8.1 and 7, and my Windows installation is 11. If anyone has seen 425.31 run on Windows 11 I will use that, otherwise I will put Windows 10 on the reference machine. My wiz3D testing itself stays on the modern setup, since that is the situation your users are actually in.
 
 One thing you may not have data on, and I can answer: the 3D televisions of this generation accept stereo over HDMI in two different ways, an automatic path and a manual one, and which of them a given output mode lands on is not obvious from the PC side. If that is useful to you, I will write it up properly.
+
+**One measurement you may find useful, since it is the gap wiz3D sits in.**
+Both operating systems can already see that this television does 3D, and neither offers any way to use it on the desktop.
+Reading the EDID over the live HDMI link on Linux, the set's HDMI vendor block declares `3D present`, a 3D-capable VIC mask, side-by-side (half) and top-and-bottom, and frame packing on specific VICs including 1080i at 50 and 60 Hz and 1080p24.
+Windows detects the same capability from the same cable.
+Neither one exposes a switch, a mode or a checkbox that turns it on for anything, so the capability is advertised by the display, parsed by the operating system and then dropped on the floor.
+There is no desktop path to stereo left on either platform, which is exactly why a wrapper like this is the only route back in.
+
+**Two suggestions, both about reach rather than code.**
+
+*Proton.* I see #6 already has people running wiz3D under Proton, one of them on a Steam Deck, and that you fixed the HD3D path for Proton systems in 0.2.0. I would treat that as a headline feature rather than a compatibility footnote. Valve has spent years making Proton the way Windows games run on Linux, and it is the one route where stereo can reach a broad audience without asking anyone to keep an old Windows install alive. On my side that also means the same games can be tested through Proton and native Windows on the same machine, with the same GPU and the same television, which isolates the wrapper from the platform.
+
+*Steam Frame.* Valve's standalone SteamOS headset shipped on 14 September 2026, runs Proton and streams from a PC over its own wireless adapter. That makes a headset a plain output target for a wrapper that already produces side-by-side, and I notice VR output came up in #19 as roadmap. A stereo wrapper whose output can land on a 3D television, a 3D projector or a Steam Frame, through Proton on Linux or natively on Windows, covers essentially every way anyone can still watch stereo.
 
 I also maintain a public list of stereoscopic material, and wiz3D is in it, together with the iZ3D source release and Vadim's name, because that lineage deserves to be recorded: https://github.com/danielcamposramos/awesome-stereoscopy
