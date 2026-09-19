@@ -8,14 +8,33 @@ player, native controls, served from Serviio).
 
 1. The TV **detected the video's 3D signal** — the frame-packing /
    stereoscopy metadata carried in the stream, the same signal the
-   upstream campaign is about (see `docs/3d-signalling-explainer.md`).
-2. It **did not switch to 3D display mode automatically.**
-3. **Manual switching was also blocked** — the set's own 3D control would
-   not engage 3D while the content was playing from the browser path.
+   upstream campaign is about (see `docs/3d-signalling-explainer.md`) —
+   and **said so on screen**, in its own words:
 
-So the panel read the signal, knew the content was 3D, and was refused
-the switch — automatically *and* manually — specifically for
-browser-sourced video.
+   > **Sinal 3D foi detectado**
+
+2. It **did not switch to 3D display mode automatically.**
+3. **The 3D menu was not enabled either** — the set's own 3D control
+   would not engage 3D while the content was playing from the browser
+   path, so manual switching was blocked as well.
+
+So the panel read the signal, announced the finding to the owner, and
+was then refused the switch — automatically *and* manually — specifically
+for browser-sourced video.
+
+**The contrast is the proof.** On the same television, a spec-correct
+MPO from a USB stick **engages 3D by itself**, no prompt and no menu
+needed (2026-09-19, both sets, `3d-photos-on-bravia.md`). The browser
+path gets as far as printing *Sinal 3D foi detectado* and then stops.
+The detector works, the panel works, the 3D engine works. What differs
+between the two is which source path the content arrived on.
+
+| Path | Set's own behaviour |
+|---|---|
+| USB, correct MPO | detects and **switches to 3D by itself** |
+| HDMI / broadcast | switches, 3D menu available (documented by Sony) |
+| DLNA, correct MPO | shown flat as JPEG; an honestly announced MPO is **hidden from the listing** |
+| Browser video, 3D signal present | **detects and says so on screen**, then neither switches nor enables the 3D menu |
 
 ## Why this matters
 
