@@ -306,7 +306,11 @@ gate AI, because the thesis holds only if it is stated fairly:
 
 - **mpv**: AI-assisted contributions "are not forbidden"; the requirement
   is understanding the code and answering review with human-written
-  responses.
+  responses. Since commit `e76a35ec9` (2026-09-17, the day after this
+  campaign's PR #18490 was opened) the policy also states: *"AI/LLM must
+  not be used to write commit messages or pull request descriptions.
+  Clearly vibe-coded patches will not be considered."* The code rule is
+  unchanged; the new line is about the prose around it.
 - **mkvtoolnix (mbunkus)**: AI assistance "acceptable only when the
   submitter demonstrably understands every claim" (tracker meta-issue
   #6278). Notably this project is hosted *on* Codeberg.
@@ -356,6 +360,41 @@ substitute for ownership. Where a host bans hosting AI-heavy *projects*
 (Codeberg), we simply do not host there; the AI-assisted repository
 stays on GitHub, and only human-authored *issues* go to the Codeberg
 project.
+
+## The merge clock — what judging the artifact looks like (2026-09-19)
+
+The thesis above makes a prediction you can time: a maintainer who
+reads the artifact rather than the cover should reach a decision about a
+small, standard-derived, disclosed patch quickly, because there is little
+to doubt once the change is read. The two merges so far, measured from
+each project's own PR record:
+
+- **HandBrake [#8100](https://github.com/HandBrake/HandBrake/pull/8100)**
+  — opened 2026-09-16 05:45 UTC, **merged by galad87 81 minutes later**.
+  galad87 had invited a patch on the original issue (#5826). The encoder
+  now writes the frame-packing SEI.
+- **Universal Media Server [#6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)**
+  — opened 2026-09-19 02:35 UTC, **approved after 29 minutes and merged
+  by SubJunk after 41**, with CI green on Lint, Linux 22.04 and 24.04,
+  Windows and both macOS runners. SubJunk had read the measurements on
+  #6329 and asked, unprompted, *"do you have any interest in providing
+  code for these improvements?"* The server now writes the SEI when it
+  transcodes and stops transcoding what these televisions already play.
+
+Both patches were AI-assisted, and both were owned: understood, measured
+on hardware, answered in review, and small enough to check in one
+sitting. Both maintainers could see exactly what each line did and why,
+and neither needed more than an afternoon's coffee to decide. That is
+what a gate on "understood, owned, reviewed and correct" produces when
+the work meets it.
+
+The open items are recorded as open, not as verdicts. Most are simply
+unread yet — open-source review queues are long. The one that *has* been
+read and not merged, mpv
+[#18490](https://github.com/mpv-player/mpv/pull/18490), is contested on
+process rather than on the code; its full sequence is in
+`tools/serviio/upstream-3d-issues/README.md`. When the others are read,
+this section gains a line each.
 
 ## Related in-repo records
 
