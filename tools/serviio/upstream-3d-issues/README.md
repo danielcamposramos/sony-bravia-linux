@@ -261,6 +261,17 @@ facts; no claim is made about whether the change was prompted by this PR.
    them to judge the content for what it is. `maintainer_can_modify` is on,
    so the maintainers can reword at merge.
 
+4. **Asked the project's most active maintainer for a technical read**
+   ([issuecomment-5739342145](https://github.com/mpv-player/mpv/pull/18490#issuecomment-5739342145),
+   2026-09-19 04:27): *"@kasper93 urging for a neutral technical review
+   here."* Context from the project's own data: the PR had been reviewed
+   by llyyr (author of the 2026-09-17 commit-message rule) and
+   CounterPillow; kasper93 authored 193 of mpv's last 300 commits and had
+   not yet engaged. mpv's founder, Vincent "wm4" Lang, left the project
+   around 2020 (contested circumstances, see
+   [#8254](https://github.com/mpv-player/mpv/issues/8254)), before the
+   LLM era; no statement of his on AI was found.
+
 **Declined along the way, recorded so the reasoning survives:** writing
 deliberately broken English to pass AI text off as the owner's own. The
 campaign's argument ("don't judge by the cover") only works while every
