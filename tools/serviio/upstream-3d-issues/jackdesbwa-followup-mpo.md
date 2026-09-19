@@ -12,6 +12,12 @@ I wrote that Sony's photo slideshow on these sets is 2D only because the photo p
 **It is wired, for MPO, from USB.**
 I tested it today on both sets: a correct MPO on a USB stick engages 3D by itself, no menu.
 
+That was never settled, not even by Sony.
+Its own support pages contradict each other by region: the German and Russian ones say 3D photos cannot play from USB at all, the Brazilian one says MPO is the format, with per-model variation.
+The owner reports I found were Italian, on European firmware.
+Nobody had shown it on the Brazilian firmware these two sets run (PKG2.120BRA and PKG4.027BRA).
+Now it is measured there.
+
 Every MPO I had tried before stayed flat, and the cause was my own writer.
 It typed the first view as Baseline MP Primary Image (`0x030000`).
 CIPA DC-007 §6.1 defines that as one photo plus preview thumbnails, not a stereo pair, so the TV did exactly the right thing and showed the first image in 2D.
