@@ -28,7 +28,7 @@ I do, and they are all in one room:
 - **Two active-shutter 3D televisions**, Sony KDL-46HX855 and KDL-46EX725, both working, both driven from the PC over HDMI. One of them is this machine's main display.
 - **Anaglyph**, on anything, including material authored for CRT phosphors.
 - **Both vendors on one machine**: a Ryzen 5 5600G with its integrated Radeon, and a GeForce RTX 3060, 93 GB of RAM. The iGPU is not worth a performance number, but it is a genuine AMD path for correctness testing.
-- **Period-correct Nvidia hardware, still owned**: a GTX 970 and a GTX 550. The 970 is on Nvidia's own 3D Vision compatibility list, and both are old enough to run a driver branch from when 3D Vision was still supported. So if it is useful, I can stand up a **real 3D Vision reference rig** next to wiz3D and compare them directly on the same game, the same scene and the same display, rather than judging wiz3D's output on its own.
+- **Period-correct Nvidia hardware, still owned**: a GTX 970, which is on Nvidia's own 3D Vision compatibility list, and a GTX 550. Both are old enough for a driver branch from when 3D Vision was still supported. The 970 is currently serving as the GPU in a Linux home server rather than sitting spare, so this is an offer that costs me a rebuild, not one I can run tomorrow. If a **genuine 3D Vision reference rig** would be useful to compare against on the same game, the same scene and the same display, say so and I will put one together.
 
 So I can cover side-by-side, top-and-bottom, shutter and anaglyph on displays that natively expect them, rather than checking that the output "looks right" in a window.
 I do not have a working parallax-barrier or lenticular panel to offer, so I cannot speak for the interlaced modes.
