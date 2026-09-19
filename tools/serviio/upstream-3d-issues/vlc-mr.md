@@ -1,5 +1,12 @@
 # VLC merge request — x264: signal the input stereoscopic layout by default
 
+**Status 2026-09-19: waiting on account approval.** The owner signed up at
+code.videolan.org with his GitHub account; VideoLAN's GitLab holds new
+accounts for administrator approval. **Before sending:** re-check VideoLAN's
+AI policy with the account in hand (their wiki, which carries the GSoC-scoped
+ban, was offline on every attempt) and respect whatever applies. Workflow as
+usual: drafted here, owner reviews, owner authorises or sends.
+
 Target: https://code.videolan.org/videolan/vlc (master). Patch:
 `vlc-0001-x264-frame-packing-from-input.patch` (this folder), made against
 master's `modules/codec/x264.c`, applies with `git am`. Owner submits.
@@ -19,6 +26,8 @@ Frame-compatible 3D displays detect the layout from this SEI alone. ETSI TS 101 
 **Measured on VLC 3.0.23** with a 1080p clip encoded with frame-packing=3: `#transcode{vcodec=h264}` produces an output with no Stereo 3D side data under ffprobe; the same command with `--sout-x264-frame-packing=3` produces it. This patch makes the default case behave like the second. The mapping function was compiled against the `include/vlc_es.h` enum with `-Wall -Wextra -Werror` and exercised for all seven modes; the full tree was not built locally.
 
 Related: #29582. The same signal is now written upstream by HandBrake (https://github.com/HandBrake/HandBrake/pull/8100) and Universal Media Server (https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330), both merged.
+
+*AI partners were leveraged in the production of this work.*
 
 ## Steps to submit
 
