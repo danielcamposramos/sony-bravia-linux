@@ -396,6 +396,44 @@ process rather than on the code; its full sequence is in
 `tools/serviio/upstream-3d-issues/README.md`. When the others are read,
 this section gains a line each.
 
+## Seven policies, and what actually predicted the reception (2026-09-19)
+
+With the campaign now spanning seven upstream projects plus the Consumer
+Rights Wiki, the sample is large enough to ask whether a project's
+strictness about AI predicted how the work was received. It did not.
+
+| Project | Stated position on AI | What happened |
+|---|---|---|
+| **mpv** | Strictest written rule met so far: disclosure required, and since 2026-09-17 *"AI/LLM must not be used to write commit messages or pull request descriptions"* | Both rules complied with. The friction came from a reviewer's inference that AI-written prose implied the author could not answer review, which the thread itself disproved |
+| **Jellyfin** | Explicit and detailed public policy: *"pure 'vibe coding' will be rejected"*, the author must explain the change in their own words, PR template asks how code assistance contributed | Not approached |
+| **mkvtoolnix** | No written policy by choice; the maintainer's answer on meta-issue [#6278](https://codeberg.org/mbunkus/mkvtoolnix/issues/6278) is that he is *"very skeptical"*, does not use LLMs himself, is *"not fundamentally against their use"*, and would require that *"you-the-human must understand all changes, their effect & be able to explain the reasoning behind why they're correct"* | Asked us for sample files, then received four synthetic ones and an offer of a patch |
+| **HandBrake** | None written | Merged (PR #8100) |
+| **Universal Media Server** | None written | Merged (PR #6330) |
+| **wiz3D** | None written | Hardware-testing offer posted as issue #32 |
+| **Consumer Rights Wiki** | Explicit and pragmatic: assistance allowed, every citation must be checked against the page it points to, obvious slop reverted on sight | Working within it, with the disclosure volunteered rather than required |
+| **Codeberg** (the host, not a project) | Hardest institutional line of all: members voted to prohibit projects that mostly consist of generated code, and the association states these tools are *"incompatible with responsibly creating and maintaining free & open source software"* | Hosts mkvtoolnix, where the exchange above took place |
+
+Two things fall out of the table.
+
+**Strictness did not predict hostility.** The forge with the hardest
+institutional stance hosts the maintainer who engaged most readily,
+because its rule targets *generated projects, autonomous agent activity,
+and contributions that breach a project's own policy* rather than the
+involvement of a tool. Meanwhile the friction occurred at the project
+whose rule the campaign had already complied with.
+
+**What varied was the artifact, not the policy.** mkvtoolnix received
+four files and a mapping table, verifiable with one `ffprobe` command.
+HandBrake and Universal Media Server received code, where the diff is
+the argument. mpv received a patch wrapped in explanation, and the
+explanation became the subject. A sample file has no writing style to
+object to.
+
+The practical rule the campaign now follows is the one every policy in
+that table is satisfied by: read the policy, comply with it, disclose
+where asked and often where not, hand over something checkable, and let
+the owner send it in his own words.
+
 ## Related in-repo records
 
 - The episode itself: `tools/serviio/upstream-3d-issues/README.md`,
