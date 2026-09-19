@@ -77,3 +77,26 @@ ffmpeg -f lavfi -i "color=...:s=640x720:d=3,drawtext=...,drawbox=..." \
        -x264-params "frame-packing=3" -t 3 sbs-frame-packing-3.mp4
 
 (vstack and frame-packing=4 for the top-and-bottom file.)
+
+HEVC companion samples (2026-09-19)
+-----------------------------------
+
+x265 has no frame-packing option (checked against 3.5 on Debian testing and
+4.1 on Debian trixie, both report "Unknown option"), so the HEVC samples are
+plain x265 elementary streams with a spec-exact frame packing arrangement SEI
+injected before the first IDR by hevc_inject_frame_packing.py from this
+directory. The payload bytes were verified by hand against Rec. ITU-T H.265
+D.2.7 (e.g. side by side, frame0 = left view: 81 81 2C 02 80).
+
+    ffmpeg -f lavfi -i "testsrc2=size=1280x720:rate=25" \
+           -f lavfi -i "smptebars=size=1280x720:rate=25" \
+           -filter_complex "[0:v][1:v]hstack[v]" -map "[v]" -frames:v 50 \
+           -c:v libx265 -preset fast -crf 24 -y hevc-base-sbs.h265
+    python3 hevc_inject_frame_packing.py hevc-base-sbs.h265 \
+            hevc-sbs-left.h265 --type 3 --ci 1
+
+(ci 1 = frame0 is the left view, ci 2 = right; type 4 = top and bottom.
+MP4: ffmpeg -i in.h265 -c copy out.mp4. TS: -f hevc -framerate 25 -i in.h265
+-c copy -bsf:v "setts=pts=N:dts=N:time_base=1/25" -f mpegts out.ts. The
+*-stock.mkv fixtures were written by mkvmerge v101, which predates the fix,
+so they carry the SEI but no StereoMode element.)
