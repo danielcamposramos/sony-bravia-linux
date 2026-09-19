@@ -187,6 +187,46 @@ path. This one does now:
   automatic 3D over DLNA on stock free software (this repo,
   `tools/serviio/`).
 
+## The player and framework survey (2026-09-19)
+
+Where every open project in the chain actually stands, read from source
+rather than assumed. Two of them already do it correctly, which is the
+most useful finding: it makes the fix demonstrably mechanical rather
+than novel.
+
+| Project | Reads the SEI | Writes/keeps it on transcode | Verdict |
+|---------|---------------|------------------------------|---------|
+| **GStreamer** | yes — `gst_h264_parser_parse_frame_packing()` decodes payload 45; `h264parse` publishes `GstVideoMultiviewMode` on caps | **yes, automatically** — `x264enc` derives `i_frame_packing` from the input caps by default | **already correct — the reference implementation** |
+| **MPC-BE** | yes — bundles FFmpeg's SEI decode, plus its own Matroska `StereoMode` read **and write**, and a real Stereo3D renderer transform | n/a (player) | **already correct** |
+| **VLC** | yes — `hxxx_sei.h` defines type 45, `h264.c` maps it to `multiview_mode`, OpenGL renderer builds a stereo matrix from it, libVLC exposes it | **no** — `sout-x264-frame-packing` exists but is manual opt-in; nothing derives it from the decoded `multiview_mode`, and the chromecast module never sets it | **gap — measured below** |
+| **Media3 / ExoPlayer** | **no** — Matroska `StereoMode` and Apple `vexu`/MV-HEVC only; `frame_packing` appears nowhere in the repo; `H264Reader`'s SEI reader is closed-captions only | no — `WebmConstants` defines `STEREO_MODE` but the muxer never writes it | **gap — filed** |
+| **Chromecast** | — | — | **not contributable** — receiver and Cast SDK are closed, the public repos are sample apps, and the Cast media documentation never mentions 3D, stereo or frame packing at all |
+| MPC-HC | no stereo subsystem in tree | — | skip — the feature already lives in its own more active fork (MPC-BE) |
+| Emby | — | — | dead public repo (frozen at 2018, the code Jellyfin forked) |
+| Plex | — | — | closed, no surface |
+
+**VLC, measured on VLC 3.0.23 (owner's workstation, 2026-09-19).** A
+three-second H.264 clip encoded with `-x264-params frame-packing=3`
+(ffprobe confirms `side_data_type=Stereo 3D`), then re-encoded by VLC:
+
+| VLC command | frame-packing SEI in the output |
+|---|---|
+| `--sout '#transcode{vcodec=h264}:std{...}'` | **gone** |
+| same, plus `--sout-x264-frame-packing=3` | present |
+
+So VLC decodes the signal, uses it to render stereo, and then discards
+it at the encoder unless the user already knows the flag exists. The
+fix is the one GStreamer already ships: derive the encoder parameter
+from the layout the decoder just reported.
+
+**The Chromecast answer, for the record.** The signal loss in VLC's cast
+path is real in code, but even a perfect stream cannot deliver automatic
+3D through a Chromecast: the device decodes the stream and outputs HDMI,
+so the SEI is consumed at the decoder, and Cast has no frame-packing
+signalling of its own. Manual side-by-side mode on the television is the
+only route there. The contributable surface is VLC's sender module, not
+anything of Google's.
+
 ## A second server, the same result (Kodi, owner-verified 2026-09-18)
 
 The signalling fix was first proven through Serviio. The obvious

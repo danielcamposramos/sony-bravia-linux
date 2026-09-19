@@ -5,8 +5,8 @@ lanes (2026-09-15). Every draft follows the campaign framing: we bring
 the **diagnosis + a working fix**, not just a feature request.
 
 **Status: all 9 original targets engaged + 4 more filed 2026-09-18 (see
-the ecosystem section below).** 1 merged (HandBrake PR #8100), **1 code
-PR open at a maintainer's request** (UMS PR #6330, 2026-09-19), the rest
+the ecosystem section below).** **2 merged** (HandBrake PR #8100;
+UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0`), the rest
 posted/filed — including mkvmerge, whose Codeberg signup had read as a
 paywall but turned out to be the donate page wearing the same layout
 (account created; issue filed). First audience-facing target: the LTT
@@ -86,7 +86,9 @@ any interest in providing code for these improvements?"* — so the issue
 was converted into a patch the same day.
 
 **[PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)
-carries both halves of the finding:**
+— APPROVED by SubJunk and MERGED 2026-09-19T03:16Z as `bd032ab0f8e6`, CI
+green (Lint, Linux 22.04/24.04, Windows, macOS ARM/Intel) — carries both
+halves of the finding:**
 
 - **The 3D signal.** `FFMpegVideo.getVideoTranscodeOptions()` now passes
   `-x264-params frame-packing=N` on libx264 transcodes whose output is
@@ -127,6 +129,61 @@ only** and needs CI; and the profile changes are applied to the configs
 matching the two measured sets' chassis generations, leaving
 `Sony-BraviaEX.conf`, `Sony-BraviaNX70x.conf` and `Sony-BraviaNX800.conf`
 untouched because that hardware is not here to measure.
+
+## Media3 / ExoPlayer — the second asker, five years later (2026-09-19)
+
+**Google's own 2020 reply is the opening.** The request already existed:
+[google/ExoPlayer#7869](https://github.com/google/ExoPlayer/issues/7869),
+filed 2020-09-08, answered two days later by a Google engineer — *"As you
+are the first one to ask for it, we will probably not look into it in the
+near future. Feel free to make a pull request if you want the change to be
+added soon."* — and labelled **low priority**. That reply makes demand the
+deciding factor, and in five years nobody asked twice.
+
+**Filed on the active tracker: [androidx/media#3419](https://github.com/androidx/media/issues/3419)**,
+with [a comment on #7869](https://github.com/google/ExoPlayer/issues/7869#issuecomment-5738919730)
+connecting the two so they do not drift apart.
+
+The gap, read from their source rather than assumed: `MatroskaExtractor`
+reads `ID_STEREO_MODE = 0x53B8`, `BoxParser` reads Apple's `vexu` box and
+`HevcConfig` the 3D-reference-display SEI (both MV-HEVC spatial video),
+but `H264Reader`'s SEI reader is documented as closed-captions only and
+**`frame_packing` appears nowhere in the repository**. A frame-packed
+stream with no container tag — the normal case for MPEG-TS and for any
+MKV→TS remux — is invisible to ExoPlayer as 3D. One adjacent find:
+`WebmConstants` defines `STEREO_MODE` but the muxer never writes it.
+
+What the issue brings that 2020 did not: prior art in GStreamer (the full
+read→caps→auto-write loop), FFmpeg's `AV_FRAME_DATA_STEREO3D`, VLC's
+parser, HandBrake merged and UMS merged; a mapping table onto the
+`C.STEREO_MODE_*` constants Media3 already gained for MV-HEVC; and the
+791-byte hardware measurement. **Owner will sign Google's individual CLA**
+if they accept the patch — his reasoning: the Steam Frame wave makes this
+matter to Android the way the Steam Deck made Linux gaming matter, and
+they will be glad of it later.
+
+## VLC — gap measured, but the owner files it (2026-09-19)
+
+**Measured, not assumed:** VLC 3.0.23 decodes the SEI (its H.264
+packetizer maps payload 45 to `multiview_mode`, and the OpenGL renderer
+draws stereo from it) and then **throws it away on re-encode** — default
+transcode loses it, `--sout-x264-frame-packing=3` keeps it. GStreamer's
+`x264enc` derives exactly that parameter from its input caps
+automatically, so the patch is mechanical. VLC's chromecast module never
+sets it either, though the cast path cannot deliver automatic 3D anyway
+(the device decodes to HDMI). Full table and method in
+`docs/3d-signalling-ecosystem.md`.
+
+**Why this one is not ours to send.** VideoLAN publishes an explicit
+ban on AI-generated contributions for its GSoC programme — scope beyond
+GSoC could not be confirmed, because `wiki.videolan.org` returned 502 on
+both attempts — and VideoLAN's president is on record criticising
+AI-written merge requests from contributors unfamiliar with the codebase.
+Repo README and the contribution guidelines contain no AI policy. Under
+the standing rule, that is enough: **the owner writes and submits this
+one in his own words**, with the patch, the measurement and the VLC
+file/line references prepared as raw material. Open feature request to
+attach it to: [videolan/vlc#29582](https://code.videolan.org/videolan/vlc/-/issues/29582).
 
 ## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
 
