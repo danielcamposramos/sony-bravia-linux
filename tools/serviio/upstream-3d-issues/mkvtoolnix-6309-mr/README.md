@@ -96,28 +96,17 @@ over bitstream 1 on MP4 → 11.
 ```
 mkvmerge: AVC: set stereo mode from frame packing arrangement SEI
 
-Parse the frame packing arrangement SEI message (payloadType 45) in
-the AVC ES parser and use it to set the stereo mode at bitstream
-level, i.e. only if neither the command line nor the container
-specifies one.
+Parse the frame packing arrangement SEI message (payloadType 45) in the AVC ES parser and use it to set the stereo mode at bitstream level, i.e. only if neither the command line nor the container specifies one but the source contains one.
 
-The detection happens in the readers so that the stereo mode is known
-during file identification: the MP4 reader probes the first frames
-even when the avcC is present, the Matroska reader looks at the first
-frame of tracks without a StereoMode element, and the AVC ES and MPEG
-TS readers keep the result of the parser pass they already make.
+The detection happens in the readers so that the stereo mode is known during file identification: the MP4 reader probes the first frames even when the avcC is present, the Matroska reader looks at the first frame of tracks without a StereoMode element, and the AVC ES and MPEG TS readers keep the result of the parser pass they already make.
 
-The SEI loop no longer stops at a recovery point, so a frame packing
-message following one in the same NAL unit is found, too.
+The SEI loop no longer stops at a recovery point, so a frame packing message following one in the same NAL unit is found, too.
 
-The mapping follows RFC 9559, table 5; content_interpretation_type 2
-selects the right-eye-first values. The helper lives in common/xyzvc
-so that HEVC support can reuse it.
+The mapping follows RFC 9559, table 5; content_interpretation_type 2 selects the right-eye-first values. The helper lives in common/xyzvc so that HEVC support can reuse it.
 
 Implements the AVC part of #6309.
 
-Written with LLM assistance for the prose and the code, reviewed and
-tested by me; see the merge request.
+Written with LLM assistance for the prose and the code to overcome personal difficulties and language barrier (English is not my native language - LLM drafted, I've read and edited where was due), reviewed and tested by me; see the merge request.
 
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 ```
@@ -136,13 +125,14 @@ A new section above `## Bug fixes` under `# Version ?`:
   during file identification. Implements the AVC part of #6309.
 ```
 
-### 4.3 Merge request
+### 4.3 Merge request — **OPENED 2026-09-19 as [!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311)**
+(body verified byte-identical against `mr-avc-body.md` after creation; title
+verified byte-identical against `mr-avc-title.txt`)
 
 **Title:** `mkvmerge: set stereo mode from the AVC frame packing arrangement SEI`
 
 ```
-This implements the AVC part of #6309, following the design discussed
-there. HEVC will follow as a separate MR.
+This implements the AVC part of #6309, following the design discussed there. HEVC will follow as a separate MR.
 
 What it does:
 
@@ -181,18 +171,9 @@ References:
 - RFC 9559, section 5.1.4.1.28.3 (StereoMode), table 5
 - FFmpeg, libavcodec/h2645_sei.c, decode_frame_packing_arrangement()
 
-About how this was written: English is my second language (my first is
-Brazilian Portuguese), so I drafted the code, this description, the
-commit message and the NEWS entry with an LLM, then reviewed, tested
-and edited them. I know you said you would likely want no LLMs for
-documentation. I would rather tell you than hide it, and I am happy to
-rewrite the texts myself, or you can replace the NEWS line with your
-own. I understand every change and can explain any of it. I am a
-registered electrical engineer in Brazil, and I stand behind the work.
+Disclamer about how this was written: English is my second language (my first is Brazilian Portuguese), so I drafted the code, this description, the commit message and the NEWS entry with an LLM, then reviewed, tested and edited them. I know you said you would likely want no LLMs for documentation. I would rather tell you than hide it, and I am happy to rewrite the texts myself, or you can replace the NEWS line with your own. I understand every change and can explain any of it. I am a registered electrical engineer in Brazil, and I stand behind the work.
 
-This is part of a wider effort to keep stereo 3D signalling intact
-from encoder to display, since that SEI is the signal 3D televisions
-act on:
+This is part of a wider effort to keep stereo 3D signalling intact from encoder to display, since that SEI is the signal 3D televisions act on:
 
 - HandBrake #8100, merged: the x264 encoder writes the SEI
 - Universal Media Server #6330, merged: transcodes signal it for Sony
@@ -209,11 +190,9 @@ https://github.com/danielcamposramos/sony-bravia-linux
 ### 4.4 Comment on issue #6309, once the MR is open
 
 ```
-The AVC part is now in !NNNN, implemented along the lines we discussed
-here. HEVC will follow as its own MR.
+The AVC part is now in !6311, implemented along the lines we discussed here. HEVC will follow as its own MR.
 
-Thanks for pointing me to the identification path, it made the change
-smaller and cleaner than what I had first planned.
+Thanks for pointing me to the identification path, it made the change smaller and cleaner than what I had first planned.
 ```
 
 **On closing the issue.** Your habit is to close the issue citing the MR.
@@ -249,3 +228,187 @@ call for Daniel.
 - [ ] Fork `mbunkus/mkvtoolnix` on Codeberg.
 - [ ] Decide on 4.4: comment only, or close.
 - [ ] Tell me to commit with your final message and push, or push yourself.
+
+---
+
+# The HEVC twin merge request (same review rules)
+
+Branch: `hevc-frame-packing-sei-stereo-mode` in `/K3D/GitHub/mkvtoolnix`,
+**committed 2026-09-19 as `48cec25cf`** with Daniel's chosen trailer line
+(Claude Opus 5 and Kimi-K3 over ollama inside Claude Code).
+Built on top of the AVC commit (`1d430d281`); the AVC MR carries the shared
+helper, this one only wires HEVC into it.
+
+## 7. What changed (12 files, +119 −3, plus one new test file)
+
+| File | Change |
+|---|---|
+| `src/common/hevc/util.{h,cpp}` | `parse_sei()` takes an optional `stereo_mode` out-parameter. When it sees payload type 45 (frame packing arrangement) it reads the payload into a bit reader for the shared `xyzvc` helper, then rewinds the byte reader so the existing user-data handling still walks the same NAL unit. |
+| `src/common/hevc/es_parser.cpp` | The one live `parse_sei()` call now passes the base-class state, `&m_stereo_mode`. |
+| `src/input/r_hevc.{h,cpp}` | Raw ES reader: keep the probe parser's result, report it in identification, pass to the packetizer as bitstream-level. |
+| `src/input/r_mpeg_ts.cpp` | `new_stream_v_hevc()` keeps the parser's result; the two HEVC packetizer creations apply it. Identification was already generic from the AVC commit. |
+| `src/input/r_qtmp4.{h,cpp}` | `derive_stereo_mode_from_hevc_bitstream()`: feeds the hvcC through the parser (configuration record, then at most the first 10,000 bytes as length-prefixed samples) when the stream is not Annex B, exactly the AVC twin. Both HEVC packetizer creations apply the result. |
+| `src/input/r_matroska.{h,cpp}` | `derive_stereo_mode_from_hevc_bitstream(kax_track_t *)`: first-frame probe only when the track has no StereoMode element, mirroring the AVC twin; called from `verify_video_track()` for `V_MPEGH/ISO/HEVC`. |
+| `NEWS.md` | Twin line under `## New features and enhancements`, ending "Implements the HEVC part of #6309." |
+| `tests/unit/common/hevc_sei_frame_packing.cpp` | Seven new unit tests (below). |
+
+**One quirk worth knowing when reviewing.** `hevcc_c::unpack()` fills
+`m_size_nalu_minus_one`, not `m_nalu_size_length`: the length-prefixed
+parser must be called with `m_size_nalu_minus_one + 1` as the NAL length
+size. Using the other member passes 0 and the parser loop never advances.
+Both HEVC derivation sites use the correct member. (Found the hard way: an
+infinite loop in `mkvmerge -J` on the first MP4 run, fixed and covered by
+the matrix below.)
+
+## 8. Evidence
+
+**Unit tests.** `common` 263/263 (256 with the AVC part + 7 new),
+`merge` 22/22, `propedit` 24/24. New tests: detection after other payloads
+in the same NAL unit; top-and-bottom right-first via
+`content_interpretation_type` 2; cancel gives nothing; type 5 (temporal)
+has no equivalent; no frame packing payload gives nothing; the first
+message wins; a suffix SEI NAL unit is not treated as a prefix one.
+
+**Source checks** (`rake tests:source`): no findings in any patched or new
+file other than the tree-wide "no include guard line found" rule (495 hits
+across untouched headers as well; the tree uses `#pragma once`).
+
+**Sample provenance** (stated plainly, because it differs from the AVC
+side). x265 has no frame-packing option at all: checked on 3.5 (Debian
+testing) and 4.1 (Debian trixie), both answer "Unknown option". So the
+HEVC companions are plain x265 elementary streams with a spec-exact SEI
+injected before the first IRAP by a small script
+(`hevc_inject_frame_packing.py`, kept with the samples). The injected
+payload bytes were verified by hand against Rec. ITU-T H.265, annex D.2.7
+(e.g. side by side, frame0 = left view: `81 81 2C 02 80`), and FFmpeg's
+independent reading was not usable as an oracle for HEVC, which is exactly
+why the bytes were checked directly. Generation commands are in the
+samples' README.txt.
+
+**Behaviour** (patched build, 19/19 identification + 19/19 remux):
+
+| Input | ES (.h265) | MP4 | MPEG TS | Matroska (no element) |
+|---|---|---|---|---|
+| side by side, left first | 1 | 1 | 1 | 1 |
+| side by side, right first | 11 | 11 | 11 | 11 |
+| top and bottom, left first | 3 | 3 | 3 | 3 |
+| top and bottom, right first | 2 | 2 | 2 | 2 |
+| plain 2D | — | absent | absent | absent |
+
+"Matroska (no element)" means fixtures written by stock mkvmerge v101,
+which carry the SEI but no StereoMode element: the case the maintainer
+asked to be derived. Remux sets the element to the same value in all
+sixteen cases; 2D stays absent.
+
+**Precedence** (same `option_with_source_c` rule as AVC, no new logic):
+
+- Container over bitstream: mkvpropedit stereo-mode 11 on a remuxed
+  side-by-side file (element 1, SEI still in the stream) → identify 11.
+- Command line over bitstream: `--stereo-mode 0:side_by_side_right_first`
+  → element 11 although the SEI says 1.
+- Command line `mono`: no element is written, identical to stock v101,
+  because libmatroska omits an element whose value equals the Matroska
+  default (0 = mono). The bitstream-derived value does not leak through.
+
+## 9. The texts to post (HEVC drafts — Daniel edits)
+
+### 9.1 Commit message
+
+```
+mkvmerge: HEVC: set stereo mode from frame packing arrangement SEI
+
+Parse the frame packing arrangement SEI message (payloadType 45) in the HEVC SEI reader and use it to set the stereo mode at bitstream level, i.e. only if neither the command line nor the container specifies one but the source contains one.
+
+The detection happens in the readers so that the stereo mode is known during file identification: the MP4 reader probes the first frames even when the hvcC is present, the Matroska reader looks at the first frame of tracks without a StereoMode element, and the HEVC ES and MPEG TS readers keep the result of the parser pass they already make.
+
+The mapping reuses the shared AVC/HEVC helper introduced with the AVC part and follows RFC 9559, table 5; content_interpretation_type 2 selects the right-eye-first values.
+
+Implements the HEVC part of #6309.
+
+Written with LLM assistance for the prose and the code to overcome personal difficulties and language barrier (English is not my native language - LLM drafted, I've read and edited where was due), reviewed and tested by me; see the merge request.
+
+Co-Authored-By: Claude Opus 5 and Kimi-K3 over ollama inside Claude Code <noreply@anthropic.com>
+```
+
+(this is the committed message; the trailer was Daniel's choice.)
+
+### 9.2 NEWS.md entry
+
+Already in the tree, the twin line shown in the diff of section 7
+(identical wording to the AVC line, with HEVC/H.265 in place of AVC/H.264).
+
+### 9.3 Merge request — **OPENED 2026-09-19 as [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312)**
+(body verified byte-identical against `mr-hevc-body.md`; style-reviewed before opening: all hard wraps joined, no em dashes, `!NNNN` filled with !6311)
+
+**Title:** `mkvmerge: set stereo mode from the HEVC frame packing arrangement SEI`
+
+```
+This implements the HEVC part of #6309, following the same design as the AVC MR (!NNNN): detection in the readers so the stereo mode is known during identification, and the result applied at bitstream level so the container and the command line keep precedence.
+
+What it does:
+
+- The HEVC SEI walk now also reads the frame packing arrangement message
+  (payloadType 45) using the shared AVC/HEVC helper, then rewinds so the
+  existing user-data handling is unchanged.
+- MP4 probes the first frames even when the hvcC is present (at most the
+  first 10,000 bytes, as the existing avcC derivation does), Matroska
+  looks at the first frame only when the track has no StereoMode element,
+  and the HEVC ES and MPEG TS readers keep the result of the parser pass
+  they already make.
+- One implementation note: with a configuration record the parser must be
+  fed with m_size_nalu_minus_one + 1 as the NAL length size, because
+  hevcc_c::unpack() does not fill m_nalu_size_length. Both new call sites
+  do this.
+
+Testing:
+
+- Seven new unit tests in tests/unit/common/hevc_sei_frame_packing.cpp
+  (prefix SEI parsing, right-eye-first selection, cancel, the arrangement
+  type without a StereoMode equivalent, suffix SEI rejection). The common,
+  merge and propedit suites pass (263, 22, 24).
+- HEVC companions for all four containers (ES, MP4, MPEG TS, Matroska
+  without an element): identification and muxing give 1, 2, 3 and 11
+  exactly per RFC 9559 table 5, and plain 2D gives nothing.
+- Command line over container over bitstream verified; "mono" writes no
+  element, identical to the released version, because that is the Matroska
+  default value.
+- Built on Debian trixie (GCC 14, Boost 1.83) without the GUI.
+
+Sample provenance: x265 does not offer frame packing (checked 3.5 and
+4.1), so the samples carry a spec-exact SEI injected by a script, and the
+payload bytes were verified by hand against Rec. ITU-T H.265, annex D.2.7.
+I can upload the set (with the script and README) to your FTP area like
+the AVC ones if you want to try them.
+
+References:
+
+- Rec. ITU-T H.265 | ISO/IEC 23008-2, annex D, frame packing arrangement
+  SEI message (payloadType 45)
+- RFC 9559, section 5.1.4.1.28.3 (StereoMode), table 5
+
+Same disclaimer as the AVC MR: LLM-assisted drafting, reviewed, tested and understood by me; happy to rewrite the documentation texts if you prefer.
+```
+
+### 9.4 Closing comment on issue #6309 — **POSTED 2026-09-19 as [comment 23294641](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309#issuecomment-23294641), issue CLOSED** (body verified byte-identical server-side)
+
+```
+The HEVC part is now in !6312, the twin of the AVC one. With both parts in, the issue looks complete to me, so I am closing it: AVC in !6311, HEVC in !6312, both following the design we discussed here.
+
+Thanks again for the guidance, in particular for pointing me at the identification path.
+```
+
+## 10. HEVC checklist for Daniel
+
+- [x] Commit trailer chosen by Daniel; committed as `48cec25cf`.
+- [x] Fork `capitain_jack/mkvtoolnix` created; both branches pushed via
+      SSH key `SparkyLinux2026` (2026-09-19). PR creation URLs:
+      AVC `https://codeberg.org/mbunkus/mkvtoolnix/compare/main...capitain_jack:avc-frame-packing-sei-stereo-mode`,
+      HEVC `.../compare/main...capitain_jack:hevc-frame-packing-sei-stereo-mode`.
+- [ ] Read section 7 until every change makes sense to you (the
+      hevcc_c quirk is the one non-obvious part).
+- [ ] Edit 9.3–9.4 into your own voice (9.1 and 9.2 are committed).
+- [x] Both MRs open: AVC !6311, HEVC !6312 (2026-09-19).
+- [x] Closing comment posted and issue #6309 closed by API on Daniel's
+      explicit instruction (2026-09-19).
+- [x] Maintainer edits enabled on both MRs by Daniel (the API create call
+      missed `allow_maintainer_edit`; verified True on both 2026-09-19).

@@ -1,0 +1,1 @@
+mkvmerge: set stereo mode from the AVC frame packing arrangement SEI
