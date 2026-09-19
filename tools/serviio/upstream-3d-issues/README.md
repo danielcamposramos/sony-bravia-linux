@@ -230,6 +230,49 @@ content is actually discussed). Cross-cites the earlier projector
 comment; the two posts now reference each other chronologically.
 Draft: `docs/ltt-steamframe-forum-comment.md`
 
+## mpv PR #18490 — their AI rule, and how it was answered (2026-09-19)
+
+**The rule.** mpv's `DOCS/contribute.md` allows AI-assisted code with
+disclosure in the PR description, but since commit `e76a35ec9`
+("disallow LLM in commit messages", **2026-09-17 — the day after this PR
+was opened on 2026-09-16**) states: *"AI/LLM must not be used to write
+commit messages or pull request descriptions. Clearly vibe-coded patches
+will not be considered."* The disclosure rule itself dates from
+`7ce58f7a0` (2026-01-12, "address the AI menace"). Dates recorded as
+facts; no claim is made about whether the change was prompted by this PR.
+
+**What was done, in order, all visible on the PR timeline:**
+1. The owner reworded the two commit messages and force-pushed
+   (`71c983c`, `baaf79f`). On comparison they were 95% and 99% word-for-word
+   the original AI-written text with the `Co-Authored-By` trailer removed —
+   the one state that could be read as hiding AI authorship.
+2. **Reverted to honesty rather than disguise:** the original messages
+   were restored **with their disclosure trailers** (`25ddd6b`, `1c5c04f`),
+   code trees byte-identical to before (`466f490…`, `8bca494…`), pushed
+   with a lease. Two accuracy fixes only, both in commit 2: the "repeated
+   per IDR" claim scoped to x264 output and the files tested (DVB requires
+   the SEI on every frame of a broadcast service), and the norm cited
+   where it supports the code — the in-band signal's precedence, ETSI TS
+   101 547-2 V1.2.1 clause 6.5, on the commit where the stream wins.
+3. **The owner asked in his own words**
+   ([issuecomment-5739297100](https://github.com/mpv-player/mpv/pull/18490#issuecomment-5739297100)):
+   that he is not good with words in English and therefore disclosed the
+   AI assistance, that the new rule landed a day after he filed, and asked
+   them to judge the content for what it is. `maintainer_can_modify` is on,
+   so the maintainers can reword at merge.
+
+**Declined along the way, recorded so the reasoning survives:** writing
+deliberately broken English to pass AI text off as the owner's own. The
+campaign's argument ("don't judge by the cover") only works while every
+claim in the record is honest and checkable; a disguised message is the
+one thing that would hand the "AI menace" framing real evidence.
+
+**If it stalls from here**, the owner's position is a fully disclosed,
+measured, reviewed patch waiting on the maintainers. The fallback is a
+maintained **patched build** (the two commits rebased on upstream, CI
+releases) rather than a hard fork, framed by who it serves — 3D and
+Steam Frame users — not as an answer to mpv.
+
 ## mpv issue #18489 — cross-brand / ecosystem follow-up (2026-09-18)
 
 Posted a context comment on the issue (not the PR):
