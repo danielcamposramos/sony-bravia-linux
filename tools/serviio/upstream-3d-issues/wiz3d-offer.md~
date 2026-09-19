@@ -8,10 +8,11 @@ Their CONTRIBUTING asks for exactly this: "Game testing" and "Output modes —
 test the various stereo output plugins (SBS, anaglyph, interlaced, shutter)",
 and says to open an issue before starting anything large.
 
+Owner fills in the GPU models before posting.
 
 ---
 
-**Title:** Offer: systematic testing of the output modes on real Sony 3D TVs (active shutter)
+**Title:** Offer: systematic testing of the output modes on real 3D displays (shutter TV, parallax barrier, glasses-free tablet, anaglyph)
 
 Hello, and thank you for doing this.
 
@@ -25,6 +26,7 @@ Your contributing list asks for testing of the output plugins, and output modes 
 I do, and they are all in one room:
 
 - **Two active-shutter 3D televisions**, Sony KDL-46HX855 and KDL-46EX725, both working, both driven from the PC over HDMI. One of them is this machine's main display.
+- **Anaglyph**, on anything, including material authored for CRT phosphors.
 - **The configuration wiz3D exists for**: a GeForce RTX 3060 on Windows 11, driving a 3D television. Modern hardware where 3D Vision is dead and no legacy driver can be installed, which is exactly the case your proxy approach is meant to rescue. Also a Ryzen 5 5600G with its integrated Radeon on the same machine, and 93 GB of RAM. The iGPU is not worth a performance number, but it is a genuine AMD path for correctness testing.
 - **Period-correct Nvidia hardware, still owned**: a GTX 970, which is on Nvidia's own 3D Vision compatibility list, and a GTX 550. Both are old enough for a driver branch from when 3D Vision was still supported. These are not needed to test wiz3D, which is the point of wiz3D. They are useful as a **ruler**: a genuine 3D Vision rig to hold your output against when judging whether convergence, separation and the shader fixes behave the way the original did. The 970 currently serves as the GPU in a Linux home server, but the two cards can trade places, so that reference costs a card swap rather than a purchase. If it would genuinely help, I will build it, though not overnight.
 
@@ -33,8 +35,8 @@ I cannot commit large blocks of it, and I have another project running.
 What I can offer reliably is the scarce part: working displays of the kinds this needs, both GPU vendors, the old Nvidia cards, and careful reporting of whatever I do test.
 Point me at what is most useful and I will work through it steadily rather than quickly.
 
-So I can cover side-by-side, top-and-bottom and the shutter path on displays that natively expect them, rather than checking that the output "looks right" in a window.
-Two honest gaps: I have no working parallax-barrier or lenticular panel, so I cannot speak for the interlaced modes, and I no longer own anaglyph glasses, which matters least since anaglyph is the one mode anybody can check on any screen.
+So I can cover side-by-side, top-and-bottom, shutter and anaglyph on displays that natively expect them, rather than checking that the output "looks right" in a window.
+I do not have a working parallax-barrier or lenticular panel to offer, so I cannot speak for the interlaced modes.
 
 **What I would do with it.**
 I document measurements rather than impressions.
