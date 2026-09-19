@@ -93,10 +93,52 @@ hardware limit explains that split. It is one more concrete target for
 the firmware work: the capability is already on the board, only the
 network path's dispatch keeps it off.
 
-**One lead is still open:** whether the network player chooses its
-decoder from the file extension in the resource URL. Serviio's resource
-URLs carry no filename; a server whose URLs end in `.mpo` while still
-announcing `image/jpeg` would test it.
+#### The four-variant probe: the network path is closed, measured
+
+Three real servers could not separate the candidate causes, because all
+three deliver a correct MPO identically: bytes untouched, announced
+`image/jpeg`, URL rewritten to end `.jpg`. **Universal Media Server has
+listed `mpo` as a JPG extension since the 2008 PS3 Media Server code**
+([`JPG.java`](https://github.com/UniversalMediaServer/UniversalMediaServer/blob/master/src/main/java/net/pms/formats/image/JPG.java)),
+and **Gerbera indexes it too** (no extension filter; libmagic sniffs the
+file as `image/jpeg`). Both were run on the LAN here and both did exactly
+that. So `tools/mpo_dlna_probe.py` was written: one MediaServer offering
+**the same MPO bytes four ways**, byte-identical to the source, to a set
+that browses them side by side.
+
+| # | Announced as | URL ends | Listed by the set? | Result |
+|---|---|---|---|---|
+| 1 | `image/jpeg`, `DLNA.ORG_PN=JPEG_LRG` | `.jpg` | yes | **flat** |
+| 2 | `image/jpeg`, `DLNA.ORG_PN=JPEG_LRG` | `.mpo` | yes | **flat** |
+| 3 | `image/mpo`, no profile | `.mpo` | **no, hidden** | — |
+| 4 | `image/mpo`, `DLNA.ORG_PN=MPO_LRG` | `.mpo` | **no, hidden** | — |
+
+Owner-measured 2026-09-19. Two things fall out of it, and together they
+close the question:
+
+- **The set hides what it never declared.** Variants 3 and 4 carry the
+  same bytes and the same resolution as 1 and 2, and differ only in the
+  announced MIME type. They do not appear in the browser at all. The set
+  filters its listing against its own `GetProtocolInfo`, which contains
+  no MPO of any kind. This is the **profile**, not the capability, and it
+  is the answer to the owner's question.
+- **The URL extension is not the dispatcher.** Variant 2 is announced
+  exactly like the control and differs only in ending `.mpo`. It is
+  listed, it opens, and it is flat. The network photo path decodes by
+  what the file is announced as, and shows the first view.
+
+`DLNA.ORG_PN=MPO_LRG` in variant 4 is the profile name real hardware uses
+(Vizio and JRiver Media Center, from captured `GetProtocolInfo` strings
+posted in [UMS PR #1164](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/1164#issuecomment-275187121)
+— secondhand, not verified against a device here), alongside Panasonic's
+vendor-specific `PANASONIC.COM_PN=MPO_3D`, which UMS implements in
+shipped code. Neither reaches these sets, because neither is declared.
+
+**Consequence for the campaign: no DLNA server change can put 3D photos
+on these TVs.** A server that announced MPO correctly would have its
+items hidden; one that announces them as JPEG gets them shown flat. The
+work on the server side is still worth doing for renderers that *do*
+declare `image/mpo`, but it must not be pitched as a BRAVIA fix.
 
 ## What our own sets do (owner-measured 2026-09-18)
 
