@@ -1,0 +1,107 @@
+From 8c91b146eca18a3fbfab66e79ae5469492eff219 Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Sat, 19 Sep 2026 00:30:16 -0300
+Subject: [PATCH] x264: signal the input stereoscopic layout by default
+
+The H.264 packetizer and the avcodec decoder already parse the
+frame_packing_arrangement SEI (ITU-T H.264 Annex D, payload type 45) into
+video_format_t.multiview_mode, and transcode_encoder_new() copies the
+decoder output format into the encoder fmt_in, so the layout reaches this
+module intact. It was then discarded: sout-x264-frame-packing defaulted to
+-1, which left param.i_frame_packing unset, so every re-encode of a
+frame-packed stream came out without the SEI unless the user already knew
+to pass the option by hand. Frame-compatible 3D displays auto-detect the
+layout from that SEI alone, and ETSI TS 101 547-2 gives it precedence over
+container-level signalling, which does not survive MPEG-TS delivery
+anyway, so the result was a correct side-by-side or top-bottom picture that
+the display shows flat.
+
+Map multiview_mode onto the Annex D arrangement types when the option is
+left at -1, now labelled "Same as input". An explicit value still wins,
+and 6 remains available to signal 2D output explicitly. Same behaviour as
+GStreamer's x264enc, which derives i_frame_packing from its input caps by
+default.
+
+Measured with VLC 3.0.23 on a 1080p clip carrying the SEI: the default
+transcode drops it, and the same transcode with --sout-x264-frame-packing=3
+keeps it; this change makes the first case behave like the second.
+---
+ modules/codec/x264.c | 29 +++++++++++++++++++++++++++--
+ 1 file changed, 27 insertions(+), 2 deletions(-)
+
+diff --git a/modules/codec/x264.c b/modules/codec/x264.c
+index 786d177..d0c60f4 100644
+--- a/modules/codec/x264.c
++++ b/modules/codec/x264.c
+@@ -62,6 +62,7 @@
+ static int  Open ( vlc_object_t * );
+ static void CloseEncoder( encoder_t * );
+ static void x264_log( void *, int i_level, const char *psz, va_list );
++static int  FramePackingFromMultiview( video_multiview_mode_t );
+ 
+ /* Frame-type options */
+ 
+@@ -163,12 +164,14 @@ static void x264_log( void *, int i_level, const char *psz, va_list );
+ 
+ #define FRAMEPACKING_TEXT N_("Frame packing")
+ #define FRAMEPACKING_LONGTEXT N_( "For stereoscopic videos define frame arrangement:\n" \
++    "-1: same as input - signalled when the input is stereoscopic\n" \
+     " 0: checkerboard - pixels are alternatively from L and R\n" \
+     " 1: column alternation - L and R are interlaced by column\n" \
+     " 2: row alternation - L and R are interlaced by row\n" \
+     " 3: side by side - L is on the left, R on the right\n" \
+     " 4: top bottom - L is on top, R on bottom\n" \
+-    " 5: frame alternation - one view per frame" )
++    " 5: frame alternation - one view per frame\n" \
++    " 6: 2D - signal that the output is not stereoscopic" )
+ 
+ #define INTRAREFRESH_TEXT N_("Use Periodic Intra Refresh")
+ #define INTRAREFRESH_LONGTEXT N_("Use Periodic Intra Refresh instead of IDR frames")
+@@ -431,7 +434,7 @@ static const char *const direct_pred_list_text[] =
+ static const int framepacking_list[] =
+   { -1, 0, 1, 2, 3, 4, 5, 6 };
+ static const char *const framepacking_list_text[] =
+-  { N_("Unset"), N_("Checkerboard"), N_("Column alternation"), N_("Row alternation"), N_("Side by side"), N_("Top bottom"), N_("Frame alternation"), N_("2D") };
++  { N_("Same as input"), N_("Checkerboard"), N_("Column alternation"), N_("Row alternation"), N_("Side by side"), N_("Top bottom"), N_("Frame alternation"), N_("2D") };
+ 
+ vlc_module_begin ()
+ #ifdef PLUGIN_X264_10B
+@@ -1051,6 +1054,8 @@ static int  Open ( vlc_object_t *p_this )
+         p_sys->param.rc.f_aq_strength = f_val;
+ 
+     i_val = var_GetInteger( p_enc, SOUT_CFG_PREFIX "frame-packing" );
++    if( i_val < 0 )
++        i_val = FramePackingFromMultiview( p_enc->fmt_in.video.multiview_mode );
+     if( i_val > -1 )
+         p_sys->param.i_frame_packing = i_val;
+ 
+@@ -1516,6 +1521,26 @@ static block_t *Encode( encoder_t *p_enc, picture_t *p_pict )
+     return p_block;
+ }
+ 
++/*****************************************************************************
++ * FramePackingFromMultiview: map the decoded stereoscopic layout to the
++ * frame_packing_arrangement_type of ITU-T H.264 Annex D (payload type 45),
++ * so that a stereoscopic input keeps its signalling through a re-encode
++ * without the user having to set --sout-x264-frame-packing by hand.
++ *****************************************************************************/
++static int FramePackingFromMultiview( video_multiview_mode_t mode )
++{
++    switch( mode )
++    {
++        case MULTIVIEW_STEREO_CHECKERBOARD: return 0;
++        case MULTIVIEW_STEREO_COL:          return 1;
++        case MULTIVIEW_STEREO_ROW:          return 2;
++        case MULTIVIEW_STEREO_SBS:          return 3;
++        case MULTIVIEW_STEREO_TB:           return 4;
++        case MULTIVIEW_STEREO_FRAME:        return 5;
++        default:                            return -1;
++    }
++}
++
+ /*****************************************************************************
+  * CloseEncoder: x264 encoder destruction
+  *****************************************************************************/
+-- 
+2.53.0
+
