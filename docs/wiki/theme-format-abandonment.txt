@@ -2,6 +2,8 @@
 
 It differs from a [[Storefront shutdown|storefront shutdown]], where a shop closes and its catalogue stops being sold. In format abandonment the purchase was completed, sometimes years earlier, and sometimes on a physical disc.
 
+The practice is older than digital distribution and is not confined to any one kind of media. Videotape, optical disc, downloaded file and streamed licence have all been abandoned in turn, and the owner's position is the same each time: the copy survives, the means of playing it does not.
+
 ==How it happens==
 A format needs three things to remain usable: media, a decoder, and a display or player that accepts the decoder's output. Consumers can keep the first indefinitely. The other two belong to manufacturers, and are withdrawn for ordinary commercial reasons, rarely with any announcement addressed to the people who own the media.
 
@@ -37,6 +39,11 @@ Manufacturers withdrew 3D from their television ranges within roughly a year of 
 We decided to drop 3D support for 2017."<ref name="tc3d">{{Cite web |last=Biggs |first=John |date=Jan 25, 2017 |title=3D TVs are dead |url=https://techcrunch.com/2017/01/25/3d-tvs-are-dead |access-date=Sep 19, 2026 |website=TechCrunch}}</ref> Contemporary coverage recorded the same sequence and observed that "the 3D home release looks like becoming a collectors' item".<ref name="dog">{{Cite web |last=Brew |first=Simon |date=Nov 24, 2017 |title=The Slow Demise of Blu-ray 3D |url=https://www.denofgeek.com/movies/the-slow-demise-of-blu-ray-3d/ |access-date=Sep 19, 2026 |website=Den of Geek}}</ref>
 
 Owners of these televisions are affected in a further way documented on this wiki: on the [[Sony BRAVIA pre-Android Linux TVs (2011-2012)|2011 and 2012 BRAVIA sets]], stereoscopic photographs play from a USB device and not over the home network, because the network path of the television does not declare support for the format its own decoder handles.
+
+===Physical formats, before any of this was digital===
+The pattern predates software. Betamax, LaserDisc, MiniDisc, HD DVD and a long line of others were sold to consumers, then lost their industry backing, leaving owners with shelves of media and a shrinking supply of working players. HD DVD is the clearest recent case: Toshiba ended production in February 2008 after roughly two years, and the format is now described plainly as obsolete.<ref name="hddvd">{{Cite web |title=HD DVD |url=https://en.wikipedia.org/wiki/HD_DVD |access-date=Sep 19, 2026 |website=Wikipedia}}</ref> The discs still exist and still hold their films. The players do not.
+
+A related loss is worth recording even though it is not a playback failure, because it shows the same disregard for what the customer bought. For decades, widescreen films sold on VHS were commonly altered to fit television screens by "cropping the sides of the original widescreen image and panning across it when the shot's focus changes", a practice which "can result in the loss of key visual elements".<ref name="pansscan">{{Cite web |title=Pan and scan |url=https://en.wikipedia.org/wiki/Pan_and_scan |access-date=Sep 19, 2026 |website=Wikipedia}}</ref> Buyers were not told they were purchasing a cropped work, and the uncropped version was often only available years later, on the next format, at full price again.
 
 ===Purchased music, MSN Music, 2008===
 Microsoft announced that it would stop issuing the licence keys required to authorise previously purchased music on new computers, which would have left paid-for files unplayable after a hardware change. Following criticism the company extended the service. The Electronic Frontier Foundation summarised the general lesson: "DRM-crippled music still has an expiration date — whenever the company that sold that music becomes unable or unwilling to continue supporting the copy protection."<ref name="eff-msn">{{Cite web |last=D'Andrade |first=Hugh |date=Jun 19, 2008 |title=Microsoft to MSN Music Customers: Your DRM is Good Until 2011 |url=https://www.eff.org/deeplinks/2008/06/microsoft-msn-music |access-date=Sep 19, 2026 |website=Electronic Frontier Foundation}}</ref>
