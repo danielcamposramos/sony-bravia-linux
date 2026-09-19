@@ -1,0 +1,28 @@
+I am an electrical engineer from Brasília, Brazil. I work in Portuguese and English, but I can read/understand Spanish and French in a basic level.
+
+I came to this wiki because of Louis Rossmann and through my own hardware. I own two Sony BRAVIA televisions from the 2011 and 2012 generations, and what began as an attempt to keep them useful turned into a documented case of services being withdrawn from products that still work.
+
+==What I contribute here==
+My interest is the gap between what a device can do and what its owner is allowed to do with it. I try to write that gap down in a way that survives scrutiny:
+
+*'''Measurements before claims.''' Where I state that a television behaves in a certain way, I have tested it on the hardware, one variable at a time, and I say plainly when something is inferred rather than measured.
+*'''Manufacturer sources, archived.''' Support pages change and disappear, so I archive what I cite, and I note when a manufacturer's own documentation contradicts itself between regions.
+*'''Corrections in public.''' When I get something wrong I correct it in the article rather than quietly, because a wiki entry that cannot be trusted on the small things will not be believed on the large ones.
+
+==Standards work==
+Outside this wiki I chair the [https://www.w3.org/groups/cg/pm-kr/ Procedural Memory Knowledge Representation] Community Group at the World Wide Web Consortium, alongside co-chair Milton Ponson. The group's subject is storing knowledge once, as something a machine can execute and a person can read, rather than maintaining a separate copy of the same knowledge for every modality: one for the screen, one for the screen reader, one for the search index, one for an AI model. Its work is public, including the drafts: [https://github.com/w3c-cg/pm-kr w3c-cg/pm-kr].
+
+That work and this wiki come from the same place. Formats that are open, documented and readable by anything are the ones that survive their vendors.
+
+==Main work==
+*[[Sony BRAVIA pre-Android Linux TVs (2011-2012)]], covering the withdrawal of the smart-television services, the removal of the GPL source releases, the end of self-service firmware downloads, and several cases where the sets refuse to use hardware capabilities they still have.
+
+The research behind it is public, including the tooling, so that anyone with the same hardware can reproduce the results rather than take my word for them: [https://github.com/danielcamposramos/sony-bravia-linux sony-bravia-linux]. Parts of the same work went upstream to the software side, where the 3D signalling fixes were reviewed and merged by the HandBrake and Universal Media Server projects.
+
+I also maintain [https://github.com/danielcamposramos/awesome-stereoscopy awesome-stereoscopy], a public list documenting stereoscopic imaging from the Victorian stereoscope to current formats, including the services and formats that have been withdrawn.
+
+==On tooling and AI==
+I use AI assistance when writing in English, which is not my first language. The judgements, the measurements, the hardware testing and the sourcing are mine, every citation is checked against the page it points to, and I follow the checklist in the [[Consumer Rights Wiki:AI usage policy|AI usage policy]]. If anything I post reads as unchecked output, tell me and I will fix it.
+
+==Contact==
+The fastest way to reach me about anything on this wiki is my talk page, or an issue on the repositories linked above.
