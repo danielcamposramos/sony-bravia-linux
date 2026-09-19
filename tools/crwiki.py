@@ -70,20 +70,38 @@ def show_diff(old, new, title):
     print("\n".join(d) if d else "(identical)")
 
 
-def do_edit(title, newtext, summary, create):
+def do_edit(title, newtext, summary, create, captcha=None):
     old = page_text(title)
     if old is None and not create:
         sys.exit(f"{title!r} does not exist; pass --create")
     if old is not None and create:
         sys.exit(f"{title!r} already exists; refusing --create")
-    res = curl("", [("action", "edit"), ("title", title), ("text", newtext),
-                    ("summary", summary), ("token", csrf()), ("format", "json"),
-                    ("createonly" if create else "nocreate", "1")])
+    fields = [("action", "edit"), ("title", title), ("text", newtext),
+              ("summary", summary), ("token", csrf()), ("format", "json"),
+              ("createonly" if create else "nocreate", "1")]
+    if captcha:
+        # The wiki asks a human to answer a simple sum before a new account may
+        # add external links. The answer is supplied by the account's owner and
+        # passed through here; it is never solved by this script.
+        cid, word = captcha
+        fields += [("captchaid", cid), ("captchaword", word)]
+    res = curl("", fields)
     if "error" in res:
-        sys.exit("edit failed: " + json.dumps(res["error"])[:300])
+        sys.exit("edit failed: " + json.dumps(res["error"])[:400])
+    if res.get("edit", {}).get("result") != "Success":
+        cap = res.get("edit", {}).get("captcha")
+        if cap:
+            sys.exit(f"the wiki asks a captcha before saving.\n  question: {cap.get('question')}\n"
+                     f"  id: {cap.get('id')}\n"
+                     f"  rerun with: --captcha-id {cap.get('id')} --captcha-word <the answer, from you>")
+        sys.exit("edit not accepted by the wiki: " + json.dumps(res)[:800])
     print(f"saved: {title} (revision {res['edit'].get('newrevid')})")
     print("--- verification: proposed vs what the wiki now holds ---")
-    show_diff(newtext, page_text(title), title)
+    live = page_text(title)
+    if live is None:
+        print("WARNING: the wiki reports no such page after saving; nothing was written.")
+    else:
+        show_diff(newtext, live, title)
 
 
 def main():
@@ -94,8 +112,10 @@ def main():
     df = sub.add_parser("diff"); df.add_argument("title"); df.add_argument("file")
     e = sub.add_parser("edit"); e.add_argument("title"); e.add_argument("file")
     e.add_argument("--summary", required=True); e.add_argument("--create", action="store_true")
+    e.add_argument("--captcha-id"); e.add_argument("--captcha-word")
     r = sub.add_parser("redirect"); r.add_argument("frm"); r.add_argument("to")
     r.add_argument("--summary", required=True)
+    r.add_argument("--captcha-id"); r.add_argument("--captcha-word")
     a = ap.parse_args()
     name = login()
     if a.cmd == "whoami":
@@ -108,9 +128,11 @@ def main():
     elif a.cmd == "diff":
         show_diff(page_text(a.title), open(a.file, encoding="utf-8").read(), a.title)
     elif a.cmd == "edit":
-        do_edit(a.title, open(a.file, encoding="utf-8").read(), a.summary, a.create)
+        cap = (a.captcha_id, a.captcha_word) if a.captcha_id and a.captcha_word else None
+        do_edit(a.title, open(a.file, encoding="utf-8").read(), a.summary, a.create, cap)
     elif a.cmd == "redirect":
-        do_edit(a.frm, f"#REDIRECT [[{a.to}]]\n", a.summary, True)
+        cap = (a.captcha_id, a.captcha_word) if a.captcha_id and a.captcha_word else None
+        do_edit(a.frm, f"#REDIRECT [[{a.to}]]\n", a.summary, True, cap)
 
 
 if __name__ == "__main__":
