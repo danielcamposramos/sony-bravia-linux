@@ -397,6 +397,26 @@ The HEVC part is now in !6312, the twin of the AVC one. With both parts in, the 
 Thanks again for the guidance, in particular for pointing me at the identification path.
 ```
 
+## 9.5 Stereo-family triage comment on !6311 — **POSTED 2026-09-20 as [comment 23296426](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23296426)**
+
+Full sweep of all 35 open issues in mbunkus/mkvtoolnix (enumerated via API, then body-verified) for the stereo 3D family. Result posted to mbunkus on the MR he is reviewing:
+
+```
+Triage note so you do not have to hunt for overlap yourself: I went through every open issue in this tracker in the stereo 3D family.
+
+Closed by !6311 + !6312:
+
+- #6309, my own report, already closed. No other open issue is affected.
+
+Open but not closed by these MRs:
+
+- #2709, raw H.264 streams with MVC sub-views (mvcC). Different mechanism: MVC carries a second coded view in the bitstream, while the frame-packing SEI is pure metadata about how one view is spatially arranged. These MRs do not touch MVC handling, so #2709 stays open and unaffected. Both read the same ES parser streams but look for orthogonal data, so a future MVC implementation should not conflict with this code.
+
+Closed history in the same family, none of them about the frame-packing SEI path: #1106 (SSIF/MVC feature request), #1458 (left/right eye swap), #2444 (eye flipping in 3D MVC), #625 (StereoMode=0 vs EBML v2/v3 headers).
+```
+
+Characterization evidence for the four closed ones: #1458 = user expected L/R swap to change pixels, not just the metadata flag (closed as designed); #2444 = same theme via propedit on 3D MVC files (closed); #1106 = SSIF/MVC Blu-ray feature request, sibling of #2709 (closed); #625 = StereoMode=0 elided vs EBML header version (closed).
+
 ## 10. HEVC checklist for Daniel
 
 - [x] Commit trailer chosen by Daniel; committed as `48cec25cf`.
