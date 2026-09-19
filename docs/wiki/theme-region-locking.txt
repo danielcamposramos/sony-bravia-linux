@@ -1,0 +1,51 @@
+'''Region locking''' is the practice of restricting what a product will do according to where its owner lives. It covers discs that refuse to play outside the territory they were sold in, consoles that reject games bought abroad, services whose catalogue changes at the border, hardware shipped with functions enabled in one market and disabled in another, and finished software that is never offered in a given country at all.
+
+The stated justification is usually licensing: rights are sold territory by territory, and staggered release dates and prices are defended as a consequence of that. The effect on the owner is the same whatever the reason. A product they have paid for behaves differently from an identical product sold elsewhere.
+
+==How it works==
+Region locking is enforced at whichever layer is hardest for the customer to reach.
+
+On optical discs it is written into the media and the player firmware. DVD region coding, introduced in 1997, is described as "a digital rights management technique" whose purpose is to let rights holders "control the international distribution of a DVD release, including its content, release date, and price, all according to the appropriate region".<ref name="dvdrc">{{Cite web |title=DVD region code |url=https://en.wikipedia.org/wiki/DVD_region_code |access-date=Sep 19, 2026 |website=Wikipedia}}</ref> Blu-ray simplified the scheme to three regions, A, B and C, with players required to enforce it, so that a disc from the wrong region returns an error rather than a picture.<ref name="brregions">{{Cite web |title=Blu-ray Region Codes: Are the Discs and Players Locked? |url=https://www.the-home-cinema-guide.com/blu-ray-regions.html |access-date=Sep 19, 2026
+|website=Home Cinema Guide}}</ref>
+
+On consoles it has been enforced in the system software, and policy has varied by vendor and generation. Nintendo region locked its consoles through the Wii U and 3DS era,<ref name="wiiu">{{Cite web |date=Sep 25, 2012 |title=Nintendo confirms Wii U region lock |url=https://www.theregister.com/2012/09/25/nintendo_confirms_wii_u_region_lock/ |access-date=Sep 19, 2026 |website=The Register}}</ref> and abandoned it for the Switch, whose support documentation states that "With the exception of consoles and game cards distributed in the Chinese region, Nintendo Switch game cards are not region locked."<ref name="switch">{{Cite web |title=Nintendo Switch Regional Compatibility FAQ |url=https://en-americas-support.nintendo.com/app/answers/detail/a_id/22283/~/nintendo-switch-regional-compatibility-faq |access-date=Sep 19, 2026 |website=Nintendo of America
+Support}}</ref> Sony took the opposite position a generation earlier, stating of the PlayStation 4 that "In general, neither digital or disc-based games will be region locked", while noting that individual publishers could still lock their own titles.<ref name="ps4rf">{{Cite web |last=Kubba |first=Sinan |date=Jun 11, 2013 |title=Yoshida: 'PS4 is region free' |url=https://www.engadget.com/2013-06-11-yoshida-ps4-is-region-free.html |access-date=Sep 19, 2026 |website=Engadget}}</ref>
+
+In hardware it appears as functions present in the device and enabled only for certain markets. Apple has restricted millimetre-wave 5G to United States models since the iPhone 12, so that phones of the same name sold elsewhere carry a narrower set of bands.<ref name="mmwave">{{Cite web |last=Rossignol |first=Joe |date=Sep 13, 2023 |title=iPhone 15: mmWave 5G Remains Limited to U.S. Models |url=https://www.macrumors.com/2023/09/13/mmwave-5g-iphone-15-us-only/ |access-date=Sep 19, 2026 |website=MacRumors}}</ref> Where the restriction is geographic rather than commercial, this overlaps with [[Capability gating]].
+
+In services it appears as a catalogue that changes with the customer's location. Analysis of Netflix's libraries has found substantial differences between countries, with the United States catalogue about twenty per cent smaller than that of some European markets.<ref name="parrot">{{Cite web |date=May 21, 2024 |title=How much does Netflix's catalog differ between markets? |url=https://www.parrotanalytics.com/insights/netflix-catalog-size-and-makeup-cross-market/ |access-date=Sep 19, 2026 |website=Parrot Analytics}}</ref>
+
+==Withholding software that is already finished==
+A sharper version of the practice is the case where the work of serving a market has been completed and the market is then not served. The product exists, the translation exists, and the decision not to release is commercial rather than technical.
+
+Two documented cases come from video games. Nintendo commissioned and completed an English localization of the Famicom role-playing game ''Mother'' in 1990, advertised it for release in North America in 1991, and then shelved it; a second attempt in 1994 was abandoned over cost.<ref name="ebb">{{Cite web |title=EarthBound Beginnings |url=https://en.wikipedia.org/wiki/EarthBound_Beginnings |access-date=Sep 19, 2026 |website=Wikipedia}}</ref> Square Enix had, by 2012, "shelved a near-complete localization that included an English script and voice recording work" for ''Final Fantasy Type-0'',<ref name="kotaku1">{{Cite web |last=Schreier |first=Jason |date=Jul 21, 2014 |title=Final Fantasy Fan Translation Has Become A Fiasco |url=https://kotaku.com/final-fantasy-fan-translation-has-become-a-fiasco-1608340061 |access-date=Sep 19, 2026 |website=Kotaku}}</ref> a
+decision the game's director later explained in terms of the market rather than the work: "The biggest reason really was the timing. After we released the Japanese version, and then it would go into localization, the US PSP market at the time was kinda shrinking."<ref name="kotaku2">{{Cite web |last=Schreier |first=Jason |date=Aug 29, 2014 |title=Eight Big Final Fantasy Type-0 HD Questions, Answered |url=https://kotaku.com/eight-big-final-fantasy-type-0-hd-questions-answered-1628600728 |access-date=Sep 19, 2026 |website=Kotaku}}</ref>
+
+The same pattern is documented outside games on the [[Sony BRAVIA pre-Android Linux TVs (2011-2012)|2011 and 2012 Sony BRAVIA televisions]], where the manufacturer's own application files show work finished for a market that was never offered it. The application catalogue served to European sets lists eight applications, the catalogue served to Brazilian sets lists two, and the application bundles on Sony's servers carry their names and dictionaries localized into thirty or more languages, Portuguese included. Those servers still answer today. The material cost of serving the market had already been paid, and the market was served a shorter list.
+
+==Why it is a problem==
+The owner cannot establish what they have bought from the product name. Two televisions, phones or consoles bearing the same model number may differ in what they will do, and nothing on the box explains which one the buyer is holding.
+
+Restrictions outlive their justification. Release windows close, licences change hands, and the enforcement written into a disc or a player's firmware remains. A film whose staggered release ended fifteen years ago is still refused by a player from the wrong region.
+
+The burden is not evenly distributed. The Electronic Frontier Foundation has argued that these mechanisms fall hardest on poorer countries, stating that "Windowing and region coding are used to discriminate against poor countries by offering them information goods only after they have exhausted their commercial potential in rich countries", and giving as an example that "a Filipina who is working in the USA can't use a local DVD player to watch the movies her family sends her from home".<ref name="eff">{{Cite web |last=Doctorow |first=Cory |title=Digital Rights Management: A Failure in the Developed World, a Danger to the Developing World |url=https://www.eff.org/wp/digital-rights-management-failure-developed-world-danger-developing-world |access-date=Sep 19, 2026 |website=Electronic Frontier Foundation}}</ref>
+
+==Regulatory response==
+The European Union addressed geographic discrimination directly in Regulation (EU) 2018/302. Its Article 3(1) provides that "A trader shall not, through the use of technological measures or otherwise, block or limit a customer's access to the trader's online interface for reasons related to the customer's nationality, place of residence or place of establishment."<ref name="eur2018302">{{Cite web |date=Feb 28, 2018 |title=Regulation (EU) 2018/302 on addressing unjustified geo-blocking and other forms of discrimination based on customers' nationality, place of residence or place of establishment within the internal market |url=https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex:32018R0302 |access-date=Sep 19, 2026 |website=EUR-Lex}}</ref>
+
+The exemptions are as significant as the rule. Audiovisual services provided under exclusive territorial licences are excluded from its scope, as are services whose main feature is access to copyright protected works, which leaves streaming catalogues and most media licensing outside the regulation. Article 9 requires the Commission to review the regulation periodically, including whether such services should be brought within it.<ref name="eur2018302" />
+
+Competition law has reached further in individual cases. In January 2021 the European Commission fined Valve and five games publishers a combined sum of about 7.8 million euro over geo-blocking that restricted cross-border sales of around a hundred PC games. The competition commissioner described the decision as "a reminder that under EU competition law, companies are prohibited from contractually restricting cross-border sales".<ref name="valve">{{Cite web |last=Lomas |first=Natasha |date=Jan 20, 2021 |title=Valve and five PC games publishers fined $9.4M for illegal geo-blocking |url=https://techcrunch.com/2021/01/20/valve-and-five-pc-games-publishers-fined-9-4m-for-illegal-geo-blocking/ |access-date=Sep 19, 2026 |website=TechCrunch}}</ref>
+
+==See also==
+*[[Capability gating]], where the deciding factor is payment or product tier rather than location
+*[[Format abandonment]]
+*[[Digital rights management]]
+*[[Storefront shutdown]]
+
+==References==
+{{reflist}}
+
+[[Category:Theme]]
+[[Category:Anti-consumer practices]]
+[[Category:Common terms]]

@@ -1,0 +1,65 @@
+'''Format abandonment''' is the withdrawal of the means to play a media format that consumers already own copies of. The discs, cartridges, files or downloads remain in the owner's possession and remain intact. What disappears is the ability to play them: new hardware drops support, applications are removed from the devices that had them, and no replacement copy is offered in a format the owner can still use.
+
+It differs from a [[Storefront shutdown|storefront shutdown]], where a shop closes and its catalogue stops being sold. In format abandonment the purchase was completed, sometimes years earlier, and sometimes on a physical disc.
+
+==How it happens==
+A format needs three things to remain usable: media, a decoder, and a display or player that accepts the decoder's output. Consumers can keep the first indefinitely. The other two belong to manufacturers, and are withdrawn for ordinary commercial reasons, rarely with any announcement addressed to the people who own the media.
+
+The withdrawal usually proceeds in the same order. Content production ends first, then displays stop supporting the format, then new players and consoles omit it, and finally the applications that streamed the purchased copies are removed from the devices that still had them. Each step is defensible on its own, and the owner is told about none of them at the time of purchase.
+
+==Why it is a problem==
+The purchase was made on the understanding that the format would be playable. Nothing in the transaction indicated a date after which the file or disc would become an artefact, and owners of physical media in particular have no reason to expect that a disc they own would stop being playable while it remains undamaged.
+
+Replacement is not offered. When a format is abandoned, the owner is not given the same film, album or game in a format that still works. The common outcome is that the same title must be purchased again, if it is available at all.
+
+The material can vanish entirely. The Video Game History Foundation's 2023 study found that "87% of classic video games released in the United States are critically endangered" and that "just 13% of video game history is being represented in the current marketplace".<ref name="vghf">{{Cite web |last=Lewin |first=Kelsey |date=Jul 10, 2023 |title=Survey: 87 percent of classic video games are out of print |url=https://gamehistory.org/87percent/ |access-date=Sep 19, 2026 |website=Video Game History Foundation}}</ref>
+
+==Examples==
+
+===Purchased 3D films, Fandango at Home, 2024===
+The application formerly called Vudu ended support for a range of older devices, including 3D-capable Blu-ray players and televisions. The company's own support notice states: "The Vudu app, now known as Fandango, will no longer be supported on some older devices as of December 10, 2024. Although the Vudu app icon may remain on your device, it may no longer function."<ref name="fah-notice">{{Cite web |date=Nov 19, 2024 |title=Why did my Vudu app stop working? |url=https://athomesupport.fandango.com/athomesupport/s/article/Why-did-my-Vudu-app-stop-working |access-date=Sep 19, 2026 |website=Fandango at Home Support}}</ref>
+
+Trade coverage reproduced the customer email, which said that "movie libraries won't be affected", and noted that the PlayStation 4 was among the devices dropped.<ref name="mpn">{{Cite web |last=Latchem |first=John |date=Nov 20, 2024 |title=Fandango at Home Discontinuing App on Older Devices |url=https://www.mediaplaynews.com/fandango-at-home-discontinuing-app-on-older-devices/ |access-date=Sep 19, 2026 |website=Media Play News}}</ref> For owners of 3D titles the distinction between a library and its playability proved to be the whole of the matter, because the devices removed were the ones capable of displaying the format.
+Readers responding to that coverage described the result directly, one stating that they had "serval 3D movies in the app which is no longer supported on my Sony 3D blu-ray player", and another that they had bought 440 films and could no longer watch the twenty of them that were in 3D.<ref name="mpn" />
+
+Owners reporting the same problem on hobbyist forums recorded the on-device behaviour. One described a recently purchased 3D Blu-ray player and 3D television, and titles bought in 3D that could no longer be streamed to either.<ref name="makemkv">{{Cite web |date=Jan 16, 2025 |title=Vudu RIP... FAH kills 3D |url=https://forum.makemkv.com/forum/viewtopic.php?t=36640 |access-date=Sep 19, 2026 |website=MakeMKV Support Forum}}</ref> Another, days after the cutoff, reported that a replacement streaming device answered their 3D purchases with "This device does not support 3D playback."<ref name="blurayforum">{{Cite web |date=Dec 15, 2024 |title=Fandango at Home/Vudu - Ways to stream 3D? |url=https://forum.blu-ray.com/showthread.php?t=380042 |access-date=Sep 19, 2026 |website=Blu-ray.com Forum}}</ref>
+
+===Blu-ray 3D on games consoles===
+Blu-ray 3D was never distributed by streaming services, so the discs and the players are the whole of that format's chain. Both major consoles added playback in 2014, the Xbox One in an update announced that July,<ref name="xbox3d">{{Cite web |last=Lawler |first=Richard |date=Jul 18, 2014 |title=Xbox One's August update adds a friend activity feed and Blu-ray 3D support |url=https://www.engadget.com/2014-07-18-xbox-one-august-update-friend-feed-blu-ray-3d.html |access-date=Sep 19, 2026 |website=Engadget}}</ref> and the PlayStation 4 in system software update 1.75 later the same month.<ref name="ps4-175">{{Cite web |date=Jul 24, 2014 |title=PS4 Getting 1.75 System Update Next Week With 3D Blu-Ray Film Support |url=https://www.ibtimes.co.uk/ps4-getting-1-75-system-update-next-week-3d-blu-ray-film-support-1458054 |access-date=Sep 19, 2026
+|website=International Business Times UK}}</ref>
+
+The following generation removed it. Sony's own launch FAQ for the PlayStation 5 answers the question without qualification: "No, 3D stereoscopic output is not supported on PS5."<ref name="ps5-faq">{{Cite web |last=Shuman |first=Sid |date=Nov 9, 2020 |title=PS5: The Ultimate FAQ |url=https://blog.playstation.com/2020/11/09/ps5-the-ultimate-faq/ |access-date=Sep 19, 2026 |website=PlayStation.Blog}}</ref>
+
+Discs in the format continue to be released, now by specialist labels rather than major studios, and standalone players that support them are still sold.<ref name="brcom">{{Cite web |title=3D Blu-ray release dates |url=https://www.blu-ray.com/movies/releasedates.php?3d=1 |access-date=Sep 19, 2026 |website=Blu-ray.com}}</ref> The format therefore has not ended; the mainstream equipment for playing it has.
+
+===3D televisions===
+Manufacturers withdrew 3D from their television ranges within roughly a year of each other, Samsung for the 2016 model year and the remaining two for 2017. LG's head of product marketing explained the decision in terms of usage: "Purchase process research showed it's not a top buying consideration, and anecdotal information indicated that actual usage was not high.
+We decided to drop 3D support for 2017."<ref name="tc3d">{{Cite web |last=Biggs |first=John |date=Jan 25, 2017 |title=3D TVs are dead |url=https://techcrunch.com/2017/01/25/3d-tvs-are-dead |access-date=Sep 19, 2026 |website=TechCrunch}}</ref> Contemporary coverage recorded the same sequence and observed that "the 3D home release looks like becoming a collectors' item".<ref name="dog">{{Cite web |last=Brew |first=Simon |date=Nov 24, 2017 |title=The Slow Demise of Blu-ray 3D |url=https://www.denofgeek.com/movies/the-slow-demise-of-blu-ray-3d/ |access-date=Sep 19, 2026 |website=Den of Geek}}</ref>
+
+Owners of these televisions are affected in a further way documented on this wiki: on the [[Sony BRAVIA pre-Android Linux TVs (2011-2012)|2011 and 2012 BRAVIA sets]], stereoscopic photographs play from a USB device and not over the home network, because the network path of the television does not declare support for the format its own decoder handles.
+
+===Purchased music, MSN Music, 2008===
+Microsoft announced that it would stop issuing the licence keys required to authorise previously purchased music on new computers, which would have left paid-for files unplayable after a hardware change. Following criticism the company extended the service. The Electronic Frontier Foundation summarised the general lesson: "DRM-crippled music still has an expiration date — whenever the company that sold that music becomes unable or unwilling to continue supporting the copy protection."<ref name="eff-msn">{{Cite web |last=D'Andrade |first=Hugh |date=Jun 19, 2008 |title=Microsoft to MSN Music Customers: Your DRM is Good Until 2011 |url=https://www.eff.org/deeplinks/2008/06/microsoft-msn-music |access-date=Sep 19, 2026 |website=Electronic Frontier Foundation}}</ref>
+
+===Purchased ebooks, Microsoft Store, 2019===
+Microsoft closed its ebook category and removed previously purchased books from customers' libraries, issuing refunds, with free titles deleted as well and a credit offered to readers who had annotated their books.<ref name="msbooks">{{Cite web |date=Apr 2, 2019 |title=Microsoft Stops Selling eBooks, Will Refund Customers For Previous Purchases |url=https://news.slashdot.org/story/19/04/02/1957232/microsoft-stops-selling-ebooks-will-refund-customers-for-previous-purchases |access-date=Sep 19, 2026 |website=Slashdot}}</ref> The case is unusual in that compensation was offered, and instructive in that the books themselves could not be kept at any price.
+
+===Flash content, 2021===
+Adobe ended support for Flash Player at the end of 2020 and blocked playback from 12 January 2021, so that "even if a browser supports Flash or you explicitly allow a website to use it, Flash Player will no longer load the content".<ref name="flash">{{Cite web |last=Abrams |first=Lawrence |date=Dec 12, 2020 |title=Adobe releases final Flash Player update, warns of 2021 kill switch |url=https://www.bleepingcomputer.com/news/software/adobe-releases-final-flash-player-update-warns-of-2021-kill-switch/ |access-date=Sep 19, 2026 |website=BleepingComputer}}</ref> Unusually for this pattern, the shutdown was announced years in advance, which allowed archivists to preserve a substantial part of the material before the date.
+
+==Regulatory response==
+California's Assembly Bill 2426, in force from 1 January 2025, requires sellers of digital goods either to obtain an affirmative acknowledgement that the customer understands they are buying a licence, or to disclose that clearly at the point of sale, with penalties for failing to do so.<ref name="ab2426">{{Cite web |last=Chansky |first=Ed |date=Dec 10, 2024 |title=AB 2426: New California Law Requires Clear Licensing Disclosures for Digital Goods |url=https://www.gtlaw.com/en/insights/2024/12/ab-2426-new-california-law-requires-clear-licensing-disclosures-for-digital-goods |access-date=Sep 19, 2026 |website=Greenberg Traurig}}</ref> The law addresses the wording of the transaction rather than the survival of the format, so a compliant seller may still withdraw playback later, provided the customer was told at the outset that they were buying a licence.
+
+==See also==
+*[[Storefront shutdown]], where the shop closes rather than the format
+*[[Capability gating]], where the hardware retains an ability its software refuses to use
+*[[Region locking]]
+*[[Digital rights management]]
+*[[Planned obsolescence]]
+
+==References==
+{{reflist}}
+
+[[Category:Theme]]
+[[Category:Anti-consumer practices]]
+[[Category:Common terms]]

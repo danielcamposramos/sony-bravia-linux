@@ -1,0 +1,97 @@
+'''Capability gating''' is the practice of selling a product whose hardware performs a function, while the manufacturer's own software or firmware prevents the owner from using it. The device continues to work, no service has been shut down, and the terms of sale have not changed. The function is present, and the product refuses to perform it.
+
+The practice takes two forms. In the first, the manufacturer offers to remove the restriction for a payment, either once or as a recurring subscription. In the second, no unlock is offered at any price, and the capability remains fenced off for the life of the product.
+
+==How it works==
+Manufacturers commonly build one hardware platform and sell several products from it, because a single production line is cheaper than several. The differences between the resulting models are then defined in software. A processor ships with part of its cache switched off, a car ships with every seat heater fitted, a television ships with a decoder its network menu will never call, and a phone ships with a radio the operating system will not enable.
+
+Nothing in this arrangement is inherently hidden from the buyer, and product tiers have existed for as long as products have. What distinguishes capability gating is that the buyer receives the hardware for the higher tier, pays for its manufacture in the purchase price, and is then prevented from using it by a decision taken elsewhere.
+As one industry analyst put it when discussing subscription features in cars, "As a consumer you're going to end up paying for it on the front end, whether or not you subscribe to it."<ref name="cr-cars">{{Cite web |last=Barry |first=Keith |date=Oct 29, 2020 |title=Why You Might Need to Subscribe to Get Certain Features on Your Next Car |url=https://www.consumerreports.org/cars/automotive-industry/why-you-might-need-to-subscribe-to-get-certain-features-on-your-next-car-a6575794430/ |access-date=Sep 19, 2026 |website=Consumer Reports}}</ref>
+
+==Why it is a problem==
+The owner cannot tell what they have bought. A specification sheet describes the product as configured, not as built, so two owners of physically identical devices may have different functions available, and neither can establish this from the documentation.
+
+The restriction is not a limitation that engineering or competition can solve. A faster product will be built eventually, but a fence in firmware does not fall to progress, and the owner of the gated device has no remedy other than to buy the same hardware again.
+
+The capability can be granted and withdrawn without the owner's involvement, which demonstrates that the fence, rather than the hardware, decides what the product does. In September 2017, ahead of Hurricane Irma, Tesla raised the usable battery capacity of certain Florida cars whose packs were physically larger than their badge implied, extending their range "from 210 miles per charge up to 249 miles" until a set date, after which "the extra range will be removed".<ref name="irma">{{Cite web |last=Field |first=Kyle |date=Sep 9, 2017 |title=Tesla Unlocks Extra Battery Capacity For Owners Fleeing Hurricanes |url=https://cleantechnica.com/2017/09/09/tesla-unlocks-extra-battery-capacity-owners-fleeing-hurricanes/ |access-date=Sep 19, 2026 |website=CleanTechnica}}</ref>
+
+Where safety functions are gated, consumer advocates have argued that the practice should not be permitted at all. Consumer Reports' manager of safety policy has stated that "Companies should not be allowed to deactivate proven, effective, well-functioning safety systems—including due to an expiring subscription."<ref name="cr-cars" />
+
+==Distinguishing it from related practices==
+Capability gating is often confused with practices covered elsewhere on this wiki, and the differences matter when documenting an incident.
+
+{| class="wikitable"
+!Practice
+!What happens
+!Does the product still work?
+|-
+|Capability gating
+|A function the hardware performs is fenced off in software
+|Yes, minus the gated function
+|-
+|[[Discontinuation bricking]]
+|A product stops working because the manufacturer discontinued it or its servers
+|No
+|-
+|[[Remote disabling]]
+|The vendor reaches into a working product and switches it off
+|Often not
+|-
+|[[Feature ransom]]
+|Functionality is withheld until the user accepts new terms
+|Yes, until the terms are refused
+|-
+|[[Storefront shutdown]]
+|A digital shop closes and its catalogue becomes unavailable
+|Yes, but the content is gone
+|-
+|[[Region locking]]
+|A function or product is withheld according to where the buyer lives
+|Yes, minus the withheld function
+|}
+
+A further boundary is worth stating. Firmware that rejects third-party consumables, such as printer ink, restricts what the owner may feed the device rather than what the device may do, and belongs with vendor lock-in rather than here.
+
+==Examples==
+
+===Intel Upgrade Service (2010)===
+Intel sold a scratch-off card, priced at around 50 US dollars, which unlocked an additional megabyte of cache and Hyper-Threading on the Pentium G6951, both already present in the processor the customer had bought.<ref name="intel-wp">{{Cite web |date=Jan 21, 2026 |title=Intel Upgrade Service |url=https://en.wikipedia.org/wiki/Intel_Upgrade_Service |access-date=Sep 19, 2026 |website=Wikipedia}}</ref> Contemporary reporting described the card as "a key to unlock performance that your PC already has", and characterised the arrangement as amounting to digital rights management applied to a processor.<ref name="intel-tc">{{Cite web |last=Biggs |first=John |date=Sep 19, 2010 |title=Intel Selling Scratch-Off 'Upgrade' Cards To Unlock Processor Power |url=https://techcrunch.com/2010/09/19/intel-selling-scratch-off-upgrade-cars-to-unlock-processor-power/
+|access-date=Sep 19, 2026 |website=TechCrunch}}</ref> The programme was discontinued.<ref name="intel-wp" />
+
+===Nvidia 3DTV Play (2010s)===
+Nvidia's graphics drivers could render stereoscopic 3D, but sending that output to a 3D television, rather than to an Nvidia-branded monitor, required a separate product called 3DTV Play, "normally priced at $39.99".
+Nvidia folded it into the free driver in Release 418, in the same announcement that ended support for the feature altogether: "Following the posting of the final driver from Release 418 in April 2019, GeForce Game Ready Drivers will no longer support NVIDIA 3D Vision."<ref name="nv3d">{{Cite web |last=Abrams |first=Lawrence |date=Mar 11, 2019 |title=NVIDIA Removing Support For 3D Vision in Game Ready Drivers |url=https://www.bleepingcomputer.com/news/hardware/nvidia-removing-support-for-3d-vision-in-game-ready-drivers/ |access-date=Sep 19, 2026 |website=BleepingComputer}}</ref> The capability was first charged for, then given away, then withdrawn, while the hardware that performed it was unchanged throughout.
+
+===Tesla software-limited battery packs (2016)===
+Tesla sold Model S and Model X cars badged 60 and 60D which carried the same 75 kWh pack as higher trims, with the difference applied in software and removable for a fee. Tesla described the process in its own words: "Upon confirmation of purchase, the over-the-air process will be initiated and the upgrade will occur during a vehicle sleep cycle over the next 1-2 days."<ref name="tesla60">{{Cite web |last=Lambert |first=Fred |date=Jul 26, 2016 |title=Tesla explains how easy it is to upgrade its software-limited battery packs |url=https://electrek.co/2016/07/26/tesla-upgrade-software-limited-battery-pack-model-s-x/ |access-date=Sep 19, 2026 |website=Electrek}}</ref>
+
+===BMW heated seats (2022)===
+BMW offered heated seats, fitted at the factory, as a recurring subscription in several markets. In South Korea the price was reported as 24,000 won, about 18 US dollars, per month, with tiers up to a one-off payment for unlimited use.<ref name="bmw-cs">{{Cite web |last=Bell |first=Sebastien |date=Jul 11, 2022 |title=BMW Starts Charging South Korean Customers $18 A Month For Heated Seats |url=https://www.carscoops.com/2022/07/bmw-starts-charging-south-korean-customers-18-a-month-for-heated-seats/ |access-date=Sep 19, 2026 |website=Carscoops}}</ref> Coverage of the same price list noted that the model extended to high-beam assist and to adaptive suspension, and one outlet likened it to "buying a mug and having to rent the handle".<ref name="bmw-reg">{{Cite web |last=Vigliarolo |first=Brandon |date=Jul 12, 2022 |title=BMW is bringing subscriptions to seat
+warmers |url=https://www.theregister.com/2022/07/12/bmw_locks_korean_car_owners/ |access-date=Sep 19, 2026 |website=The Register}}</ref> BMW later moved heated seats back to a one-time purchase, with a company representative stating that "The criticism we got was from the seat heating, so this was probably not the best way to start with it", while other subscription-gated functions remained.<ref name="bmw-rev">{{Cite web |last=Thubron |first=Rob |title=BMW admits heated seat subscriptions were a mistake, but the paywalls aren't going away |url=https://www.techspot.com/news/111208-bmw-admits-heated-seat-subscriptions-mistake-but-commits.html |access-date=Sep 19, 2026 |website=TechSpot}}</ref>
+
+===Toyota key fob remote start (2021)===
+Toyota required an active Remote Connect subscription before the car would respond to the remote-start sequence performed on the physical key fob, a function which involves no network connection: reporting on the policy noted that the fob "will not work even though it sends the signal directly to the car". Toyota stated that "The subscription truly is for the app.
+The key fob remote start was never intended to be a cost item either at the time of purchase or through subscription."<ref name="toyota">{{Cite web |last=Stumpf |first=Rob |date=Dec 28, 2021 |title=Toyota 'Reviewing' Key Fob Remote Start Subscription Plan After Massive Blowback |url=https://www.thedrive.com/tech/43636/toyota-reviewing-key-fob-remote-start-subscription-plan-after-massive-blowback |access-date=Sep 19, 2026 |website=The Drive}}</ref> The case is notable because no server, subscription service or data connection takes part in the function being withheld.
+
+===Samsung Galaxy S24 and Wi-Fi 7 (2024)===
+The Galaxy S24 and S24+ carry a Snapdragon 8 Gen 3 processor capable of Wi-Fi 7, and ship limited to Wi-Fi 6E. The reported reason is consistency with the versions of the same phones sold elsewhere, which use a different processor without Wi-Fi 7 support: "Even though the Samsung Galaxy S24 and S24 Plus models also have the Wi-Fi 7-ready Snapdragon 8 Gen 3 chip, they only support Wi-Fi 6E."<ref name="wifi7">{{Cite web |date=Jul 29, 2025 |title=Which mobile phones have Wi-Fi 7 support? |url=https://www.androidpolice.com/wifi-7-phones-list/ |access-date=Sep 19, 2026 |website=Android Police}}</ref> No unlock is offered at any price, which places this case in the second form of the practice.
+
+===Sony BRAVIA televisions and 3D (2011 onwards)===
+The 2011 and 2012 [[Sony BRAVIA pre-Android Linux TVs (2011-2012)|pre-Android BRAVIA televisions]] provide a documented example in which the gating is visible on screen. Owner testing recorded that the set detects a 3D signal in content played through its own internet and application path and displays its own notification saying so, then neither switches to 3D nor enables the 3D menu, while the same television engages 3D without any user action for a stereoscopic photograph read from a USB device. On the home network, the set does not list photographs in formats it does not declare support for, and shows the same file flat when it arrives labelled as an ordinary photograph. The panel, the decoder and the automatic switch all function; which of them the owner may use depends on the path the content arrived by.
+
+==Regulatory response==
+The European Union's Directive on common rules promoting the repair of goods names software restrictions directly. Under it, "manufacturers are prohibited from using contractual clauses, hardware or software techniques that impede the repair of goods listed in Annex II unless justified by legitimate and objective factors". Member States are required to apply the rules from 31 July 2026.<ref name="eu-repair">{{Cite web |title=Directive on repair of goods |url=https://commission.europa.eu/law/law-topic/consumer-protection-law/directive-repair-goods_en |access-date=Sep 19, 2026 |website=European Commission}}</ref> The directive addresses repair rather than feature availability, so it does not cover capability gating in general, but it establishes in law the principle that a software technique can be an impediment rather than a design choice.
+
+==See also==
+*[[Region locking]], where the deciding factor is the buyer's location rather than the buyer's payment.
+*[[Format abandonment]], where the owner keeps the media and loses the means to play it.
+*[[Planned obsolescence]]
+*[[Right to repair]]
+*[[Digital rights management]]
+
+==References==
+{{reflist}}
+
+[[Category:Theme]]
+[[Category:Anti-consumer practices]]
+[[Category:Common terms]]
