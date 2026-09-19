@@ -10,7 +10,60 @@ straight answer, and Sony's own support pages contradict each other
 across regions and generations. Below is what the sets do here,
 measured, and what the documentation claims, sourced.
 
+## The answer (owner-measured 2026-09-19): MPO works — when the file is correct
+
+**A spec-correct MPO on a USB stick switches the KDL-46EX725 into 3D by
+itself, and the 3D menu is fully enabled.** Eleven photos, nine of them
+comfortable at first viewing; the other two are covered below.
+
+What made the difference was **our own file writer**, not the television.
+CIPA DC-007 (the Multi-Picture Format standard every 3D camera of the era
+followed) gives each image in an MPO a type. A stereo pair is typed
+**Multi-frame Image: Disparity** (`0x020002`) on *both* views, numbered
+from the leftmost viewpoint. Our `tools/bravia_mpo.py` typed the first
+view as a **Baseline MP Primary Image** (`0x030000`) instead — which §6.1
+of the standard defines as *a photo plus up to two Large Thumbnails*. The
+standard's playback rule for that kind of file (A.2.2.1) is to show the
+primary image. That is precisely what both sets did with every MPO we had
+given them: listed it as "MPO", showed one view flat, offered only 2D→3D.
+**The televisions were following the standard; our files were describing
+themselves wrongly.**
+
+The test was built so that only that one thing changed. The retest files
+were repacked from the very files that had failed, without re-encoding:
+all 22 views are pixel-identical, and the Exif is unchanged. The failing
+set (first view typed Baseline Primary) and the working set (both views
+typed Disparity) sat side by side on the same stick:
+
+| On the same USB stick, KDL-46EX725 | Result |
+|---|---|
+| `DCIM/100MSDCF/*.MPO` — view 1 typed Baseline MP Primary | listed as MPO, **one view, flat**, 3D menu offers only 2D→3D |
+| `DCIM/101MSDCF/*.MPO` — both views typed Disparity | **3D engages automatically; 3D menu enabled** |
+| `DCIM/100MSDCF/*.JPG` — side-by-side JPEG | both halves shown flat, only 2D→3D (unchanged) |
+| `.jps`, including four untouched LG Optimus 3D camera files | **not listed at all** |
+
+**Two of the eleven looked wrong in depth** (`DSC00201`, `DSC00202`: the
+eyes appear swapped, or the parallax is too strong — the symptoms look
+alike). Measured, both carry much larger crossed disparity than the nine
+good ones (about −144 px and −60 to −80 px against −17 to −38 px at 1920
+wide). `DSC00202` is a game capture of the kind NVIDIA 3D Vision saved as
+right-eye-first JPS, so a swap is plausible there. Swapped and re-windowed
+variants of both are built for the next test; this is a property of those
+two source pictures, not of the format.
+
+**Still to confirm:** the same test on the KDL-46HX855 (same platform,
+expected to match, not yet run); and the **home-network path with a
+correct MPO**. Every network-delivered MPO in the section below was built
+by the broken writer, so that path is now untested rather than negative.
+
 ## What our own sets do (owner-measured 2026-09-18)
+
+> **Superseded in part, 2026-09-19.** The MPO rows below were produced
+> with our writer's wrong MP type (see above), so they show what these
+> sets do with a *mistyped* MPO, not with a stereo MPO. The side-by-side
+> JPEG results still stand — confirmed again from USB on 2026-09-19.
+> The conclusion "no packing and no naming can succeed on this path" is
+> **wrong** for MPO: with a correct file the 3D menu is enabled.
 
 Both sets. Not one, and not inferred from the other.
 
