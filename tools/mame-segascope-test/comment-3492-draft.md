@@ -1,8 +1,10 @@
 # Draft comment for mamedev/mame#3492 — for Daniel's review before posting
 
-Status: NOT POSTED. Issue is open, created 2018-04-27 by darkfalz79, last activity 2021-02-05, labels `driver` + `artwork`, 3 comments.
+Status: APPROVED by Daniel 2026-09-20, awaiting posting. Issue is open, created 2018-04-27 by darkfalz79, last activity 2021-02-05, labels `driver` + `artwork`, 3 comments.
 
 ---
+
+Apologies for adding to a thread this old. I would not have, except that it is still open and still carries both the driver and the artwork labels, which reads as parked rather than settled, and what follows bears directly on what happens to this layout if the driver is ever reworked. If it should simply be closed, say so and I will not press it.
 
 Confirming darkfalz79's layout still works, unmodified, on current MAME and on a different stack from his.
 
