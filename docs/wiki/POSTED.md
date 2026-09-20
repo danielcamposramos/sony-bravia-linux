@@ -213,3 +213,27 @@ zero extra, an exact match. That also confirms the 102/81 figures quoted in
 `docs/hdmi-cec-audio-system.md` and that the transcription in `docs/manuals-index.md`
 is complete. The file itself stays where it is, per rule 9b; only the product names,
 which are facts about Sony's compatibility list, were published.
+
+### Archive URLs added, and the backlog that audit revealed (2026-09-20)
+
+| Page | Revision | What |
+| --- | --- | --- |
+| Format abandonment | 68035 | archive URLs on the Toshiba and StudioBinder citations |
+| Region locking | 68036 | archive URLs on the How-To Geek and both Lost Levels citations |
+
+The Wayback Machine came back intermittently, so the five citations added earlier
+today now carry `url-status`, `archive-url` and `archive-date`, which was the last
+thing owed on them. The owner captured StudioBinder, the Lost Levels timeline and the
+mpo2sbs gist himself, since two of those had no snapshot at all and StudioBinder
+returns 403 to us. Note that `archive.org/wayback/available` was refusing while the
+CDX endpoint at `web.archive.org/cdx/search/cdx` kept answering; when one is down,
+try the other before concluding the archive is offline.
+
+**The audit that followed is the useful part.** Across the three theme articles there
+are 45 `{{Cite web}}` citations and only 8 carry an archive URL: the 5 added today and
+the 3 a reviewer added to Capability gating while demonstrating the house style. So 37
+citations from our original drafts still have none. Zero Wikipedia citations remain,
+which was the other half of that style, but the archiving half was only ever applied
+to new work. Most of those 37 probably have snapshots already and need the field
+filled rather than a capture made, but that is an assumption and has not been checked.
+
