@@ -21,6 +21,14 @@ HOMELOG=/home/daniel/nouveau-3d-test.log  # mirrored here at every exit
 TEST_SECONDS=90
 KUSER=daniel
 
+# first, before any redirect: if this was pastebroken into two visual lines,
+# the path-only half lands here running UNPRIVILEGED. Fail loud, not silently.
+if [ "$(id -u)" != 0 ]; then
+	echo "run-nouveau-test: must run as root -- one line:" >&2
+	echo "sudo systemd-run --unit=nouveau-3d-test --collect sh $0" >&2
+	exit 1
+fi
+
 exec >>"$LOG" 2>&1
 # root got EACCES redirecting straight into $HOMELOG from the systemd-run
 # service context on 2026-09-20 (file: root 644 on ext4, no immutable attr).
