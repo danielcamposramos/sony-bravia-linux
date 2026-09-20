@@ -113,3 +113,28 @@ the record, and the honest summary is that Phereo is slow and lossy rather than 
 - The anaglyph work has a direction: optical flow with a blur fallback.
 - Flickr moves to the front of any gallery work, because it is the only source with an
   API that will not move under us.
+
+
+## Closed, 2026-09-20
+
+Answered and closed as
+[comment 5751443461](https://github.com/JackDesBwa/PhereoRoll3D/issues/2#issuecomment-5751443461),
+in the owner's words. His opening line was feedback worth acting on, "Your messages
+are quite dense, and I'm not sure to have understood everything", so the reply is
+about a third the length of our earlier ones and says so.
+
+The reply leads with his corrections to our list rather than with our own findings,
+links the list with an open invitation to cite it, reports the MPO typing fix and the
+four-way probe, credits his canvas-fallback sentence as the line that settled our
+architecture question, and records the gstreamer suggestion as a design. His five
+stereoscopy repositories and both gists were starred from the owner's account.
+
+The owner's own edit changed the acceptance of the declined test from "I will not take
+your time with the interleaved test" to "I will move the investigation up the ladder
+you suggested as the projects that went on", which is the better sentence: it says
+what happens next instead of only conceding.
+
+**Open, not promised.** A friend of the owner has a Sony Android-era set from the
+following generation. Those sets may not carry the same gates on the browser and the
+photo viewer. It was deliberately left out of the reply, because it is a plan and not
+a result; it goes upstream only when there is a measurement.
