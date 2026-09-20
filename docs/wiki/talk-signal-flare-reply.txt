@@ -1,0 +1,23 @@
+:I am one of the people you are describing, so let me declare that before anything else. My recent edits here were made through the wiki's API with a small client I wrote, and they were AI assisted. I support this rule and I would be glad to be bound by it.
+
+:On phrasing, since you asked. I think the rule is stronger if it asks for three separate things, because they fail in different ways:
+
+:'''Announce before the run, not during it.''' Say on the talk page of the affected article, or on a noticeboard for anything wider, what the automation will change, roughly how many pages it will touch, and what you tested it against. The point of announcing beforehand is that someone who knows the articles can say "not that one" while it is still cheap.
+
+:'''Separate the two moments, because they fail in opposite ways.''' Creating a page and maintaining one are not the same job and should not carry the same rule.
+
+::''Creating a page.'' Draft it offline, in full, and publish it in a single save. A new article assembled from twenty incremental saves floods recent changes, buries its own history under noise, and gives a reviewer no one version to read. Publishing once also forces the author to finish thinking before they publish, which is most of the benefit.
+
+::''Editing an existing page.'' Here the opposite applies. Small separable edits, each doing one thing, with a summary saying which thing. A hundred changes in a single diff cannot be reviewed and cannot be partly reverted, so a reviewer who finds one error has to choose between keeping the rest or discarding all of it.
+
+:'''Land a small batch first and stop.''' For anything running across multiple pages, five or ten edits and then wait. A reviewer can inspect ten in a few minutes and tell you your citation template renders wrong, which is a much better outcome than discovering it on page two hundred. I would rather this were a hard number than "as many edge cases as possible", because an operator's idea of an edge case is exactly the thing that is unreliable here.
+
+:'''Verify each write against what the wiki actually holds.''' This is the one I would most like to see written down, because it is cheap and it catches the failure you are describing at the moment it happens. After every save, fetch the page back and compare it to what you submitted. My own client refuses to report success unless the returned text matches byte for byte, and that check has caught things I would otherwise have left behind, including a template that looked fine in my draft and rendered broken on the page.
+
+:Two smaller suggestions. One edit per logical change with a summary that says what it was, so that a revert can be surgical instead of wholesale. And an explicit line that the operator patches their own errors rather than leaving them for the community, since "difficult to manually patch" is the actual harm in your first paragraph and it is worth naming as the operator's responsibility.
+
+:A rough wording, to be pulled apart rather than adopted: "Before running any automated or semi-automated series of edits, announce it in advance with what it will change and what it was tested against. Create new pages offline and publish them in a single save. Make later changes as small separable edits, one logical change each, with a clear summary. Where a run spans several pages, publish a small initial batch and pause for review. Verify every save against the stored page. Errors introduced by automation are the operator's to repair."
+
+:One thought on where this belongs. Most of the above is simply what a careful editor does anyway, and it may read better as help text shown to someone about to create their first article than as a rule they only meet after breaking it. The two-moments part especially: "draft your first version offline and publish it once, then keep later changes small and separate" is useful advice to a new human editor with no automation anywhere near them.
+
+:Separately, and only because it overlaps: I wrote up the operating rules I follow here, which include the verify-after-write step and the reasons behind it. It is plain Markdown and not tied to any product, so it can be pasted into whatever assistant someone is already using. Offered rather than proposed, and equally welcome to be told it is wrong: https://github.com/danielcamposramos/sony-bravia-linux/tree/main/crwiki-ai-skill ~~~~
