@@ -21,6 +21,10 @@ TOOLS=/K3D/GitHub/sony-bravia-linux/tools
 test -f "$K3DPATCH" || { echo "patched module missing: $K3DPATCH"; exit 1; }
 test "$(id -u)" = 0 || { echo "run as root"; exit 1; }
 
+WANT="$(uname -r) SMP preempt mod_unload"
+HAVE="$(modinfo -F vermagic "$K3DPATCH")"
+test "$HAVE" = "$WANT" || { echo "vermagic mismatch: have '$HAVE' want '$WANT'"; exit 1; }
+
 systemctl stop sddm
 sleep 1
 modprobe -r amdgpu || { echo "amdgpu unload failed"; systemctl start sddm; exit 1; }
