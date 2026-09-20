@@ -73,6 +73,17 @@ def run(cmd, **kw):
                           errors="replace", **kw)
 
 
+def run_mkvextract(cmd):
+    """mkvextract returns 1 on WARNINGS — e.g. a successful mid-file resync on
+    damaged data ("Ressincronização com êxito"), seen live on IMAX Dolphins and
+    Whales (2026-09-20): the extraction completed to 100% yet rc=1 made
+    check=True read it as failure. mkvtoolnix: 0=clean, 1=warnings, 2=error.
+    Only rc >= 2 is fatal; the verify gate downstream catches real damage."""
+    r = subprocess.run(cmd, capture_output=True, text=True, errors="replace")
+    if r.returncode >= 2:
+        raise RuntimeError(f"{cmd[0]} rc={r.returncode}: {r.stderr[-300:]}")
+
+
 def probe(path):
     """(vcodec, stereo_mode, fps, width, height) of the first video stream."""
     r = run(["ffprobe", "-v", "error", "-select_streams", "v:0",
@@ -177,11 +188,11 @@ def extract_es(path, td):
     if path.suffix.lower() in MKV_EXTRACT_EXTS:
         r = run(["mkvmerge", "-J", str(path)])
         vt = next(t["id"] for t in json.loads(r.stdout)["tracks"] if t["type"] == "video")
-        run(["mkvextract", "tracks", str(path), f"{vt}:{es}"])
+        run_mkvextract(["mkvextract", "tracks", str(path), f"{vt}:{es}"])
         ts = Path(td) / "ts.txt"
         try:
-            run(["mkvextract", "timestamps_v2", str(path), f"{vt}:{ts}"])
-        except subprocess.CalledProcessError:
+            run_mkvextract(["mkvextract", "timestamps_v2", str(path), f"{vt}:{ts}"])
+        except RuntimeError:
             ts = None  # track without timestamps: fall back to constant rate
         return es, ts
     run(["ffmpeg", "-y", "-v", "error", "-i", str(path), "-map", "0:v:0",
