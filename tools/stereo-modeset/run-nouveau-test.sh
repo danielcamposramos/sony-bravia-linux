@@ -129,11 +129,15 @@ if [ -f "$DSTATE" ] && [ "$(cat "$DSTATE" 2>/dev/null)" = "masked-awaiting-reboo
 fi
 echo "nvidia_uvm refcount: ${UREF:-not loaded} -- gate passed"
 
-# hold the coming removal window against reloaders, BEFORE the desktop drops:
-# any modprobe of the nvidia family (request_module from a stray /dev/nvidia*
-# open, pci modalias, nvidia-modprobe from the udev rule) becomes a no-op
+# hold the coming removal window against reloaders, BEFORE the desktop drops.
+# Two autoload paths exist and each honors a different rule type, so both are
+# needed (run 2 vs run 3 vs post-run churn, all verified live):
+#   - modprobe binary (request_module on /dev/nvidia* open, nvidia-modprobe
+#     from the udev RUN): honors install rules -> /bin/true no-ops
+#   - systemd-udevd kmod builtin (pci modalias uevents): honors ONLY blacklist
+# guard removal is what re-enables 'modprobe nvidia*' at restore time.
 mkdir -p /run/modprobe.d
-printf 'install nvidia /bin/true\ninstall nvidia_modeset /bin/true\ninstall nvidia_drm /bin/true\ninstall nvidia_uvm /bin/true\ninstall nvidia_fs /bin/true\n' > "$GUARD"
+printf 'blacklist nvidia\nblacklist nvidia_modeset\nblacklist nvidia_drm\nblacklist nvidia_uvm\nblacklist nvidia_fs\ninstall nvidia /bin/true\ninstall nvidia_modeset /bin/true\ninstall nvidia_drm /bin/true\ninstall nvidia_uvm /bin/true\ninstall nvidia_fs /bin/true\n' > "$GUARD"
 echo "autoload guard installed: $GUARD"
 
 systemctl stop sddm
@@ -151,11 +155,12 @@ while [ $i -lt 20 ]; do
 done
 echo "cards free after ${i}s"
 
-echo 0 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
-echo 0 > /sys/class/vtconsole/vtcon0/bind 2>/dev/null || true
+echo 0 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null && echo "vtcon1 unbound" || echo "vtcon1 unbind FAILED"
+echo 0 > /sys/class/vtconsole/vtcon0/bind 2>/dev/null && echo "vtcon0 unbound" || echo "vtcon0 unbind FAILED"
 
 try=0
-for m in nvidia_fs nvidia_drm nvidia_uvm nvidia_modeset nvidia; do
+for m in nouveau nvidia_fs nvidia_drm nvidia_uvm nvidia_modeset nvidia; do
+	grep -q "^$m " /proc/modules || { echo "$m: not loaded, skip"; continue; }
 	while true; do
 		if modprobe -r "$m" 2>&1; then
 			echo "removed $m"
@@ -163,8 +168,8 @@ for m in nvidia_fs nvidia_drm nvidia_uvm nvidia_modeset nvidia; do
 		fi
 		try=$((try + 1))
 		if [ $try -gt 4 ]; then
-			echo "FAILED to remove $m after retries:"; lsmod | grep -E "^nvidia"
-			echo "--- stray holders:"; fuser -v /dev/nvidia* 2>&1 | head -15
+			echo "FAILED to remove $m after retries:"; lsmod | grep -E "^(nvidia|nouveau)"
+			echo "--- stray holders:"; fuser -v /dev/nvidia* /dev/dri/card* 2>&1 | head -15
 			echo "restoring desktop"
 			rm -f "$GUARD"
 			modprobe nvidia_drm 2>/dev/null || true   # some family members already came out
@@ -173,7 +178,8 @@ for m in nvidia_fs nvidia_drm nvidia_uvm nvidia_modeset nvidia; do
 			systemctl start sddm
 			exit 1
 		fi
-		echo "remove $m busy (attempt $try), retrying"; lsmod | grep -E "^nvidia_"
+		echo "remove $m busy (attempt $try), retrying"; lsmod | grep -E "^(nvidia_|nouveau)"
+		fuser -v /dev/dri/card1 2>&1 | head -6
 		sleep 2
 	done
 done
@@ -206,7 +212,7 @@ CONN=""
 for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
 	echo "--- probing card1 $c:"
 	"$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>&1 || continue
-	if "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>/dev/null | grep -q "stereo mode:"; then
+	if "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>/dev/null | grep -q "side-by-side half"; then
 		CONN="$c"
 		break
 	fi
@@ -222,7 +228,22 @@ else
 fi
 
 echo "--- restoring nvidia stack"
-modprobe -r nouveau 2>&1 || true      # guard still active: reloaders stay blocked
+# nouveau must leave while the guard still blocks autoloaders; fbcon or a slow
+# connector client may pin it briefly, so retry with holder dumps, and if it
+# still will not go, keep the desktop on it -- a plain reboot restores the
+# stock stack (nouveau is blacklisted at boot)
+try=0
+while grep -q "^nouveau " /proc/modules; do
+	modprobe -r nouveau 2>&1 && break
+	try=$((try + 1))
+	if [ $try -gt 3 ]; then
+		echo "nouveau stays pinned after retries; starting the desktop on it as-is."
+		echo "--- holders now:"; fuser -v /dev/dri/card1 2>&1 | head -12
+		lsmod | grep -E "^(nouveau|nvidia)"
+		break
+	fi
+	sleep 1
+done
 rm -f "$GUARD"                        # from here 'modprobe nvidia*' works again
 modprobe nvidia_drm 2>&1 || true
 sleep 2
