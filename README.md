@@ -51,6 +51,18 @@ is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
   track to 384k AC-3. What each set actually accepts, by path and read
   from its own EDID, is in
   [audio-capabilities.md](docs/audio-capabilities.md).
+- **The owner's own 3D library is repaired, not just diagnosed (2026-09-20).**
+  [tools/bravia_sei3d.py](tools/bravia_sei3d.py) injects the missing SEI into
+  the existing H.264 stream without re-encoding, so the picture data stays
+  byte-identical and the file grows by about 0.002%. **39 files fixed** across
+  the library, each one verified before the original was replaced: the SEI must
+  be present, the stream count must match, and the duration must land within two
+  seconds. Three failure classes were found by running it rather than by reading
+  it, and all three are fixed in the tool: scratch files filling a full disk,
+  variable-frame-rate sources running 48 seconds long when a constant rate was
+  forced (now carried through `mkvextract timestamps_v2`), and the OOM killer
+  taking the process down on tracks larger than RAM (now an `mmap` stream, so
+  memory stays flat on a 14 GiB track).
 - **The whole method is published** for anyone with one of these sets:
   [build-your-own-bravia-portal.md](docs/build-your-own-bravia-portal.md) —
   two DNS overrides, the era-TLS vhost, the media app, the widget-restore
@@ -107,8 +119,9 @@ perfectly good hardware. The diagnosis plus a working fix was taken
 upstream to every tool in the encode → remux → player pipeline, and then
 to the DLNA servers that serve the files.
 
-**Two merges so far: the encoder end and the server end are fixed
-upstream.** HandBrake now writes the SEI when it encodes
+**Two merges so far, and a third front in active review: the encoder end
+and the server end are fixed upstream, and the remuxer is being reviewed
+now.** HandBrake now writes the SEI when it encodes
 ([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100)), and
 Universal Media Server now writes it when it transcodes *and* stops
 transcoding what these sets already play
@@ -133,7 +146,7 @@ short form linked in every upstream post is
 | x265 | [issue #970](https://github.com/Multicorewareinc/x265/issues/970) filed |
 | mpv | [issue #18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) in review — completes the pipeline end to end; ecosystem follow-up posted on the issue |
 | BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756) — answered, closed out, cross-brand confirmed (Samsung) |
-| mkvmerge | [Codeberg #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309) **filed 2026-09-18** — derive stereo mode from the SEI; the earlier "signup paywall" was the donate page wearing the same layout |
+| MKVToolNix | **two merge requests in review**: [!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) (AVC) and [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) (HEVC), from [#6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309). The maintainer opened with "most of it is exactly the way I'd want it" and seven technical requests, all answered 2026-09-20. Testing his review also turned up a bug already shipped in v101 and v102: `mkvmerge --stereo-mode 0:0` silently discarded an explicitly requested "mono", because StereoMode's default is 0 and track headers render without defaults, while mkvpropedit writes it. Fixed in the same branch as its own commit |
 | Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — DLNA profile mislabel (first version was wrong and corrected in place). **Owner-verified on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |
 | Jellyfin | [comment on PR #18060](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078) (layout-detection point) |
 | Universal Media Server | **[PR #6330 merged](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)** (2026-09-19) — the maintainer read the measurements on [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) and asked for code. Writes the frame-packing SEI on libx264 transcodes, and corrects the 2011–2012 Bravia profiles: the EX725 profile had **no MP4 line at all**, so every MP4 was transcoded on a set that plays it directly, and **E-AC3 is now declared** (decoded to 7.1, shown as *Dolby Digital Plus*) |
@@ -161,10 +174,15 @@ anaglyph. Two additions the owner set in 2026-09-18:
   category** (*All 3D photos*, *All 3D movies / series / videos*);
 - **the 3D-photo gallery these sets never got** — Sony shipped a
   2D-only slideshow on a 3D panel. Measured on the way in: the phereo
-  community platform's API times out while
-  [stereopix](https://stereopix.net/) answers in seconds, so the lane
+  community platform's API timed out from here while
+  [stereopix](https://stereopix.net/) answered in seconds, so the lane
   is built source-agnostic and the private photo corpus is
-  preservation material, not just test material.
+  preservation material, not just test material. JackDesBwa later
+  measured both from France without reproducing the timeout, and
+  reports that phereo lost everything published between roughly
+  January 2019 and October 2022 but still holds more than 200,000
+  images, so the honest reading is slow and lossy rather than dead
+  ([docs/jackdesbwa-exchange.md](docs/jackdesbwa-exchange.md)).
 
 First results on the owner's own stack, before any upstream ask, as
 in both earlier acts.
@@ -261,10 +279,18 @@ record while it lives only on someone else's server.
 
 | Piece | Live | Snapshot |
 |---|---|---|
-| Consumer Rights Wiki (FULU) — product-line page with the incidents and their sources, revised eight times as the measurements advanced. 18 Sep: the five archived end-of-service notices, the browser-3D incident, the Brazil consumer-code section and the corrected firmware claim; then the 3D still-photograph incident and the independent second-server reproduction of the DLNA 3D defect. 19 Sep: every reference rebuilt as `{{Cite web}}` after a reviewer's cleanup notice; the 3D incidents **corrected, not extended**, once a spec-correct MPO was shown to engage 3D from USB on both sets while the network path hides the format and the browser path prints *Sinal 3D foi detectado* and refuses; Brazilian price context with the minimum wage cited to Decreto 7.655/2011; and ISO 639 language codes after a reviewer's talk-page advice. Awaiting moderator review | [Sony BRAVIA pre-Android Linux TVs (2011-2012)](https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) | [2026-09-17](https://web.archive.org/web/20260917232844/https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_%282011-2012%29) (first version); [2026-09-19](https://web.archive.org/web/20260919203626/https://consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) (current, after the eighth revision) |
+| Consumer Rights Wiki (FULU) — product-line page with the incidents and their sources, revised eight times as the measurements advanced. 18 Sep: the five archived end-of-service notices, the browser-3D incident, the Brazil consumer-code section and the corrected firmware claim; then the 3D still-photograph incident and the independent second-server reproduction of the DLNA 3D defect. 19 Sep: every reference rebuilt as `{{Cite web}}` after a reviewer's cleanup notice; the 3D incidents **corrected, not extended**, once a spec-correct MPO was shown to engage 3D from USB on both sets while the network path hides the format and the browser path prints *Sinal 3D foi detectado* and refuses; Brazilian price context with the minimum wage cited to Decreto 7.655/2011; and ISO 639 language codes after a reviewer's talk-page advice. **20 Sep, with the account granted API access:** the model rosters Sony published with its own withdrawal notices, 312 distinct televisions across three notices in Sony's own size groupings, plus the 81 Sony audio products whose television-side remote was one of the withdrawn applications and cannot be reinstalled once a set loses it; the generation added to the [Sony](https://consumerrights.wiki/Sony) article's controversies table and given its own incident section there; the last Wikipedia citations replaced with primary sources after a reviewer showed the house style. Awaiting moderator review | [Sony BRAVIA pre-Android Linux TVs (2011-2012)](https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) | [2026-09-17](https://web.archive.org/web/20260917232844/https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_%282011-2012%29) (first version); [2026-09-19](https://web.archive.org/web/20260919203626/https://consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) (current, after the eighth revision) |
 | TabNews (pt-BR) — the investigation as a first-person account | [Em 2011 um CEO me deu de presente uma licença de 3D…](https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) | [2026-09-17](https://web.archive.org/web/20260917232833/https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) |
 | TabNews (pt-BR) — essay: what slop is, where it came from, and the hacker precedent | [Essa é a história da relação de a gente não banir o nmap…](https://www.tabnews.com.br/danielramos/essa-e-a-historia-da-relacao-de-a-gente-nao-banir-o-nmap-porque-criminoso-usa-ele-e-o-maior-evento-de-slop-da-historia-do-open-source) | saved 2026-09-17 |
 | TabNews (pt-BR) — the Zig fork, and a closed door respected | [cgm-zig: o fork do Zig que nasceu no lixão](https://www.tabnews.com.br/danielramos/cgm-zig-o-fork-do-zig-que-nasceu-no-lixao-e-compila-o-que-o-original-nao-compilava) | saved 2026-09-17 |
+
+The wiki's [AI usage policy](https://consumerrights.wiki/w/Consumer_Rights_Wiki:AI_usage_policy)
+discussion page was opened by the owner on 2026-09-20, disclosing that these
+edits were AI-assisted and arguing that a disclosure rule mostly reaches the
+people who were already careful. Its postscript makes the other half of the
+case with the Hacktoberfest 2020 numbers and four specimens of ordinary
+information rot found while sourcing the articles themselves. Both are
+reproduced in [docs/wiki/](docs/wiki/).
 
 Drafts and publication notes for these live in
 [docs/tabnews-post-pessoal.md](docs/tabnews-post-pessoal.md),
