@@ -68,3 +68,51 @@ set advertises the format in its own EDID, and the user still pressed a button.
 That is the frame-packing problem one layer down, with the HDMI 3D InfoFrame in place
 of the H.264 SEI. Recorded with its uncertainties in
 `sparky-armbian/05_board_tve_t10/evidence/virtualboy-stereo-on-bravia-20260920-t10/`.
+
+## The plan, agreed 2026-09-20 and NOT yet executed
+
+Owner's direction: rather than reviving dead threads, open a new focused issue per
+project, built on that project's own code, referencing the old thread so its
+subscribers are notified without anyone being necroed. Brief, objective, spec-based.
+Disclose the assistance as always, and offer a patch rather than a request.
+
+**Use the cross-reference, not a comment.** Mentioning `#1461` in a new issue creates a
+backlink in the closed thread automatically. The people who subscribed get notified,
+the dead thread gains no comment, and the etiquette objection never arises. This is the
+mechanism that makes the whole plan safe.
+
+### The argument, in the order it should be made
+
+1. **Stereo from a 3D game is one scene and two cameras.** Not two scenes, not
+   duplicated geometry. Two view matrices offset along the camera's right vector, plus
+   a convergence setting that decides where zero parallax sits. Separation without
+   convergence gives depth that is either painful or invisible depending on scene
+   scale, which is why both are exposed wherever this is done properly.
+2. **It is driver independent, and a sibling project proves it.** Dolphin implements
+   stereoscopy inside the emulator and outputs side by side or top and bottom to any
+   display that accepts a packed pair. Only its quad-buffered "HDMI 3D" mode needs
+   driver cooperation, and that mode is optional. This matters most for PCSX2, whose
+   thread ran six years on Direct3D 11 and 3D Vision constraints when the answer was
+   to stop involving the driver.
+3. **The reference implementation is public.** iZ3D's source is MIT
+   ([bo3b/iZ3D](https://github.com/bo3b/iZ3D)) and is being modernised as
+   [effcol/wiz3D](https://github.com/effcol/wiz3D). Nobody has to take the geometry on
+   trust.
+4. **Scope honestly.** This applies to emulators with a real 3D scene. It does not
+   apply to 2D consoles, where there is no camera and the only route is per-game
+   authoring by hand, as 3dSen does.
+
+### Before anything is sent
+
+- **MAME #3492 needs the test first.** We hold two characterised sets; its author had
+  one. Run the layout, report what happens, and only then discuss whether it belongs in
+  the tree. No opinion before the measurement, exactly as with mkvtoolnix.
+- **Check capacity before offering a patch.** Offering and then not delivering costs
+  more than never offering. PCSX2's renderer is substantial C++, and the honest
+  question is whether this can be built and tested here, not whether it is desirable.
+- **Check whether the old third-party patch survives** and what it did, so the offer
+  builds on existing work rather than ignoring it.
+- **Read each project's contribution policy first**, as with every other target in this
+  campaign.
+
+Status: planned, nothing sent, on the owner's explicit instruction.
