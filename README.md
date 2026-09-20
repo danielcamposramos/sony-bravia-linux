@@ -93,6 +93,17 @@ the owner; the right-to-repair plan for that material is in
 notes may still reference those filenames — they refer to the owner's
 offline archive, not to anything in this repository.
 
+**And it is bounded by generation, deliberately.** Everything here is the
+2011-2012 pre-Android line, and specifically the `AZ1`, `AZ2` and `AZ3`
+chassis families, because that is what the code, the catalogs and the
+service manuals we hold actually cover. Sony's later Android sets are a
+different platform with different gates, and any findings on them belong
+in a sister repository rather than being folded in here. A generation is
+the unit this work is true for, and stretching the claim past the evidence
+would cost exactly the thing that makes the rest of it useful. If someone
+tests an Android-era set and the browser or photo-viewer gates behave
+differently, that is a new repository and a welcome one, linked from here.
+
 ## Why bother (the right-to-repair angle)
 
 These late-KDL sets are phenomenal hardware — the KDL-46HX855 has
