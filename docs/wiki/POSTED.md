@@ -272,3 +272,37 @@ there anyway is how an offer turns into a campaign. Either way it waits for a re
 not a timer.
 
 No polling. The suggestions channel notifies; the owner reads it.
+
+### Reply to the signal flare proposal (2026-09-20)
+
+JamesTDG opened a third section on the AI policy talk page, `"Signal flare"
+requirement`, proposing that LLM-powered automation announce itself before being left
+to run, because of "a large block of edits being made with errors that are difficult
+to manually patch". He ended by asking for better phrasing.
+
+That is a different concern from the disclosure thread above it, and we are precisely
+the case it regulates, so the reply declares that in its first line before saying
+anything else. Posted as a threaded reply under his section; the page now carries four
+signed posts.
+
+**What the reply argues.** Split his rule into three, because they fail differently:
+announce before the run rather than during it; land a small batch and pause when a run
+spans several pages; and verify every save against what the wiki actually holds. The
+last is the one worth having in writing, because it is the only part that works on an
+operator who was not going to be careful anyway, and because `crwiki.py` already
+refuses to report success unless the stored text matches byte for byte.
+
+**The owner's refinement, which corrected the first draft.** Creating a page and
+maintaining one need opposite rules. A new article is drafted offline and published in
+a single save, since twenty incremental saves bury its own history and flood recent
+changes. An existing page needs the reverse: small separable edits that can be reviewed
+and partly reverted. The first draft applied the batch rule to both, which would have
+been bad advice for half of them.
+
+It closes by suggesting the whole thing may belong as help text for a first-time editor
+rather than as a rule met after breaking it, which also gives the proposal a
+constituency beyond the people it restricts.
+
+**Still held:** the argument about detection tells and deliberate imperfection. Nobody
+in that thread has defended the tells, and answering a point nobody made would spend
+it for nothing.
