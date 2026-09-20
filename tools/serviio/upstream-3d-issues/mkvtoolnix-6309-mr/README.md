@@ -533,6 +533,57 @@ One last thing worth putting on the record about why this SEI is worth reading a
 Verified on the patched build, 23 of 23: identification and remux across MP4, Matroska, AVC elementary stream and MPEG TS, left first and right first, 2D files reporting nothing, command line over container over bitstream, and the mono round trip that used to fail. The 256 unit tests pass, including the six for the mapping helper.
 ```
 
+## 9.8 !6312 rebased and shrunk — **ANNOUNCED 2026-09-20 as [comment 23323810](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23323810)** (body verified byte-identical server-side, 1495 bytes)
+
+mbunkus's [comment 23319652](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23319652) predicted the generic
+`create_packetizer` hookup would make "the corresponding change in the HEVC
+commit" unnecessary. It removed **three** hunks, not one:
+
+| dropped from !6312 | replaced by |
+|---|---|
+| `reader_c::create_mpegh_p2_es_video_packetizer` (MPEG TS) | generic tail of `reader_c::create_packetizer` |
+| `qtmp4_reader_c::create_video_packetizer_mpegh_p2_es` (MP4) | `qtmp4_demuxer_c::set_packetizer_stereo_mode()` |
+| `qtmp4_reader_c::create_video_packetizer_mpegh_p2` (MP4) | same |
+
+**!6312 was never closed.** Daniel's instruction was to close it *if*
+mbunkus had called it disposable; he had not — "the corresponding change"
+meant one hunk, and he had already scheduled the review ("I'll do this one
+first, the HEVC afterwards"). Closing it would have discarded the HEVC SEI
+parsing, the HEVC ES reader and 145 lines of unit tests that nothing else
+provides.
+
+Rebased `48cec25cf` → `d76648eb2` onto the revised AVC head `46a12c6fb`,
+resolving conflicts in `r_matroska.{cpp,h}` and `r_qtmp4.{cpp,h}`. The AVC
+review lessons were pre-applied to the HEVC side so mbunkus need not repeat
+them: the Matroska probe became `verify_hevc_video_track` (bool, dispatched
+from the same `if`/`else` chain as AVC and Theora), the MP4 probe became
+`derive_track_params_from_hevc_bitstream` (named after the AVC function he
+pointed at in [#6309 comment 23289739](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309#issuecomment-23289739)),
+and the `=` alignment in `new_stream_v_hevc` is a separate
+`cosmetics: alignment` commit `569101486`.
+
+**Verification on the rebased build:** 26/26 HEVC (identify + remux across
+MP4, Matroska, HEVC ES, MPEG TS; left-first and right-first; 2D reporting
+nothing; command line > container > bitstream), 23/23 AVC regression on the
+same build, 263/263 unit tests (256 + the 7 HEVC ones). Note: the unit test
+binary must be run from the build root — running it from elsewhere produces
+11 spurious failures including `MmIo.Slurp`, which are a working-directory
+artefact and not a regression.
+
+Posted body, verbatim:
+
+```
+!6312 is rebased on this one and is a good deal smaller now.
+
+The change you pointed at on !6311 removed three hunks rather than one. The MPEG TS hookup went, as you said it would, and so did both MP4 ones, `create_video_packetizer_mpegh_p2_es` and `create_video_packetizer_mpegh_p2`, because `set_packetizer_stereo_mode` in the shared video track handling covers them as well. Three codec specific calls replaced by the two generic ones in this renewed merge request.
+
+What is left over there is the part that genuinely is HEVC: the frame packing SEI parsing in `common/hevc/util.cpp` on top of the shared helper, the HEVC elementary stream reader, the first frame probes in the Matroska and MP4 readers, and the unit tests.
+
+The same review points are applied there too, so you do not have to repeat yourself. The Matroska probe is now `verify_hevc_video_track`, dispatched from the same `if`/`else` chain right next to the AVC one. The MP4 side is `derive_track_params_from_hevc_bitstream`, named after the AVC function you pointed me at in #6309. The `=` alignment in `new_stream_v_hevc` is a separate `cosmetics: alignment` commit.
+
+Verified on the rebased build: 26 of 26 for HEVC across MP4, Matroska, HEVC elementary stream and MPEG TS, left first and right first, 2D files reporting nothing, and command line over container over bitstream. The AVC side of this merge request still passes 23 of 23 on that same build, and the unit tests are 263 of 263 with the seven HEVC ones included.
+```
+
 ## 10. HEVC checklist for Daniel
 
 - [x] Commit trailer chosen by Daniel; committed as `48cec25cf`.
