@@ -33,9 +33,16 @@ echo "nouveau module: $NOUVEAU_KO"
 systemctl stop sddm
 loginctl terminate-user "$KUSER" 2>/dev/null || true
 
+# NVML daemons survive the desktop drop and pin the nvidia modules
+# (run 1: nvidia_uvm "in use" with the desktop already gone). Pause them
+# for the test window; restarted below before the desktop returns.
+for svc in nvidia-persistenced coolercontrold netdata; do
+	systemctl stop "$svc" 2>/dev/null && echo "stopped $svc" || true
+done
+
 i=0
 while [ $i -lt 20 ]; do
-	fuser /dev/dri/card0 /dev/dri/card1 >/dev/null 2>&1 || break
+	fuser /dev/dri/card0 /dev/dri/card1 /dev/nvidia* >/dev/null 2>&1 || break
 	sleep 1; i=$((i + 1))
 done
 echo "cards free after ${i}s"
@@ -44,15 +51,28 @@ echo "cards free after ${i}s"
 echo 0 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
 echo 0 > /sys/class/vtconsole/vtcon0/bind 2>/dev/null || true
 
-for m in nvidia_drm nvidia_uvm nvidia_fs nvidia_modeset nvidia; do
-	if modprobe -r "$m" 2>&1; then
-		echo "removed $m"
-	else
-		echo "FAILED to remove $m -- restoring desktop"
-		echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
-		systemctl start sddm
-		exit 1
-	fi
+# reverse dependency order, with retry: stragglers (netdata's poll cycle)
+# reopen nodes for a moment after being stopped
+try=0
+for m in nvidia_fs nvidia_drm nvidia_uvm nvidia_modeset nvidia; do
+	while true; do
+		if modprobe -r "$m" 2>&1; then
+			echo "removed $m"
+			break
+		fi
+		try=$((try + 1))
+		if [ $try -gt 4 ]; then
+			echo "FAILED to remove $m after retries:"; lsmod | grep -E "^nvidia"
+			echo "--- stray holders:"; fuser -v /dev/nvidia* 2>&1 | head -15
+			echo "restoring desktop"
+			echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
+			for svc in netdata coolercontrold nvidia-persistenced; do systemctl start "$svc" 2>/dev/null || true; done
+			systemctl start sddm
+			exit 1
+		fi
+		echo "remove $m busy (attempt $try), retrying"; lsmod | grep -E "^nvidia_"
+		sleep 2
+	done
 done
 
 echo "--- loading nouveau (GSP init on GA106 can take ~10s) ---"
@@ -99,6 +119,9 @@ modprobe -r nouveau 2>&1 || true
 modprobe nvidia_drm 2>&1 || true
 sleep 2
 echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
+for svc in netdata coolercontrold nvidia-persistenced; do
+	systemctl start "$svc" 2>/dev/null && echo "restarted $svc" || true
+done
 
 systemctl start sddm
 echo "=== done $(date -Is) ==="
