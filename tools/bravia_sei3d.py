@@ -35,6 +35,7 @@ Requires: mkvmerge, mkvextract, ffmpeg+ffprobe (any 6.x+), python3.
 """
 import argparse
 import json
+import mmap
 import os
 import re
 import subprocess
@@ -82,27 +83,47 @@ def probe(path):
             s.get("r_frame_rate", "25/1"), s.get("width"), s.get("height"))
 
 
-def annexb_nals(data):
-    marks = []
-    for m in re.finditer(b"\x00\x00\x01", data):
+def annexb_nals(buf):
+    """(pos, start_code_len, end, nal_type) for each NAL in a bytes-like buffer
+    (bytes or mmap). Streams: no marks list, so a multi-GiB ES does not build
+    one."""
+    prev = None
+    for m in re.finditer(b"\x00\x00\x01", buf):
         pos = m.start()
-        sc = 4 if pos >= 1 and data[pos - 1:pos] == b"\x00" else 3
-        marks.append((pos - (sc - 3), sc))
-    for i, (pos, sc) in enumerate(marks):
-        end = marks[i + 1][0] if i + 1 < len(marks) else len(data)
-        yield pos, sc, end, data[pos + sc] & 0x1F
+        sc = 4 if pos >= 1 and buf[pos - 1:pos] == b"\x00" else 3
+        if prev is not None:
+            yield prev[0], prev[1], pos - (sc - 3), buf[prev[0] + prev[1]] & 0x1F
+        prev = (pos - (sc - 3), sc)
+    if prev is not None:
+        yield prev[0], prev[1], len(buf), buf[prev[0] + prev[1]] & 0x1F
 
 
-def inject_sei(es, sei):
-    """Insert `sei` before every IDR NAL. Returns (new_es, count)."""
-    out, count, last = bytearray(), 0, 0
-    for pos, _sc, _end, nt in annexb_nals(es):
-        if nt == 5:
-            out += es[last:pos] + sei
-            count += 1
-            last = pos
-    out += es[last:]
-    return bytes(out), count
+def inject_sei_stream(es_path, sei, out_path):
+    """Insert `sei` before every IDR NAL of es_path, writing out_path.
+
+    mmap in, stream out: RSS stays ~flat regardless of track size. The
+    previous read_bytes() + whole-buffer concatenation peaked at ~3x the
+    track and the OOM killer took pythons down mid-run on Phenom-era RAM
+    (2026-09-20 retry: two silent kills, no FAIL line). Returns IDR count.
+    """
+    n, last = 0, 0
+    if es_path.stat().st_size == 0:
+        return 0
+    with open(es_path, "rb") as f, \
+            mmap.mmap(f.fileno(), 0, access=mmap.ACCESS_READ) as m, \
+            open(out_path, "wb") as out:
+        # one pass, never revisited: let the kernel drop pages behind us so
+        # even the mmap's clean-page RSS stays small on tight boxes
+        if hasattr(m, "madvise") and hasattr(mmap, "MADV_SEQUENTIAL"):
+            m.madvise(mmap.MADV_SEQUENTIAL)
+        for pos, _sc, _end, nt in annexb_nals(m):
+            if nt == 5:
+                out.write(m[last:pos])
+                out.write(sei)
+                n += 1
+                last = pos
+        out.write(m[last:])
+    return n
 
 
 SEI_MARK = re.compile(  # ffmpeg >= 9 names the section; 6.x prints the payload-type line
@@ -172,12 +193,10 @@ def process(path, out_path, mode, fps, mkv_stereo):
     """Extract -> inject -> remux. Returns (idr_count, bytes_added)."""
     with tempfile.TemporaryDirectory(prefix="sei3d_") as td:
         es, ts = extract_es(path, td)
-        data = es.read_bytes()
-        new, n = inject_sei(data, SEI_NAL[mode])
+        new_es = Path(td) / "v.sei.h264"
+        n = inject_sei_stream(es, SEI_NAL[mode], new_es)
         if n == 0:
             return 0, 0
-        new_es = Path(td) / "v.sei.h264"
-        new_es.write_bytes(new)
         mux = ["mkvmerge", "-o", str(out_path), "--no-video", str(path),
                "--compression", "0:none", "--stereo-mode", f"0:{mkv_stereo}"]
         if ts is not None:
@@ -189,7 +208,7 @@ def process(path, out_path, mode, fps, mkv_stereo):
         r = subprocess.run(mux, capture_output=True, text=True)
         if r.returncode > 1:
             raise RuntimeError(f"mkvmerge rc={r.returncode}: {r.stderr[-400:]}")
-        return n, len(new) - len(data)
+        return n, new_es.stat().st_size - es.stat().st_size
 
 
 def stream_counts(path):
