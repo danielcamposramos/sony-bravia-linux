@@ -37,6 +37,8 @@ int main(int argc, char **argv)
 	char const *path = argc > 1 ? argv[1] : "/dev/dri/card0";
 	char const *want = argc > 2 ? argv[2] : "HDMI-A-1";
 
+	setvbuf(stdout, NULL, _IOLBF, 0); /* log capture: survive timeout kill */
+
 	int fd = open(path, O_RDWR | O_CLOEXEC);
 	if (fd < 0) { perror("open"); return 1; }
 	if (drmSetClientCap(fd, DRM_CLIENT_CAP_STEREO_3D, 1) ||

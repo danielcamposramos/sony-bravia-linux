@@ -1,0 +1,548 @@
+=== stereo-3d-test 2026-09-20T19:26:37-03:00 ===
+card0 free after 5s
+--- /proc/modules after modprobe -r amdgpu:
+wireguard 122880 0 - Live 0xffffffffc4a61000
+libcurve25519 65536 1 wireguard, Live 0xffffffffc4a55000
+libchacha20poly1305 20480 1 wireguard, Live 0xffffffffc4a52000
+libchacha 24576 1 libchacha20poly1305, Live 0xffffffffc4a4f000
+libpoly1305 32768 1 libchacha20poly1305, Live 0xffffffffc4a4b000
+rfcomm 110592 0 - Live 0xffffffffc4a41000
+snd_seq_dummy 12288 0 - Live 0xffffffffc4a3f000
+snd_hrtimer 12288 0 - Live 0xffffffffc45fc000
+veth 45056 0 - Live 0xffffffffc4a39000
+udp_diag 12288 0 - Live 0xffffffffc4a36000
+tcp_diag 20480 0 - Live 0xffffffffc4a37000
+inet_diag 20480 2 udp_diag,tcp_diag, Live 0xffffffffc45fe000
+nfnetlink_acct 16384 0 - Live 0xffffffffc45fa000
+nf_conntrack_netlink 61440 0 - Live 0xffffffffc4a2f000
+xt_nat 12288 5 - Live 0xffffffffc45fd000
+xt_tcpudp 16384 0 - Live 0xffffffffc45fb000
+xt_conntrack 12288 1 - Live 0xffffffffc4510000
+xt_MASQUERADE 16384 1 - Live 0xffffffffc45f0000
+bridge 401408 0 - Live 0xffffffffc4a00000
+stp 12288 1 bridge, Live 0xffffffffc4514000
+llc 16384 2 bridge,stp, Live 0xffffffffc450c000
+xt_set 20480 0 - Live 0xffffffffc45f7000
+ip_set 69632 1 xt_set, Live 0xffffffffc45f1000
+nft_chain_nat 12288 5 - Live 0xffffffffc45ef000
+nf_nat 65536 3 xt_nat,xt_MASQUERADE,nft_chain_nat, Live 0xffffffffc45e9000
+nf_conntrack 208896 5 nf_conntrack_netlink,xt_nat,xt_conntrack,xt_MASQUERADE,nf_nat, Live 0xffffffffc45d5000
+nf_defrag_ipv6 24576 1 nf_conntrack, Live 0xffffffffc45d3000
+nf_defrag_ipv4 12288 1 nf_conntrack, Live 0xffffffffc2df2000
+xt_addrtype 12288 4 - Live 0xffffffffc450e000
+nft_compat 24576 11 - Live 0xffffffffc45d1000
+x_tables 57344 7 xt_nat,xt_tcpudp,xt_conntrack,xt_MASQUERADE,xt_set,xt_addrtype,nft_compat, Live 0xffffffffc45cc000
+nls_utf8 12288 5 - Live 0xffffffffc41ff000
+cifs 1654784 4 - Live 0xffffffffc4530000
+nls_ucs2_utils 8192 1 cifs, Live 0x0000000000000000
+libarc4 12288 1 cifs, Live 0xffffffffc4508000
+cifs_md4 16384 1 cifs, Live 0xffffffffc4505000
+dns_resolver 12288 1 cifs, Live 0xffffffffc2dff000
+netfs 614400 1 cifs, Live 0xffffffffc4515000
+xfrm_interface 36864 0 - Live 0xffffffffc4511000
+xfrm6_tunnel 16384 1 xfrm_interface, Live 0xffffffffc450f000
+tunnel6 12288 2 xfrm_interface,xfrm6_tunnel, Live 0xffffffffc450d000
+tunnel4 12288 1 xfrm_interface, Live 0xffffffffc2dfe000
+l2tp_ppp 32768 0 - Live 0xffffffffc4509000
+l2tp_netlink 28672 1 l2tp_ppp, Live 0xffffffffc4506000
+xfrm_user 77824 3 - Live 0xffffffffc44fc000
+l2tp_core 69632 2 l2tp_ppp,l2tp_netlink, Live 0xffffffffc44f7000
+xfrm_algo 16384 1 xfrm_user, Live 0xffffffffc41fe000
+ip6_udp_tunnel 16384 2 wireguard,l2tp_core, Live 0xffffffffc41fd000
+udp_tunnel 40960 2 wireguard,l2tp_core, Live 0xffffffffc41f9000
+pppox 12288 1 l2tp_ppp, Live 0xffffffffc2dfd000
+ppp_generic 53248 2 l2tp_ppp,pppox, Live 0xffffffffc41f3000
+slhc 16384 1 ppp_generic, Live 0xffffffffc2df4000
+vboxnetadp 28672 0 - Live 0xffffffffc25c0000 (OE)
+vboxnetflt 40960 0 - Live 0xffffffffc41ef000 (OE)
+overlay 229376 5 - Live 0xffffffffc44dd000
+vboxdrv 720896 2 vboxnetadp,vboxnetflt, Live 0xffffffffc41af000 (OE)
+sunrpc 892928 1 - Live 0xffffffffc4495000
+qrtr 57344 2 - Live 0xffffffffc2df8000
+uhid 24576 1 - Live 0xffffffffc2df6000
+cmac 12288 3 - Live 0xffffffffc2597000
+algif_hash 16384 1 - Live 0xffffffffc2df3000
+algif_skcipher 12288 1 - Live 0xffffffffc25c5000
+af_alg 32768 6 algif_hash,algif_skcipher, Live 0xffffffffc2def000
+bnep 36864 2 - Live 0xffffffffc2dec000
+cfg80211 1531904 0 - Live 0xffffffffc4400000
+nf_tables 425984 182 nft_chain_nat,nft_compat, Live 0xffffffffc4177000
+nvidia_uvm 2166784 4 - Live 0xffffffffc407e000 (OE)
+nfnetlink 20480 9 nfnetlink_acct,nf_conntrack_netlink,ip_set,nft_compat,nf_tables, Live 0xffffffffc2dea000
+at24 28672 0 - Live 0xffffffffc25aa000
+spd5118 12288 0 - Live 0xffffffffc0db0000
+uinput 24576 4 - Live 0xffffffffc2de8000
+nls_ascii 12288 1 - Live 0xffffffffc25c3000
+nls_cp437 16384 1 - Live 0xffffffffc25b0000
+vfat 28672 1 - Live 0xffffffffc2dc9000
+fat 114688 1 vfat, Live 0xffffffffc2ddb000
+amd_atl 73728 1 - Live 0xffffffffc2dd3000
+intel_rapl_msr 20480 0 - Live 0xffffffffc0dc2000
+intel_rapl_common 57344 1 intel_rapl_msr, Live 0xffffffffc2dc5000
+btusb 81920 0 - Live 0xffffffffc2dcc000
+btmtk 32768 1 btusb, Live 0xffffffffc25ab000
+btrtl 36864 1 btusb, Live 0xffffffffc25fd000
+btbcm 24576 1 btusb, Live 0xffffffffc25fb000
+joydev 32768 0 - Live 0xffffffffc25f8000
+edac_mce_amd 28672 0 - Live 0xffffffffc25f6000
+btintel 73728 1 btusb, Live 0xffffffffc25ef000
+bluetooth 1187840 32 rfcomm,bnep,btusb,btmtk,btrtl,btbcm,btintel, Live 0xffffffffc4000000
+kvm_amd 237568 1 - Live 0xffffffffc25d2000
+ecdh_generic 16384 2 bluetooth, Live 0xffffffffc0dba000
+kvm 1511424 3 kvm_amd, Live 0xffffffffc2d35000
+eeepc_wmi 12288 0 - Live 0xffffffffc25d1000
+asus_wmi 106496 1 eeepc_wmi, Live 0xffffffffc25c8000
+irqbypass 16384 1 kvm, Live 0xffffffffc25c7000
+sparse_keymap 12288 1 asus_wmi, Live 0xffffffffc25c6000
+ghash_clmulni_intel 12288 0 - Live 0xffffffffc25c4000
+platform_profile 20480 1 asus_wmi, Live 0xffffffffc25c1000
+aesni_intel 102400 1 - Live 0xffffffffc25b1000
+battery 28672 1 asus_wmi, Live 0xffffffffc25ae000
+snd_hda_codec_atihdmi 20480 1 - Live 0xffffffffc0dff000
+snd_hda_codec_nvhdmi 16384 1 - Live 0xffffffffc0de8000
+rapl 20480 0 - Live 0xffffffffc0da8000
+rfkill 45056 5 cfg80211,bluetooth,asus_wmi, Live 0xffffffffc258f000
+wmi_bmof 12288 0 - Live 0xffffffffc06fe000
+snd_hda_codec_ca0132 167936 1 - Live 0xffffffffc2598000
+snd_hda_codec_hdmi 61440 2 snd_hda_codec_atihdmi,snd_hda_codec_nvhdmi, Live 0xffffffffc2592000
+pcspkr 12288 0 - Live 0xffffffffc0df5000
+ee1004 16384 0 - Live 0xffffffffc0dc5000
+nvidia_drm 176128 0 - Live 0xffffffffc257c000 (OE)
+snd_hda_intel 65536 0 - Live 0xffffffffc2577000
+ccp 196608 1 kvm_amd, Live 0xffffffffc2561000
+snd_hda_codec 221184 5 snd_hda_codec_atihdmi,snd_hda_codec_nvhdmi,snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel, Live 0xffffffffc254d000
+snd_hda_core 155648 5 snd_hda_codec_atihdmi,snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec, Live 0xffffffffc2541000
+nvidia_modeset 1990656 2 nvidia_drm, Live 0xffffffffc2c3b000 (OE)
+snd_intel_dspcfg 49152 1 snd_hda_intel, Live 0xffffffffc19fe000
+snd_intel_sdw_acpi 16384 1 snd_intel_dspcfg, Live 0xffffffffc0dac000
+sg 45056 0 - Live 0xffffffffc253c000
+evdev 32768 27 - Live 0xffffffffc2539000
+squashfs 94208 26 - Live 0xffffffffc252f000
+loop 45056 52 - Live 0xffffffffc252a000
+nvidia_fs 294912 0 - Live 0xffffffffc251c000 (OE)
+binfmt_misc 28672 1 - Live 0xffffffffc0dec000
+nvidia 18513920 41 nvidia_uvm,nvidia_modeset,nvidia_fs, Live 0xffffffffc2800000 (OE)
+snd_emu10k1_synth 24576 0 - Live 0xffffffffc19fc000
+snd_emux_synth 65536 1 snd_emu10k1_synth, Live 0xffffffffc2515000
+snd_seq_midi_emul 24576 1 snd_emux_synth, Live 0xffffffffc0df3000
+snd_seq_virmidi 16384 1 snd_emux_synth, Live 0xffffffffc0dd9000
+snd_seq_midi_event 16384 1 snd_seq_virmidi, Live 0xffffffffc0dd5000
+snd_seq 118784 5 snd_seq_dummy,snd_emux_synth,snd_seq_midi_emul,snd_seq_virmidi,snd_seq_midi_event, Live 0xffffffffc250a000
+snd_emu10k1 245760 1 snd_emu10k1_synth, Live 0xffffffffc24f0000
+snd_util_mem 12288 2 snd_emux_synth,snd_emu10k1, Live 0xffffffffc0dad000
+snd_ac97_codec 221184 1 snd_emu10k1, Live 0xffffffffc24dc000
+ac97_bus 12288 1 snd_ac97_codec, Live 0xffffffffc0db8000
+snd_hwdep 24576 3 snd_hda_codec,snd_emux_synth,snd_emu10k1, Live 0xffffffffc0dfd000
+snd_rawmidi 53248 2 snd_seq_virmidi,snd_emu10k1, Live 0xffffffffc19f7000
+snd_seq_device 16384 4 snd_emu10k1_synth,snd_seq,snd_emu10k1,snd_rawmidi, Live 0xffffffffc0731000
+v4l2loopback 69632 0 - Live 0xffffffffc0df6000 (OE)
+snd_pcm 212992 7 snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_hda_core,snd_emu10k1,snd_ac97_codec, Live 0xffffffffc24c6000
+videodev 389120 1 v4l2loopback, Live 0xffffffffc24a1000
+snd_timer 49152 4 snd_hrtimer,snd_seq,snd_emu10k1,snd_pcm, Live 0xffffffffc0dee000
+nct6775 45056 0 - Live 0xffffffffc0de9000
+dm_mod 229376 0 - Live 0xffffffffc2489000
+snd 159744 14 snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_emux_synth,snd_seq_virmidi,snd_seq,snd_emu10k1,snd_ac97_codec,snd_hwdep,snd_rawmidi,snd_seq_device,snd_pcm,snd_timer, Live 0xffffffffc0dda000
+lp 36864 0 - Live 0xffffffffc0dd6000
+parport_pc 45056 0 - Live 0xffffffffc0dd1000
+nct6775_core 110592 1 nct6775, Live 0xffffffffc0dc6000
+ppdev 24576 0 - Live 0xffffffffc0dc3000
+mc 94208 1 videodev, Live 0xffffffffc0dbb000
+soundcore 16384 1 snd, Live 0xffffffffc0db9000
+parport 81920 3 lp,parport_pc,ppdev, Live 0xffffffffc0db1000
+i2c_dev 28672 0 - Live 0xffffffffc0dae000
+msr 12288 0 - Live 0xffffffffc0dab000
+k10temp 16384 0 - Live 0xffffffffc0daa000
+hwmon_vid 12288 1 nct6775, Live 0xffffffffc0da9000
+nvme_tcp 86016 0 - Live 0xffffffffc0da2000
+nvme_fabrics 40960 1 nvme_tcp, Live 0xffffffffc0d9f000
+configfs 65536 1 - Live 0xffffffffc0d99000
+efi_pstore 12288 0 - Live 0xffffffffc06bb000
+efivarfs 32768 1 - Live 0xffffffffc0d96000
+autofs4 61440 2 - Live 0xffffffffc0d90000
+ext4 1257472 5 - Live 0xffffffffc2400000
+mbcache 20480 1 ext4, Live 0xffffffffc0706000
+jbd2 196608 1 ext4, Live 0xffffffffc0d7f000
+crc32c_cryptoapi 12288 0 - Live 0xffffffffc06a0000
+btrfs 2420736 0 - Live 0xffffffffc0c50000
+libblake2b 20480 1 btrfs, Live 0xffffffffc0c4e000
+xor 24576 1 btrfs, Live 0xffffffffc0c4b000
+raid6_pq 126976 1 btrfs, Live 0xffffffffc0c45000
+uhci_hcd 61440 0 - Live 0xffffffffc0c3e000
+ehci_pci 16384 0 - Live 0xffffffffc0615000
+ehci_hcd 122880 1 ehci_pci, Live 0xffffffffc0c2f000
+drm_ttm_helper 20480 1 nvidia_drm, Live 0xffffffffc061a000
+ttm 135168 1 drm_ttm_helper, Live 0xffffffffc0c1b000
+hid_generic 12288 0 - Live 0xffffffffc060c000
+usbhid 86016 0 - Live 0xffffffffc07f5000
+drm_display_helper 294912 1 nvidia_drm, Live 0xffffffffc0c00000
+hid 278528 5 uhid,hid_generic,usbhid, Live 0xffffffffc07e3000
+sd_mod 94208 7 - Live 0xffffffffc07d8000
+cec 81920 1 drm_display_helper, Live 0xffffffffc07cf000
+rc_core 77824 1 cec, Live 0xffffffffc07c8000
+drm_client_lib 16384 1 nvidia_drm, Live 0xffffffffc0613000
+ahci 53248 7 - Live 0xffffffffc07c6000
+drm_kms_helper 249856 4 nvidia_drm,drm_ttm_helper,drm_display_helper,drm_client_lib, Live 0xffffffffc07b1000
+libahci 61440 1 ahci, Live 0xffffffffc07ac000
+xhci_pci 24576 0 - Live 0xffffffffc07aa000
+drm 888832 8 nvidia_drm,nvidia,drm_ttm_helper,ttm,drm_display_helper,drm_client_lib,drm_kms_helper, Live 0xffffffffc075a000
+xhci_hcd 430080 1 xhci_pci, Live 0xffffffffc0732000
+libata 483328 2 ahci,libahci, Live 0xffffffffc0707000
+nvme 69632 3 - Live 0xffffffffc06ff000
+usbcore 430080 8 btusb,btmtk,uhci_hcd,ehci_pci,ehci_hcd,usbhid,xhci_pci,xhci_hcd, Live 0xffffffffc06d4000
+nvme_core 245760 6 nvme_tcp,nvme_fabrics,nvme, Live 0xffffffffc06bc000
+scsi_mod 331776 3 sg,sd_mod,libata, Live 0xffffffffc06a1000
+r8168 692224 0 - Live 0xffffffffc061b000 (OE)
+video 81920 2 asus_wmi,nvidia_modeset, Live 0xffffffffc0616000
+nvme_keyring 20480 3 nvme_tcp,nvme_fabrics,nvme_core, Live 0xffffffffc0614000
+usb_common 20480 4 uhci_hcd,ehci_hcd,xhci_hcd,usbcore, Live 0xffffffffc0612000
+scsi_common 16384 4 sg,sd_mod,libata,scsi_mod, Live 0xffffffffc0602000
+nvme_auth 32768 1 nvme_core, Live 0xffffffffc0610000
+hkdf 16384 1 nvme_auth, Live 0xffffffffc060e000
+crc16 12288 2 bluetooth,ext4, Live 0xffffffffc060d000
+i2c_piix4 36864 0 - Live 0xffffffffc0609000
+wmi 32768 3 asus_wmi,wmi_bmof,video, Live 0xffffffffc0605000
+i2c_smbus 20480 1 i2c_piix4, Live 0xffffffffc0603000
+button 28672 0 - Live 0xffffffffc0600000
+deps needed: drm amdxcp drm_display_helper drm_kms_helper ttm gpu-sched drm_panel_backlight_quirks drm_buddy cec drm_suballoc_helper drm_exec video drm_ttm_helper i2c-algo-bit drm_client_lib crc16
+dep drm: already loaded
+dep amdxcp: loaded ok
+dep drm_display_helper: already loaded
+dep drm_kms_helper: already loaded
+dep ttm: already loaded
+dep gpu-sched: loaded ok
+dep drm_panel_backlight_quirks: loaded ok
+dep drm_buddy: loaded ok
+dep cec: already loaded
+dep drm_suballoc_helper: loaded ok
+dep drm_exec: loaded ok
+dep video: already loaded
+dep drm_ttm_helper: already loaded
+dep i2c-algo-bit: loaded ok
+dep drm_client_lib: already loaded
+dep crc16: already loaded
+--- /proc/modules before insmod:
+i2c_algo_bit 16384 0 - Live 0xffffffffc1000000
+drm_exec 12288 0 - Live 0xffffffffc07ff000
+drm_suballoc_helper 16384 0 - Live 0xffffffffc07fe000
+drm_buddy 32768 0 - Live 0xffffffffc0c2c000
+drm_panel_backlight_quirks 12288 0 - Live 0xffffffffc060f000
+gpu_sched 69632 0 - Live 0xffffffffc0c27000
+amdxcp 12288 0 - Live 0xffffffffc0604000
+wireguard 122880 0 - Live 0xffffffffc4a61000
+libcurve25519 65536 1 wireguard, Live 0xffffffffc4a55000
+libchacha20poly1305 20480 1 wireguard, Live 0xffffffffc4a52000
+libchacha 24576 1 libchacha20poly1305, Live 0xffffffffc4a4f000
+libpoly1305 32768 1 libchacha20poly1305, Live 0xffffffffc4a4b000
+rfcomm 110592 0 - Live 0xffffffffc4a41000
+snd_seq_dummy 12288 0 - Live 0xffffffffc4a3f000
+snd_hrtimer 12288 0 - Live 0xffffffffc45fc000
+veth 45056 0 - Live 0xffffffffc4a39000
+udp_diag 12288 0 - Live 0xffffffffc4a36000
+tcp_diag 20480 0 - Live 0xffffffffc4a37000
+inet_diag 20480 2 udp_diag,tcp_diag, Live 0xffffffffc45fe000
+nfnetlink_acct 16384 0 - Live 0xffffffffc45fa000
+nf_conntrack_netlink 61440 0 - Live 0xffffffffc4a2f000
+xt_nat 12288 5 - Live 0xffffffffc45fd000
+xt_tcpudp 16384 0 - Live 0xffffffffc45fb000
+xt_conntrack 12288 1 - Live 0xffffffffc4510000
+xt_MASQUERADE 16384 1 - Live 0xffffffffc45f0000
+bridge 401408 0 - Live 0xffffffffc4a00000
+stp 12288 1 bridge, Live 0xffffffffc4514000
+llc 16384 2 bridge,stp, Live 0xffffffffc450c000
+xt_set 20480 0 - Live 0xffffffffc45f7000
+ip_set 69632 1 xt_set, Live 0xffffffffc45f1000
+nft_chain_nat 12288 5 - Live 0xffffffffc45ef000
+nf_nat 65536 3 xt_nat,xt_MASQUERADE,nft_chain_nat, Live 0xffffffffc45e9000
+nf_conntrack 208896 5 nf_conntrack_netlink,xt_nat,xt_conntrack,xt_MASQUERADE,nf_nat, Live 0xffffffffc45d5000
+nf_defrag_ipv6 24576 1 nf_conntrack, Live 0xffffffffc45d3000
+nf_defrag_ipv4 12288 1 nf_conntrack, Live 0xffffffffc2df2000
+xt_addrtype 12288 4 - Live 0xffffffffc450e000
+nft_compat 24576 11 - Live 0xffffffffc45d1000
+x_tables 57344 7 xt_nat,xt_tcpudp,xt_conntrack,xt_MASQUERADE,xt_set,xt_addrtype,nft_compat, Live 0xffffffffc45cc000
+nls_utf8 12288 5 - Live 0xffffffffc41ff000
+cifs 1654784 4 - Live 0xffffffffc4530000
+nls_ucs2_utils 8192 1 cifs, Live 0x0000000000000000
+libarc4 12288 1 cifs, Live 0xffffffffc4508000
+cifs_md4 16384 1 cifs, Live 0xffffffffc4505000
+dns_resolver 12288 1 cifs, Live 0xffffffffc2dff000
+netfs 614400 1 cifs, Live 0xffffffffc4515000
+xfrm_interface 36864 0 - Live 0xffffffffc4511000
+xfrm6_tunnel 16384 1 xfrm_interface, Live 0xffffffffc450f000
+tunnel6 12288 2 xfrm_interface,xfrm6_tunnel, Live 0xffffffffc450d000
+tunnel4 12288 1 xfrm_interface, Live 0xffffffffc2dfe000
+l2tp_ppp 32768 0 - Live 0xffffffffc4509000
+l2tp_netlink 28672 1 l2tp_ppp, Live 0xffffffffc4506000
+xfrm_user 77824 3 - Live 0xffffffffc44fc000
+l2tp_core 69632 2 l2tp_ppp,l2tp_netlink, Live 0xffffffffc44f7000
+xfrm_algo 16384 1 xfrm_user, Live 0xffffffffc41fe000
+ip6_udp_tunnel 16384 2 wireguard,l2tp_core, Live 0xffffffffc41fd000
+udp_tunnel 40960 2 wireguard,l2tp_core, Live 0xffffffffc41f9000
+pppox 12288 1 l2tp_ppp, Live 0xffffffffc2dfd000
+ppp_generic 53248 2 l2tp_ppp,pppox, Live 0xffffffffc41f3000
+slhc 16384 1 ppp_generic, Live 0xffffffffc2df4000
+vboxnetadp 28672 0 - Live 0xffffffffc25c0000 (OE)
+vboxnetflt 40960 0 - Live 0xffffffffc41ef000 (OE)
+overlay 229376 5 - Live 0xffffffffc44dd000
+vboxdrv 720896 2 vboxnetadp,vboxnetflt, Live 0xffffffffc41af000 (OE)
+sunrpc 892928 1 - Live 0xffffffffc4495000
+qrtr 57344 2 - Live 0xffffffffc2df8000
+uhid 24576 1 - Live 0xffffffffc2df6000
+cmac 12288 3 - Live 0xffffffffc2597000
+algif_hash 16384 1 - Live 0xffffffffc2df3000
+algif_skcipher 12288 1 - Live 0xffffffffc25c5000
+af_alg 32768 6 algif_hash,algif_skcipher, Live 0xffffffffc2def000
+bnep 36864 2 - Live 0xffffffffc2dec000
+cfg80211 1531904 0 - Live 0xffffffffc4400000
+nf_tables 425984 182 nft_chain_nat,nft_compat, Live 0xffffffffc4177000
+nvidia_uvm 2166784 4 - Live 0xffffffffc407e000 (OE)
+nfnetlink 20480 9 nfnetlink_acct,nf_conntrack_netlink,ip_set,nft_compat,nf_tables, Live 0xffffffffc2dea000
+at24 28672 0 - Live 0xffffffffc25aa000
+spd5118 12288 0 - Live 0xffffffffc0db0000
+uinput 24576 4 - Live 0xffffffffc2de8000
+nls_ascii 12288 1 - Live 0xffffffffc25c3000
+nls_cp437 16384 1 - Live 0xffffffffc25b0000
+vfat 28672 1 - Live 0xffffffffc2dc9000
+fat 114688 1 vfat, Live 0xffffffffc2ddb000
+amd_atl 73728 1 - Live 0xffffffffc2dd3000
+intel_rapl_msr 20480 0 - Live 0xffffffffc0dc2000
+intel_rapl_common 57344 1 intel_rapl_msr, Live 0xffffffffc2dc5000
+btusb 81920 0 - Live 0xffffffffc2dcc000
+btmtk 32768 1 btusb, Live 0xffffffffc25ab000
+btrtl 36864 1 btusb, Live 0xffffffffc25fd000
+btbcm 24576 1 btusb, Live 0xffffffffc25fb000
+joydev 32768 0 - Live 0xffffffffc25f8000
+edac_mce_amd 28672 0 - Live 0xffffffffc25f6000
+btintel 73728 1 btusb, Live 0xffffffffc25ef000
+bluetooth 1187840 32 rfcomm,bnep,btusb,btmtk,btrtl,btbcm,btintel, Live 0xffffffffc4000000
+kvm_amd 237568 1 - Live 0xffffffffc25d2000
+ecdh_generic 16384 2 bluetooth, Live 0xffffffffc0dba000
+kvm 1511424 3 kvm_amd, Live 0xffffffffc2d35000
+eeepc_wmi 12288 0 - Live 0xffffffffc25d1000
+asus_wmi 106496 1 eeepc_wmi, Live 0xffffffffc25c8000
+irqbypass 16384 1 kvm, Live 0xffffffffc25c7000
+sparse_keymap 12288 1 asus_wmi, Live 0xffffffffc25c6000
+ghash_clmulni_intel 12288 0 - Live 0xffffffffc25c4000
+platform_profile 20480 1 asus_wmi, Live 0xffffffffc25c1000
+aesni_intel 102400 1 - Live 0xffffffffc25b1000
+battery 28672 1 asus_wmi, Live 0xffffffffc25ae000
+snd_hda_codec_atihdmi 20480 1 - Live 0xffffffffc0dff000
+snd_hda_codec_nvhdmi 16384 1 - Live 0xffffffffc0de8000
+rapl 20480 0 - Live 0xffffffffc0da8000
+rfkill 45056 5 cfg80211,bluetooth,asus_wmi, Live 0xffffffffc258f000
+wmi_bmof 12288 0 - Live 0xffffffffc06fe000
+snd_hda_codec_ca0132 167936 1 - Live 0xffffffffc2598000
+snd_hda_codec_hdmi 61440 2 snd_hda_codec_atihdmi,snd_hda_codec_nvhdmi, Live 0xffffffffc2592000
+pcspkr 12288 0 - Live 0xffffffffc0df5000
+ee1004 16384 0 - Live 0xffffffffc0dc5000
+nvidia_drm 176128 0 - Live 0xffffffffc257c000 (OE)
+snd_hda_intel 65536 0 - Live 0xffffffffc2577000
+ccp 196608 1 kvm_amd, Live 0xffffffffc2561000
+snd_hda_codec 221184 5 snd_hda_codec_atihdmi,snd_hda_codec_nvhdmi,snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel, Live 0xffffffffc254d000
+snd_hda_core 155648 5 snd_hda_codec_atihdmi,snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec, Live 0xffffffffc2541000
+nvidia_modeset 1990656 2 nvidia_drm, Live 0xffffffffc2c3b000 (OE)
+snd_intel_dspcfg 49152 1 snd_hda_intel, Live 0xffffffffc19fe000
+snd_intel_sdw_acpi 16384 1 snd_intel_dspcfg, Live 0xffffffffc0dac000
+sg 45056 0 - Live 0xffffffffc253c000
+evdev 32768 27 - Live 0xffffffffc2539000
+squashfs 94208 26 - Live 0xffffffffc252f000
+loop 45056 52 - Live 0xffffffffc252a000
+nvidia_fs 294912 0 - Live 0xffffffffc251c000 (OE)
+binfmt_misc 28672 1 - Live 0xffffffffc0dec000
+nvidia 18513920 41 nvidia_uvm,nvidia_modeset,nvidia_fs, Live 0xffffffffc2800000 (OE)
+snd_emu10k1_synth 24576 0 - Live 0xffffffffc19fc000
+snd_emux_synth 65536 1 snd_emu10k1_synth, Live 0xffffffffc2515000
+snd_seq_midi_emul 24576 1 snd_emux_synth, Live 0xffffffffc0df3000
+snd_seq_virmidi 16384 1 snd_emux_synth, Live 0xffffffffc0dd9000
+snd_seq_midi_event 16384 1 snd_seq_virmidi, Live 0xffffffffc0dd5000
+snd_seq 118784 5 snd_seq_dummy,snd_emux_synth,snd_seq_midi_emul,snd_seq_virmidi,snd_seq_midi_event, Live 0xffffffffc250a000
+snd_emu10k1 245760 1 snd_emu10k1_synth, Live 0xffffffffc24f0000
+snd_util_mem 12288 2 snd_emux_synth,snd_emu10k1, Live 0xffffffffc0dad000
+snd_ac97_codec 221184 1 snd_emu10k1, Live 0xffffffffc24dc000
+ac97_bus 12288 1 snd_ac97_codec, Live 0xffffffffc0db8000
+snd_hwdep 24576 3 snd_hda_codec,snd_emux_synth,snd_emu10k1, Live 0xffffffffc0dfd000
+snd_rawmidi 53248 2 snd_seq_virmidi,snd_emu10k1, Live 0xffffffffc19f7000
+snd_seq_device 16384 4 snd_emu10k1_synth,snd_seq,snd_emu10k1,snd_rawmidi, Live 0xffffffffc0731000
+v4l2loopback 69632 0 - Live 0xffffffffc0df6000 (OE)
+snd_pcm 212992 7 snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_hda_core,snd_emu10k1,snd_ac97_codec, Live 0xffffffffc24c6000
+videodev 389120 1 v4l2loopback, Live 0xffffffffc24a1000
+snd_timer 49152 4 snd_hrtimer,snd_seq,snd_emu10k1,snd_pcm, Live 0xffffffffc0dee000
+nct6775 45056 0 - Live 0xffffffffc0de9000
+dm_mod 229376 0 - Live 0xffffffffc2489000
+snd 159744 14 snd_hda_codec_ca0132,snd_hda_codec_hdmi,snd_hda_intel,snd_hda_codec,snd_emux_synth,snd_seq_virmidi,snd_seq,snd_emu10k1,snd_ac97_codec,snd_hwdep,snd_rawmidi,snd_seq_device,snd_pcm,snd_timer, Live 0xffffffffc0dda000
+lp 36864 0 - Live 0xffffffffc0dd6000
+parport_pc 45056 0 - Live 0xffffffffc0dd1000
+nct6775_core 110592 1 nct6775, Live 0xffffffffc0dc6000
+ppdev 24576 0 - Live 0xffffffffc0dc3000
+mc 94208 1 videodev, Live 0xffffffffc0dbb000
+soundcore 16384 1 snd, Live 0xffffffffc0db9000
+parport 81920 3 lp,parport_pc,ppdev, Live 0xffffffffc0db1000
+i2c_dev 28672 0 - Live 0xffffffffc0dae000
+msr 12288 0 - Live 0xffffffffc0dab000
+k10temp 16384 0 - Live 0xffffffffc0daa000
+hwmon_vid 12288 1 nct6775, Live 0xffffffffc0da9000
+nvme_tcp 86016 0 - Live 0xffffffffc0da2000
+nvme_fabrics 40960 1 nvme_tcp, Live 0xffffffffc0d9f000
+configfs 65536 1 - Live 0xffffffffc0d99000
+efi_pstore 12288 0 - Live 0xffffffffc06bb000
+efivarfs 32768 1 - Live 0xffffffffc0d96000
+autofs4 61440 2 - Live 0xffffffffc0d90000
+ext4 1257472 5 - Live 0xffffffffc2400000
+mbcache 20480 1 ext4, Live 0xffffffffc0706000
+jbd2 196608 1 ext4, Live 0xffffffffc0d7f000
+crc32c_cryptoapi 12288 0 - Live 0xffffffffc06a0000
+btrfs 2420736 0 - Live 0xffffffffc0c50000
+libblake2b 20480 1 btrfs, Live 0xffffffffc0c4e000
+xor 24576 1 btrfs, Live 0xffffffffc0c4b000
+raid6_pq 126976 1 btrfs, Live 0xffffffffc0c45000
+uhci_hcd 61440 0 - Live 0xffffffffc0c3e000
+ehci_pci 16384 0 - Live 0xffffffffc0615000
+ehci_hcd 122880 1 ehci_pci, Live 0xffffffffc0c2f000
+drm_ttm_helper 20480 1 nvidia_drm, Live 0xffffffffc061a000
+ttm 135168 1 drm_ttm_helper, Live 0xffffffffc0c1b000
+hid_generic 12288 0 - Live 0xffffffffc060c000
+usbhid 86016 0 - Live 0xffffffffc07f5000
+drm_display_helper 294912 1 nvidia_drm, Live 0xffffffffc0c00000
+hid 278528 5 uhid,hid_generic,usbhid, Live 0xffffffffc07e3000
+sd_mod 94208 7 - Live 0xffffffffc07d8000
+cec 81920 1 drm_display_helper, Live 0xffffffffc07cf000
+rc_core 77824 1 cec, Live 0xffffffffc07c8000
+drm_client_lib 16384 1 nvidia_drm, Live 0xffffffffc0613000
+ahci 53248 7 - Live 0xffffffffc07c6000
+drm_kms_helper 249856 4 nvidia_drm,drm_ttm_helper,drm_display_helper,drm_client_lib, Live 0xffffffffc07b1000
+libahci 61440 1 ahci, Live 0xffffffffc07ac000
+xhci_pci 24576 0 - Live 0xffffffffc07aa000
+drm 888832 14 drm_exec,drm_suballoc_helper,drm_buddy,drm_panel_backlight_quirks,gpu_sched,amdxcp,nvidia_drm,nvidia,drm_ttm_helper,ttm,drm_display_helper,drm_client_lib,drm_kms_helper, Live 0xffffffffc075a000
+xhci_hcd 430080 1 xhci_pci, Live 0xffffffffc0732000
+libata 483328 2 ahci,libahci, Live 0xffffffffc0707000
+nvme 69632 3 - Live 0xffffffffc06ff000
+usbcore 430080 8 btusb,btmtk,uhci_hcd,ehci_pci,ehci_hcd,usbhid,xhci_pci,xhci_hcd, Live 0xffffffffc06d4000
+nvme_core 245760 6 nvme_tcp,nvme_fabrics,nvme, Live 0xffffffffc06bc000
+scsi_mod 331776 3 sg,sd_mod,libata, Live 0xffffffffc06a1000
+r8168 692224 0 - Live 0xffffffffc061b000 (OE)
+video 81920 2 asus_wmi,nvidia_modeset, Live 0xffffffffc0616000
+nvme_keyring 20480 3 nvme_tcp,nvme_fabrics,nvme_core, Live 0xffffffffc0614000
+usb_common 20480 4 uhci_hcd,ehci_hcd,xhci_hcd,usbcore, Live 0xffffffffc0612000
+scsi_common 16384 4 sg,sd_mod,libata,scsi_mod, Live 0xffffffffc0602000
+nvme_auth 32768 1 nvme_core, Live 0xffffffffc0610000
+hkdf 16384 1 nvme_auth, Live 0xffffffffc060e000
+crc16 12288 2 bluetooth,ext4, Live 0xffffffffc060d000
+i2c_piix4 36864 0 - Live 0xffffffffc0609000
+wmi 32768 3 asus_wmi,wmi_bmof,video, Live 0xffffffffc0605000
+i2c_smbus 20480 1 i2c_piix4, Live 0xffffffffc0603000
+button 28672 0 - Live 0xffffffffc0600000
+--- probe with patched driver (stereo modes should appear) ---
+probe: /dev/dri/card0 connector HDMI-A-1
+
+without caps:
+  modes on HDMI-A-1: 22 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-1: 51 total, 29 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59400 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59341 flags=0x100005 
+    HDMI-A-1       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-1        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25200 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x08000a 
+  modes on HDMI-A-1: 30 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x01c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x004005 frame packing 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x01c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x004005 frame packing 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59400 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59400 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59341 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59341 flags=0x104005 frame packing 
+    HDMI-A-1       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-1        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25200 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x08000a 
+  modes on HDMI-A-1: 63 total, 33 stereo
+
+verdict: the kernel DOES expose stereo mode(s) on request
+(counts: none=22 stereo=51 aspect=30 both=63)
+--- firing the stereo modeset for 90s -- watch the TV ---
+=== done 2026-09-20T19:28:18-03:00; patched amdgpu remains loaded until reboot ===
