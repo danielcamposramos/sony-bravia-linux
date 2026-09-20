@@ -306,3 +306,15 @@ constituency beyond the people it restricts.
 **Still held:** the argument about detection tells and deliberate imperfection. Nobody
 in that thread has defended the tells, and answering a point nobody made would spend
 it for nothing.
+
+**PS appended, revision 68042.** In a thread about unattended automation it matters
+that ours is not: nothing runs against this wiki on its own. The client is driven by
+hand, one change at a time, and the owner reads and approves the text before it is
+sent. The assistance is in drafting and checking, not in deciding to press save.
+
+Stated plainly rather than left to be assumed, and paired with the point that the rule
+would therefore not catch what we do and we want it anyway: the next operator may work
+differently, and the verify-after-write step deserves to be a stated expectation
+instead of something each person reinvents. It also answers the obvious question of how
+we can vouch for that step catching real errors, which is that the owner is looking at
+every one of them as it happens.

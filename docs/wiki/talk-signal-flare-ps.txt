@@ -1,0 +1,3 @@
+:PS, since it matters in this thread and I should have said it above: nothing of mine runs unattended here. There is no agent left running against this wiki. I drive the client by hand, one change at a time, and I read and approve the text before it is sent. The assistance is in drafting and checking, not in deciding to press save.
+
+:So the rule as you have framed it would not actually catch what I do, and I still want it written down. Partly because the next person may not work that way, and partly because the verify-after-write step is worth having as a stated expectation rather than as something each operator reinvents. I can only tell you it catches real errors because I am looking at every one of them as it happens. ~~~~
