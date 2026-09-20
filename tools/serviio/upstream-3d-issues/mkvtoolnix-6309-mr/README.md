@@ -427,6 +427,112 @@ It is the plain x265 base streams, the injected left/right variants for side by 
 The README covers the provenance from the body, including the x265 frame-packing gap and the byte check against H.265 D.2.7.
 ```
 
+## 9.7 Review round 1 on !6311 — **ANSWERED 2026-09-20 as [comment 23323531](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23323531)** (body verified byte-identical server-side, 6092 bytes)
+
+mbunkus reviewed on 2026-09-20 in two rounds (`REQUEST_CHANGES` 1892761 at
+13:56 with 5 inline comments, 1893043 at 14:50 with 2) and reopened #6309
+with "The MRs haven't been merged yet, so let's keep it open until then"
+([comment 23316670](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309#issuecomment-23316670)).
+**He raised nothing about AI assistance** — every comment was technical,
+despite the commits carrying the `Co-Authored-By: Claude Opus 5` trailer and
+the LLM-assistance disclosure paragraph. He opened with "Most of it is
+exactly the way I'd want it".
+
+| # | Request | Resolution |
+|---|---|---|
+| [23316856](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23316856) | static 2D array over the `case` cascade | `s_stereo_modes[type][right_first]`, bounds-checked, in his `static std::array<…> const s_…` idiom |
+| [23317144](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23317144) | `verify_avc_video_track` for family consistency | renamed, returns `bool`, dispatched from the same `if`/`else` chain as Theora |
+| [23317252](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23317252) | alignment + helper before the `info.add` cascade | `?` both at col 74, `:` under `=` at col 21, values at col 76; helper hoisted above the cascade |
+| [23317336](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23317336) | shared video handling, not codec-specific | new `qtmp4_demuxer_c::set_packetizer_stereo_mode()` beside `set_packetizer_display_dimensions()`/`_color_properties()` |
+| [23317711](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23317711) | fold into `derive_track_params_from_avc_bitstream` | merged, one read + one parse; `derive_stereo_mode_from_avc_bitstream` deleted |
+| [23319547](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23319547) | align the `=` (style-only commit) | separate `cosmetics: alignment` commit `1735de63f`, all four `=` at col 16 |
+| [23319652](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311#issuecomment-23319652) | generic in `create_packetizer` | moved to the tail before `show_packetizer_info`; covers every codec |
+
+**The one request that could not be taken literally**, and why it was
+measured rather than argued. mbunkus expected `verify_avc_video_parameters`
+to need no changes. Built exactly that way (byte-identical to `origin/main`)
+it breaks MP4 entirely: `derive_track_params_from_avc_bitstream()` has a
+single call site, in the branch reached only when the avcC is *missing*, so
+an ordinary MP4 never reaches the merged function. Measured: all four MP4
+identification cases report no stereo mode and the remux writes **no**
+`StereoMode` element. A first run appeared to show "remux ok" — that was a
+false positive, because re-identifying the *Matroska* output triggers the
+Matroska probe, a different path. Dropping the early `return true` is the
+whole change; 22/22 with it.
+
+**Third commit, `46a12c6fb` — a pre-existing bug found while testing.**
+`mkvmerge --stereo-mode 0:0` never recorded the choice: StereoMode's default
+is 0, mkvmerge renders track headers without defaults, so the element was
+dropped and the track read back as unset. `mkvpropedit --set stereo-mode=0`
+*does* write it, so the two tools disagreed about whether mono is
+expressible. **Confirmed pre-existing against stock Debian v101.0** (same
+behaviour, no patch involved) — this MR only makes the consequence visible,
+since the SEI now fills the void and an explicit mono comes back as side by
+side. Also means a propedit-set mono does not survive one remux. Fixed with
+libebml's `ForceNoDefault()` via a `kax_video_stereo_mode_c` subclass,
+following the existing `kax_block_add_id_c` precedent, so no other default
+element is affected. After it: mono round-trips through three remuxes, plain
+2D files gain no element, SEI-derived and command-line values unchanged.
+Kept as its own commit so it can be dropped or split into a separate MR.
+
+**Precedence flip investigated and rejected on evidence, not deference.**
+Whether the SEI should outrank the container was tested; `mkvpropedit`-set
+mono is a deliberate user statement that a flip would silently override, and
+the case that matters (a rip with the SEI and no StereoMode element) already
+works under mbunkus's ordering. RFC 9559 §5.1.4.1.28.3 defines StereoMode
+with default 0 and is **silent** on container-versus-bitstream precedence
+(verified by fetching the RFC), so no spec supports a "SEI wins" claim —
+never assert one. See [[sei-discovery-came-from-daniel]].
+
+**Verification:** 23/23 behavioural (identification + remux across MP4,
+Matroska, AVC ES, MPEG TS; left-first and right-first; 2D reporting nothing;
+command line > container > bitstream; plus the mono round-trip that used to
+fail) and 256 unit tests, on a clean AVC-only tree. `rake tests:source` has
+no findings attributable to the change: its 495 hits are a tree-wide
+`#pragma once` false positive that also flags untouched upstream files.
+
+Posted body, verbatim:
+
+```
+All seven points are in, force-pushed as two commits.
+
+The static two dimensional array replaces the case cascade in `parse_frame_packing_arrangement`, indexed by `frame_packing_arrangement_type` and then by whether frame 0 is the right view. The types without a StereoMode equivalent are simply not listed and a bounds check catches them. Much more slim and simple, thank you for the tip.
+
+`verify_avc_video_track` now exists in the Matroska reader and is dispatched from the same `if`/`else` chain as the other codec types, next to `verify_theora_video_track`. It returns `bool` like the rest of the family, always true for now, since a missing SEI is not a track error.
+
+The identification helper is set before the whole `info.add`/`info.set` cascade, so the cascade is intact again. The `?` are aligned, the `:` sit under the `=`, and the last value lines up with the other two. It really makes things easier to spot on code.
+
+The MP4 packetizer hookup moved out of `create_video_packetizer_avc` into `qtmp4_demuxer_c::set_packetizer_stereo_mode`, called right after `set_packetizer_display_dimensions` and `set_packetizer_color_properties` in `create_packetizer`, in the same shape as the other shared video track properties. Neat design!
+
+`derive_track_params_from_avc_bitstream` absorbed the stereo mode detection, so the bitstream is read and parsed once and `derive_stereo_mode_from_avc_bitstream` is gone. No twice the work anymore.
+
+About `verify_avc_video_parameters` needing no changes, I built it your way first and measured it, so you do not have to spend time on it yourself. It does not hold, and the reason is narrow. That function is the only caller of `derive_track_params_from_avc_bitstream`, and it calls it in the second branch, which is reached only when the avcC is missing. With the early `return true` still in place, an ordinary MP4 that has an avcC never reaches the merged function, so nothing ever parses the bitstream. On that build all four MP4 identification cases report no stereo mode and the remux writes no `StereoMode` element at all, while the AVC elementary stream, MPEG TS and Matroska cases stay correct because they do not pass through this function.
+
+Dropping that early branch is the entire change. The function is now the `derive_track_params_from_avc_bitstream` call plus the existing warning, which keeps the avcC decision inside the function that actually owns it. With that, the suite is 22 of 22 again.
+
+The MPEG TS hookup is at the end of `create_packetizer`, just before `show_packetizer_info`, so it covers every codec.
+
+The `=` alignment is a separate `cosmetics: alignment` commit, as you suggested.
+
+On the HEVC side you are right that this makes the corresponding TS change unnecessary there, and the same turns out to be true of both MP4 hookups. I will rebase !6312 onto this once the shape here is settled rather than now, so I am not chasing a moving target.
+
+While testing I went after the corner where the container and the bitstream disagree, and it turned into a fix rather than a question, so there is now a third commit.
+
+`mkvmerge --stereo-mode 0:0` never actually recorded the choice. StereoMode's default value is 0, mkvmerge renders its track headers without defaults, so the element was dropped and the track read back as if nothing had been said about the stereo mode. mkvpropedit does not behave that way, because it only ever holds the elements that were really in the file, so `mkvpropedit --edit track:v1 --set stereo-mode=0` does write it. The two tools disagreed about whether mono can be expressed at all.
+
+This merge request does not introduce that. I checked against the stock v101.0 packaged by Debian and it behaves identically, with no patch involved. What the SEI detection changes is the consequence. Before, a discarded mono left the track merely unset, and now the bitstream fills the gap, so an explicit mono comes back as side by side on the next read. The same thing happens to a mono set with mkvpropedit: it does not survive a single remux, because mkvmerge cannot write it back.
+
+The fix takes the default away from that one element, the same way `kax_block_add_id_c` already does for the block addition ID, so nothing else in the headers changes. After it: `--stereo-mode 0:0` writes mono and still reads back as mono after three remux rounds, an ordinary 2D file gains no StereoMode element at all, and the SEI derived and command line values are unaffected.
+
+It is a separate commit on purpose. If you would rather have it as its own merge request, or not at all, drop that one commit and the rest still stands.
+
+I did also look at whether the bitstream should simply outrank the container for this property, since on the televisions this came from the SEI is the only stereo signal the sets act on. I am not proposing it. A mono set with mkvpropedit is a deliberate statement by the user and flipping the order would quietly override it, and the case that actually matters, a rip carrying the SEI with no StereoMode element, already works under your ordering. The real problem in that corner was the one above, that mkvmerge could not record the choice in the first place.
+
+One last thing worth putting on the record about why this SEI is worth reading at all. For side by side and top and bottom the frame geometry corroborates it: split the frame the way the arrangement says, compare the per eye aspect against the container, and you get full against half. For checkerboard and the two interleaved modes it does not corroborate anything, because both eyes occupy the same pixels and the frame is indistinguishable from 2D by any measurement you can make on it. For those three arrangements the SEI is not the best signal, it is the only one that exists.
+
+Verified on the patched build, 23 of 23: identification and remux across MP4, Matroska, AVC elementary stream and MPEG TS, left first and right first, 2D files reporting nothing, command line over container over bitstream, and the mono round trip that used to fail. The 256 unit tests pass, including the six for the mapping helper.
+```
+
 ## 10. HEVC checklist for Daniel
 
 - [x] Commit trailer chosen by Daniel; committed as `48cec25cf`.
