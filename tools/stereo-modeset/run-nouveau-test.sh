@@ -16,12 +16,18 @@
 # Daniel: when the screens go dark, switch the TV to the NVIDIA-driven input.
 
 TOOLS=/K3D/GitHub/sony-bravia-linux/tools
-LOG=/home/daniel/nouveau-3d-test.log
+LOG=/var/log/nouveau-3d-test.log          # service context denied /home/daniel writes (see below)
+HOMELOG=/home/daniel/nouveau-3d-test.log  # mirrored here at every exit
 TEST_SECONDS=90
 KUSER=daniel
 
 exec >>"$LOG" 2>&1
+# root got EACCES redirecting straight into $HOMELOG from the systemd-run
+# service context on 2026-09-20 (file: root 644 on ext4, no immutable attr).
+# Log in root-land, mirror home on every exit path.
+trap 'cp -f "$LOG" "$HOMELOG" 2>/dev/null; chown "$KUSER":"$KUSER" "$HOMELOG" 2>/dev/null; true' 0
 echo "=== nouveau-3d-test $(date -Is) ==="
+findmnt /home/daniel /var/log 2>/dev/null
 
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || true
 test "$(id -u)" = 0 || { echo "run as root"; exit 1; }
