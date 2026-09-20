@@ -18,6 +18,14 @@
 # one boot and asks you to reboot and rerun; that post-reboot run unmasks,
 # restarts docker and restarts every recorded container automatically.
 #
+# autoload guard: nvidia.ko answers to char-major-195-* AND the 10de PCI
+# modalias, so any stray open of /dev/nvidia* (or a uevent) after the stack is
+# removed drags the whole proprietary driver back in and wins the race for the
+# card (2026-09-20 run: full stack reloaded 0.7s after removal, nouveau probed
+# nothing, card1 never appeared). install-rules in /run/modprobe.d no-op every
+# nvidia-family modprobe for the window; /run is tmpfs, so even a hard reset
+# wipes the guard.
+#
 # Timeline mirrors the proven AMD run: desktop drops (~2 min), nvidia driver
 # stack swapped for nouveau, probe + modeset on card1, stack swapped back,
 # desktop and docker restored. Recovery identical: machine stays alive even
@@ -32,6 +40,7 @@ TEST_SECONDS=90
 KUSER=daniel
 DSTATE=/K3D/temp/nouveau-docker.state     # survives the intentional reboot
 DCONS=/K3D/temp/nouveau-docker.containers # containers we stopped, to restart
+GUARD=/run/modprobe.d/zz-nouveau-stereo-test.conf  # tmpfs: gone on any reset
 
 # first, before any redirect: a line-broken paste runs this file unprivileged.
 if [ "$(id -u)" != 0 ]; then
@@ -59,7 +68,7 @@ resume_docker() {
 	esac
 }
 
-trap 'resume_docker; cp -f "$LOG" "$HOMELOG" 2>/dev/null; chown "$KUSER":"$KUSER" "$HOMELOG" 2>/dev/null; true' 0
+trap 'rm -f "$GUARD"; resume_docker; cp -f "$LOG" "$HOMELOG" 2>/dev/null; chown "$KUSER":"$KUSER" "$HOMELOG" 2>/dev/null; true' 0
 
 pause_docker() {
 	if systemctl is-active docker >/dev/null 2>&1; then
@@ -120,6 +129,13 @@ if [ -f "$DSTATE" ] && [ "$(cat "$DSTATE" 2>/dev/null)" = "masked-awaiting-reboo
 fi
 echo "nvidia_uvm refcount: ${UREF:-not loaded} -- gate passed"
 
+# hold the coming removal window against reloaders, BEFORE the desktop drops:
+# any modprobe of the nvidia family (request_module from a stray /dev/nvidia*
+# open, pci modalias, nvidia-modprobe from the udev rule) becomes a no-op
+mkdir -p /run/modprobe.d
+printf 'install nvidia /bin/true\ninstall nvidia_modeset /bin/true\ninstall nvidia_drm /bin/true\ninstall nvidia_uvm /bin/true\ninstall nvidia_fs /bin/true\n' > "$GUARD"
+echo "autoload guard installed: $GUARD"
+
 systemctl stop sddm
 loginctl terminate-user "$KUSER" 2>/dev/null || true
 
@@ -150,6 +166,8 @@ for m in nvidia_fs nvidia_drm nvidia_uvm nvidia_modeset nvidia; do
 			echo "FAILED to remove $m after retries:"; lsmod | grep -E "^nvidia"
 			echo "--- stray holders:"; fuser -v /dev/nvidia* 2>&1 | head -15
 			echo "restoring desktop"
+			rm -f "$GUARD"
+			modprobe nvidia_drm 2>/dev/null || true   # some family members already came out
 			echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
 			for svc in netdata coolercontrold nvidia-persistenced; do systemctl start "$svc" 2>/dev/null || true; done
 			systemctl start sddm
@@ -160,9 +178,13 @@ for m in nvidia_fs nvidia_drm nvidia_uvm nvidia_modeset nvidia; do
 	done
 done
 
+echo "--- nvidia-family modules present (guard should keep this empty):"
+lsmod | grep -E "^nvidia" || echo "none -- guard holding"
+
 echo "--- loading nouveau (GSP init on GA106 can take ~10s) ---"
 if ! modprobe nouveau 2>&1; then
 	echo "modprobe nouveau FAILED -- restoring nvidia stack and desktop"
+	rm -f "$GUARD"
 	modprobe nvidia_drm 2>&1 || true
 	sleep 2
 	echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
@@ -200,7 +222,8 @@ else
 fi
 
 echo "--- restoring nvidia stack"
-modprobe -r nouveau 2>&1 || true
+modprobe -r nouveau 2>&1 || true      # guard still active: reloaders stay blocked
+rm -f "$GUARD"                        # from here 'modprobe nvidia*' works again
 modprobe nvidia_drm 2>&1 || true
 sleep 2
 echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
