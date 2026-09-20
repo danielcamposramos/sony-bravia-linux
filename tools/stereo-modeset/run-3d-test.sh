@@ -57,16 +57,35 @@ if ! modprobe -r amdgpu; then
 	systemctl start sddm
 	exit 1
 fi
+echo "--- /proc/modules after modprobe -r amdgpu:"
+cat /proc/modules
 # insmod resolves no dependencies, and "modprobe -r" took the whole unused
-# dep chain down with it (run 4 died exactly here: "Unknown symbol in module").
-# Preload the chain by name from the stock module description; symbol needs
-# are identical, the patch adds no new module dependencies.
+# dep chain down with it (run 4 died on that). Preload the chain from the
+# stock module metadata, but verify EACH module individually against
+# /proc/modules -- run 6 proved a silent aggregate "success" cannot be
+# trusted (symbols were still absent at insmod time despite no error).
 DEPS="$(modinfo -F depends amdgpu 2>/dev/null | tr ',' ' ')"
-echo "preloading deps: $DEPS"
-[ -n "$DEPS" ] && modprobe $DEPS
+echo "deps needed: $DEPS"
+for m in $DEPS; do
+	kn="$(echo "$m" | tr '-' '_')"
+	if grep -q "^$kn " /proc/modules; then
+		echo "dep $m: already loaded"
+	else
+		modprobe "$m" 2>&1
+		if grep -q "^$kn " /proc/modules; then
+			echo "dep $m: loaded ok"
+		else
+			echo "dep $m: FAILED TO LOAD"
+		fi
+	fi
+done
+echo "--- /proc/modules before insmod:"
+cat /proc/modules
 
 if ! insmod "$K3DPATCH"; then
-	echo "insmod of patched module FAILED -- restoring stock amdgpu and desktop"
+	echo "insmod of patched module FAILED -- kernel said:"
+	dmesg | grep -i "unknown symbol" | tail -25
+	echo "restoring stock amdgpu and desktop"
 	modprobe amdgpu 2>&1 || true
 	echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
 	systemctl start sddm
