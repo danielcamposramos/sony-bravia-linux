@@ -1,6 +1,6 @@
 # Draft comment for mamedev/mame#3492 — for Daniel's review before posting
 
-Status: APPROVED by Daniel 2026-09-20, awaiting posting. Issue is open, created 2018-04-27 by darkfalz79, last activity 2021-02-05, labels `driver` + `artwork`, 3 comments.
+Status: POSTED 2026-09-20T20:49:08Z as https://github.com/mamedev/mame/issues/3492#issuecomment-5752565188, by Daniel via `gh` at his instruction. Verified byte-identical to this draft after posting. Issue is open, created 2018-04-27 by darkfalz79, last activity 2021-02-05, labels `driver` + `artwork`, 3 comments.
 
 ---
 
