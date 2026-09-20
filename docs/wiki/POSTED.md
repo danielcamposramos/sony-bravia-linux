@@ -143,3 +143,31 @@ holds his posted text verbatim, not the draft.
 there was hostile, and the essay of 17/09 already stands as a dated public record.
 A follow-up draft exists at `docs/tabnews-post-criterio-aplicado.md` and is not to
 be published.
+
+### Matching the Sony article's conventions (2026-09-20)
+
+| Page | Revision | What |
+| --- | --- | --- |
+| Sony | 68030 | added the 2011-2012 BRAVIA generation to the controversies table |
+| Sony BRAVIA pre-Android Linux TVs (2011-2012) | 68031 | model rosters relisted one model per line |
+
+The BRAVIA article was linked from the Sony article's Products section but had no row
+in its controversies table, where comparable pages such as "Sony BRAVIA firmware
+update breaks recent televisions" already appear. The new row follows the table's own
+conventions: a plain year range in the "2020-ongoing" style used by an existing row,
+`TBD` in Aftermath as five of the six rows use, and a linked related article. Its
+background cell states the three withdrawals with the model counts from Sony's own
+notices (53, 141 and 300), the DLNA versus USB difference for 3D, and the GPL source
+removal.
+
+The model rosters were then relisted one model per line, which is how the Sony
+article lists the 71 audio and AV models affected by the November 2026 network
+service termination. Same content, 494 entries, and it now reads the same way on both
+pages.
+
+**Not done, and deliberately.** Our televisions were not added to that November 2026
+"Affected models" list. It is Sony's own roster for that termination, it covers audio
+and micro component systems, AV receivers, Blu-ray players and home theatre systems,
+media players, soundbars and wireless speakers, and it contains no televisions at all.
+Adding ours would be a factual error. The BRAVIA withdrawals are a separate and older
+sequence, which is why they get their own row instead.
