@@ -66,3 +66,41 @@ array (which product pages the article is attached to), and a site-wide `catalog
 JSON plus a model-lookup widget. Only the first is Sony saying a set is affected.
 `00269731` looked like 367 affected models and is actually a "type your model
 number" search box. Scrape the published list, never the page.
+
+### Wikipedia citations replaced, and the policy talk page opened (2026-09-20)
+
+| Page | Revision | What changed |
+| --- | --- | --- |
+| Consumer Rights Wiki talk:AI usage policy | created | opened the discussion Keith pointed to |
+| Format abandonment | 68024 | HD DVD and pan-and-scan citations replaced |
+| Region locking | 68025 | DVD region and Mother/EarthBound citations replaced |
+
+Zero Wikipedia citations now remain in any of the three theme articles.
+
+**Sources used.** HD DVD now cites Toshiba's own announcement of 19 February 2008
+(verified here: the page title carries the date and the quoted sentence is
+verbatim). DVD regions now cite How-To Geek (both quoted phrases verified here).
+Mother/EarthBound now cites the Lost Levels feature, which interviews Phil Sandhop,
+the localization director himself, plus its timeline supplement for the 1991
+Nintendo Power preview; both pages verified here, and the citation carries no date
+because the pages print none. Pan and scan cites StudioBinder.
+
+**Where quoting was avoided on purpose.** StudioBinder returns HTTP 403 to us, so
+its wording could not be checked from here. The owner confirmed the site loads for
+him, so the source is used, but the sentence paraphrases rather than quotes: an
+unverified quotation is the one thing that must not reach an article. Two sentences
+also had to be reworded rather than merely re-cited, because they had been quoting
+Wikipedia's own words, which cannot survive a change of source.
+
+**Still owed.** archive.org was returning 503 "Temporarily Offline" throughout, so
+none of these four citations carries an `archive-url` yet. The house style wants
+one; add them once the archive is back.
+
+**Talk page.** The AI usage policy discussion page did not exist, so the owner's
+contribution opens it. It discloses that these edits were AI-assisted, supports a
+disclosure requirement while arguing it acts mainly on people who were already
+careful, and uses two of our own mistakes as the evidence: the citation templates we
+broke across lines, and a model "confirming" a quotation while quoting different
+words. It cites HandBrake (merged in 81 minutes on the code), MKVToolNix (seven
+technical requests, nothing about AI) and mpv (parked, LLM-in-commit-messages rule
+landing the day after disclosure).
