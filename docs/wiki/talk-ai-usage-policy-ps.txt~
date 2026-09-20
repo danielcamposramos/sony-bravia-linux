@@ -1,0 +1,21 @@
+== Postscript: the other half of the same problem ==
+
+A practical note that came out of the citation work rather than out of any argument. While replacing the Wikipedia citations on the three theme articles, following the example a reviewer had already set on [[Capability gating]] by swapping one for a real source, I kept a list of what I ran into. It is offered here because it is useful to anyone sourcing on this wiki, and because it bears on the section above.
+
+Russian Wikipedia contradicts itself about the Soviet Stereo-70 system. The general article on stereo cinematography dates it to 1963; the article dedicated to the system itself says it was completed in 1965 with films from 1966. Two human-written articles, same wiki, disagreeing with each other, and neither flagged.
+
+The two organisations that created and administered DVD region coding are both off the web. dvdforum.org no longer resolves in DNS at all, and dvdcca.org presents a broken certificate. I wanted a primary source for a claim about a DRM scheme and found that the primary sources have evaporated, which is why that citation now points at a technology explainer instead.
+
+A manual link I was checking returned HTTP 200 while silently redirecting to a corporate home page with no product content behind it. It reads as a live link in every automated check that only looks at the status code.
+
+Sony's support pages carry up to 1918 model-number strings each, from three unrelated sources on the same page: a published list of affected models, a metadata array of which product pages the article is attached to, and a site-wide catalogue behind a "type your model number" search box. I came close to publishing 367 models as Sony's own affected list when it was the contents of a search widget.
+
+None of that was produced by AI. It is ordinary information rot, made and maintained by people, and the checklist in this policy is what caught all of it.
+
+The historical point is worth making once, because it is easy to assume this problem arrived with the current tools. In October 2020 the Hacktoberfest promotion offered a t-shirt for four pull requests. By DigitalOcean's own published recap, the result included 34,595 pull requests accepted by no maintainer, 9,598 labelled spam or invalid, 172,599 aimed at repositories that had not opted in, and 17,260 at repositories excluded for not matching the event's values. The rules were changed to opt-in partway through. No language model was involved in any of it. The largest slop event open source has suffered was produced entirely by humans, and it was motivated by a t-shirt.
+
+That is also where machine slop comes from. These models were trained on human writing, including human padding, human hedging and human false confidence. Wherever one of them produces slop, a person wrote that slop first and the machine is repeating it faster. Low information density, unverifiable claims and volume without checkable content are not new properties, and they are not properties of a tool.
+
+So one small suggestion, and it is a naming change rather than a policy change. The section titled "common signs of AI writing" is accurate about what it lists, and I use it as a checklist against my own drafts, but every item on it describes careless writing rather than a particular author. Over-bolding, fluffy comparatives, indicator words and sources given in parentheses without a URL were all human habits first, and they are still mostly human in practice. Read as "common signs of careless writing" the same list catches strictly more, it stops being a claim about who wrote something, and it no longer needs the caveat about edge cases, because nobody is insulted by being asked to write carefully.
+
+Everything else in the policy already does the work. The checklist tests the artefact, and an artefact is either checkable or it is not. ~~~~

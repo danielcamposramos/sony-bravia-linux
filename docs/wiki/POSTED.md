@@ -104,3 +104,42 @@ broke across lines, and a model "confirming" a quotation while quoting different
 words. It cites HandBrake (merged in 81 minutes on the code), MKVToolNix (seven
 technical requests, nothing about AI) and mpv (parked, LLM-in-commit-messages rule
 landing the day after disclosure).
+
+### AI usage policy discussion (2026-09-20)
+
+| Page | What |
+| --- | --- |
+| Consumer Rights Wiki talk:AI usage policy | opened the discussion; then a `PS:` reply, posted by the owner himself in the site editor |
+
+The first post discloses that our recent edits were AI-assisted, supports a
+disclosure requirement while arguing it acts mainly on people who were already
+careful, and uses two of our own mistakes as evidence. The `PS:` reply carries the
+other half: that slop predates the tools.
+
+Its four specimens all came out of the citation cleanup rather than out of an
+argument, which is why it reads as a sourcing report: Russian Wikipedia dating
+Stereo-70 to 1963 in one article and 1965/1966 in another, dvdforum.org dead in DNS
+and dvdcca.org on a broken certificate (the two bodies behind DVD region coding,
+both unreachable), a manual link answering HTTP 200 while redirecting to a corporate
+home page, and Sony's 1918 model-number strings across three meanings.
+
+Historical anchor: Hacktoberfest, October 2020. DigitalOcean's own recap gives
+34,595 pull requests accepted by no maintainer, 9,598 labelled spam or invalid,
+172,599 aimed at repositories that had not opted in, and 17,260 at excluded
+repositories. Re-verified against that recap on 2026-09-20 rather than relying on
+the 17/09 check, since the post argues for verification.
+
+The ask is deliberately small and is a naming change, not a policy change: the
+"common signs of AI writing" section describes careless writing rather than an
+author, and read that way it catches strictly more while no longer needing its
+edge-case caveat.
+
+**The owner posted the PS himself**, shortening the heading to `PS:`, indenting it
+as a reply, splitting the Hacktoberfest paragraph across lines and bolding the four
+statistics plus the two closing claims. `docs/wiki/talk-ai-usage-policy-ps.txt` now
+holds his posted text verbatim, not the draft.
+
+**TabNews is closed as a venue for this** (owner's decision, 2026-09-20): reception
+there was hostile, and the essay of 17/09 already stands as a dated public record.
+A follow-up draft exists at `docs/tabnews-post-criterio-aplicado.md` and is not to
+be published.
