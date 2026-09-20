@@ -142,33 +142,51 @@ def detect_mode(path, tag, w, h, default_sbs_ok):
 
 
 def extract_es(path, td):
-    """Pull the first video ES as Annex-B into td/v.h264. Returns track count info."""
+    """Pull the first video ES as Annex-B into td/v.h264.
+    Returns (es_path, timestamps_path|None).
+
+    MKV inputs also dump the track timestamps (mkvextract timestamps_v2) so
+    the remux re-applies them instead of flattening to a constant rate:
+    VFR sources (e.g. r_frame_rate=500/21 on San Andreas) ran long under the
+    old forced --default-duration — +48 s over 6869 s — and only the verify
+    gate saved the file. mp4/ts inputs keep the constant-rate fallback: no
+    VFR specimen has turned up in the library, and rebuilding mp4 pts
+    (edit lists, B-frame reorder) is its own project."""
     es = Path(td) / "v.h264"
     if path.suffix.lower() in MKV_EXTRACT_EXTS:
         r = run(["mkvmerge", "-J", str(path)])
         vt = next(t["id"] for t in json.loads(r.stdout)["tracks"] if t["type"] == "video")
         run(["mkvextract", "tracks", str(path), f"{vt}:{es}"])
-    else:
-        run(["ffmpeg", "-y", "-v", "error", "-i", str(path), "-map", "0:v:0",
-             "-c:v", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "h264", str(es)])
-    return es
+        ts = Path(td) / "ts.txt"
+        try:
+            run(["mkvextract", "timestamps_v2", str(path), f"{vt}:{ts}"])
+        except subprocess.CalledProcessError:
+            ts = None  # track without timestamps: fall back to constant rate
+        return es, ts
+    run(["ffmpeg", "-y", "-v", "error", "-i", str(path), "-map", "0:v:0",
+         "-c:v", "copy", "-bsf:v", "h264_mp4toannexb", "-f", "h264", str(es)])
+    return es, None
 
 
 def process(path, out_path, mode, fps, mkv_stereo):
     """Extract -> inject -> remux. Returns (idr_count, bytes_added)."""
     with tempfile.TemporaryDirectory(prefix="sei3d_") as td:
-        es = extract_es(path, td)
+        es, ts = extract_es(path, td)
         data = es.read_bytes()
         new, n = inject_sei(data, SEI_NAL[mode])
         if n == 0:
             return 0, 0
         new_es = Path(td) / "v.sei.h264"
         new_es.write_bytes(new)
-        r = subprocess.run(
-            ["mkvmerge", "-o", str(out_path), "--no-video", str(path),
-             "--compression", "0:none", "--default-duration", f"0:{fps}fps",
-             "--stereo-mode", f"0:{mkv_stereo}", str(new_es)],
-            capture_output=True, text=True)
+        mux = ["mkvmerge", "-o", str(out_path), "--no-video", str(path),
+               "--compression", "0:none", "--stereo-mode", f"0:{mkv_stereo}"]
+        if ts is not None:
+            # Exact source timing: VFR stays VFR, CFR is unaffected.
+            mux += ["--timestamps", f"0:{ts}"]
+        else:
+            mux += ["--default-duration", f"0:{fps}fps"]
+        mux += [str(new_es)]
+        r = subprocess.run(mux, capture_output=True, text=True)
         if r.returncode > 1:
             raise RuntimeError(f"mkvmerge rc={r.returncode}: {r.stderr[-400:]}")
         return n, len(new) - len(data)
