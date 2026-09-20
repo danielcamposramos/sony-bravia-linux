@@ -237,3 +237,23 @@ which was the other half of that style, but the archiving half was only ever app
 to new work. Most of those 37 probably have snapshots already and need the field
 filled rather than a capture made, but that is an assumption and has not been checked.
 
+
+### The archive backlog, parked (2026-09-20)
+
+The 37 citations still lacking `archive-url` are listed per article in
+`archive-backlog.json`, extracted from the live pages so the list is accurate rather
+than remembered. The job to resolve them against the Wayback CDX index was started and
+stopped: archive.org went from intermittent to refusing, first on
+`archive.org/wayback/available` and then on `web.archive.org/cdx/search/cdx` as well,
+and retrying harder against a service that is already struggling is the wrong
+behaviour.
+
+**To resume:** for each URL in that file, query
+`http://web.archive.org/cdx/search/cdx?url=<url>&output=text&fl=timestamp&limit=-1&filter=statuscode:200`,
+take the last timestamp, and add `|url-status=live |archive-url=https://web.archive.org/web/<ts>/<url> |archive-date=<Mon D, YYYY>`
+to that citation. Space the requests, and stop if the endpoint starts timing out.
+Anything with no snapshot at all needs a human to capture it, exactly as the owner did
+today for StudioBinder, the Lost Levels timeline and the mpo2sbs gist.
+
+Nothing here is urgent. The articles are correct and their sources are real; this is
+the difference between meeting the house style and meeting it everywhere.

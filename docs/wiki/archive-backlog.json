@@ -1,0 +1,45 @@
+{
+ "Capability-gating": [
+  "https://www.consumerreports.org/cars/automotive-industry/why-you-might-need-to-subscribe-to-get-certain-features-on-your-next-car-a6575794430/",
+  "https://cleantechnica.com/2017/09/09/tesla-unlocks-extra-battery-capacity-owners-fleeing-hurricanes/",
+  "https://www.bleepingcomputer.com/news/hardware/nvidia-removing-support-for-3d-vision-in-game-ready-drivers/",
+  "https://electrek.co/2016/07/26/tesla-upgrade-software-limited-battery-pack-model-s-x/",
+  "https://www.carscoops.com/2022/07/bmw-starts-charging-south-korean-customers-18-a-month-for-heated-seats/",
+  "https://www.theregister.com/2022/07/12/bmw_locks_korean_car_owners/",
+  "https://www.techspot.com/news/111208-bmw-admits-heated-seat-subscriptions-mistake-but-commits.html",
+  "https://www.thedrive.com/tech/43636/toyota-reviewing-key-fob-remote-start-subscription-plan-after-massive-blowback",
+  "https://www.androidpolice.com/wifi-7-phones-list/",
+  "https://commission.europa.eu/law/law-topic/consumer-protection-law/directive-repair-goods_en"
+ ],
+ "Format-abandonment": [
+  "https://gamehistory.org/87percent/",
+  "https://athomesupport.fandango.com/athomesupport/s/article/Why-did-my-Vudu-app-stop-working",
+  "https://www.mediaplaynews.com/fandango-at-home-discontinuing-app-on-older-devices/",
+  "https://forum.makemkv.com/forum/viewtopic.php?t=36640",
+  "https://forum.blu-ray.com/showthread.php?t=380042",
+  "https://www.engadget.com/2014-07-18-xbox-one-august-update-friend-feed-blu-ray-3d.html",
+  "https://www.ibtimes.co.uk/ps4-getting-1-75-system-update-next-week-3d-blu-ray-film-support-1458054",
+  "https://blog.playstation.com/2020/11/09/ps5-the-ultimate-faq/",
+  "https://www.blu-ray.com/movies/releasedates.php?3d=1",
+  "https://techcrunch.com/2017/01/25/3d-tvs-are-dead",
+  "https://www.denofgeek.com/movies/the-slow-demise-of-blu-ray-3d/",
+  "https://www.youtube.com/watch?v=JYg0rBfAz6U",
+  "https://www.eff.org/deeplinks/2008/06/microsoft-msn-music",
+  "https://news.slashdot.org/story/19/04/02/1957232/microsoft-stops-selling-ebooks-will-refund-customers-for-previous-purchases",
+  "https://www.bleepingcomputer.com/news/software/adobe-releases-final-flash-player-update-warns-of-2021-kill-switch/",
+  "https://www.gtlaw.com/en/insights/2024/12/ab-2426-new-california-law-requires-clear-licensing-disclosures-for-digital-goods"
+ ],
+ "Region-locking": [
+  "https://www.the-home-cinema-guide.com/blu-ray-regions.html",
+  "https://www.theregister.com/2012/09/25/nintendo_confirms_wii_u_region_lock/",
+  "https://en-americas-support.nintendo.com/app/answers/detail/a_id/22283/~/nintendo-switch-regional-compatibility-faq",
+  "https://www.engadget.com/2013-06-11-yoshida-ps4-is-region-free.html",
+  "https://www.macrumors.com/2023/09/13/mmwave-5g-iphone-15-us-only/",
+  "https://www.parrotanalytics.com/insights/netflix-catalog-size-and-makeup-cross-market/",
+  "https://kotaku.com/final-fantasy-fan-translation-has-become-a-fiasco-1608340061",
+  "https://kotaku.com/eight-big-final-fantasy-type-0-hd-questions-answered-1628600728",
+  "https://www.eff.org/wp/digital-rights-management-failure-developed-world-danger-developing-world",
+  "https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=celex:32018R0302",
+  "https://techcrunch.com/2021/01/20/valve-and-five-pc-games-publishers-fined-9-4m-for-illegal-geo-blocking/"
+ ]
+}
