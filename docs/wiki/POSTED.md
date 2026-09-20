@@ -171,3 +171,36 @@ and micro component systems, AV receivers, Blu-ray players and home theatre syst
 media players, soundbars and wireless speakers, and it contains no televisions at all.
 Adding ours would be a factual error. The BRAVIA withdrawals are a separate and older
 sequence, which is why they get their own row instead.
+
+### The audio systems, and our own affected-models list on the Sony article (2026-09-20)
+
+| Page | Revision | What |
+| --- | --- | --- |
+| Sony BRAVIA pre-Android Linux TVs (2011-2012) | 68032 | the 81 Sony audio products added |
+| Sony | 68033 | the withdrawal added as its own incident, with its own affected-models list |
+
+**The audio argument, as the owner framed it.** The point is not whether the Home
+Theatre Control application still drives a sound system. It does, and it does so
+offline, because it speaks Sony vendor HDMI-CEC rather than talking to a server. The
+point is that a television cannot obtain it again. The catalog that offered it was
+withdrawn, so a set that loses its applications, after a factory reset for example,
+permanently loses a control surface Sony shipped, and the 81 audio products that
+application drives lose it with them. Basic BRAVIA Sync on the infrared remote is
+firmware and is unaffected.
+
+**Provenance and its limit.** The 81 products are Sony's own compatibility table,
+read out of the application's model file and indexed in `docs/manuals-index.md`,
+across sound bars (29), Blu-ray home theatre systems (9), receivers and amplifiers
+(42) and one wireless headphone. Two entries are combined products, which is why a
+naive count returns 78 against Sony's 81. Both articles state plainly that no audio
+system was available to test against, so this records what Sony's own application
+says it drives, not a tested result. The unverified support URLs from the manuals
+index were deliberately not carried over; only the model names were.
+
+**Why a separate incident on the Sony article rather than an addition to the
+existing list.** That article's "Affected models" list belongs to Sony's November
+2026 network service termination, which names audio and AV products and no
+televisions at all. The BRAVIA withdrawal is a different and older sequence, so it
+now has its own incident section with its own list, alongside the controversies-table
+row added earlier. The television rosters stay in the main article and are linked by
+section, since duplicating 312 models onto the parent page would serve nobody.
