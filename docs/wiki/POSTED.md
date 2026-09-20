@@ -257,3 +257,18 @@ today for StudioBinder, the Lost Levels timeline and the mpo2sbs gist.
 
 Nothing here is urgent. The articles are correct and their sources are real; this is
 the difference between meeting the house style and meeting it everywhere.
+
+### The skill offered on Discord (2026-09-20)
+
+Posted by the owner to the wiki's Discord suggestions channel as **idea #214**,
+verbatim from `crwiki-assistant-offer-texts.md`, linking
+`crwiki-ai-skill/` on GitHub.
+
+**The talk-page version is deliberately not posted yet.** Sending both on the same
+afternoon would be pushing the same thing through two doors at once, and the talk page
+already carries two posts from this account today. If the Discord idea gets any
+traction, the talk-page reply becomes a natural follow-up; if it gets none, posting it
+there anyway is how an offer turns into a campaign. Either way it waits for a reason,
+not a timer.
+
+No polling. The suggestions channel notifies; the owner reads it.
