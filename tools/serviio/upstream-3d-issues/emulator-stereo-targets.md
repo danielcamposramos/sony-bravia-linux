@@ -157,3 +157,71 @@ preserving stereo rather than inventing it. Its anaglyph support in 2020 and
 side-by-side in 2023 are output plumbing for content that already exists. Asking
 RPCS3 to add stereo to non-3D PS3 games would be the second class and a completely
 different request, and should never be phrased as though it were the same one.
+
+## PCSX2: dropped, on two independent grounds
+
+Researched 2026-09-20. Both findings are from current source and current policy, not
+from the old thread.
+
+### 1. The PlayStation 2 never shows an emulator a camera
+
+This was the question that decided whether the approach was even coherent, and the
+answer is architectural rather than a matter of effort.
+
+`pcsx2/GS/Renderers/Common/GSVertex.h` carries no model, view or projection matrix.
+Its `XYZ` field is raw screen-space fixed point. `GSState.cpp`, the register-level
+state machine, contains no occurrence of "transform" at all, and its only positioning
+logic subtracts a 2D viewport origin. The shared vertex shader `tfx.fx` does an affine
+remap from GS space to host NDC, taking `uint2 p : POSITION0`, already-final integers.
+
+The actual projection happens earlier, in VU1 microcode, which is **the game's own
+program**. PCSX2 executes it as a general vector coprocessor with no semantic knowledge
+of what any of it means. By the time a vertex reaches the Graphics Synthesizer, the
+game has already transformed, perspective-divided and clipped it.
+
+That is the structural difference from the GameCube, whose GX pipeline has a real
+fixed-function transform unit with addressable matrix-load commands in its command
+stream. Dolphin can intercept a matrix because one exists to intercept. PCSX2 cannot,
+because the PS2 is a 2D rasterizer fed by arbitrary per-game code.
+
+So "one scene, two cameras" is correct and remains correct, and it simply has nothing
+to attach to here. The only routes are per-game reverse engineering of each title's VU
+memory, in the spirit of PCSX2's existing per-game widescreen patches, or external
+shader injection outside the emulator entirely. Neither is a generic feature, which is
+why the historical attempts carried per-title tuning values and why the effort
+eventually moved to 3Dmigoto.
+
+**Correcting our own earlier note:** the argument that PCSX2's thread "died arguing the
+wrong constraint" was wrong. Direct3D 11 and 3D Vision were not a distraction from an
+available Dolphin-style path; there was no such path. The maintainers closed it as
+"niche, plus legacy" and that reads as a fair call.
+
+### 2. PCSX2's policy forbids the way we work
+
+PCSX2 publishes an LLM policy in `AGENTS.md` and at
+[pcsx2.net/docs/contributing](https://pcsx2.net/docs/contributing/), and its pull
+request template asks directly whether AI was used. The relevant lines:
+
+> "New contributors must NOT use LLMs for generation of any content that appears in the
+> contribution."
+> "Contributors must NOT use LLMs for full code generation."
+> "Contributors must be able to fully explain their contribution... without LLM
+> assistance."
+> "Agents must not use GitHub or any GitHub API, CLI, or web UI automation to: Open or
+> update pull requests... Post comments..."
+> "Interactions with maintainers must be human to human."
+
+We would be new contributors there. Even setting the architecture aside, nothing we
+draft could appear in a PCSX2 contribution, and no agent may post to their GitHub at
+all. This is the strictest policy the campaign has encountered and it is clearly
+stated; it is to be respected rather than worked around.
+
+**Conclusion: do not approach PCSX2.** Not by issue, not by comment, not by patch. The
+technical answer is no and the policy answer is no, and either alone would be enough.
+
+### What survives and is worth keeping
+
+The architectural contrast itself is genuinely interesting and belongs in the public
+list: it explains why GameCube stereo is a checkbox in Dolphin while PlayStation 2
+stereo was always per-game hacks. That is a fact about two hardware designs, not about
+anyone's effort.
