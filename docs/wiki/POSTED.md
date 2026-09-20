@@ -204,3 +204,12 @@ televisions at all. The BRAVIA withdrawal is a different and older sequence, so 
 now has its own incident section with its own list, alongside the controversies-table
 row added earlier. The television rosters stay in the main article and are linked by
 section, since duplicating 312 models onto the parent page would serve nobody.
+
+**Verified against Sony's own file after publishing.** The recovered
+`SNY_AudioControlApp/model/model.json` was checked directly in the owner's private
+archive: 102 entries mapping CEC vendor IDs to product names, resolving to 81
+distinct products. Compared against the 81 published to both articles: zero missing,
+zero extra, an exact match. That also confirms the 102/81 figures quoted in
+`docs/hdmi-cec-audio-system.md` and that the transcription in `docs/manuals-index.md`
+is complete. The file itself stays where it is, per rule 9b; only the product names,
+which are facts about Sony's compatibility list, were published.
