@@ -116,3 +116,44 @@ mechanism that makes the whole plan safe.
   campaign.
 
 Status: planned, nothing sent, on the owner's explicit instruction.
+
+## The PlayStation 3 is the existence proof, and it changes the argument
+
+**Owner-confirmed, tested with a friend's console on a game with native 3D output.**
+The set engaged 3D by itself. No button, no menu.
+
+Firmware **3.30** gave every PS3 two of the 3D video modes defined by HDMI 1.4:
+1920x1080p at 24 Hz and 1280x720p at 60 Hz, frame packed. The console declares the
+format and the television obeys. That matches what these sets advertise in their own
+EDID, measured separately in this project: `3D present`, SBS-half, top-and-bottom and
+frame-packing VICs.
+
+So the conclusion is not that this generation of television is awkward. **A console
+from 2010 signalled 3D to these exact sets correctly, and nothing on a PC in 2026
+does.** The display end has been ready the entire time. What is missing is on the
+source side, and that is a software gap rather than a hardware one.
+
+This is the strongest single argument the campaign has for the HDMI half of the
+problem, and it should be stated with the firmware version and the two video modes
+attached, because it is checkable by anyone who still owns a PS3.
+
+## Two classes of 3D content, which must not be conflated
+
+The owner's distinction, and it decides what any given project is even being asked for:
+
+**Native 3D.** The game itself renders both eyes. It knows it is stereoscopic, the
+separation and convergence are the developer's choices, and the console's job is only
+to package and announce the result. PS3 titles with 3D support work this way, and
+there is no official Sony list of them; the community maintains one at
+[ConsoleMods](https://consolemods.org/wiki/PS3:Games_with_Stereoscopic_3D_Support).
+
+**Everything else**, which needs a second viewpoint produced for it. This is the
+driver era's trick, one scene rendered from two cameras, and it is what Dolphin does
+for consoles that never had stereo at all.
+
+**Why it matters for RPCS3 specifically.** Emulating a natively-3D PS3 title is the
+first class, not the second: the game produces both views, so the emulator is
+preserving stereo rather than inventing it. Its anaglyph support in 2020 and
+side-by-side in 2023 are output plumbing for content that already exists. Asking
+RPCS3 to add stereo to non-3D PS3 games would be the second class and a completely
+different request, and should never be phrased as though it were the same one.
