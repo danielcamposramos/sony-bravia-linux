@@ -17,7 +17,7 @@
 # Log: /home/daniel/stereo-3d-test.log
 # Recovery if anything wedges: reboot — the patch never touches /lib/modules.
 
-K3DPATCH=/tmp/k317/linux-source-7.0/drivers/gpu/drm/amd/amdgpu/amdgpu.ko
+K3DPATCH=/K3D/temp/k317/linux-source-7.0/drivers/gpu/drm/amd/amdgpu/amdgpu.ko
 TOOLS=/K3D/GitHub/sony-bravia-linux/tools
 LOG=/home/daniel/stereo-3d-test.log
 TEST_SECONDS=90
