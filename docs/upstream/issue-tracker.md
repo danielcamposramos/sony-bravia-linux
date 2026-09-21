@@ -21,6 +21,13 @@ mails us; never necro closed issues. Sorted by activity, not importance.
 
 ## Standing notes
 
+- 2026-09-21 negative sweep, for the record (so no future session re-runs it blind):
+  NVIDIA/open-gpu-kernel-modules issues AND PRs, all states, queried via `gh search`
+  with stereoscopic / stereo / 3D Vision / 3DTV / frame packing / VSIF /
+  stereo_allowed / glasses / 3D — zero entries cover HDMI 1.4 3D or stereo mode
+  exposure. Ours is the first report there; the patch carries no Closes line because
+  there is no number to close. The one 3D-adjacent noise field is power-management
+  (D3cold) and rendering performance, unrelated.
 - Rows 1–3 are the live hardware-driver campaign; everything else is parked until its
   owning human moves.
 - "Watch on request" means Daniel asks for a status pull; nothing on this page gets
