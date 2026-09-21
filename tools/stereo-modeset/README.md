@@ -9,12 +9,19 @@ NVIDIA GPU's separate HDMI cable/input while the tool scanned a 1920x2205
 two-eye framebuffer in the logical 1920x1080@24 frame-packing mode. Full
 record: `run5-nouveau-frame-packing-pass-2026-09-20.log`.
 
-amdgpu frame-packing verdict: **SIGNAL PASS / IMAGE FAIL** [proven — Daniel,
-2026-09-20 21:43-21:45 UTC-3]. On the AMD cable/input, the same BRAVIA
-entered 3D automatically, proving that the patched driver emitted a usable FP
-VSIF, but the picture stayed black. The tool had selected the same logical
-1920x1080@24 mode and 1920x2205 buffer that worked through nouveau. Full
-record: `run8-amdgpu-frame-packing-signal-pass-image-fail-2026-09-20.log`.
+amdgpu frame-packing verdict: **PASS** [proven — Daniel, KDL-46HX855,
+patched amdgpu with the frame-packing timing patch, 2026-09-20
+23:24-23:26 UTC-3]. Same logical 1920x1080@24 mode, same 1920x2205 two-eye
+buffer as the nouveau control, TV auto-entered 3D and this time the
+disparity picture was visible through the AMD HDMI link. Run 10 was fully
+isolated: the harness removed only `nvidia_drm` (CUDA containers stayed
+alive) and the modesetter blanked the non-target CRTC, so the result is
+attributable to the AMD link alone. Full record:
+`run10-amdgpu-frame-packing-pass-2026-09-20.log`. The boundary run that
+motivated the fix (signal pass, black picture, run 8
+21:43-21:45 UTC-3, record `run8-amdgpu-frame-packing-signal-pass-image-fail-2026-09-20.log`)
+showed the same sink entering 3D on a usable FP VSIF while DC scanned the
+frame with un-expanded 1080-line timing.
 
 That run also exposed a useful multi-link result. The NVIDIA cable was on a
 second HDMI input of the same television, not a second screen. Switching
@@ -136,16 +143,15 @@ confirmation on the NVIDIA-connected TV input. The implementation analysis
 and the remaining amdgpu boundary are in
 `../../docs/dual-surface-hdmi-3d.md`.
 
-An experimental amdgpu FP module is staged at
-`/K3D/temp/k317/amdgpu-fp-experimental.ko`. It applies DRM's
+The amdgpu FP fix is proven as module
+`/K3D/temp/k317/amdgpu-fp-experimental.ko` (name kept from its staging; the
+behavior is no longer experimental). It applies DRM's
 `CRTC_STEREO_DOUBLE` transform to the local DC stream mode and uses
 `drm_mode_get_hv_timing()` for the stream rectangle, so DC receives
 1920/2750 horizontal active/total, 2205/2250 vertical active/total and
 148.5 MHz while retaining one userspace-packed plane. It deliberately leaves
-DC's `timing_3d_format` and
-`view_format` unset to avoid the dormant stereo plane-address path. The
-incremental source patch is
-`../../docs/upstream/amdgpu-dc-hdmi-frame-packing-experimental.patch`.
-It compiles with matching vermagic and is [inferred, not hardware-tested].
-The AMD harness automatically selects it only for `fp`; `sbs` and `tab` keep
-using the preserved known-good module.
+DC's `timing_3d_format` and `view_format` unset to avoid the dormant stereo
+plane-address path. The incremental source patch is
+`../../docs/upstream/amdgpu-dc-hdmi-frame-packing.patch`,
+[proven, hardware] by run 10. The AMD harness automatically selects it only
+for `fp`; `sbs` and `tab` keep using the preserved known-good module.

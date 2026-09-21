@@ -1,8 +1,10 @@
 # Dual eye surfaces to HDMI 3D
 
 Status: implementation analysis completed 2026-09-20; nouveau frame-packing
-hardware run passed on the KDL-46HX855 at 21:37-21:39 UTC-3; the subsequent
-amdgpu run passed automatic 3D signaling but produced a black picture.
+hardware run passed on the KDL-46HX855 at 21:37-21:39 UTC-3; the first
+amdgpu run passed automatic 3D signaling but produced a black picture; the
+staged DC timing fix then passed end to end at 23:24-23:26 UTC-3 with the
+disparity picture visible through the AMD link (run 10).
 
 This note answers three connected questions: why the minimal amdgpu patch can
 prove SBS-half but is not yet a complete frame-packing implementation; whether
@@ -81,7 +83,8 @@ DC therefore receives a 1920x1080 stream at 74.25 MHz while its plane is 2205
 lines high. This is the mismatch the nouveau path avoids with
 `CRTC_STEREO_DOUBLE`.
 
-[inferred, compiled but not hardware-tested] The staged experiment treats FP
+[proven, hardware — run 10, 2026-09-20 23:24-23:26 UTC-3, isolated to the
+AMD link] The experiment (staged at the time of the analysis, since proven) treats FP
 as one userspace-packed surface throughout. It applies
 `drm_mode_set_crtcinfo(..., CRTC_STEREO_DOUBLE)` to amdgpu's local stream mode
 and derives the stream rectangle with `drm_mode_get_hv_timing()`. For the
@@ -90,7 +93,7 @@ active/total 2205/2250 and a 148.5 MHz pixel clock. It deliberately keeps
 `timing_3d_format` and `view_format` at NONE, avoiding DC's dormant stereo
 address-flip path; the already-proven custom VSIF continues to identify the
 ordinary expanded scanout as HDMI frame packing. The incremental patch is
-`upstream/amdgpu-dc-hdmi-frame-packing-experimental.patch`.
+`upstream/amdgpu-dc-hdmi-frame-packing.patch`.
 
 ## Two links, one sink, and the two-TV direction
 
