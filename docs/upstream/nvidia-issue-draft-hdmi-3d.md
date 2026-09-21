@@ -21,11 +21,13 @@ The announcement pipe already ships in the driver: the NV_HDMI_VSIF_METADATA con
 
 Proof it works with zero driver changes: a small libdrm client sets a plain 2D timing and injects the 3D VSIF through that blob property. On the Sony: side-by-side half 1080p60 enters 3D with correct picture (twice, run logs 13 and 14), top-and-bottom 1080p24 enters 3D with correct picture and working 2D fallback (run log 17). All logs and the client are at https://github.com/danielcamposramos/sony-bravia-linux/tree/main/tools/stereo-modeset.
 
-Full matrix, honestly reported: injected SBS passes at 60 Hz; injected TaB passes at 24 Hz but is rejected by this sink at both 60 Hz timings (the same bytes pass at 1080p60 from a kernel-emitted VSIF on an AMD link, so the payload is exonerated and the difference presumably lives in infoframe emission specifics I cannot measure without an HDMI analyzer). This is exactly why userspace injection is a proof, not a substitute: native stereo modeset handling owned by the driver is the supportable configuration.
+Full matrix, honestly reported: injected SBS passes at 60 Hz; injected TaB passes at 24 Hz but TaB, specifically, is rejected by this sink at both 60 Hz timings (the same bytes pass at 1080p60 from a kernel-emitted VSIF on an AMD link, so the payload is exonerated and the difference presumably lives in infoframe emission specifics I cannot measure without an HDMI analyzer). This is exactly why userspace injection is a proof, not a substitute: native stereo modeset handling owned by the driver is the supportable configuration.
+
+A bit of history, because we keep it curated: NVIDIA's own 3D Vision and 3DTV Play drove exactly this HDMI 1.4 signaling into 3D televisions back in the driver era — frame packing to the set, the set's own glasses on the couch. That era, including NVIDIA's chapters, is documented entry by entry in a public list we maintain: https://github.com/danielcamposramos/awesome-stereoscopy#pc-gaming-and-the-driver-era. 3D Vision was discontinued in 2019, before the kernel driver was open-sourced in 2022, which is presumably why nvidia-drm never grew the stereo opt-in that nouveau has always carried. This issue asks for that missing line on today's pipeline, not for a 3D Vision revival.
 
 The ask: set connector->stereo_allowed for HDMI connectors (attached patch against 615.71.09, or any equivalent NVIDIA prefers). Frame packing is out of scope for this delta: its doubled scanout timing needs NVKMS support, the same expansion AMD DC needed (CRTC_STEREO_DOUBLE in Adrian Betschart's amd-gfx v3 series, which this TV also verified).
 
-Disclosure per Documentation/process/coding-assistants.html: prepared with AI assistance, directed and hardware-verified by me end to end (Claude Opus 5 / Claude Code CLI).
+Disclosure per Documentation/process/coding-assistants.html: prepared with AI assistance, directed and hardware-verified by me end to end (Ollama Kimi K3 and Claude Opus 5 / Claude Code CLI).
 
 ---
 
