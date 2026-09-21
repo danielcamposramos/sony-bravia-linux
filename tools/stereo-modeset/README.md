@@ -135,3 +135,17 @@ The run is [proven] by both the captured mode/scanout log and Daniel's visual
 confirmation on the NVIDIA-connected TV input. The implementation analysis
 and the remaining amdgpu boundary are in
 `../../docs/dual-surface-hdmi-3d.md`.
+
+An experimental amdgpu FP module is staged at
+`/K3D/temp/k317/amdgpu-fp-experimental.ko`. It applies DRM's
+`CRTC_STEREO_DOUBLE` transform to the local DC stream mode and uses
+`drm_mode_get_hv_timing()` for the stream rectangle, so DC receives
+1920/2750 horizontal active/total, 2205/2250 vertical active/total and
+148.5 MHz while retaining one userspace-packed plane. It deliberately leaves
+DC's `timing_3d_format` and
+`view_format` unset to avoid the dormant stereo plane-address path. The
+incremental source patch is
+`../../docs/upstream/amdgpu-dc-hdmi-frame-packing-experimental.patch`.
+It compiles with matching vermagic and is [inferred, not hardware-tested].
+The AMD harness automatically selects it only for `fp`; `sbs` and `tab` keep
+using the preserved known-good module.

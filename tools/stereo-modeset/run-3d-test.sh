@@ -7,7 +7,8 @@
 # The service survives the desktop going down. Timeline:
 #   +0s   sddm stops and the user session is terminated (screens dark)
 #   +2s   nvidia_drm removed, fbcon unbound, running amdgpu swapped for the
-#         K3D-patched build; CUDA modules and containers remain live
+#         K3D-patched build (the FP selector uses the experimental expanded-
+#         timing module); CUDA modules and containers remain live
 #   +4s   probe runs on HDMI-A-1 (stereo modes now listed — into the log)
 #   +6s   stereo-modeset picks the requested 1080p stereo mode on HDMI-A-1
 #         PASS SIGNAL: the Sony switches into 3D by itself; SBS/TaB should
@@ -20,7 +21,8 @@
 # (no GPU driver = no console) -- Ctrl+Alt+Del still reboots, the full
 # restore path below is automatic, and SysRq keys are armed for the run.
 
-K3DPATCH=/K3D/temp/k317/linux-source-7.0/drivers/gpu/drm/amd/amdgpu/amdgpu.ko
+K3DPATCH_SBS=/K3D/temp/k317/amdgpu-stereo-sbs.ko
+K3DPATCH_FP=/K3D/temp/k317/amdgpu-fp-experimental.ko
 TOOLS=/K3D/GitHub/sony-bravia-linux/tools
 LOG=/home/daniel/stereo-3d-test.log
 TEST_SECONDS=90
@@ -34,8 +36,15 @@ case "$MODE" in
 	*) echo "usage: $0 [sbs|tab|fp]" >&2; exit 2 ;;
 esac
 
+if [ "$MODE" = fp ]; then
+	K3DPATCH=$K3DPATCH_FP
+else
+	K3DPATCH=$K3DPATCH_SBS
+fi
+
 exec >>"$LOG" 2>&1
 echo "=== stereo-3d-test $(date -Is) layout=$MODE ==="
+echo "module under test: $K3DPATCH"
 
 restore_nvidia_display() {
 	rm -f "$NVIDIA_GUARD"

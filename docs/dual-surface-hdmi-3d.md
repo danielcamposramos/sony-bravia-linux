@@ -73,6 +73,25 @@ halves experimentally: mode exposure and HDMI FP signaling work, while usable
 frame-packed scanout does not. Record:
 `../tools/stereo-modeset/run8-amdgpu-frame-packing-signal-pass-image-fail-2026-09-20.log`.
 
+[proven, source audit] The black result has a concrete geometry boundary.
+DRM's legacy SetCrtc path calls `drm_mode_get_hv_timing()`, so the primary
+plane presented to amdgpu is 1920x2205. amdgpu creates the DC stream from the
+unadjusted requested mode, however, and its CRTC `mode_fixup()` is a no-op.
+DC therefore receives a 1920x1080 stream at 74.25 MHz while its plane is 2205
+lines high. This is the mismatch the nouveau path avoids with
+`CRTC_STEREO_DOUBLE`.
+
+[inferred, compiled but not hardware-tested] The staged experiment treats FP
+as one userspace-packed surface throughout. It applies
+`drm_mode_set_crtcinfo(..., CRTC_STEREO_DOUBLE)` to amdgpu's local stream mode
+and derives the stream rectangle with `drm_mode_get_hv_timing()`. For the
+chosen mode DC then receives horizontal active/total 1920/2750, vertical
+active/total 2205/2250 and a 148.5 MHz pixel clock. It deliberately keeps
+`timing_3d_format` and `view_format` at NONE, avoiding DC's dormant stereo
+address-flip path; the already-proven custom VSIF continues to identify the
+ordinary expanded scanout as HDMI frame packing. The incremental patch is
+`upstream/amdgpu-dc-hdmi-frame-packing-experimental.patch`.
+
 ## Two links, one sink, and the two-TV direction
 
 [proven by owner observation] The AMD and NVIDIA cables were connected to two
@@ -140,6 +159,65 @@ and can reuse the packing operation wiz3D has demonstrated for years. TaB is
 the same class of change. Frame packing should follow after the kernel timing
 path is proven independently on nouveau and then implemented correctly in
 amdgpu DC.
+
+## One stereo-intent path for video and rendering
+
+SEI detection is not limited to rendered 3D. It is the strongest automatic
+trigger for decoded H.264/H.265 video. FFmpeg already exposes the
+`frame_packing_arrangement` SEI as decoded-frame stereo metadata; the Kodi and
+mpv work in this project prove that the layout can survive as far as the
+player. Matroska StereoMode, player or filename hints, MPO metadata, and a pair
+of OpenXR eye surfaces are other producers of the same intent.
+
+The missing interface should normalize those producers into one descriptor:
+layout, left/right order, whether each view is full or subsampled, source and
+lifetime. The display policy then intersects that intent with each connected
+sink's EDID and chooses a common output mode. For two compatible televisions,
+one SEI event can select one shared SBS/TaB/FP packing, compose it once, and
+present it on both links. Different sink capabilities require separate final
+packing passes, while the decoded frames or rendered eye textures remain
+shared.
+
+The signal lifecycle matters. In-band SEI may arrive only on keyframes and its
+persistence flag carries the state across intervening pictures, so losing the
+layout on the next frame would make the output flap back to 2D. Container
+metadata normally applies for the track lifetime. Live-rendering intent applies
+for the OpenXR session. End of track, explicit cancellation, or session loss
+must release the stereo mode and restore the prior display configuration.
+
+[inferred] The first useful Linux integration is therefore a media-player to
+compositor path: decoded-frame SEI or container stereo metadata requests a
+stereo output, and the compositor owns mode negotiation, packing, cloning and
+restoration. The OpenXR path can later publish the same descriptor with two
+live surfaces. This keeps HDMI policy out of each decoder and avoids separate
+watchers for VLC, mpv, Kodi and games.
+
+### Stereo inside an ordinary desktop window
+
+The HDMI 3D mode is global to the link, but stereo content can occupy one
+window. The compositor maintains a left-eye and right-eye output canvas. A
+normal desktop surface is placed at the same coordinates with the same pixels
+in both canvases, which puts it at screen depth. A stereo surface has one
+logical window rectangle and two buffers: the compositor places its left
+buffer in that rectangle on the left canvas and its right buffer in the same
+rectangle on the right canvas. Window clipping, stacking and decoration remain
+desktop operations; only the sampled texture differs by eye.
+
+This also handles mixed content. A stereo game or movie can run in a window
+while panels, another application, subtitles and the pointer are duplicated
+into both views. Fullscreen is the same operation with the stereo rectangle
+covering the output. The two finished canvases are then packed once for HDMI,
+and the television separates them again.
+
+[inferred] That surface pairing is the reusable part of the Steam Frame/HMD
+model. An OpenXR compositor already receives eye-specific images and projects
+them onto corresponding per-eye surfaces. A TV backend replaces lens-warped
+HMD presentation with a flat projection surface and an SBS, TaB or FP packer.
+For non-OpenXR applications, a Wayland protocol or equivalent compositor API
+still has to associate two submitted buffers with one logical surface and
+carry eye order and layout intent. This is the missing desktop contract behind
+the Windows-style observation that windowed 3D works once global 3D output is
+enabled.
 
 ## Android correction: output exists, intent propagation is missing
 
