@@ -72,6 +72,17 @@ test "$HAVE" = "$WANT" || { echo "vermagic mismatch: have '$HAVE' want '$WANT'";
 systemctl stop sddm
 loginctl terminate-user "$KUSER" 2>/dev/null || true
 
+# terminate-user is async: kwin keeps BOTH cards' fds open while it dies.
+# Drain card0 AND card1 before touching nvidia_drm. Run 9 raced this --
+# 4x1s of modprobe retries lost to kwin shutdown and the run aborted
+# untested, back at the desktop in seconds.
+i=0
+while [ $i -lt 25 ]; do
+	fuser /dev/dri/card0 /dev/dri/card1 >/dev/null 2>&1 || break
+	sleep 1; i=$((i + 1))
+done
+echo "DRM card fds free after ${i}s"
+
 # Make the AMD HDMI result unambiguous. The previous FP run left the NVIDIA
 # connector scanning its old desktop buffer, and its sink also entered 3D.
 # Guard against autoload, remove only the DRM display leaf (CUDA remains up),
@@ -98,13 +109,7 @@ if grep -q '^nvidia_drm ' /proc/modules; then
 	echo "nvidia_drm removed; NVIDIA HDMI is dark, CUDA stack remains loaded"
 fi
 
-# wait for DRM fds to drain
-i=0
-while [ $i -lt 15 ]; do
-	fuser /dev/dri/card0 >/dev/null 2>&1 || break
-	sleep 1; i=$((i + 1))
-done
-echo "card0 free after ${i}s"
+# (fd drain now runs right after terminate-user above, before nvidia_drm isolation)
 
 # fbcon holds the module too: unbind it while the swap happens
 echo 0 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
