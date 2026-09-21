@@ -28,9 +28,9 @@ A companion frame-packing piece is also written and hardware-verified on the sam
 
 The series does not attempt DC-side stereo composition; it stops refusing what the EDID, the DRM core helpers (including the CRTC_STEREO_DOUBLE transform nouveau has used since 2017), and DC's packet hardware already know how to do. Happy to split it, rebase it, or rework the FP timing piece toward whatever shape a fuller DC stereo implementation should take. Guidance on that shape is very welcome, in either arrangement.
 
-This contribution was prepared with AI assistance (Claude Code, pair-programmed and hardware-tested by me end to end); the kernel module was built, loaded, and verified on the named display, and the patch itself is two small, reviewable deltas.
+This contribution was prepared with AI assistance (Claude Code, pair-programmed and hardware-tested by me end to end); the kernel module was built, loaded, and verified on the named display, and every delta is small and reviewable. Per Documentation/process/coding-assistants.html, the commits carry my human Signed-off-by and an "Assisted-by: LLM Claude Code" trailer; I can explain and defend every line.
 
-Signed-off-by: Daniel <his address>
+Signed-off-by: Daniel Ramos
 
 ---
 
