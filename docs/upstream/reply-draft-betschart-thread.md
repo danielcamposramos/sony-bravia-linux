@@ -34,7 +34,7 @@ Logs, the DRM test tool, and the two reference deltas (built for the 7.0 tree, k
 
 Happy to run anything specific on this APU and television combination if it helps the review.
 
-Tested-by: Daniel Ramos <danielcamposramos.68@gmail.com>
+Tested-by: Daniel Ramos <capitain_jack@yahoo.com>
 
 Disclosure per Documentation/process/coding-assistants.html (https://docs.kernel.org/process/coding-assistants.html): prepared with AI assistance, directed and hardware-verified by me end to end; the assisting models were LLM Kimi K3 (Codex CLI), LLM GPT 5.6 Sol (Codex CLI) and LLM Claude Opus 5 (Claude Code CLI).
 
