@@ -1,0 +1,82 @@
+# run 17 — proprietary nvidia-drm + injected 6-byte TaB VSIF at 1080p24
+# KDL-46HX855 (1920x1080@24 clk=74180 — the single 24 Hz variant card1
+# exposes), single tab window, 13:43:14–13:45:11 UTC-3, harness
+# run-nvidia-test.sh `tab hz24`.
+# Owner observation (Daniel, 2026-09-21): "success, 3D engaged with proper
+# picture, 2D mode also worked as intended."
+# Verdict: FULL PASS. The injected bytes are IDENTICAL to the two failing
+# 60 Hz TaB injections (03 0c 00 40 60 00), so the payload is exonerated;
+# on this NVIDIA link TaB delivers at the 24 Hz film timing and fails at
+# both 60 Hz timings, while SBS-half passes at 60 Hz. Empirical boundary
+# for the NVIDIA issue: injected-TaB x 60 Hz = rejected by the sink
+# (1080p60: whole stream muted; 720p60: 2D decodes, 3D black) —
+# mechanism stays opaque without an HDMI analyzer [inferred: NVKMS
+# infoframe cadence/placement at higher line rates]; the proper fix is
+# native stereo mode exposure, not more injection. The single-eye clean
+# 2D fallback feature worked here too (see docs/kdl-hx855-sink-behavior.md).
+=== nvidia-3d-test 2026-09-21T13:43:14-03:00 layout=tab pin=hz24 ===
+module under test: proprietary nvidia-drm 615.71.09 on 7.0.10+deb14-amd64 (no swap, no removal; VSIF injection client)
+fds free after 25s
+HPD live: HDMI-A-2 connected after 0s (TV on the NVIDIA input)
+--- baseline probe on the blob (stereo modes are pruned: expect zeros) ---
+probe: /dev/dri/card1 connector HDMI-A-2
+
+without caps:
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+verdict: no stereo modes appeared even with the capability set
+(counts: none=17 stereo=17 aspect=17 both=17)
+--- firing the tab 2D modeset + injected 3D VSIF for 90s (pin hz24) -- watch the TV ---
+choosing 1920x1080 1920x1080 @24 clk=74180 (top-and-bottom)
+vsif mode: top-and-bottom is announced by the injected blob; the timing stays plain 2D
+injected NV_HDMI_VSIF_METADATA as blob 851 (6 bytes: 03 0c 00 40 60 00)
+scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+restored
+=== done 2026-09-21T13:45:11-03:00; desktop returning -- switch the TV back to the AMD input ===
