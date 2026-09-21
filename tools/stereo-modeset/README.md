@@ -23,6 +23,19 @@ motivated the fix (signal pass, black picture, run 8
 showed the same sink entering 3D on a usable FP VSIF while DC scanned the
 frame with un-expanded 1080-line timing.
 
+Upstream v3-as-posted verdict: **PASS** on all three layouts [proven —
+Daniel, KDL-46HX855, Adrian Betschart's amd-gfx v3 series built into a
+7.3-rc4 kernel, 2026-09-21 12:14-12:19 UTC-3]. The series was applied
+verbatim to the 7.3-rc4 tarball, booted one-shot via dpkg, and driven by
+the harness's kernel-under-test mode (no module swap). The probe numbers
+are identical to the 7.0 port's (22 modes/0 stereo without the cap, 51/29
+with it), and in a single desktop-down window the television auto-entered
+3D and displayed the disparity picture for top-and-bottom 1920x1080@60
+(the layout patch 2/3's 3D_Ext_Data byte serves), side-by-side-half
+1920x1080@60, and frame packing 1920x1080@24 with the 1920x2205 packed
+buffer (patch 3/3's stream sizing). Full record:
+`run11-betschart-v3-7.3rc4-all-pass-2026-09-21.log`.
+
 That run also exposed a useful multi-link result. The NVIDIA cable was on a
 second HDMI input of the same television, not a second screen. Switching
 between the TV's inputs during the AMD window showed both inputs in 3D: AMD

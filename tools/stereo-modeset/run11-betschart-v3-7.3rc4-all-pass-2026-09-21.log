@@ -1,0 +1,232 @@
+=== stereo-3d-test 2026-09-21T12:14:01-03:00 layout=all ===
+module under test: stock amdgpu of 7.3.0-rc4 (patches built in)
+DRM card fds free after 1s
+kernel-under-test mode: running built-in amdgpu (7.3.0-rc4), no swap
+--- probe with patched driver (stereo modes should appear) ---
+probe: /dev/dri/card0 connector HDMI-A-1
+
+without caps:
+  modes on HDMI-A-1: 22 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-1: 51 total, 29 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59400 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59341 flags=0x100005 
+    HDMI-A-1       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-1        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25200 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x08000a 
+  modes on HDMI-A-1: 30 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148500 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 60 Hz clk=148352 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 50 Hz clk=148500 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 30 Hz clk= 74176 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74250 flags=0x120005 side-by-side half 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1920x1080 @ 24 Hz clk= 74176 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x01c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x004005 frame packing 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74250 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 60 Hz clk= 74176 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x01c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x004005 frame packing 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x11c005 top-and-bottom 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 50 Hz clk= 74250 flags=0x120005 side-by-side half 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74250 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74250 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74176 flags=0x100005 
+    HDMI-A-1       1280x720  @ 30 Hz clk= 74176 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59400 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59400 flags=0x104005 frame packing 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59341 flags=0x100005 
+    HDMI-A-1       1280x720  @ 24 Hz clk= 59341 flags=0x104005 frame packing 
+    HDMI-A-1       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-1        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x576  @ 50 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27027 flags=0x08000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x10000a 
+    HDMI-A-1        720x480  @ 60 Hz clk= 27000 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25200 flags=0x08000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-1        640x480  @ 60 Hz clk= 25175 flags=0x08000a 
+  modes on HDMI-A-1: 63 total, 33 stereo
+
+verdict: the kernel DOES expose stereo mode(s) on request
+(counts: none=22 stereo=51 aspect=30 both=63)
+--- firing the tab stereo modeset for 90s -- watch the TV ---
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @50 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @50 side-by-side half
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 side-by-side half
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+choosing 1920x1080 1920x1080 @60 (top-and-bottom)
+isolate: disabling non-target CRTC 108
+scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+--- switching to sbs (TV may blink back to 2D) ---
+--- firing the sbs stereo modeset for 90s -- watch the TV ---
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @50 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @50 side-by-side half
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 side-by-side half
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+choosing 1920x1080 1920x1080 @60 (side-by-side half)
+isolate: disabling non-target CRTC 108
+scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+--- switching to fp (TV may blink back to 2D) ---
+--- firing the fp stereo modeset for 90s -- watch the TV ---
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @50 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @50 side-by-side half
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 side-by-side half
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+choosing 1920x1080 1920x1080 @24 (frame packing)
+isolate: disabling non-target CRTC 108
+scanout buffer: 1920x2205; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+=== done 2026-09-21T12:18:43-03:00; patched amdgpu remains loaded until reboot ===

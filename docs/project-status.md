@@ -378,6 +378,8 @@ confirming LPCM delivery)
 
 - Subscribed to amd-gfx (capitain_jack@yahoo.com); reply edited in his own words and sent in-thread (git send-email, plain text, links inline; HTML is banned on kernel lists)
 - Our mboxes 0001/0002 stay unsent unless maintainers ask or the v3 stalls
+- Adrian answered asking for a run of v3 itself (TaB first, so patch 2's Ext_Data byte gets coverage); we built 7.3-rc4 + v3 verbatim (`/K3D/temp/k73-v3/`), booted it one-shot via dpkg, and ran all three layouts in one window 2026-09-21 12:14-12:19 UTC-3: **TaB / SBS / FP all PASS on the KDL-46HX855**, probe numbers identical to the 7.0 port (record: `tools/stereo-modeset/run11-betschart-v3-7.3rc4-all-pass-2026-09-21.log`; harness gained `K3D_STOCK_MODULE=1` and `MODE=all`). Tested-by now covers v3 as posted
+- Follow-up reply draft (reports the v3 run + offers the prepared 7.0 backport as offer-only — Daniel explicitly accepted that risk): `docs/upstream/reply-draft-betschart-v3-tested.md` — Daniel posts it himself
 
 **Bigger lanes** (see the roadmap for gates and ordering):
 - widget lane: run owner-built applicast widgets on the sets
