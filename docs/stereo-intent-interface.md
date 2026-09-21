@@ -3,6 +3,31 @@
 Status: architecture note, 2026-09-20. No Wayland protocol or compositor code
 is claimed as implemented.
 
+## Historical precedent
+
+[proven, contemporary documentation] Windowed stereo beside an ordinary mono
+desktop predates the consumer 3D-driver era. VMD documented “stereo in a
+window” on SGI RealityEngine2: its display window was stereoscopic while other
+windows appeared normally. StereoGraphics documented windowed OpenGL stereo
+on HP Visualize FX hardware in 1998. Nvidia's GPU Programming Guide says
+OpenGL quad-buffered stereo works in windowed mode, and its 2004 Quadro guide
+says stereoscopic and monoscopic applications can run simultaneously. The
+four-buffer application contract was front/back left plus front/back right.
+
+This history validates the composition model, not an automatic SEI path.
+Those applications explicitly selected a stereo-capable visual and submitted
+left and right buffers. In the proposed media path, SEI or container metadata
+lets a player derive the equivalent intent automatically. The compositor
+still has to duplicate the mono desktop into both eye canvases, place the two
+player views at the same window rectangle, and commit a stereo output mode.
+Switching the HDMI mode alone would make the television reinterpret a normal
+desktop frame and cannot produce correct windowed stereo.
+
+Primary references: [VMD 1.5 CrystalEyes documentation](https://www.ks.uiuc.edu/Research/vmd/vmd-1.5/ug/node104.html),
+[StereoGraphics' 1998 HP programming guide](https://www.schneider-digital.com/wp-content/downloadcenter/3D-Stereo/How_To_implement_QuadBuffer_Stereo/older_instructions/how_to_implement_stereo.pdf),
+[Nvidia GPU Programming Guide](https://developer.download.nvidia.cn/GPU_Programming_Guide/GPU_Programming_Guide.pdf),
+and [Nvidia Quadro Release 60 workstation guide](https://download.nvidia.com/Windows/61.76/61.76_Quadro_Release_60_Graphics_Display_Property_Users_Guide..pdf).
+
 ## Existing contract and missing contract
 
 [proven, specification] OpenXR already carries the eye primitives needed for
