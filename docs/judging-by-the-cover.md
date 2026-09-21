@@ -102,12 +102,17 @@ Part of Me" (later remixed on *Bad*, 1987). The film is a footnote
 here because it is also this repo's medium: 70mm 3-D, directed by
 Francis Ford Coppola, executive-produced by George Lucas, shot by
 Walt Disney Imagineering with cinematographer Peter Anderson and
-Vittorio Storaro on lighting — and, at **$1.76 million per minute**
-(budget $23.7M for 17 minutes), the most expensive film ever made
-per minute. It ran at the Disney parks from September 12, 1986 until
-the late nineties, re-opened as "Captain EO Tribute" after fan
-campaigns following Jackson's death in 2009, and closed for the
-last time at Epcot on December 6, 2015.
+Vittorio Storaro on lighting — and, at **$1.76 million per minute** on
+the high estimate (Disney never released figures; estimates run
+$17–30M for the 17 minutes, $23.7M being the usual quote), the most
+expensive film ever made per minute when it premiered — T2-3D took the
+record in 1996 (James Cameron, Universal parks, ~$60M/12min ≈ $5M a
+minute; EO's $30M high estimate moved into 1996 dollars on US CPI is
+≈$2.53M a minute). It ran at the Disney parks from September 12, 1986
+until the late nineties (Epcot 1994, Tokyo 1996, Disneyland 1997, Paris
+last of the originals in August 1998), re-opened as "Captain EO
+Tribute" after fan campaigns following Jackson's death in 2009, and
+closed for the very last time at Epcot on December 6, 2015.
 
 The plot is the doctrine of this page, filmed two years before the
 first forum ever judged a post:
@@ -157,12 +162,21 @@ record: the mouths speak, but the fire is not quite where they say.
 
 What *was* unthinkable about the production was the production
 itself: no fixed script, daily changes, Lucas vs. Katzenberg over a
-budget that roughly doubled, Coppola losing the film's-structure
-argument to Jackson, a lighting consultant repainting Rick Baker's
-puppet without asking, and Lucas' own retrospective verdict: "We had
-no idea what we were getting into." Judged by that crew at the time,
-the gift fails the worthiness test on arrival. Judged by the
-content: 93% of surveyed Disneyland guests cited *Captain EO* as
+budget that roughly doubled (from $11M, Kodak picking up part of the
+cost after a Frank Wells contract renegotiation; no production history
+has Jackson paying — the money was Disney's all-in parks budget),
+Coppola losing the film's-structure argument to Jackson (the scarier
+Supreme Leader, the finale dance kept apart from the plot), the
+directorial pair being Jackson's own insistence — Spielberg or Lucas;
+Spielberg was committed to *The Color Purple*, Lucas agreed and brought
+Coppola in, partly to help him recover financially after *One From the
+Heart* and *The Cotton Club* — and Jackson and Lemorande doing the
+post-production reshooting and recutting themselves once Coppola had
+moved on to *Peggy Sue Got Married*, a lighting consultant repainting
+Rick Baker's puppet without asking, and Lucas' own retrospective
+verdict: "We had no idea what we were getting into." Judged by that
+crew at the time, the gift fails the worthiness test on arrival. Judged
+by the content: 93% of surveyed Disneyland guests cited *Captain EO* as
 their main reason for visiting.
 
 And the star carried the same message himself, his whole career:
