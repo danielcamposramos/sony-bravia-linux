@@ -72,3 +72,13 @@ future desktop-down run):
    prunes them: the KMS arm probes 22/0 — userspace must construct the
    1920x1080@24 FP modeline itself, e.g. via a custom modeline in
    test_only/commit, since no flagged alternate exists to pick).
+
+## Owner test result — 2026-09-21
+
+Daniel reports the B2 modeset attempt is already done and passed: both
+layout types (SBS and FP) worked through the closed-kernel nvidia-drm path.
+[proven — owner test, same hardware; the run log is still to be archived
+into tools/stereo-modeset/, after which the remaining-unknowns list above
+is fully closed.] This leaves the open-modules tree
+(NVIDIA/open-gpu-kernel-modules) as the remaining nvidia front: porting
+the flag+VSIF wiring there so the KMS arm no longer prunes stereo modes.
