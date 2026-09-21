@@ -1,5 +1,5 @@
 From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
-From: Daniel Ramos <danielcamposramos.68@gmail.com>
+From: Daniel Ramos <capitain_jack@yahoo.com>
 Date: Sat, 20 Sep 2026 23:59:00 -0300
 Subject: [PATCH 2/2] drm/amdgpu: expand DC stream timing for frame-packing stereo modes
 
@@ -25,7 +25,7 @@ Link: https://github.com/danielcamposramos/sony-bravia-linux (tools, run logs an
 Assisted-by: LLM Kimi K3 (Codex CLI)
 Assisted-by: LLM GPT 5.6 Sol (Codex CLI)
 Assisted-by: LLM Claude Opus 5 (Claude Code CLI)
-Signed-off-by: Daniel Ramos <danielcamposramos.68@gmail.com>
+Signed-off-by: Daniel Ramos <capitain_jack@yahoo.com>
 ---
  drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c |   16 +++++++++++++---
  1 file changed, 13 insertions(+), 3 deletions(-)
