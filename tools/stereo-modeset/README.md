@@ -1,6 +1,13 @@
 # stereo-modeset — first unblocked stereo modeset on amdgpu DC
 
-Verdict: **PASS** [proven — Daniel, KDL-46HX855, 2026-09-20 19:26-19:28 UTC-3].
+SBS-half verdict: **PASS** [proven — Daniel, KDL-46HX855, amdgpu,
+2026-09-20 19:26-19:28 UTC-3].
+
+Frame-packing verdict: **PASS** [proven — Daniel, KDL-46HX855, nouveau on
+GA106, 2026-09-20 21:37-21:39 UTC-3]. The TV auto-entered 3D through the
+NVIDIA GPU's separate HDMI cable/input while the tool scanned a 1920x2205
+two-eye framebuffer in the logical 1920x1080@24 frame-packing mode. Full
+record: `run5-nouveau-frame-packing-pass-2026-09-20.log`.
 
 With the two-line-concept kernel patch applied to amdgpu, setting the EDID's
 SBS-half 1920x1080@60 mode made the Sony switch itself into 3D — no remote
@@ -97,12 +104,13 @@ Frame packing is a stronger driver test than SBS/TaB. The already-proven
 amdgpu patch exposes the mode and emits its HDMI VSIF, but deliberately
 leaves `timing_3d_format` unset; consequently it does not yet ask DC to
 double the link timing. Nouveau and i915 do apply DRM's stereo timing
-transformation. Run nouveau first as the positive control:
+transformation. The nouveau positive control was run with:
 
 ```
 sudo systemd-run --unit=nouveau-3d-test --collect sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh fp
 ```
 
-Until that run is visually confirmed, frame packing remains [qualified].
-The SBS-half result above remains [proven]. The implementation analysis is
-in `../../docs/dual-surface-hdmi-3d.md`.
+The run is [proven] by both the captured mode/scanout log and Daniel's visual
+confirmation on the NVIDIA-connected TV input. The implementation analysis
+and the remaining amdgpu boundary are in
+`../../docs/dual-surface-hdmi-3d.md`.

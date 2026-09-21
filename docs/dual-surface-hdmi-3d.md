@@ -1,7 +1,7 @@
 # Dual eye surfaces to HDMI 3D
 
 Status: implementation analysis completed 2026-09-20; nouveau frame-packing
-hardware run prepared and awaiting visual confirmation.
+hardware run passed on the KDL-46HX855 at 21:37-21:39 UTC-3.
 
 This note answers three connected questions: why the minimal amdgpu patch can
 prove SBS-half but is not yet a complete frame-packing implementation; whether
@@ -31,6 +31,14 @@ transformation doubles the pixel clock, adds the original vertical total to
 `crtc_vdisplay`, and doubles `crtc_vtotal`. Nouveau applies this transformation
 and explicitly sets its input height to `vdisplay + vtotal`; i915 applies the
 same DRM helper.
+
+[proven, hardware] The stock nouveau path on the GA106 then completed that
+chain on the NVIDIA GPU's own HDMI cable and BRAVIA input. The tool selected
+the exact logical 1920x1080@24 frame-packing mode, allocated 1920x2205,
+and the television entered 3D automatically with the disparity pattern
+visible in depth. The harness restored the stock NVIDIA stack, desktop,
+daemons and all five containers. The captured record is
+`../tools/stereo-modeset/run5-nouveau-frame-packing-pass-2026-09-20.log`.
 
 [proven, source audit] amdgpu DC has substantial stereo machinery. It defines
 `VIEW_3D_FORMAT_SIDE_BY_SIDE`, `VIEW_3D_FORMAT_TOP_AND_BOTTOM`,
@@ -105,15 +113,16 @@ standard timing and infoframe. That is the same missing connection seen on
 Linux, at a higher layer. Android hardware evidence therefore strengthens the
 case for automatic, content-driven output instead of weakening it.
 
-## Test order
+## Test order and current result
 
-1. Run the new `fp` path on nouveau, whose source already applies stereo timing doubling.
-2. Record the chosen 1920x1080@24 logical mode, 1920x2205 framebuffer, TV auto-switch and visible depth.
-3. Preserve that run as the frame-packing positive control.
-4. Keep the existing AMD patch claim at SBS/TaB signaling until DC timing mapping is added.
-5. Prototype a dual-surface-to-SBS output backend before attempting compositor-driven FP.
+1. Run the new `fp` path on nouveau, whose source already applies stereo timing doubling — **PASS [proven]**.
+2. Record the chosen 1920x1080@24 logical mode, 1920x2205 framebuffer, TV auto-switch and visible depth — **DONE**.
+3. Preserve that run as the frame-packing positive control — **DONE**.
+4. Run the identical payload on the AMD iGPU's separate HDMI output to isolate its DRM-to-DC boundary — **NEXT**.
+5. Keep the existing AMD patch claim at SBS/TaB signaling until DC timing mapping is added or the hardware run proves otherwise.
+6. Prototype a dual-surface-to-SBS output backend before attempting compositor-driven FP.
 
-The prepared positive-control command is:
+The positive-control command was:
 
 ```
 sudo systemd-run --unit=nouveau-3d-test --collect sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh fp
