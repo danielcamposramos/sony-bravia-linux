@@ -18,6 +18,7 @@
 
 #include <errno.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -33,6 +34,9 @@ enum stereo_layout {
 	LAYOUT_TAB,
 	LAYOUT_FP,
 };
+
+static volatile sig_atomic_t stop_flag;
+static void on_term(int sig) { (void)sig; stop_flag = 1; }
 
 static char const *stereo_name(uint32_t flags)
 {
@@ -162,8 +166,8 @@ int main(int argc, char **argv)
 	if (!mode) { fprintf(stderr, "no suitable %s mode on %s%s\n",
 			     want_stereo, want,
 			     vsif ? "" : " -- kernel stereo support not active?"); return 1; }
-	printf("choosing %s %ux%u @%u (%s)\n", mode->name, mode->hdisplay,
-	       mode->vdisplay, mode->vrefresh, want_stereo);
+	printf("choosing %s %ux%u @%u clk=%u (%s)\n", mode->name, mode->hdisplay,
+	       mode->vdisplay, mode->vrefresh, mode->clock, want_stereo);
 	if (vsif)
 		printf("vsif mode: %s is announced by the injected blob; the timing stays plain 2D\n",
 		       want_stereo);
@@ -273,10 +277,14 @@ int main(int argc, char **argv)
 	printf("scanout buffer: %ux%u; modeset done%s -- TV should auto-switch now. q/ESC quits.\n",
 	       cre.width, cre.height, isolate ? " (isolated)" : "");
 
+	/* the harness fires us under timeout(1): leave the wire clean on TERM */
+	signal(SIGTERM, on_term);
+	signal(SIGINT, on_term);
+
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK);
 	uint32_t stride = cre.pitch / 4;
 	memset(px, 0, cre.size); /* includes the frame-packing inter-eye gap */
-	for (int frame = 0;; frame++) {
+	for (int frame = 0; !stop_flag; frame++) {
 		/* three boxes at disparities -32/0/+32 px: depth on the TV */
 		int drift = ((frame >> 2) & 31) - 16;  /* slow horizontal drift */
 		for (int eye = 0; eye < 2; eye++) {
