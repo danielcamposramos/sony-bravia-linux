@@ -234,14 +234,17 @@ int main(int argc, char **argv)
 		/* Payload per NV_DRM common ioctl doc: 3-byte HDMI OUI (LSB
 		 * first) followed by the VSIF body without its header.
 		 * PB4 = extended/3D video format marker (0x2 << 5); PB5 =
-		 * 3D_Structure << 4 (CTA-861-H: TaB 6, SBS-half 8); SBS-half
-		 * appends PB6 3D_Ext_Data (0: standard horizontal sub-sampling).
+		 * 3D_Structure << 4 (CTA-861-H: TaB 6, SBS-half 8); PB6 =
+		 * 3D_Ext_Data, 0 = standard horizontal sub-sampling.
+		 * HDMI 1.4b requires PB6 only for SBS-half, but send the zero
+		 * byte for TaB as well: this Sony KDL-46HX855 ignores the
+		 * announcement without it (run 13), the same behaviour behind
+		 * the amd-gfx v3 2/3 series on a JVC projector, and the same
+		 * choice the DRM core's own VSIF helper makes.
 		 */
 		uint8_t p[6] = { 0x03, 0x0c, 0x00, 0x2 << 5, 0, 0 };
-		uint32_t plen = 5;
+		const uint32_t plen = 6; /* Ext_Data byte always on, see above */
 		p[4] = (layout == LAYOUT_SBS ? 0x8 : 0x6) << 4;
-		if (layout == LAYOUT_SBS)
-			plen = 6;
 		for (int i = 0; i < conn->count_props && !vsif_prop; i++) {
 			drmModePropertyPtr pr = drmModeGetProperty(fd, conn->props[i]);
 			if (pr) {
