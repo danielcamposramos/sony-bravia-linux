@@ -52,3 +52,23 @@ the design question to raise in the issue — NVIDIA may prefer the already-ship
 userspace blob (B2) over driver-side synthesis (B1). Evidence from the amdgpu
 leg (KDL-46HX855 autoswitching, [proven]) demonstrates both the mechanism and
 the consumer demand.
+
+## Live check 2026-09-20 23:5x UTC-3 — blob property PRESENT on stock 615
+
+[proven, live read-only check] `drm_info /dev/dri/card1` on the running
+615.71.09 stack (desktop up, no master needed) shows
+`NV_HDMI_VSIF_METADATA` as a connector blob property on the HDMI-A
+connector, alongside `HDR_OUTPUT_METADATA` and `Colorspace` (BT2020 options).
+Exactly the property the open glue (`nvidia-drm-connector.c:582-603`) copies
+verbatim into `modeSetConfig.hdmiVsifMetadata` at modeset time.
+
+This promotes path B2's first precondition from source-read to verified on
+the installed build: userspace CAN attach a 3..27-byte VSIF payload with no
+kernel patch. What B2 still needs to demonstrate (a modeset attempt, so a
+future desktop-down run):
+
+1. atomic check accepts the hand-built blob (no driver-side VSIF veto), and
+2. a hand-built FP timing can replace the absent stereo modes (nvidia-drm
+   prunes them: the KMS arm probes 22/0 — userspace must construct the
+   1920x1080@24 FP modeline itself, e.g. via a custom modeline in
+   test_only/commit, since no flagged alternate exists to pick).
