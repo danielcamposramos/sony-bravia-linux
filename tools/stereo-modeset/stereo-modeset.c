@@ -5,8 +5,15 @@
 // the kernel patch is emitting the HDMI vendor-specific infoframe correctly.
 //
 // cc -o stereo-modeset stereo-modeset.c $(pkg-config --cflags --libs libdrm)
-// usage: stereo-modeset [card] [connector] [sbs|tab|fp] [isolate]
+// usage: stereo-modeset [card] [connector] [sbs|tab|fp] [isolate] [vsif]
 // defaults: /dev/dri/card0 HDMI-A-1 sbs
+//
+// vsif: the proprietary nvidia-drm path. nvidia-drm never sets
+// stereo_allowed, so no 3D-flagged mode survives pruning -- but it exposes
+// the NV_HDMI_VSIF_METADATA connector blob whose payload crosses into NVKMS
+// with the modeset. TaB/SBS-half share the 2D link timing, so a plain
+// 1920x1080@60 modeset plus an injected HDMI 3D VSIF drives the sink into
+// 3D with no kernel change. FP is refused there (its timing is doubled).
 // SPDX-License-Identifier: CC0-1.0
 
 #include <errno.h>
@@ -82,7 +89,7 @@ int main(int argc, char **argv)
 	char const *path = argc > 1 ? argv[1] : "/dev/dri/card0";
 	char const *want = argc > 2 ? argv[2] : "HDMI-A-1";
 	char const *layout_arg = argc > 3 ? argv[3] : "sbs";
-	int isolate = argc > 4 && !strcmp(argv[4], "isolate");
+	int isolate = 0, vsif = 0;
 	char const *want_stereo;
 	enum stereo_layout layout;
 	uint32_t want_flag;
@@ -92,9 +99,23 @@ int main(int argc, char **argv)
 			layout_arg);
 		return 2;
 	}
-	if (argc > 5 || (argc > 4 && !isolate)) {
-		fprintf(stderr, "optional fourth argument must be 'isolate'\n");
-		return 2;
+	for (int i = 4; i < argc; i++) {
+		if (!strcmp(argv[i], "isolate"))
+			isolate = 1;
+		else if (!strcmp(argv[i], "vsif"))
+			vsif = 1;
+		else {
+			fprintf(stderr, "unknown option '%s'; use isolate and/or vsif\n",
+				argv[i]);
+			return 2;
+		}
+	}
+	if (vsif) {
+		if (layout == LAYOUT_FP) {
+			fprintf(stderr, "vsif injection cannot do frame packing: its link timing is doubled, the injection only announces the packing\n");
+			return 2;
+		}
+		want_flag = 0; /* plain 2D timing; the 3D layout rides the injected VSIF */
 	}
 
 	setvbuf(stdout, NULL, _IOLBF, 0); /* log capture: survive timeout kill */
@@ -104,6 +125,11 @@ int main(int argc, char **argv)
 	if (drmSetClientCap(fd, DRM_CLIENT_CAP_STEREO_3D, 1) ||
 	    drmSetClientCap(fd, DRM_CLIENT_CAP_ASPECT_RATIO, 1)) {
 		fprintf(stderr, "client caps refused\n"); return 1;
+	}
+	/* connector property lists are only handed to atomic-capable clients */
+	if (vsif && drmSetClientCap(fd, DRM_CLIENT_CAP_ATOMIC, 1)) {
+		fprintf(stderr, "atomic cap refused (needed to find the VSIF property)\n");
+		return 1;
 	}
 
 	drmModeRes *res = drmModeGetResources(fd);
@@ -133,10 +159,14 @@ int main(int argc, char **argv)
 			best_score = score;
 		}
 	}
-	if (!mode) { fprintf(stderr, "no %s mode on %s -- kernel patch not active?\n",
-			     want_stereo, want); return 1; }
+	if (!mode) { fprintf(stderr, "no suitable %s mode on %s%s\n",
+			     want_stereo, want,
+			     vsif ? "" : " -- kernel stereo support not active?"); return 1; }
 	printf("choosing %s %ux%u @%u (%s)\n", mode->name, mode->hdisplay,
 	       mode->vdisplay, mode->vrefresh, want_stereo);
+	if (vsif)
+		printf("vsif mode: %s is announced by the injected blob; the timing stays plain 2D\n",
+		       want_stereo);
 
 	drmModeEncoder *enc = conn->encoder_id
 		? drmModeGetEncoder(fd, conn->encoder_id) : NULL;
@@ -199,6 +229,41 @@ int main(int argc, char **argv)
 	uint32_t *px = mmap(0, cre.size, PROT_READ | PROT_WRITE, MAP_SHARED, fd, map.offset);
 	if (px == MAP_FAILED) { perror("mmap"); return 1; }
 
+	uint32_t vsif_prop = 0, vsif_blob = 0;
+	if (vsif) {
+		/* Payload per NV_DRM common ioctl doc: 3-byte HDMI OUI (LSB
+		 * first) followed by the VSIF body without its header.
+		 * PB4 = extended/3D video format marker (0x2 << 5); PB5 =
+		 * 3D_Structure << 4 (CTA-861-H: TaB 6, SBS-half 8); SBS-half
+		 * appends PB6 3D_Ext_Data (0: standard horizontal sub-sampling).
+		 */
+		uint8_t p[6] = { 0x03, 0x0c, 0x00, 0x2 << 5, 0, 0 };
+		uint32_t plen = 5;
+		p[4] = (layout == LAYOUT_SBS ? 0x8 : 0x6) << 4;
+		if (layout == LAYOUT_SBS)
+			plen = 6;
+		for (int i = 0; i < conn->count_props && !vsif_prop; i++) {
+			drmModePropertyPtr pr = drmModeGetProperty(fd, conn->props[i]);
+			if (pr) {
+				if (!strcmp(pr->name, "NV_HDMI_VSIF_METADATA"))
+					vsif_prop = pr->prop_id;
+				drmModeFreeProperty(pr);
+			}
+		}
+		if (!vsif_prop) {
+			fprintf(stderr, "NV_HDMI_VSIF_METADATA not found on %s -- not an nvidia-drm connector?\n", want);
+			return 1;
+		}
+		if (drmModeCreatePropertyBlob(fd, p, plen, &vsif_blob)) {
+			perror("CreatePropertyBlob vsif"); return 1; }
+		if (drmModeConnectorSetProperty(fd, conn->connector_id, vsif_prop, vsif_blob)) {
+			perror("set NV_HDMI_VSIF_METADATA"); return 1; }
+		printf("injected NV_HDMI_VSIF_METADATA as blob %u (%u bytes:", vsif_blob, plen);
+		for (uint32_t i = 0; i < plen; i++)
+			printf(" %02x", p[i]);
+		printf(")\n");
+	}
+
 	if (drmModeSetCrtc(fd, crtc_id, fb, 0, 0, &conn->connector_id, 1, mode)) {
 		perror("SetCrtc"); return 1;
 	}
@@ -250,6 +315,11 @@ int main(int argc, char **argv)
 		struct timespec ts = { 0, 50000000 }; nanosleep(&ts, NULL);
 	}
 out:
+	if (vsif_prop) {
+		/* pull the 3D announcement off the wire before the TV sees 2D timing */
+		drmModeConnectorSetProperty(fd, conn->connector_id, vsif_prop, 0);
+		drmModeDestroyPropertyBlob(fd, vsif_blob);
+	}
 	if (saved) { drmModeSetCrtc(fd, saved->crtc_id, saved->buffer_id, saved->x,
 				      saved->y, &conn->connector_id, 1, &saved->mode);
 		     drmModeFreeCrtc(saved); }
