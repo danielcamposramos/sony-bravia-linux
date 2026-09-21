@@ -221,6 +221,16 @@ rendering stage.
 model. An OpenXR compositor already receives eye-specific images and projects
 them onto corresponding per-eye surfaces. A TV backend replaces lens-warped
 HMD presentation with a flat projection surface and an SBS, TaB or FP packer.
+[direction set by Daniel, 2026-09-20] The Steam Frame aim is explicitly
+bi-directional, and the two directions are different engineering paths that
+share this document's middle layer. Inbound: play existing 3D media (MVC
+Blu-ray, SBS/TaB files, SEI-flagged streams) correctly inside the headset,
+which needs the stereo-intent descriptor and decoder-side layout handling but
+never touches HDMI. Outbound: carry the Frame's own dual-surface output (or
+its host PC's, when streaming) to an external 3D screen through the SBS/TaB/FP
+backend above. Neither direction is a substitute for the other; both consume
+the same normalized layout, eye order and view-resolution semantics.
+
 For non-OpenXR applications, a Wayland protocol or equivalent compositor API
 still has to associate two submitted buffers with one logical surface and
 carry eye order and layout intent. This is the missing desktop contract behind
