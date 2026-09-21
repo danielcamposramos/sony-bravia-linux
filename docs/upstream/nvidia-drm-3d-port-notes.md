@@ -73,12 +73,13 @@ future desktop-down run):
    1920x1080@24 FP modeline itself, e.g. via a custom modeline in
    test_only/commit, since no flagged alternate exists to pick).
 
-## Owner test result — 2026-09-21
+## Clarification — 2026-09-21 (corrects the owner-test claim added earlier today)
 
-Daniel reports the B2 modeset attempt is already done and passed: both
-layout types (SBS and FP) worked through the closed-kernel nvidia-drm path.
-[proven — owner test, same hardware; the run log is still to be archived
-into tools/stereo-modeset/, after which the remaining-unknowns list above
-is fully closed.] This leaves the open-modules tree
-(NVIDIA/open-gpu-kernel-modules) as the remaining nvidia front: porting
-the flag+VSIF wiring there so the KMS arm no longer prunes stereo modes.
+"nvidia was also already tested, both types worked" refers to the NVIDIA
+GPU itself (GA106 RTX 3060) on stock nouveau: run 4 (SBS-half modeset pass,
+20:26-20:28 UTC-3) and run 5 (frame-packing pass, 21:37-21:39 UTC-3), logs
+already in tools/stereo-modeset/. Those are the "both types" records — no
+new nvidia-drm run exists. The closed-kernel nvidia-drm B2 modeset above
+remains the open item: the NV_HDMI_VSIF_METADATA property presence is
+live-verified on 615.71.09, the atomic blob modeset still needs a
+desktop-down run at Daniel's timing.
