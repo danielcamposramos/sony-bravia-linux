@@ -185,6 +185,11 @@ the standing rule, that is enough: **the owner writes and submits this
 one in his own words**, with the patch, the measurement and the VLC
 file/line references prepared as raw material. Open feature request to
 attach it to: [videolan/vlc#29582](https://code.videolan.org/videolan/vlc/-/issues/29582).
+**Account gate 2026-09-19:** the code.videolan.org registration (username
+capitain_jack) was held for administrator approval and the approval never
+arrived; the unblock mail to vlc-devel@videolan.org was drafted next to the
+MR at `vlc-account-unblock-mail.md` and **SENT by the owner 2026-09-21** in
+his own words. The MR waits on that account.
 
 ## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
 
