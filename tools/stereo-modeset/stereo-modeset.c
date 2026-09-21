@@ -324,8 +324,14 @@ int main(int argc, char **argv)
 					int disp = (b - 1) * 32;                    /* -32 0 +32 */
 					int shift = drift + (eye ? -1 : 1) * (disp / 2);
 					uint32_t bx0 = (uint32_t)(300 + shift);
-					uint32_t by0 = eye_h >= 900 ? 180 + b * 240 : 40 + b * 150;
-					uint32_t box_h = eye_h >= 900 ? 160 : 100;
+					/* tiers sized to the eye region: the 720p TaB eye is only
+					 * 360 rows tall and run 16 showed the blue box clipped
+					 * to a sliver when it ran off the eye bottom */
+					uint32_t by0 = eye_h >= 900 ? 180 + b * 240
+						     : eye_h >= 500 ? 40 + b * 150
+						     : 40 + b * 115;
+					uint32_t box_h = eye_h >= 900 ? 160
+						       : eye_h >= 500 ? 100 : 60;
 					static const uint32_t col[3] = { 0xc02020u, 0x20c020u, 0x2040c0u };
 					if (x >= bx0 && x < bx0 + 220 && y >= by0 && y < by0 + box_h)
 						c = col[b];

@@ -1,0 +1,65 @@
+# run 16 — proprietary nvidia-drm + injected 6-byte TaB VSIF at 720p60
+# KDL-46HX855 (VIC 4, clk=74250 — the exact CEA clock), single tab window,
+# 13:32:21–13:34:19 UTC-3, harness run-nvidia-test.sh `tab 720p`.
+# Owner observation (Daniel, 2026-09-21, verbatim summary):
+#   3D auto-engaged; panel lit black (same engaged-mute as the 1080p60 TaB
+#   windows). BUT the IR 2D toggle DID show decodable video this time —
+#   unlike run 14/15's 1080p60 TaB, where the 2D path went fully dark.
+#   The lower (blue) disparity box appeared clipped to its upper sliver:
+#   that clip is a tool-side geometry constant (box rows 340–439 requested
+#   inside a 360-row eye half; only ~20 rows exist in the buffer), fixed in
+#   the same commit as this log — NOT a sink crop.
+# Verdict: at 720p60 the NVIDIA link's TaB-announced stream decodes in the
+# sink's 2D path; only the 3D presentation is black. Failure layering is
+# therefore timing-specific, not a single mute: 1080p60 TaB = whole stream
+# muted (runs 14/15), 720p60 TaB = video decodes / 3D black (this run),
+# AMD-link 1080p60 TaB = full pass (run 11), NVIDIA-link SBS 1080p60 =
+# full pass twice (runs 13/14).
+=== nvidia-3d-test 2026-09-21T13:32:21-03:00 layout=tab pin=720p ===
+module under test: proprietary nvidia-drm 615.71.09 on 7.0.10+deb14-amd64 (no swap, no removal; VSIF injection client)
+fds free after 25s
+HPD live: HDMI-A-2 connected after 0s (TV on the NVIDIA input)
+--- baseline probe on the blob (stereo modes are pruned: expect zeros) ---
+probe: /dev/dri/card1 connector HDMI-A-2
+
+without caps:
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    (same 17-mode list as above; stereo modes pruned in every capability set)
+verdict: no stereo modes appeared even with the capability set
+(counts: none=17 stereo=17 aspect=17 both=17)
+--- firing the tab 2D modeset + injected 3D VSIF for 90s (pin 720p) -- watch the TV ---
+choosing 1280x720 1280x720 @60 clk=74250 (top-and-bottom)
+vsif mode: top-and-bottom is announced by the injected blob; the timing stays plain 2D
+injected NV_HDMI_VSIF_METADATA as blob 851 (6 bytes: 03 0c 00 40 60 00)
+scanout buffer: 1280x720; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+restored
+=== done 2026-09-21T13:34:19-03:00; desktop returning -- switch the TV back to the AMD input ===
