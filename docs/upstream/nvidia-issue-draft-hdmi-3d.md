@@ -1,12 +1,18 @@
-# DRAFT — GitHub issue for NVIDIA/open-gpu-kernel-modules — RAW MATERIAL for Daniel
+# GitHub issue for NVIDIA/open-gpu-kernel-modules — **POSTED 2026-09-21 ~14:55 UTC-3**
 
-Not for posting as-is. Daniel reviews, rewrites in his own words, and posts it himself at
-https://github.com/NVIDIA/open-gpu-kernel-modules/issues. Style for his version: no bold,
-one paragraph per line, no hard-wrapped lines. The patch referenced below is
-`nvidia-615.71.09-hdmi-3d-contribution.patch` in this directory (applies clean against the
-615.71.09 kernel-open tree, verified by dry-run).
+Posted as **NVIDIA/open-gpu-kernel-modules#1382**
+(https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1382), under Daniel's account
+(danielcamposramos, gh keyring), by Claude on his explicit order ("now, push it for me,
+partner" — third such per-act authorization after the two amd-gfx send-email sends). Body
+below is EXACTLY what went out, including Daniel's own edits; two mechanical adjustments
+he was told about up front: gh cannot attach files to issues, so "attached patch" became
+the contribution patch's repo link
+(`nvidia-615.71.09-hdmi-3d-contribution.patch`, dry-run-verified against pristine
+615.71.09 kernel-open). Disclosure line names both assisting models per Daniel's edit.
+Body edit same day, his order: the patch reference now announces the first-comment
+attachment (he attaches the file himself via the web UI); body below = live body verbatim.
 
-Suggested title:
+Title as posted:
 nvidia-drm: HDMI 1.4 3D modes are always pruned (stereo_allowed never set) — one-line glue fix, verified end-to-end
 
 ---
@@ -23,11 +29,11 @@ Proof it works with zero driver changes: a small libdrm client sets a plain 2D t
 
 Full matrix, honestly reported: injected SBS passes at 60 Hz; injected TaB passes at 24 Hz but TaB, specifically, is rejected by this sink at both 60 Hz timings (the same bytes pass at 1080p60 from a kernel-emitted VSIF on an AMD link, so the payload is exonerated and the difference presumably lives in infoframe emission specifics I cannot measure without an HDMI analyzer). This is exactly why userspace injection is a proof, not a substitute: native stereo modeset handling owned by the driver is the supportable configuration.
 
-Prior reports: before filing I searched this tracker, open and closed, issues and PRs (stereoscopic, stereo, 3D Vision, 3DTV, frame packing, VSIF, stereo_allowed; 2026-09-21), and as far as the record goes this is the first report on HDMI 1.4 3D mode exposure. So the attached patch closes no visible number; it closes a hole nobody had filed.
+Prior reports: before filing I searched this tracker, open and closed, issues and PRs (stereoscopic, stereo, 3D Vision, 3DTV, frame packing, VSIF, stereo_allowed; 2026-09-21), and as far as the record goes this is the first report on HDMI 1.4 3D mode exposure. So this patch closes no visible number; it closes a hole nobody had filed.
 
 A bit of history, because we keep it curated: NVIDIA's own 3D Vision and 3DTV Play drove exactly this HDMI 1.4 signaling into 3D televisions back in the driver era — frame packing to the set, the set's own glasses on the couch. That era, including NVIDIA's chapters, is documented entry by entry in a public list we maintain: https://github.com/danielcamposramos/awesome-stereoscopy#pc-gaming-and-the-driver-era. 3D Vision was discontinued in 2019, before the kernel driver was open-sourced in 2022, which is presumably why nvidia-drm never grew the stereo opt-in that nouveau has always carried. This issue asks for that missing line on today's pipeline, not for a 3D Vision revival.
 
-The ask: set connector->stereo_allowed for HDMI connectors (attached patch against 615.71.09, or any equivalent NVIDIA prefers). Frame packing is out of scope for this delta: its doubled scanout timing needs NVKMS support, the same expansion AMD DC needed (CRTC_STEREO_DOUBLE in Adrian Betschart's amd-gfx v3 series, which this TV also verified).
+The ask: set connector->stereo_allowed for HDMI connectors (patch against 615.71.09: I attach the file in my next comment below — or any equivalent NVIDIA prefers). Frame packing is out of scope for this delta: its doubled scanout timing needs NVKMS support, the same expansion AMD DC needed (CRTC_STEREO_DOUBLE in Adrian Betschart's amd-gfx v3 series, which this TV also verified).
 
 Disclosure per Documentation/process/coding-assistants.html: prepared with AI assistance, directed and hardware-verified by me end to end (Ollama Kimi K3 and Claude Opus 5 / Claude Code CLI).
 
