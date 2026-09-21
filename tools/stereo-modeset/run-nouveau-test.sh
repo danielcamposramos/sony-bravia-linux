@@ -6,7 +6,7 @@
 # the TV switches to 3D by itself on the SBS-half modeset.
 #
 #   sudo systemd-run --unit=nouveau-3d-test --collect \
-#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh [sbs|tab|fp]
 #   (ONE line -- a line-broken paste runs 'sh' with no script, then runs this
 #    file unprivileged, which the root check below rejects loudly.)
 #
@@ -41,11 +41,19 @@ KUSER=daniel
 DSTATE=/K3D/temp/nouveau-docker.state     # survives the intentional reboot
 DCONS=/K3D/temp/nouveau-docker.containers # containers we stopped, to restart
 GUARD=/run/modprobe.d/zz-nouveau-stereo-test.conf  # tmpfs: gone on any reset
+MODE="${1:-sbs}"
+
+case "$MODE" in
+	sbs) WANT_LABEL="side-by-side half" ;;
+	tab) WANT_LABEL="top-and-bottom" ;;
+	fp)  WANT_LABEL="frame packing" ;;
+	*) echo "usage: $0 [sbs|tab|fp]" >&2; exit 2 ;;
+esac
 
 # first, before any redirect: a line-broken paste runs this file unprivileged.
 if [ "$(id -u)" != 0 ]; then
 	echo "run-nouveau-test: must run as root -- one line:" >&2
-	echo "sudo systemd-run --unit=nouveau-3d-test --collect sh $0" >&2
+	echo "sudo systemd-run --unit=nouveau-3d-test --collect sh $0 $MODE" >&2
 	exit 1
 fi
 
@@ -88,7 +96,7 @@ pause_docker() {
 	fi
 }
 
-echo "=== nouveau-3d-test $(date -Is) ==="
+echo "=== nouveau-3d-test $(date -Is) layout=$MODE ==="
 
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || true
 
@@ -212,7 +220,7 @@ CONN=""
 for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
 	echo "--- probing card1 $c:"
 	"$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>&1 || continue
-	if "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>/dev/null | grep -q "side-by-side half"; then
+	if "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>/dev/null | grep -q "$WANT_LABEL"; then
 		CONN="$c"
 		break
 	fi
@@ -220,9 +228,9 @@ done
 echo "chosen connector: ${CONN:-none}"
 
 if [ -n "$CONN" ]; then
-	echo "--- firing the stereo modeset for ${TEST_SECONDS}s on card1 $CONN"
+	echo "--- firing the $MODE stereo modeset for ${TEST_SECONDS}s on card1 $CONN"
 	echo "    (Daniel: TV input for the NVIDIA card should auto-switch to 3D)"
-	timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" </dev/null || true
+	timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$MODE" </dev/null || true
 else
 	echo "no stereo-capable connector found on nouveau -- see probe output above"
 fi

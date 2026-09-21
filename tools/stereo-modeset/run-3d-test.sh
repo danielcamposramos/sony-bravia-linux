@@ -2,7 +2,7 @@
 # stereo-modeset test harness — detached form. From the desktop terminal:
 #
 #   sudo systemd-run --unit=stereo-3d-test --collect \
-#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-3d-test.sh
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-3d-test.sh [sbs|tab|fp]
 #
 # The service survives the desktop going down. Timeline:
 #   +0s   sddm stops and the user session is terminated (screens dark)
@@ -24,9 +24,15 @@ TOOLS=/K3D/GitHub/sony-bravia-linux/tools
 LOG=/home/daniel/stereo-3d-test.log
 TEST_SECONDS=90
 KUSER=daniel
+MODE="${1:-sbs}"
+
+case "$MODE" in
+	sbs|tab|fp) ;;
+	*) echo "usage: $0 [sbs|tab|fp]" >&2; exit 2 ;;
+esac
 
 exec >>"$LOG" 2>&1
-echo "=== stereo-3d-test $(date -Is) ==="
+echo "=== stereo-3d-test $(date -Is) layout=$MODE ==="
 
 # arm SysRq for the whole run: if we ever leave the console dead,
 # Alt+SysRq+... still reaches the kernel
@@ -97,8 +103,8 @@ sleep 2
 echo "--- probe with patched driver (stereo modes should appear) ---"
 "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card0 HDMI-A-1 || true
 
-echo "--- firing the stereo modeset for ${TEST_SECONDS}s -- watch the TV ---"
-timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card0 HDMI-A-1 </dev/null || true
+echo "--- firing the $MODE stereo modeset for ${TEST_SECONDS}s -- watch the TV ---"
+timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card0 HDMI-A-1 "$MODE" </dev/null || true
 
 # if the patched driver took the device down with it, swapping back to stock
 # BEFORE sddm restarts is the difference between "desktop returns" and

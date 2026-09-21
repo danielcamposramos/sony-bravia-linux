@@ -65,7 +65,44 @@ running Debian kernel), both changes in
   which never contained stereo handling — 3D Vision was retired in 2019,
   before the 2022 open-sourcing).
 
-Tools here: `stereo-modeset.c` (bare-VT DRM client: sets caps, picks the
-SBS-half 1080p mode, draws three drifting boxes at disparities -32/0/+32),
-`run-3d-test.sh` (detached systemd-run harness that swaps the module, runs
-probe + modeset, and always restores the desktop).
+Tools here: `stereo-modeset.c` (bare-VT DRM client: sets caps, selects
+`sbs`, `tab` or `fp`, and draws three drifting boxes at disparities
+-32/0/+32), `run-3d-test.sh` (detached systemd-run harness that swaps the
+module, runs probe + modeset, and always restores the desktop), and
+`run-nouveau-test.sh` (the equivalent stock-nouveau reference run).
+
+## Layout selector and frame-packing geometry
+
+The third `stereo-modeset` argument is optional and defaults to `sbs`:
+
+```
+stereo-modeset /dev/dri/cardN HDMI-A-N sbs
+stereo-modeset /dev/dri/cardN HDMI-A-N tab
+stereo-modeset /dev/dri/cardN HDMI-A-N fp
+```
+
+`sbs` selects 1920x1080 side-by-side-half at 60 Hz and puts one scaled eye
+in each 960-pixel half. `tab` selects 1920x1080 top-and-bottom at 60 Hz and
+puts one scaled eye in each 540-line half.
+
+`fp` prefers the exact 1920x1080@24 frame-packing mode. DRM describes that
+mode in per-eye terms, so its public `vdisplay` is still 1080. The scanout
+buffer must contain both eyes and the vertical blanking interval between
+them: `vdisplay + vtotal`, which is 1080 + 1125 = 2205 lines for this CEA
+mode. The test draws the left eye at line 0, leaves lines 1080-1124 blank,
+and starts the right eye at line 1125. This follows DRM's own
+`CRTC_STEREO_DOUBLE` transformation and nouveau's input-height handling.
+
+Frame packing is a stronger driver test than SBS/TaB. The already-proven
+amdgpu patch exposes the mode and emits its HDMI VSIF, but deliberately
+leaves `timing_3d_format` unset; consequently it does not yet ask DC to
+double the link timing. Nouveau and i915 do apply DRM's stereo timing
+transformation. Run nouveau first as the positive control:
+
+```
+sudo systemd-run --unit=nouveau-3d-test --collect sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh fp
+```
+
+Until that run is visually confirmed, frame packing remains [qualified].
+The SBS-half result above remains [proven]. The implementation analysis is
+in `../../docs/dual-surface-hdmi-3d.md`.
