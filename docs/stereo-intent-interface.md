@@ -120,6 +120,60 @@ observes stereo playback, selects the vendor display mode and restores the
 prior mode later. End-to-end intent propagation moves that state into the
 decoder/player/compositor chain and removes the per-application polling layer.
 
+## Windowed, fullscreen and output-mode policy
+
+Fullscreen does not require a second composition architecture. The stereo
+surface covers the eye canvases instead of occupying one rectangle; the
+compositor still commits the two completed views plus the chosen HDMI layout.
+The user must be able to request fullscreen stereo independently of automatic
+SEI, container-metadata or OpenXR activation.
+
+Layout and timing are policy, not synonyms for stereo. The EDID constrains the
+available set. Within that set, user choice overrides the default; otherwise
+application latency and cadence hints select the mode:
+
+| output | temporal samples per eye | spatial result per eye | useful default |
+|---|---:|---|---|
+| 1920x1080 SBS-half at 60 Hz | 60/s | 960x1080, expanded by sink | responsive 1080-line desktop/game compatibility |
+| 1920x1080 TaB at 60 Hz | 60/s | 1920x540, expanded by sink | responsive alternative when vertical loss is acceptable |
+| 1280x720 frame packing at 60 Hz | 60/s | full 1280x720 | motion, games and interactive 3D |
+| 1920x1080 frame packing at 24 Hz | 24/s | full 1920x1080 | native 24 fps film cadence |
+| 3840x1080 full-SBS at 60 Hz | 60/s | full 1920x1080 | only when sink, link and driver explicitly support it |
+
+SBS does not inherently divide refresh between the eyes: one 60 Hz packed
+frame contains a synchronized left/right pair, hence sixty possible updates
+for each eye. “Half” refers to spatial sampling. Active-shutter hardware may
+internally alternate those views at 120 flashes per second, but it does not
+turn a 60-pair source into 30 unique pictures per eye.
+
+[proven, local sink] The KDL-46HX855 EDID exposed through nouveau offers
+1080p60 SBS-half and TaB plus 720p60 frame packing. It does not advertise
+side-by-side-full. It also offers 1080p24/30 frame packing. Therefore the
+best current full-resolution interactive candidate is 720p60 frame packing;
+1080p60 SBS-half is the higher-line-count, lower-horizontal-resolution choice;
+1080p24 frame packing is the film choice. [Steam Frame's official standalone
+VR acceptance target](https://steamcdn-a.akamaihd.net/steamcommunity/public/images/steamworks_docs/english/GDC_2026_HWTalk_03.3.pdf)
+is 90 FPS, so a 60 Hz television mode is a useful stereo display target but
+not equivalent to a 90 Hz head-mounted session.
+
+If the EDID intersection exposes only a 24 Hz stereo mode, the implementation
+may still offer it but must label it as 24 eye pairs per second and film-oriented.
+It must not reduce every sink to a boolean “3D capable” status or imply that
+24p is suitable for games. The chooser should show per-eye resolution,
+stereo-pair rate, spatial subsampling and whether the mode is native to every
+selected output. This makes a limited display usable without concealing why
+motion and input response are worse.
+
+The HDMI capability inventory must account for a mainline parsing limitation.
+HDMI and DRM define eight structures: frame packing, field alternative, line
+alternative, side-by-side full, L+depth, L+depth+graphics+graphics-depth,
+top-and-bottom and side-by-side half. DRM's InfoFrame helper can serialize all
+eight, but `drm_edid.c` currently creates modes from HDMI VSDB data only for
+frame packing, top-and-bottom and side-by-side half. An absent DRM mode for one
+of the other five is therefore not proof that the sink omitted it. The
+universal structure and mandatory-timing tables are maintained in the
+[Awesome Stereoscopy HDMI mode map](https://github.com/danielcamposramos/awesome-stereoscopy#every-hdmi-14-stereo-structure).
+
 ## Two outputs
 
 For EX725 and HX855 together, policy first intersects both EDIDs and chooses
