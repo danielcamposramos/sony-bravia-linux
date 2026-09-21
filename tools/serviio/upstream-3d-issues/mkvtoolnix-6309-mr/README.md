@@ -599,3 +599,33 @@ Verified on the rebased build: 26 of 26 for HEVC across MP4, Matroska, HEVC elem
       explicit instruction (2026-09-19).
 - [x] Maintainer edits enabled on both MRs by Daniel (the API create call
       missed `allow_maintainer_edit`; verified True on both 2026-09-19).
+
+## 11. Round 1 close — !6311 **MERGED 2026-09-21** into main as `ebd8445b1` + `1735de63f`
+
+mbunkus's verdict comments (2026-09-21 22:00–22:09 CEST, archived JSON in
+`/tmp` session and quoted in the API fetches of this day): the third commit
+(`46a12c6fb`, write StereoMode even when at the mono default) was **rejected as harmful** —
+under Matroska semantics "element absent" and "element at default" are one statement, so
+"unknown at container level" is not expressible; he merges without it and will adjust the
+Matroska reader himself (if source StereoMode is semantically 0, still use the bitstream).
+He then found the behavior already correct without that commit and **merged at `1735de6...`**.
+
+**Follow-up asks and their disposition (2026-09-22, both POSTED with Daniel's approval):**
+
+- #6309 comment 23409258 asked for synthetic HEVC samples → already on his server since
+  2026-09-20 (§9.6); answered pointing to the existing upload: #6309 **comment 23418046**.
+- !6312 comment 23409274 asked to rework the HEVC MR on the merged main → branch rebased
+  dropping `46a12c6fb` (two commits: `70889f220` HEVC + `731de6cb2` cosmetics on top of
+  `1735de63f`), dependency-checked (HEVC change does not touch the dropped helper), full
+  build + unit suites (common/merge/propedit, 7/7 HevcSeiFramePacking) green in the trixie
+  container; force-pushed `--force-with-lease`; !6312 **comment 23418100** reports the rework
+  including the not-explicitly-set findings Daniel wanted relayed (probe only when the
+  element is absent; with the dropped commit `--stereo-mode 0:0` again doesn't survive a
+  remux, matching stock; explicit values always win; his planned reader tweak covers HEVC
+  automatically because HEVC feeds the same `v_bitstream_stereo_mode`).
+
+Verification record: same-day server-side re-fetch shows !6312 head `731de6cb2`, two
+commits; both comment IDs returned by the Codeberg API at creation and stored in
+`reply-6309-hevc-samples-and-6312-rework.md` (bodies in that file verbatim).
+
+**Whose move: mbunkus** (final review/merge of !6312).
