@@ -2,7 +2,14 @@
 # stereo-modeset test harness — detached form. From the desktop terminal:
 #
 #   sudo systemd-run --unit=stereo-3d-test --collect \
-#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-3d-test.sh [sbs|tab|fp]
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-3d-test.sh [sbs|tab|fp|all]
+#
+# Kernel-under-test form (booted kernel's own amdgpu carries the patches,
+# e.g. the Betschart v3 series built into a 7.3-rc4 kernel): no module swap,
+# everything else identical:
+#
+#   sudo systemd-run --unit=stereo-3d-test --collect --setenv=K3D_STOCK_MODULE=1 \
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-3d-test.sh [sbs|tab|fp|all]
 #
 # The service survives the desktop going down. Timeline:
 #   +0s   sddm stops and the user session is terminated (screens dark)
@@ -32,14 +39,23 @@ NVIDIA_GUARD=/run/modprobe.d/zz-amd-stereo-isolate-nvidia-drm.conf
 NVIDIA_DRM_REMOVED=0
 
 case "$MODE" in
-	sbs|tab|fp) ;;
-	*) echo "usage: $0 [sbs|tab|fp]" >&2; exit 2 ;;
+	sbs|tab|fp|all) ;;
+	*) echo "usage: $0 [sbs|tab|fp|all]" >&2; exit 2 ;;
 esac
 
-if [ "$MODE" = fp ]; then
+# all = one desktop-down window, three layouts, TaB first (Betschart asked
+# for TaB coverage of v3 2/3 specifically), 90s each with a short gap so the
+# TV re-syncs between layouts. Needs the FP-capable module in swap mode.
+if [ "$MODE" = fp ] || [ "$MODE" = all ]; then
 	K3DPATCH=$K3DPATCH_FP
 else
 	K3DPATCH=$K3DPATCH_SBS
+fi
+
+if [ "$K3D_STOCK_MODULE" = 1 ]; then
+	# kernel-under-test boot: the running kernel's own amdgpu already
+	# carries the patches under review; skip the swap entirely
+	K3DPATCH="stock amdgpu of $(uname -r) (patches built in)"
 fi
 
 exec >>"$LOG" 2>&1
@@ -63,11 +79,13 @@ trap restore_nvidia_display EXIT
 # Alt+SysRq+... still reaches the kernel
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || true
 
-test -f "$K3DPATCH" || { echo "patched module missing: $K3DPATCH"; exit 1; }
 test "$(id -u)" = 0 || { echo "run as root"; exit 1; }
-WANT="$(uname -r) SMP preempt mod_unload"
-HAVE="$(modinfo -F vermagic "$K3DPATCH" | sed 's/[[:space:]]*$//')"
-test "$HAVE" = "$WANT" || { echo "vermagic mismatch: have '$HAVE' want '$WANT'"; exit 1; }
+if [ "$K3D_STOCK_MODULE" != 1 ]; then
+	test -f "$K3DPATCH" || { echo "patched module missing: $K3DPATCH"; exit 1; }
+	WANT="$(uname -r) SMP preempt mod_unload"
+	HAVE="$(modinfo -F vermagic "$K3DPATCH" | sed 's/[[:space:]]*$//')"
+	test "$HAVE" = "$WANT" || { echo "vermagic mismatch: have '$HAVE' want '$WANT'"; exit 1; }
+fi
 
 systemctl stop sddm
 loginctl terminate-user "$KUSER" 2>/dev/null || true
@@ -111,6 +129,9 @@ fi
 
 # (fd drain now runs right after terminate-user above, before nvidia_drm isolation)
 
+if [ "$K3D_STOCK_MODULE" = 1 ]; then
+	echo "kernel-under-test mode: running built-in amdgpu ($(uname -r)), no swap"
+else
 # fbcon holds the module too: unbind it while the swap happens
 echo 0 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
 if ! modprobe -r amdgpu; then
@@ -157,12 +178,23 @@ if ! insmod "$K3DPATCH"; then
 fi
 echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
 sleep 2
+fi
 
 echo "--- probe with patched driver (stereo modes should appear) ---"
 "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card0 HDMI-A-1 || true
 
-echo "--- firing the $MODE stereo modeset for ${TEST_SECONDS}s -- watch the TV ---"
-timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card0 HDMI-A-1 "$MODE" isolate </dev/null || true
+LAYOUTS="$MODE"
+[ "$MODE" = all ] && LAYOUTS="tab sbs fp"
+FIRST=1
+for L in $LAYOUTS; do
+	if [ $FIRST = 0 ]; then
+		sleep 5
+		echo "--- switching to $L (TV may blink back to 2D) ---"
+	fi
+	FIRST=0
+	echo "--- firing the $L stereo modeset for ${TEST_SECONDS}s -- watch the TV ---"
+	timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card0 HDMI-A-1 "$L" isolate </dev/null || true
+done
 
 # if the patched driver took the device down with it, swapping back to stock
 # BEFORE sddm restarts is the difference between "desktop returns" and
