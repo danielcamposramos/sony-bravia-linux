@@ -5,8 +5,10 @@
 // the kernel patch is emitting the HDMI vendor-specific infoframe correctly.
 //
 // cc -o stereo-modeset stereo-modeset.c $(pkg-config --cflags --libs libdrm)
-// usage: stereo-modeset [card] [connector] [sbs|tab|fp] [isolate] [vsif]
+// usage: stereo-modeset [card] [connector] [sbs|tab|fp] [isolate] [vsif] [720p|hz24]
 // defaults: /dev/dri/card0 HDMI-A-1 sbs
+// 720p: pick the 1280x720@60 variant instead of 1080p60 (sbs/tab only)
+// hz24: pick the 1920x1080@24 variant instead of 60 Hz (sbs/tab only)
 //
 // vsif: the proprietary nvidia-drm path. nvidia-drm never sets
 // stereo_allowed, so no 3D-flagged mode survives pruning -- but it exposes
@@ -69,23 +71,30 @@ static int parse_layout(char const *arg, enum stereo_layout *layout,
 	return 0;
 }
 
+static uint32_t pref_w = 1920, pref_h = 1080, pref_hz = 60;
+
 static int mode_score(drmModeModeInfo const *mode, enum stereo_layout layout,
 		      uint32_t flag)
 {
-	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) != flag ||
-	    mode->hdisplay != 1920 || mode->vdisplay != 1080)
+	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) != flag)
 		return -1;
 
 	if (layout == LAYOUT_FP) {
-		if (mode->vrefresh != 24)
+		if (mode->hdisplay != 1920 || mode->vdisplay != 1080 ||
+		    mode->vrefresh != 24)
 			return -1;
 		/* Prefer exact 24.000 Hz over the equivalent 23.976 mode. */
 		return mode->clock == 74250 ? 2 : 1;
 	}
 
-	if (mode->vrefresh < 59)
+	if (mode->hdisplay != pref_w || mode->vdisplay != pref_h ||
+	    mode->vrefresh != pref_hz)
 		return -1;
-	return mode->clock == 148500 ? 2 : 1;
+	/* exact-CEA clocks: 1080p60 is 148.5 MHz, 720p60/1080p24 are 74.25 */
+	{
+		uint32_t pref_clk = (pref_w == 1920 && pref_hz == 60) ? 148500 : 74250;
+		return pref_clk == mode->clock ? 2 : 1;
+	}
 }
 
 int main(int argc, char **argv)
@@ -108,8 +117,12 @@ int main(int argc, char **argv)
 			isolate = 1;
 		else if (!strcmp(argv[i], "vsif"))
 			vsif = 1;
+		else if (!strcmp(argv[i], "720p")) {
+			pref_w = 1280; pref_h = 720;
+		} else if (!strcmp(argv[i], "hz24"))
+			pref_hz = 24;
 		else {
-			fprintf(stderr, "unknown option '%s'; use isolate and/or vsif\n",
+			fprintf(stderr, "unknown option '%s'; use isolate, vsif, 720p and/or hz24\n",
 				argv[i]);
 			return 2;
 		}

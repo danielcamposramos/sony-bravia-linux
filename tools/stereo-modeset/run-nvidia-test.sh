@@ -11,7 +11,12 @@
 # From the desktop terminal:
 #
 #   sudo systemd-run --unit=nvidia-3d-test --collect \
-#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nvidia-test.sh [sbs|tab|all]
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nvidia-test.sh [sbs|tab|all] [720p|hz24]
+#
+# The optional second token is forwarded to the modesetter as a
+# resolution/refresh pin (TaB sink-acceptance matrix: 720p60 and 1080p24 are
+# the HDMI-1.4-era TaB broadcast/film timings, while 1080p60 TaB was never a
+# mandatory format). Only meaningful for a single-layout run.
 #
 # TV choreography (the NVIDIA cable feeds a SECOND HDMI input of the
 # KDL-46HX855, which only asserts HPD while that input is selected):
@@ -33,14 +38,19 @@ SYSCONN=/sys/class/drm/card1-HDMI-A-2
 TEST_SECONDS=90
 KUSER=daniel
 MODE="${1:-sbs}"
+PIN="${2:-}"
 
 case "$MODE" in
 	sbs|tab|all) ;;
-	*) echo "usage: $0 [sbs|tab|all]" >&2; exit 2 ;;
+	*) echo "usage: $0 [sbs|tab|all] [720p|hz24]" >&2; exit 2 ;;
+esac
+case "$PIN" in
+	""|720p|hz24) ;;
+	*) echo "usage: $0 [sbs|tab|all] [720p|hz24]" >&2; exit 2 ;;
 esac
 
 exec >>"$LOG" 2>&1
-echo "=== nvidia-3d-test $(date -Is) layout=$MODE ==="
+echo "=== nvidia-3d-test $(date -Is) layout=$MODE pin=${PIN:-none} ==="
 echo "module under test: proprietary nvidia-drm $(modinfo -F version nvidia_drm 2>/dev/null) on $(uname -r) (no swap, no removal; VSIF injection client)"
 
 test "$(id -u)" = 0 || { echo "run as root"; exit 1; }
@@ -87,8 +97,9 @@ for L in $LAYOUTS; do
 		echo "--- switching to $L (TV may blink back to 2D) ---"
 	fi
 	FIRST=0
-	echo "--- firing the $L 2D modeset + injected 3D VSIF for ${TEST_SECONDS}s -- watch the TV ---"
-	timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" "$CARD" "$CONN" "$L" isolate vsif </dev/null || true
+	echo "--- firing the $L 2D modeset + injected 3D VSIF for ${TEST_SECONDS}s ${PIN:+(pin $PIN) }-- watch the TV ---"
+	# $PIN is whitelisted by the case above; unquoted so an empty pin drops out
+	timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" "$CARD" "$CONN" "$L" isolate vsif $PIN </dev/null || true
 done
 
 systemctl start sddm
