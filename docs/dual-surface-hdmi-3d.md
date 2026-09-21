@@ -1,7 +1,8 @@
 # Dual eye surfaces to HDMI 3D
 
 Status: implementation analysis completed 2026-09-20; nouveau frame-packing
-hardware run passed on the KDL-46HX855 at 21:37-21:39 UTC-3.
+hardware run passed on the KDL-46HX855 at 21:37-21:39 UTC-3; the subsequent
+amdgpu run passed automatic 3D signaling but produced a black picture.
 
 This note answers three connected questions: why the minimal amdgpu patch can
 prove SBS-half but is not yet a complete frame-packing implementation; whether
@@ -65,6 +66,55 @@ and view format, use the corresponding adjusted timing, validate bandwidth
 and plane geometry, and prove it on real generations. The current minimal
 patch should remain scoped to the SBS/TaB behavior it has actually proven.
 
+[proven, hardware] With the same logical 1920x1080@24 mode and 1920x2205
+userspace buffer as the nouveau positive control, patched amdgpu made the
+BRAVIA enter 3D automatically but displayed black. This separates the two
+halves experimentally: mode exposure and HDMI FP signaling work, while usable
+frame-packed scanout does not. Record:
+`../tools/stereo-modeset/run8-amdgpu-frame-packing-signal-pass-image-fail-2026-09-20.log`.
+
+## Two links, one sink, and the two-TV direction
+
+[proven by owner observation] The AMD and NVIDIA cables were connected to two
+HDMI inputs of the same BRAVIA. During the AMD test window, switching the TV
+between those inputs showed both input paths in 3D. AMD showed black; NVIDIA
+showed only the lower portion of its retained frame. The test process itself
+opened only AMD `card0/HDMI-A-1`, so this was not one atomic commit spanning
+two GPUs. NVIDIA had retained or reasserted the earlier nouveau frame-packing
+state through its own link.
+
+The important architectural result is that the standard HDMI 3D signal works
+independently on both GPU links. [inferred] Once each scanout path is mastered,
+the same arrangement can terminate one GPU at the EX725 and the other at the
+HX855, giving two simultaneous 3D displays. That two-physical-TV arrangement
+has not yet been run, so it remains [qualified].
+
+For the next debugging passes, the AMD harness explicitly removes the
+`nvidia_drm` display leaf while leaving `nvidia`, `nvidia_uvm`, CUDA and the
+containers running. The modesetter's `isolate` option blanks non-target CRTCs
+on the selected GPU. This makes each result attributable to exactly one HDMI
+link; the dual-output path can be re-enabled deliberately after both links
+have correct buffers.
+
+### Render cost of two outputs
+
+The HDMI VSIF is connector metadata and is cheap to emit on two links. It does
+not require rendering the 3D scene again. The expensive boundary is whether
+the two sinks can consume the same packed pixels.
+
+The preferred EX725+HX855 path is one common mode: same stereo layout,
+resolution, refresh rate and eye order. Render the left/right eye pair once,
+pack it once, and present that result on both connectors. Because the outputs
+belong to different GPUs, the implementation may need DMA-BUF sharing or a
+cross-device copy; that cost is still below a second game render.
+
+If the two sinks need different layouts or timings, each needs its own final
+packing/composition pass, for example FP for one and SBS-half for the other.
+That is heavier, but it still should reuse the same rendered eye textures
+rather than render the scene twice. Common-mode negotiation is therefore a
+performance requirement for the first dual-TV implementation, not just a
+convenience.
+
 ## What a Linux TV-3D output backend would do
 
 A compositor target for gamescope, Monado or another OpenXR-capable component
@@ -118,9 +168,10 @@ case for automatic, content-driven output instead of weakening it.
 1. Run the new `fp` path on nouveau, whose source already applies stereo timing doubling — **PASS [proven]**.
 2. Record the chosen 1920x1080@24 logical mode, 1920x2205 framebuffer, TV auto-switch and visible depth — **DONE**.
 3. Preserve that run as the frame-packing positive control — **DONE**.
-4. Run the identical payload on the AMD iGPU's separate HDMI output to isolate its DRM-to-DC boundary — **NEXT**.
-5. Keep the existing AMD patch claim at SBS/TaB signaling until DC timing mapping is added or the hardware run proves otherwise.
-6. Prototype a dual-surface-to-SBS output backend before attempting compositor-driven FP.
+4. Run the identical payload on the AMD iGPU's separate HDMI output — **SIGNAL PASS / IMAGE FAIL [proven]**.
+5. Repeat future AMD work with the other GPU and every non-target CRTC explicitly dark — **ISOLATION IMPLEMENTED, not yet run**.
+6. Keep the existing AMD patch claim at SBS/TaB picture+signaling and FP signaling until DC timing mapping produces an FP picture.
+7. Prototype a dual-surface-to-SBS output backend before attempting compositor-driven FP.
 
 The positive-control command was:
 

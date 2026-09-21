@@ -5,7 +5,7 @@
 // the kernel patch is emitting the HDMI vendor-specific infoframe correctly.
 //
 // cc -o stereo-modeset stereo-modeset.c $(pkg-config --cflags --libs libdrm)
-// usage: stereo-modeset [card] [connector] [sbs|tab|fp]
+// usage: stereo-modeset [card] [connector] [sbs|tab|fp] [isolate]
 // defaults: /dev/dri/card0 HDMI-A-1 sbs
 // SPDX-License-Identifier: CC0-1.0
 
@@ -82,6 +82,7 @@ int main(int argc, char **argv)
 	char const *path = argc > 1 ? argv[1] : "/dev/dri/card0";
 	char const *want = argc > 2 ? argv[2] : "HDMI-A-1";
 	char const *layout_arg = argc > 3 ? argv[3] : "sbs";
+	int isolate = argc > 4 && !strcmp(argv[4], "isolate");
 	char const *want_stereo;
 	enum stereo_layout layout;
 	uint32_t want_flag;
@@ -89,6 +90,10 @@ int main(int argc, char **argv)
 	if (parse_layout(layout_arg, &layout, &want_stereo, &want_flag)) {
 		fprintf(stderr, "unknown layout '%s'; use sbs, tab, or fp\n",
 			layout_arg);
+		return 2;
+	}
+	if (argc > 5 || (argc > 4 && !isolate)) {
+		fprintf(stderr, "optional fourth argument must be 'isolate'\n");
 		return 2;
 	}
 
@@ -153,6 +158,30 @@ int main(int argc, char **argv)
 
 	drmModeCrtc *saved = drmModeGetCrtc(fd, crtc_id);
 
+	/* Detached hardware tests must not leave another connector on this GPU
+	 * scanning an unrelated framebuffer. The other DRM device is isolated by
+	 * its harness, because one fd cannot control CRTCs owned by another GPU.
+	 */
+	if (isolate) {
+		for (int i = 0; i < res->count_crtcs; i++) {
+			uint32_t other_id = res->crtcs[i];
+			if (other_id == crtc_id)
+				continue;
+			drmModeCrtc *other = drmModeGetCrtc(fd, other_id);
+			if (other && other->buffer_id) {
+				printf("isolate: disabling non-target CRTC %u\n", other_id);
+				if (drmModeSetCrtc(fd, other_id, 0, 0, 0,
+						   NULL, 0, NULL)) {
+					perror("disable non-target CRTC");
+					drmModeFreeCrtc(other);
+					return 1;
+				}
+			}
+			if (other)
+				drmModeFreeCrtc(other);
+		}
+	}
+
 	struct drm_mode_create_dumb cre = { 0 };
 	/* The logical frame-packing mode is one eye high. The framebuffer holds
 	 * both eyes separated by one ordinary vertical blanking interval:
@@ -173,8 +202,8 @@ int main(int argc, char **argv)
 	if (drmModeSetCrtc(fd, crtc_id, fb, 0, 0, &conn->connector_id, 1, mode)) {
 		perror("SetCrtc"); return 1;
 	}
-	printf("scanout buffer: %ux%u; modeset done -- TV should auto-switch now. q/ESC quits.\n",
-	       cre.width, cre.height);
+	printf("scanout buffer: %ux%u; modeset done%s -- TV should auto-switch now. q/ESC quits.\n",
+	       cre.width, cre.height, isolate ? " (isolated)" : "");
 
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK);
 	uint32_t stride = cre.pitch / 4;

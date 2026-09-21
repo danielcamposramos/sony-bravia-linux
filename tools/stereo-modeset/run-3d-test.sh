@@ -6,11 +6,12 @@
 #
 # The service survives the desktop going down. Timeline:
 #   +0s   sddm stops and the user session is terminated (screens dark)
-#   +2s   fbcon unbound, running amdgpu swapped for the K3D-patched build
+#   +2s   nvidia_drm removed, fbcon unbound, running amdgpu swapped for the
+#         K3D-patched build; CUDA modules and containers remain live
 #   +4s   probe runs on HDMI-A-1 (stereo modes now listed — into the log)
-#   +6s   stereo-modeset picks the 1080p60 SBS-half mode on the TV
-#         PASS SIGNAL: the Sony switches into 3D by itself, three colored
-#         boxes at different depths, drifting slowly
+#   +6s   stereo-modeset picks the requested 1080p stereo mode on HDMI-A-1
+#         PASS SIGNAL: the Sony switches into 3D by itself; SBS/TaB should
+#         show three colored boxes at different depths, drifting slowly
 #   +96s  sddm restarts; autologin returns the desktop. Patched driver
 #         stays loaded until the next reboot.
 #
@@ -25,6 +26,8 @@ LOG=/home/daniel/stereo-3d-test.log
 TEST_SECONDS=90
 KUSER=daniel
 MODE="${1:-sbs}"
+NVIDIA_GUARD=/run/modprobe.d/zz-amd-stereo-isolate-nvidia-drm.conf
+NVIDIA_DRM_REMOVED=0
 
 case "$MODE" in
 	sbs|tab|fp) ;;
@@ -33,6 +36,19 @@ esac
 
 exec >>"$LOG" 2>&1
 echo "=== stereo-3d-test $(date -Is) layout=$MODE ==="
+
+restore_nvidia_display() {
+	rm -f "$NVIDIA_GUARD"
+	if [ "$NVIDIA_DRM_REMOVED" = 1 ]; then
+		if modprobe nvidia_drm; then
+			echo "restored nvidia_drm"
+			NVIDIA_DRM_REMOVED=0
+		else
+			echo "WARNING: nvidia_drm restore failed; reboot restores the stock display stack"
+		fi
+	fi
+}
+trap restore_nvidia_display EXIT
 
 # arm SysRq for the whole run: if we ever leave the console dead,
 # Alt+SysRq+... still reaches the kernel
@@ -47,6 +63,32 @@ test "$HAVE" = "$WANT" || { echo "vermagic mismatch: have '$HAVE' want '$WANT'";
 systemctl stop sddm
 loginctl terminate-user "$KUSER" 2>/dev/null || true
 
+# Make the AMD HDMI result unambiguous. The previous FP run left the NVIDIA
+# connector scanning its old desktop buffer, and its sink also entered 3D.
+# Guard against autoload, remove only the DRM display leaf (CUDA remains up),
+# and restore it before SDDM starts again.
+if grep -q '^nvidia_drm ' /proc/modules; then
+	mkdir -p /run/modprobe.d
+	printf 'blacklist nvidia_drm\ninstall nvidia_drm /bin/true\n' > "$NVIDIA_GUARD"
+	i=0
+	while [ $i -lt 4 ] && grep -q '^nvidia_drm ' /proc/modules; do
+		modprobe -r nvidia_drm 2>&1 || true
+		grep -q '^nvidia_drm ' /proc/modules || break
+		echo "nvidia_drm still held (attempt $((i + 1))/4):"
+		fuser -v /dev/dri/card* 2>&1 || true
+		sleep 1
+		i=$((i + 1))
+	done
+	if grep -q '^nvidia_drm ' /proc/modules; then
+		echo "nvidia_drm isolation FAILED -- restoring desktop without testing"
+		rm -f "$NVIDIA_GUARD"
+		systemctl start sddm
+		exit 1
+	fi
+	NVIDIA_DRM_REMOVED=1
+	echo "nvidia_drm removed; NVIDIA HDMI is dark, CUDA stack remains loaded"
+fi
+
 # wait for DRM fds to drain
 i=0
 while [ $i -lt 15 ]; do
@@ -60,6 +102,7 @@ echo 0 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
 if ! modprobe -r amdgpu; then
 	echo "amdgpu unload FAILED -- restoring desktop"
 	echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
+	restore_nvidia_display
 	systemctl start sddm
 	exit 1
 fi
@@ -94,6 +137,7 @@ if ! insmod "$K3DPATCH"; then
 	echo "restoring stock amdgpu and desktop"
 	modprobe amdgpu 2>&1 || true
 	echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
+	restore_nvidia_display
 	systemctl start sddm
 	exit 1
 fi
@@ -104,7 +148,7 @@ echo "--- probe with patched driver (stereo modes should appear) ---"
 "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card0 HDMI-A-1 || true
 
 echo "--- firing the $MODE stereo modeset for ${TEST_SECONDS}s -- watch the TV ---"
-timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card0 HDMI-A-1 "$MODE" </dev/null || true
+timeout "$TEST_SECONDS" "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card0 HDMI-A-1 "$MODE" isolate </dev/null || true
 
 # if the patched driver took the device down with it, swapping back to stock
 # BEFORE sddm restarts is the difference between "desktop returns" and
@@ -116,6 +160,7 @@ if [ ! -e /dev/dri/card0 ]; then
 	sleep 2
 fi
 
+restore_nvidia_display
 systemctl start sddm
 echo "=== done $(date -Is); patched amdgpu remains loaded until reboot ==="
 exit 0

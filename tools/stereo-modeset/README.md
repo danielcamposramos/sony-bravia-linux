@@ -9,6 +9,22 @@ NVIDIA GPU's separate HDMI cable/input while the tool scanned a 1920x2205
 two-eye framebuffer in the logical 1920x1080@24 frame-packing mode. Full
 record: `run5-nouveau-frame-packing-pass-2026-09-20.log`.
 
+amdgpu frame-packing verdict: **SIGNAL PASS / IMAGE FAIL** [proven — Daniel,
+2026-09-20 21:43-21:45 UTC-3]. On the AMD cable/input, the same BRAVIA
+entered 3D automatically, proving that the patched driver emitted a usable FP
+VSIF, but the picture stayed black. The tool had selected the same logical
+1920x1080@24 mode and 1920x2205 buffer that worked through nouveau. Full
+record: `run8-amdgpu-frame-packing-signal-pass-image-fail-2026-09-20.log`.
+
+That run also exposed a useful multi-link result. The NVIDIA cable was on a
+second HDMI input of the same television, not a second screen. Switching
+between the TV's inputs during the AMD window showed both inputs in 3D: AMD
+black, NVIDIA with only the lower portion of the image. The AMD process only
+committed `card0/HDMI-A-1`; NVIDIA had retained/reasserted the preceding
+frame-packing state. [proven] Both independent HDMI links can put the sink in
+3D. [qualified] Driving the EX725 and HX855 simultaneously from the two GPUs
+is the logical next use, but has not yet been run on two physical sets.
+
 With the two-line-concept kernel patch applied to amdgpu, setting the EDID's
 SBS-half 1920x1080@60 mode made the Sony switch itself into 3D — no remote
 button — and the disparity pattern was perceived in depth: red and blue boxes
@@ -77,6 +93,11 @@ Tools here: `stereo-modeset.c` (bare-VT DRM client: sets caps, selects
 -32/0/+32), `run-3d-test.sh` (detached systemd-run harness that swaps the
 module, runs probe + modeset, and always restores the desktop), and
 `run-nouveau-test.sh` (the equivalent stock-nouveau reference run).
+
+After the dual-input observation, the AMD harness was tightened for future
+one-at-a-time work: it removes only `nvidia_drm` while leaving the NVIDIA CUDA
+stack and containers running, and invokes the modesetter with `isolate` so
+all non-target AMD CRTCs are blanked. It restores `nvidia_drm` before SDDM.
 
 ## Layout selector and frame-packing geometry
 
