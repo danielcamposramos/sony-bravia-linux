@@ -209,6 +209,14 @@ into both views. Fullscreen is the same operation with the stereo rectangle
 covering the output. The two finished canvases are then packed once for HDMI,
 and the television separates them again.
 
+[proven by owner observation of published demo footage] The reuse is not
+merely architectural: in Valve's Steam Frame demonstrations the wearer's game
+was simultaneously visible on a conventional monitor, which means the
+compositor already produced at least one conventional-display eye surface on
+a standard output path. Feeding that same surface class to a TV packer is a
+retargeting of an output that demonstrably exists, not a request for a new
+rendering stage.
+
 [inferred] That surface pairing is the reusable part of the Steam Frame/HMD
 model. An OpenXR compositor already receives eye-specific images and projects
 them onto corresponding per-eye surfaces. A TV backend replaces lens-warped
