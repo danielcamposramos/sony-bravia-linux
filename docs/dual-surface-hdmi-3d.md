@@ -217,7 +217,8 @@ For non-OpenXR applications, a Wayland protocol or equivalent compositor API
 still has to associate two submitted buffers with one logical surface and
 carry eye order and layout intent. This is the missing desktop contract behind
 the Windows-style observation that windowed 3D works once global 3D output is
-enabled.
+enabled. The proposed behavior and metadata boundary are specified in
+`stereo-intent-interface.md`.
 
 ## Android correction: output exists, intent propagation is missing
 
