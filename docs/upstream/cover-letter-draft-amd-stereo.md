@@ -28,7 +28,7 @@ A companion frame-packing piece is also written and hardware-verified on the sam
 
 The series does not attempt DC-side stereo composition; it stops refusing what the EDID, the DRM core helpers (including the CRTC_STEREO_DOUBLE transform nouveau has used since 2017), and DC's packet hardware already know how to do. Happy to split it, rebase it, or rework the FP timing piece toward whatever shape a fuller DC stereo implementation should take. Guidance on that shape is very welcome, in either arrangement.
 
-This contribution was prepared with AI assistance (Claude Code, pair-programmed and hardware-tested by me end to end); the kernel module was built, loaded, and verified on the named display, and every delta is small and reviewable. Per Documentation/process/coding-assistants.html, the commits carry my human Signed-off-by and an "Assisted-by: LLM Claude Code" trailer; I can explain and defend every line.
+This contribution was prepared with AI assistance, pair-programmed and hardware-tested by me end to end; the kernel module was built, loaded, and verified on the named display, and every delta is small and reviewable. Per Documentation/process/coding-assistants.html and Documentation/process/generated-content.html, and naming in the commit messages the specs the patch implements (the HDMI 1.4a/1.4b stereoscopic framework and the CTA-861 VSIF 3D_Structure codes), the commits carry my human Signed-off-by and the Assisted-by trailers for the models that worked on it: "Assisted-by: LLM Kimi K3 (Codex CLI)", "Assisted-by: LLM GPT 5.6 Sol (Codex CLI)" and "Assisted-by: LLM Claude Opus 5 (Claude Code CLI)". I can explain and defend every line.
 
 Signed-off-by: Daniel Ramos
 
@@ -38,5 +38,10 @@ Links to include: this repo's tools/stereo-modeset/README.md (verdicts + numbers
 tools/stereo-modeset/run7-pass-2026-09-20.log (SBS-half pass),
 tools/stereo-modeset/run8-amdgpu-frame-packing-signal-pass-image-fail-2026-09-20.log (the FP boundary that motivates patch 2),
 tools/stereo-modeset/run10-amdgpu-frame-packing-pass-2026-09-20.log (FP pass),
-tools/stereo-kms-probe/README.md (the mechanism evidence), and the patch files
-docs/upstream/amdgpu-dc-hdmi-stereo.patch + docs/upstream/amdgpu-dc-hdmi-frame-packing.patch (format-patch form still to be generated once Daniel picks the target tree: amd-gfx / amd/drm next branch).
+tools/stereo-kms-probe/README.md (the mechanism evidence), the patch files
+docs/upstream/amdgpu-dc-hdmi-stereo.patch + docs/upstream/amdgpu-dc-hdmi-frame-packing.patch,
+and the format-patch form docs/upstream/0001-drm-amdgpu-expose-HDMI-stereo-modes-and-emit-the-VSIF.patch
++ docs/upstream/0002-drm-amdgpu-expand-DC-stream-timing-for-frame-packing-modes.patch (both
+forward-verified to apply cleanly against the pristine 7.0 amdgpu_dm.c).
+
+Project links to cite alongside: https://github.com/danielcamposramos/sony-bravia-linux (the right-to-repair stereo project itself: tools, run logs, evidence records, and this upstream folder), https://github.com/danielcamposramos/awesome-stereoscopy (the public CC0 stereoscopy index, whose HDMI 1.4b-vs-2.x 3D carry-over section is why this wiring still matters on modern kernels), https://github.com/danielcamposramos/awesome-vr (the sibling VR index, where HDMI stereo output meets HMD runtimes), https://github.com/danielcamposramos/awesome-ar (the sibling AR index).
