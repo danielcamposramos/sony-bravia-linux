@@ -1,0 +1,83 @@
+========================================================================
+Community patch: HDMI 1.4 3D mode exposure for NVIDIA proprietary
+kernel-open driver 615.71.09 (nvidia-drm glue)
+
+Home: https://github.com/danielcamposramos/sony-bravia-linux
+(evidence, reference client, and run logs live there)
+
+WHAT THIS DOES
+  Sets connector->stereo_allowed on HDMI connectors, the same opt-in
+  nouveau has carried for years. The DRM core prunes a sink's
+  EDID-advertised 3D modes unless the driver opts in; with this applied,
+  the HDMI 1.4 stereo modes your TV declares (top-and-bottom and
+  side-by-side half at least) appear for any client that sets
+  DRM_CLIENT_CAP_STEREO_3D. 2D-only software sees no change: the core
+  still hides stereo modes from clients that do not opt in.
+
+  This only EXPOSES the modes. The 3D announcement (HDMI VSIF) is
+  carried through the driver-shipped NV_HDMI_VSIF_METADATA blob
+  property; a compositor/app must write it (the reference client in the
+  repo above does, and proves the path end-to-end on a 2012 Sony
+  KDL-46HX855: SBS-half 1080p60 and TaB 1080p24 display in 3D).
+
+  Frame packing modes will LIST after this patch but are NOT expected
+  to display correctly: FP needs doubled scanout timing inside NVKMS,
+  which is separate firmware-side work.
+
+INSTALL (Debian path; adapt to your distro's nvidia-kernel-dkms source)
+  1. cd /usr/src/nvidia-615.71.09 && sudo patch -p1 < /path/to/this-file
+  2. sudo dkms build nvidia/615.71.09 -k $(uname -r)
+  3. sudo dkms install nvidia/615.71.09 -k $(uname -r)
+  4. reboot (or reload nvidia-drm with the display stack down)
+
+ROLLBACK
+  sudo apt install --reinstall nvidia-kernel-source  (or your distro's
+  nvidia kernel source package), then repeat dkms build/install.
+  Driver updates overwrite this; it is six C lines and re-applies cleanly.
+
+VERIFY THE PATCH FIRST (no writes):
+  cd /usr/src/nvidia-615.71.09 && patch -p1 --dry-run < /path/to/this-file
+  This exact file was dry-run verified against pristine 615.71.09
+  kernel-open sources on 2026-09-21 before publication.
+
+Provenance: prepared and hardware-verified in the sony-bravia-linux
+project (Daniel Ramos), AI-assisted (Claude Opus 5 / Claude Code) per the
+disclosure norm in Documentation/process/coding-assistants.html.
+========================================================================
+
+--- a/kernel-open/nvidia-drm/nvidia-drm-connector.c	2026-09-21 13:51:51.617253007 -0300
++++ b/kernel-open/nvidia-drm/nvidia-drm-connector.c	2026-09-21 13:53:04.206289389 -0300
+@@ -749,6 +749,33 @@
+ 
+     drm_connector_helper_add(&nv_connector->base, &nv_connector_helper_funcs);
+ 
++    /* HDMI 1.4 3D support (community patch, sony-bravia-linux).
++     *
++     * What: stop the DRM core pruning the stereo modes the sink itself
++     * advertises in its EDID. The core keeps DRM_MODE_FLAG_3D modes only
++     * when connector->stereo_allowed is set (drm_probe_helper.c) and
++     * still exposes them solely to clients that opt in with
++     * DRM_CLIENT_CAP_STEREO_3D (drm_connector.c) -- so nothing changes
++     * for 2D-only userspace.
++     *
++     * Why this is safe to apply: top-and-bottom and side-by-side (half)
++     * ride the SAME link timing as the plain 2D mode (HDMI 1.4), so
++     * nv_drm_connector_mode_valid (NVKMS validateDisplayMode) already
++     * accepts them. The 3D announcement is carried with the modeset by
++     * the existing, shipped NV_HDMI_VSIF_METADATA blob property.
++     *
++     * Proven on 615.71.09: SBS-half 1080p60 and TaB 1080p24 drive a 2012
++     * Sony KDL-46HX855 into 3D with picture (runs + client:
++     * github.com/danielcamposramos/sony-bravia-linux tools/stereo-modeset/).
++     *
++     * Not included: frame packing needs doubled scanout timing inside
++     * NVKMS (what AMD's DC calls CRTC_STEREO_DOUBLE) -- the FP modes will
++     * *list* but do not expect them to display correctly yet.
++     */
++    if (nv_connector->type == NVKMS_CONNECTOR_TYPE_HDMI) {
++        nv_connector->base.stereo_allowed = true;
++    }
++
+     nv_connector->base.polled = DRM_CONNECTOR_POLL_HPD;
+ 
+     if (nv_connector->type == NVKMS_CONNECTOR_TYPE_VGA) {

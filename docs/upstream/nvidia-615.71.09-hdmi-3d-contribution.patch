@@ -1,0 +1,51 @@
+From: Daniel Ramos <capitain_jack@yahoo.com>
+Date: Mon, 21 Sep 2026 14:05:00 -0300
+Subject: [PATCH] nvidia-drm: expose HDMI 1.4 3D modes on HDMI connectors
+
+nvidia-drm never sets connector->stereo_allowed, so the DRM core prunes
+every EDID-advertised stereo mode: a 3D-capable HDMI 1.4 sink lists zero
+stereo modes, even for clients that set DRM_CLIENT_CAP_STEREO_3D
+(17 modes, 0 stereo, vs 51 modes, 29 stereo under nouveau on the same
+GPU family and sink).
+
+nouveau has carried exactly this opt-in for years ("HDMI 3D support" in
+nouveau_connector.c). Top-and-bottom and side-by-side (half) timings are
+the plain 2D link timings per HDMI 1.4, so nvKms->validateDisplayMode
+already accepts them, and the 3D announcement rides the modeset through
+the shipped NV_HDMI_VSIF_METADATA blob property. Both facts verified
+end-to-end on 615.71.09 against a Sony KDL-46HX855 HDMI 1.4 3D sink.
+
+2D-only userspace is unaffected: the core still exposes 3D-flagged modes
+only to clients opting in via DRM_CLIENT_CAP_STEREO_3D.
+
+Frame packing is out of scope: its doubled scanout timing needs support
+inside NVKMS (what AMD DC implements as CRTC_STEREO_DOUBLE).
+
+Signed-off-by: Daniel Ramos <capitain_jack@yahoo.com>
+Assisted-by: Claude Opus 5 (Claude Code CLI) per
+    Documentation/process/coding-assistants.html
+---
+ kernel-open/nvidia-drm/nvidia-drm-connector.c | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+diff --git a/kernel-open/nvidia-drm/nvidia-drm-connector.c b/kernel-open/nvidia-drm/nvidia-drm-connector.c
+--- a/kernel-open/nvidia-drm/nvidia-drm-connector.c	2026-09-21 13:51:51.617253007 -0300
++++ b/kernel-open/nvidia-drm/nvidia-drm-connector.c	2026-09-21 13:52:44.143766449 -0300
+@@ -749,6 +749,17 @@
+ 
+     drm_connector_helper_add(&nv_connector->base, &nv_connector_helper_funcs);
+ 
++    /* HDMI 3D support: allow the DRM core to expose the sink's
++     * EDID-advertised stereo modes to clients opting in via
++     * DRM_CLIENT_CAP_STEREO_3D (the same opt-in nouveau already sets).
++     * The announcement is carried with the modeset through the existing
++     * NV_HDMI_VSIF_METADATA blob property. Top-and-bottom and
++     * side-by-side (half) share the 2D link timings and validate already;
++     * frame packing's doubled scanout timing is separate NVKMS work. */
++    if (nv_connector->type == NVKMS_CONNECTOR_TYPE_HDMI) {
++        nv_connector->base.stereo_allowed = true;
++    }
++
+     nv_connector->base.polled = DRM_CONNECTOR_POLL_HPD;
+ 
+     if (nv_connector->type == NVKMS_CONNECTOR_TYPE_VGA) {
