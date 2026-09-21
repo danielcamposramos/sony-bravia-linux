@@ -374,13 +374,9 @@ produce no keydowns at all — see the key section).
 and assigned 2026-09-15; verify on the boxes by browsing mpc/wv and
 confirming LPCM delivery)
 
-**Kernel upstream (owner action, one step away)**:
-- Subscribe to amd-gfx at http://lists.freedesktop.org/mailman/listinfo/amd-gfx
-  (Mailman form + email confirmation; without it a post is held for a
-  moderator and thread replies never reach the sender)
-- Edit `docs/upstream/reply-draft-betschart-thread.md` into his own words
-  and send it in-thread on Adrian's v3 cover letter (envelope in the
-  draft; plain text, `git send-email --in-reply-to=` preserves threading)
+**Kernel upstream — DONE 2026-09-21**: the Tested-by/evidence reply was sent to amd-gfx (cc dri-devel), threaded on the Betschart v3 cover letter, Message-ID <20260921034104.1021664-1-capitain_jack@yahoo.com>. Watch the thread for maintainer replies; never post again without Daniel:
+
+- Subscribed to amd-gfx (capitain_jack@yahoo.com); reply edited in his own words and sent in-thread (git send-email, plain text, links inline; HTML is banned on kernel lists)
 - Our mboxes 0001/0002 stay unsent unless maintainers ask or the v3 stalls
 
 **Bigger lanes** (see the roadmap for gates and ordering):
