@@ -12,9 +12,13 @@ Envelope for an in-thread reply:
 
 ---
 
-Hi Adrian,
+Hi Adrian, Harry, Alex, others,
 
-independent confirmation of this approach on older DCN hardware and a consumer-TV sink, plus a boundary record that matches your patch 3's diagnosis.
+A word of introduction, since this is my first mail to this list: I am Daniel Ramos, and I come from the consumer side of this hardware rather than from driver development. I keep a pair of Sony BRAVIA 3D televisions from 2011/2012 fully alive (KDL-46EX725 and KDL-46HX855, the sony-bravia-linux project), including the 3D panels Sony no longer ships software for, and that generation's end-of-service is documented for the right-to-repair movement on its own consumer-rights wiki page. That work goes upstream first: frame-packing SEI support I pushed is merged in HandBrake (#8100), my stereo serving profiles are merged in Universal Media Server (#6330), and open threads are running at FFmpeg, mpv and MKVToolNix. I also maintain the CC0 awesome-stereoscopy index, created because the field had no curated list.
+
+On the gap this series closes: the DRM core has carried HDMI 1.4 stereo modes and the vendor-infoframe helpers for years, i915, vc4 and nouveau all allow stereo (nouveau wired frame packing in 2017), and amdgpu DC has been the one major driver refusing it ever since DC landed, with nobody closing it in nearly a decade. It still justifies closing. The televisions these modes exist for were sold by the millions between 2010 and 2016, they are the same hardware class Adrian tests against (his JVC is a 3D projector where mine are 3D TVs), and every one of them works today as a full 3D monitor the moment it receives the standard signal, as the runs below show. With Valve's upcoming Steam Frame putting stereo displays back into a mainstream gaming stack, wiring a modern open driver to the HDMI 1.4 3D signal is as much a longevity fix for that installed base as a new feature.
+
+Independent confirmation of this approach on older DCN hardware and a consumer-TV sink, plus a boundary record that matches your patch 3's diagnosis.
 
 Hardware here is a Renoir APU (0000:0b:00.0, DCN 2.1, Display Core 3.2.369, Debian 7.0 kernel) driving a Sony KDL-46HX855 from 2012, whose HDMI 1.4b-class EDID advertises side-by-side half and top-and-bottom over a 7-VIC mask and frame packing on five VICs. The coverage is complementary to yours: yours runs DCN 3.2.1 into a JVC projector behind an HDFury, mine runs DCN 2.1 straight into a living-room television.
 
