@@ -337,13 +337,16 @@ if [ -n "$CONN" ]; then
 				    "deep12 fmt=yuv422" "deep10 fmt=yuv422" "deep8 fmt=yuv422" \
 				    "sbs bpc12 fmt=yuv444" "tab bpc12 fmt=rgblimited" "fp bpc12 fmt=yuv422"; do
 				echo "--- chroma step: $step (${STEP_SECONDS}s)"
+				SEEN=$(dmesg | grep -c 'chroma bench:')
 				# shellcheck disable=SC2086 # $step is a deliberate word list
 				timeout "$STEP_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" $step isolate </dev/null || true
-				echo "    driver: $(dmesg | grep 'chroma bench:' | tail -1)"
+				# first line = the step's modeset, any later one = console restore
+				dmesg | grep 'chroma bench:' | tail -n +$((SEEN + 1)) | sed 's/^/    driver: /'
 			done
 		elif [ "$BASE_MODE" = deep12 ] || [ "$BASE_MODE" = deep10 ] || [ "$BASE_MODE" = deep8 ]; then
+			SEEN=$(dmesg | grep -c 'chroma bench:')
 			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate ${FMT:+fmt=$FMT} </dev/null || true
-			echo "    driver: $(dmesg | grep 'chroma bench:' | tail -1)"
+			dmesg | grep 'chroma bench:' | tail -n +$((SEEN + 1)) | sed 's/^/    driver: /'
 		else
 			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate bpc12 </dev/null || true
 		fi
