@@ -210,8 +210,14 @@ here (owner go), branch `x264-frame-packing-from-input` pushed as
 `0f3d63a`, and MR
 [!10366](https://code.videolan.org/videolan/vlc/-/merge_requests/10366)
 OPENED 2026-09-22** — the permission gate held the MR act until the owner
-switched to manual mode and said "retry". On the email-trigger watch,
-never polled.
+switched to manual mode and said "retry". **Ecosystem-context comment posted
+the same session** ([note 582081](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582081)):
+the end-to-end repair arc (HandBrake #8100, UMS #6330, mkvtoolnix !6311/!6312,
+mpv #18490, FFmpeg #24530/#24531, x265 #970, Media3 #3419, NVIDIA #1382/#1384,
+the nouveau deep-colour series) linking both repositories,
+github.com/danielcamposramos/sony-bravia-linux (measurements) and
+github.com/danielcamposramos/awesome-stereoscopy (CC0 standards map).
+On the email-trigger watch, never polled.
 
 ## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
 

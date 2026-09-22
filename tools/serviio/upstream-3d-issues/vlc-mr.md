@@ -9,7 +9,11 @@ verified). Branch `x264-frame-packing-from-input` pushed as `0f3d63a`
 trailer appended per the honesty doctrine — the mpv revert episode showed
 why it must stay). Token at `~/.config/code.videolan.org/token` (600); git
 via the SparkyLinux2026 SSH key (agent-loaded, `ssh -T` greeted
-`@capitain_jack`). Email-trigger watch from here on; never polled.
+`@capitain_jack`). **Ecosystem-context comment posted as [note
+582081](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582081)**,
+linking both repositories (sony-bravia-linux measurements +
+awesome-stereoscopy CC0 standards map) and listing the full encode→mux→
+serve→play→drive arc. Email-trigger watch from here on; never polled.
 
 **Re-verified against master on 2026-09-22, after the mbunkus/mpv rounds:**
 
