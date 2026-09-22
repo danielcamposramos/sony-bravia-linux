@@ -161,7 +161,10 @@ parser, HandBrake merged and UMS merged; a mapping table onto the
 791-byte hardware measurement. **Owner will sign Google's individual CLA**
 if they accept the patch — his reasoning: the Steam Frame wave makes this
 matter to Android the way the Steam Deck made Linux gaming matter, and
-they will be glad of it later.
+they will be glad of it later. **Triaged 2026-09-22:** labeled
+`needs triage` at 10:48:59Z and maintainer **microkatz self-assigned** at
+11:28:34Z (verified via the timeline API) — Google's first maintainer
+contact on the lane, 40 minutes from label to assignee.
 
 ## VLC — gap measured, but the owner files it (2026-09-19)
 
