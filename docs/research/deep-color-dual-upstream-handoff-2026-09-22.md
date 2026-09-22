@@ -366,3 +366,34 @@ do not invent code authorship or sign-offs for either AI partner.
 - **Remaining (post-bench):** ack mail + v2 send on the owner's word;
   chroma/YCbCr next-series design (Opus lane); VLC escalation draft still
   parked for ~2026-09-29; the index pass once v2 is on the list.
+
+### Completion log (Claude Opus, night 2026-09-22) — chroma lane
+
+- **Design** (`docs/research/nouveau-hdmi-color-format-design-2026-09-22.md`):
+  mainline already has the `color format` + `Broadcast RGB` uAPI; nouveau
+  hardcoded full-range RGB under a TODO. NVKMS 615.71.09 shows the real
+  C57D/C67D mechanism (PROCAMP + OCSC1 matrix + clamp; 4:2:0 adds
+  YUV420PACKER/CHROMA_DOWN_V per-head-cap-gated on GA102+). All 36 matrix
+  coefficients re-derived from ITU-R BT.601/709/2020 (max 4 LSB of 2^-16).
+- **Bench: run27 16/16 + run28 9/9, owner-verified all green** — RGB
+  full/limited/auto 8/10/12, YCbCr 4:4:4 and 4:2:2 8/10/12, BT.601 at
+  576p/480p, BT.709 from 720p, VIC 1 held at 8 bpc, SBS/TaB/FP with
+  non-default formats. Reading run27's driver lines found a latent bug in
+  v2 itself: frame packing was rated at the per-eye clock (74.25 instead of
+  148.5 MHz). Fixed (`nv50_outp_link_clock`, same doubling as
+  `nouveau_connector_mode_valid`), folded into v2 patches 1/2, confirmed
+  by run28 (FP RGB 12 at 222.75 MHz).
+- **Series ready, unsent** (tree `/K3D/temp/ndc-v2`; bundle + patch files in
+  `/K3D/temp/dual-upstream-preserve-2026-09-22/`):
+  v2 deep colour `477df2bd → 1f9376eb → c3dddeb0` (cover updated: FP
+  bullet, runs 25–28, DVI + YCbCr pointers to the follow-on); colour-format
+  series 6 patches on top (`129dbaee … b8299fc5`: class header, head
+  conversion, Broadcast RGB, YCbCr 4:4:4/4:2:2, 4:2:0 on GA102+ [untested,
+  no sink], DVI connectors [untested, no port; Reported-by Sashiko + Closes]),
+  `--base` with v2 as prerequisites. checkpatch --strict clean except the
+  verbatim NVIDIA class-header subsets (same finding classes as upstream
+  `clc37d.h`); both tips build.
+- **Gated on the owner:** the ack mail, the v2 send, the colour-format
+  series send (recommendation: two series, v2 first); awesome-linux-hdr +
+  awesome-stereoscopy pass for DVI / DisplayPort / DP++ (DP carries stereo
+  natively: MSA MISC1 / VSC SDP).
