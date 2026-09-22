@@ -263,3 +263,16 @@ do not invent code authorship or sign-offs for either AI partner.
   `<dakr@kernel.org>`; lists `dri-devel@lists.freedesktop.org` (to) and
   `nouveau@lists.freedesktop.org` (cc), per the "DRM DRIVER FOR NVIDIA
   GEFORCE/QUADRO GPUS" entry.
+- **SERIES SENT 2026-09-22 16:21 -03.** Daniel's standing conditional
+  authorization ("with a pass, you can use git-email send") fired on the
+  run-24 PASS; cover letter was reviewed in-channel before the test with
+  no edits requested. `git send-email` via Yahoo SMTP (his stored app
+  credential), all four parts 250-accepted, threaded under the cover:
+  cover `<20260922192132.114546-1-Capitain_Jack@yahoo.com>`, patches
+  `-2`/`-3`/`-4` same base. lore permalink of the cover:
+  `https://lore.kernel.org/dri-devel/20260922192132.114546-1-Capitain_Jack@yahoo.com/`.
+  From here: email replies only, never polled.
+- **Remaining:** NVIDIA PR (bbfc670 push + PR naming #1384, nouveau as
+  the open-source counterpart, success phrase now legal) on Daniel's
+  per-act go; then the cross-link/index pass per the publication order
+  above.
