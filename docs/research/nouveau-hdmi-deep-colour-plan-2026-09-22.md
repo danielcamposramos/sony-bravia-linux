@@ -129,8 +129,10 @@ Reuse the already proven nouveau module-swap transaction:
 4. load the experimental nouveau module and wait for its DRM card;
 5. select only the NVIDIA-connected HDMI connector whose EDID hash matches the
    fixed 3.0.0.0 input identity above;
-6. atomically request `max bpc = 12` with 1920x1080p60 and show a deterministic
-   gradient for 90 seconds;
+6. set the connector's `max bpc = 12`, then perform the 1920x1080p60 modeset
+   and show a deterministic gradient for 90 seconds (the current smoke client
+   uses the legacy property/modeset ioctls on nouveau's atomic-backed KMS;
+   an upstream test should also cover one explicit atomic transaction);
 7. Daniel reads and records the television OSD while the second AMD control
    head and remote shell remain available;
 8. timeout or any exit unloads nouveau, removes the guard, restores NVIDIA,
@@ -177,7 +179,7 @@ that policy remains inside NVKMS. It is still a valuable behavioural control.
 | stable picture, OSD 12-bit | SOR/head selection and GCP generation work on GA106 | split, clean, test older/newer display classes, propose upstream |
 | stable picture, OSD 10-bit or 8-bit | scanout survived but the requested wire depth was not achieved | trace GCP/deep-colour state and achieved link selection |
 | sink loses picture | depth/packing/link state is inconsistent | automatic rollback; inspect kernel log and class mapping |
-| atomic request rejected | property/EDID/bandwidth validation defect | fix state selection before touching packet hardware |
+| property or modeset request rejected | property/EDID/bandwidth validation defect | fix state selection before touching packet hardware |
 | module does not bind | build/vermagic/firmware problem, no display conclusion | restore stock stack and repair the harness/build only |
 
 ## Evidence that must be saved
