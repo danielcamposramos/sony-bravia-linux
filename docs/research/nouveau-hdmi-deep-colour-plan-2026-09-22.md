@@ -143,6 +143,16 @@ Do not run this unattended. The existing harness has already demonstrated
 recovery from failed module loads and a pictureless output, but the human OSD
 observation is part of the measurement.
 
+Run 1 preflight (03:41–03:42 UTC-3) did not reach a modeset: the experimental
+module loaded and exposed all four GA106 connectors, but the harness used
+`test -s` on the sysfs EDID attribute. Sysfs reports `st_size=0` even when the
+read returns all 256 EDID bytes, so the correct connector was skipped. The
+same run also showed that this `modetest` build treats `-D /dev/dri/card1` as a
+bus ID, not a device path. The harness now gates on readable bytes plus the
+exact SHA-256 and inventories with `-M nouveau`. NVIDIA, the desktop, services,
+and all six stopped containers restored normally. This run is harness evidence
+only, not a deep-colour result.
+
 The harness modes are deliberately staged:
 
 ```text

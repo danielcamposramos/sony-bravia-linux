@@ -261,7 +261,10 @@ if [ "$DEEP_TEST" = 1 ]; then
 	EXPECTED_EDID=4f6cc1c8b7ce1700f93ef13c76c490ea985752edadd05c64179ae169e69d5dc9
 	for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
 		EDID=/sys/class/drm/card1-$c/edid
-		[ -s "$EDID" ] || continue
+		# sysfs attributes conventionally report st_size=0 even when a read
+		# returns data; -s therefore rejects valid 256-byte EDIDs. Gate on
+		# readability, then let sha256sum prove that bytes were returned.
+		[ -r "$EDID" ] || continue
 		GOT_EDID=$(sha256sum "$EDID" | awk '{print $1}')
 		echo "card1 $c EDID sha256: $GOT_EDID"
 		if [ "$GOT_EDID" = "$EXPECTED_EDID" ]; then
@@ -270,7 +273,7 @@ if [ "$DEEP_TEST" = 1 ]; then
 		fi
 	done
 	echo "--- nouveau connector/property inventory:"
-	modetest -D /dev/dri/card1 -c 2>&1
+	modetest -M nouveau -c 2>&1
 else
 	for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
 		echo "--- probing card1 $c:"
