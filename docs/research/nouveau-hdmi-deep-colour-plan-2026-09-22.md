@@ -437,6 +437,20 @@ refuses, the next isolated lever is the proprietary-only `CTRL_HDMI` call;
 only after that should the proprietary register/rate oracle and closed-clock
 hypothesis move back to the front.
 
+Run 5, prepared for the owner to launch as one physical line (the desktop
+will drop; switch the TV to the NVIDIA-connected input and read its OSD):
+
+```bash
+sudo systemd-run --setenv=NOUVEAU_TEST_KO=/K3D/temp/k317/nouveau-hdmi-deep-colour-gcp-audio-preserve-experimental.ko --unit=nouveau-deep-colour-test --collect sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh deep12
+```
+
+The explicit environment assignment is load-bearing: without it the harness
+uses the v1 module. The transient unit survives the terminal/desktop session,
+holds the mode for 90 seconds, then restores NVIDIA, SDDM, services and the
+recorded Docker containers. If the preflight finds leaked `nvidia_uvm`
+references, it leaves the desktop untouched, asks for one reboot, and the
+same command is rerun afterward.
+
 Narrative log:
 [`tools/stereo-modeset/run22-nouveau-deep12-gcpdbg-incompatible-2026-09-22.log`](../../tools/stereo-modeset/run22-nouveau-deep12-gcpdbg-incompatible-2026-09-22.log).
 
