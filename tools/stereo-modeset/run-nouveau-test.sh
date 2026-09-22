@@ -6,7 +6,7 @@
 # the TV switches to 3D by itself on the SBS-half modeset.
 #
 #   sudo systemd-run --unit=nouveau-3d-test --collect \
-#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh [sbs|tab|fp]
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh [sbs|tab|fp|deep12|sbs12|tab12|fp12]
 #   (ONE line -- a line-broken paste runs 'sh' with no script, then runs this
 #    file unprivileged, which the root check below rejects loudly.)
 #
@@ -34,21 +34,33 @@
 # Daniel: when the screens go dark, switch the TV to the NVIDIA-driven input.
 
 TOOLS=/K3D/GitHub/sony-bravia-linux/tools
-LOG=/var/log/nouveau-3d-test.log          # service context denied /home/daniel writes once; keep root-land
-HOMELOG=/home/daniel/nouveau-3d-test.log  # mirrored here at every exit
 TEST_SECONDS=90
 KUSER=daniel
 DSTATE=/K3D/temp/nouveau-docker.state     # survives the intentional reboot
 DCONS=/K3D/temp/nouveau-docker.containers # containers we stopped, to restart
 GUARD=/run/modprobe.d/zz-nouveau-stereo-test.conf  # tmpfs: gone on any reset
 MODE="${1:-sbs}"
+DEEP_TEST=0
+BASE_MODE="$MODE"
 
 case "$MODE" in
 	sbs) WANT_LABEL="side-by-side half" ;;
 	tab) WANT_LABEL="top-and-bottom" ;;
 	fp)  WANT_LABEL="frame packing" ;;
-	*) echo "usage: $0 [sbs|tab|fp]" >&2; exit 2 ;;
+	deep12) WANT_LABEL="12-bpc SDR transport"; DEEP_TEST=1 ;;
+	sbs12) WANT_LABEL="side-by-side half at 12 bpc"; DEEP_TEST=1; BASE_MODE=sbs ;;
+	tab12) WANT_LABEL="top-and-bottom at 12 bpc"; DEEP_TEST=1; BASE_MODE=tab ;;
+	fp12) WANT_LABEL="frame packing at 12 bpc"; DEEP_TEST=1; BASE_MODE=fp ;;
+	*) echo "usage: $0 [sbs|tab|fp|deep12|sbs12|tab12|fp12]" >&2; exit 2 ;;
 esac
+
+if [ "$DEEP_TEST" = 1 ]; then
+	LOG=/var/log/nouveau-deep-colour-test.log
+	HOMELOG=/home/daniel/nouveau-deep-colour-test.log
+else
+	LOG=/var/log/nouveau-3d-test.log          # service context denied /home/daniel writes once; keep root-land
+	HOMELOG=/home/daniel/nouveau-3d-test.log  # mirrored here at every exit
+fi
 
 # first, before any redirect: a line-broken paste runs this file unprivileged.
 if [ "$(id -u)" != 0 ]; then
@@ -96,13 +108,25 @@ pause_docker() {
 	fi
 }
 
-echo "=== nouveau-3d-test $(date -Is) layout=$MODE ==="
+echo "=== nouveau-test $(date -Is) layout=$MODE ==="
 
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || true
 
-NOUVEAU_KO="$(modinfo -n nouveau 2>/dev/null)"
+if [ "$DEEP_TEST" = 1 ]; then
+	NOUVEAU_KO="${NOUVEAU_TEST_KO:-/K3D/temp/k317/nouveau-hdmi-deep-colour-experimental.ko}"
+else
+	NOUVEAU_KO="$(modinfo -n nouveau 2>/dev/null)"
+fi
 test -n "$NOUVEAU_KO" || { echo "nouveau not found for $(uname -r)"; exit 1; }
+test -r "$NOUVEAU_KO" || { echo "nouveau module unreadable: $NOUVEAU_KO"; exit 1; }
 echo "nouveau module: $NOUVEAU_KO"
+echo "nouveau sha256: $(sha256sum "$NOUVEAU_KO" | awk '{print $1}')"
+set -- $(modinfo -F vermagic "$NOUVEAU_KO" 2>/dev/null)
+[ "$1" = "$(uname -r)" ] || {
+	echo "vermagic mismatch: module=${1:-missing} running=$(uname -r)"
+	exit 1
+}
+echo "vermagic gate passed: $1"
 
 # --- docker down for the whole window, THEN the UVM gate, both BEFORE the
 # desktop is touched. Live holders die with their containers (poll 15s);
@@ -196,8 +220,21 @@ echo "--- nvidia-family modules present (guard should keep this empty):"
 lsmod | grep -E "^nvidia" || echo "none -- guard holding"
 
 echo "--- loading nouveau (GSP init on GA106 can take ~10s) ---"
-if ! modprobe nouveau 2>&1; then
-	echo "modprobe nouveau FAILED -- restoring nvidia stack and desktop"
+if [ "$DEEP_TEST" = 1 ]; then
+	DEPFAIL=0
+	for dep in $(modinfo -F depends "$NOUVEAU_KO" | tr ',' ' '); do
+		modprobe "$dep" 2>&1 || { echo "dependency load failed: $dep"; DEPFAIL=1; }
+	done
+	if [ "$DEPFAIL" = 1 ]; then
+		LOAD_CMD=false
+	else
+		LOAD_CMD="insmod $NOUVEAU_KO"
+	fi
+else
+	LOAD_CMD="modprobe nouveau"
+fi
+if ! $LOAD_CMD 2>&1; then
+	echo "nouveau load FAILED -- restoring nvidia stack and desktop"
 	rm -f "$GUARD"
 	modprobe nvidia_drm 2>&1 || true
 	sleep 2
@@ -217,22 +254,48 @@ echo "--- connectors on card1:"
 ls /sys/class/drm/ | grep "^card1-" || echo "none"
 
 CONN=""
-for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
-	echo "--- probing card1 $c:"
-	"$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>&1 || continue
-	if "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>/dev/null | grep -q "$WANT_LABEL"; then
-		CONN="$c"
-		break
-	fi
-done
+if [ "$DEEP_TEST" = 1 ]; then
+	EXPECTED_EDID=fbe6a3b455e69eab37f36bd0e7b0084a4d105c2adba101e37f0d5309c0a8eadc
+	for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
+		EDID=/sys/class/drm/card1-$c/edid
+		[ -s "$EDID" ] || continue
+		GOT_EDID=$(sha256sum "$EDID" | awk '{print $1}')
+		echo "card1 $c EDID sha256: $GOT_EDID"
+		if [ "$GOT_EDID" = "$EXPECTED_EDID" ]; then
+			CONN="$c"
+			break
+		fi
+	done
+	echo "--- nouveau connector/property inventory:"
+	modetest -D /dev/dri/card1 -c 2>&1
+else
+	for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
+		echo "--- probing card1 $c:"
+		"$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>&1 || continue
+		if "$TOOLS/stereo-kms-probe/stereo-probe" /dev/dri/card1 "$c" 2>/dev/null | grep -q "$WANT_LABEL"; then
+			CONN="$c"
+			break
+		fi
+	done
+fi
 echo "chosen connector: ${CONN:-none}"
 
 if [ -n "$CONN" ]; then
-	echo "--- firing the $MODE stereo modeset for ${TEST_SECONDS}s on card1 $CONN"
-	echo "    (Daniel: TV input for the NVIDIA card should auto-switch to 3D)"
-	timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$MODE" </dev/null || true
+	if [ "$DEEP_TEST" = 1 ]; then
+		echo "--- requesting $BASE_MODE with max bpc=12 for ${TEST_SECONDS}s on card1 $CONN"
+		echo "    (Daniel: read the TV OSD: bit depth, colour format, and 3D state where applicable)"
+		if [ "$BASE_MODE" = deep12 ]; then
+			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" deep12 isolate </dev/null || true
+		else
+			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate bpc12 </dev/null || true
+		fi
+	else
+		echo "--- firing the $MODE stereo modeset for ${TEST_SECONDS}s on card1 $CONN"
+		echo "    (Daniel: TV input for the NVIDIA card should auto-switch to 3D)"
+		timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$MODE" </dev/null || true
+	fi
 else
-	echo "no stereo-capable connector found on nouveau -- see probe output above"
+	echo "no matching connector found on nouveau -- see probe output above"
 fi
 
 echo "--- restoring nvidia stack"

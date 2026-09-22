@@ -114,6 +114,16 @@ Tools here: `stereo-modeset.c` (bare-VT DRM client: sets caps, selects
 module, runs probe + modeset, and always restores the desktop), and
 `run-nouveau-test.sh` (the equivalent stock-nouveau reference run).
 
+The same client and nouveau transaction now also stage the HDMI deep-colour
+probe. `deep12` selects ordinary 1920x1080p60, requests the connector's
+`max bpc=12`, and displays a deterministic corruption-visible ramp. `sbs12`,
+`tab12`, and `fp12` retain nouveau's already-proven 3D modes and VSIF/timing
+path while requesting the same 12-bpc link. These combined modes must follow a
+successful `deep12` run; they test packet coexistence rather than replacing
+the 3D implementation. The custom module defaults to
+`/K3D/temp/k317/nouveau-hdmi-deep-colour-experimental.ko`, and the harness
+refuses a vermagic or fixed-EDID mismatch before modesetting.
+
 After the dual-input observation, the AMD harness was tightened for future
 one-at-a-time work: it removes only `nvidia_drm` while leaving the NVIDIA CUDA
 stack and containers running, and invokes the modesetter with `isolate` so

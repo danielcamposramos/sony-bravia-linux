@@ -92,6 +92,24 @@ General Control Packet correctly; a stable picture with an 8- or 10-bit OSD
 would isolate the missing GCP programming instead of disproving the depth
 register work.
 
+The patch is additive to nouveau's existing, already hardware-proven HDMI 3D
+implementation. It does not replace or bypass `stereo_allowed`, the HDMI VSIF,
+or nouveau's frame-packing timing transform. The preserved experimental delta
+is
+[`nouveau-hdmi-deep-colour-experimental.patch`](../upstream/nouveau-hdmi-deep-colour-experimental.patch).
+
+Prepared but not loaded on 2026-09-22:
+
+```text
+source tree: /K3D/temp/k317/linux-source-7.0
+build:       make -j8 M=drivers/gpu/drm/nouveau modules
+result:      clean compile
+artifact:    /K3D/temp/k317/nouveau-hdmi-deep-colour-experimental.ko
+vermagic:    7.0.10+deb14-amd64 SMP preempt mod_unload
+SHA-256:     0da7edbe7dad4e9db30adaa460dbf6b41f7f5a2b5a40dc3d6766abe5d7f9f40d
+state:       never loaded; hardware result pending
+```
+
 ## Safe execution
 
 Reuse the already proven nouveau module-swap transaction:
@@ -114,6 +132,35 @@ Reuse the already proven nouveau module-swap transaction:
 Do not run this unattended. The existing harness has already demonstrated
 recovery from failed module loads and a pictureless output, but the human OSD
 observation is part of the measurement.
+
+The harness modes are deliberately staged:
+
+```text
+deep12  = ordinary 1920x1080p60 SDR + requested 12-bpc link
+sbs12   = proven nouveau SBS-half 3D path + requested 12-bpc link
+tab12   = proven nouveau top-and-bottom 3D path + requested 12-bpc link
+fp12    = proven nouveau frame-packing 3D path + requested 12-bpc link
+```
+
+Run `deep12` first. Only a stable 12-bit result advances to the combined modes,
+which test coexistence of the 3D VSIF and deep-colour General Control Packet.
+At the same 148.5 MHz base transport rate, the relevant 1080p60 SBS/TaB and
+1080p24/720p60 frame-packing streams all require 222.75 MHz at 12 bpc and fit
+under the same 225 MHz sink ceiling.
+
+## Cross-driver combined controls
+
+The comparison must preserve each driver's 3D correction instead of testing
+deep colour in isolation:
+
+| driver | 3D layer used | deep-colour layer | expected measurement |
+|---|---|---|---|
+| amdgpu | Adrian Betschart's owner-verified v3 HDMI 1.4 3D series | existing amdgpu 12-bpc path | 3D engaged and OSD 12-bit |
+| nouveau | stock, already-proven 3D/VSIF/frame-packing path | this experimental patch | question under test |
+| proprietary NVIDIA | project's v2 HDMI-VSDB 3D synthesis patch | closed NVKMS policy | 3D modes exposed; current control OSD 10-bit |
+
+The proprietary open glue cannot independently repair its 10-vs-12 choice;
+that policy remains inside NVKMS. It is still a valuable behavioural control.
 
 ## Acceptance matrix
 

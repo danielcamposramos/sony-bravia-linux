@@ -5,10 +5,12 @@
 // the kernel patch is emitting the HDMI vendor-specific infoframe correctly.
 //
 // cc -o stereo-modeset stereo-modeset.c $(pkg-config --cflags --libs libdrm)
-// usage: stereo-modeset [card] [connector] [sbs|tab|fp] [isolate] [vsif] [720p|hz24]
+// usage: stereo-modeset [card] [connector] [sbs|tab|fp|deep12] [isolate] [vsif] [bpc12] [720p|hz24]
 // defaults: /dev/dri/card0 HDMI-A-1 sbs
 // 720p: pick the 1280x720@60 variant instead of 1080p60 (sbs/tab only)
 // hz24: pick the 1920x1080@24 variant instead of 60 Hz (sbs/tab only)
+// deep12: plain 1080p60 link-depth probe; bpc12 layers the same max-bpc
+// request onto sbs/tab/fp so the already-proven 3D path remains active.
 //
 // vsif: the proprietary nvidia-drm path. nvidia-drm never sets
 // stereo_allowed, so no 3D-flagged mode survives pruning -- but it exposes
@@ -35,6 +37,7 @@ enum stereo_layout {
 	LAYOUT_SBS,
 	LAYOUT_TAB,
 	LAYOUT_FP,
+	LAYOUT_DEEP12,
 };
 
 static volatile sig_atomic_t stop_flag;
@@ -65,6 +68,10 @@ static int parse_layout(char const *arg, enum stereo_layout *layout,
 		*layout = LAYOUT_FP;
 		*name = "frame packing";
 		*flag = DRM_MODE_FLAG_3D_FRAME_PACKING;
+	} else if (!strcmp(arg, "deep12")) {
+		*layout = LAYOUT_DEEP12;
+		*name = "12-bpc SDR transport";
+		*flag = 0;
 	} else {
 		return -1;
 	}
@@ -76,6 +83,14 @@ static uint32_t pref_w = 1920, pref_h = 1080, pref_hz = 60;
 static int mode_score(drmModeModeInfo const *mode, enum stereo_layout layout,
 		      uint32_t flag)
 {
+	if (layout == LAYOUT_DEEP12) {
+		if ((mode->flags & DRM_MODE_FLAG_3D_MASK) ||
+		    mode->hdisplay != 1920 || mode->vdisplay != 1080 ||
+		    mode->vrefresh != 60)
+			return -1;
+		return mode->clock == 148500 ? 2 : 1;
+	}
+
 	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) != flag)
 		return -1;
 
@@ -102,27 +117,30 @@ int main(int argc, char **argv)
 	char const *path = argc > 1 ? argv[1] : "/dev/dri/card0";
 	char const *want = argc > 2 ? argv[2] : "HDMI-A-1";
 	char const *layout_arg = argc > 3 ? argv[3] : "sbs";
-	int isolate = 0, vsif = 0;
+	int isolate = 0, vsif = 0, max_bpc_12 = 0;
 	char const *want_stereo;
 	enum stereo_layout layout;
 	uint32_t want_flag;
 
 	if (parse_layout(layout_arg, &layout, &want_stereo, &want_flag)) {
-		fprintf(stderr, "unknown layout '%s'; use sbs, tab, or fp\n",
+		fprintf(stderr, "unknown layout '%s'; use sbs, tab, fp, or deep12\n",
 			layout_arg);
 		return 2;
 	}
+	max_bpc_12 = layout == LAYOUT_DEEP12;
 	for (int i = 4; i < argc; i++) {
 		if (!strcmp(argv[i], "isolate"))
 			isolate = 1;
 		else if (!strcmp(argv[i], "vsif"))
 			vsif = 1;
+		else if (!strcmp(argv[i], "bpc12"))
+			max_bpc_12 = 1;
 		else if (!strcmp(argv[i], "720p")) {
 			pref_w = 1280; pref_h = 720;
 		} else if (!strcmp(argv[i], "hz24"))
 			pref_hz = 24;
 		else {
-			fprintf(stderr, "unknown option '%s'; use isolate, vsif, 720p and/or hz24\n",
+			fprintf(stderr, "unknown option '%s'; use isolate, vsif, bpc12, 720p and/or hz24\n",
 				argv[i]);
 			return 2;
 		}
@@ -247,6 +265,27 @@ int main(int argc, char **argv)
 	if (px == MAP_FAILED) { perror("mmap"); return 1; }
 
 	uint32_t vsif_prop = 0, vsif_blob = 0;
+	uint32_t max_bpc_prop = 0;
+	if (max_bpc_12) {
+		for (int i = 0; i < conn->count_props && !max_bpc_prop; i++) {
+			drmModePropertyPtr pr = drmModeGetProperty(fd, conn->props[i]);
+			if (pr) {
+				if (!strcmp(pr->name, "max bpc"))
+					max_bpc_prop = pr->prop_id;
+				drmModeFreeProperty(pr);
+			}
+		}
+		if (!max_bpc_prop) {
+			fprintf(stderr, "max bpc property not found on %s\n", want);
+			return 1;
+		}
+		if (drmModeConnectorSetProperty(fd, conn->connector_id,
+						max_bpc_prop, 12)) {
+			perror("set max bpc=12");
+			return 1;
+		}
+		printf("requested connector property max bpc=12\n");
+	}
 	if (vsif) {
 		/* Payload per NV_DRM common ioctl doc: 3-byte HDMI OUI (LSB
 		 * first) followed by the VSIF body without its header.
@@ -298,6 +337,31 @@ int main(int argc, char **argv)
 	uint32_t stride = cre.pitch / 4;
 	memset(px, 0, cre.size); /* includes the frame-packing inter-eye gap */
 	for (int frame = 0; !stop_flag; frame++) {
+		if (layout == LAYOUT_DEEP12) {
+			/* XRGB8888 is intentional here: this first probe tests physical
+			 * HDMI link depth, not high-precision scanout. Smooth ramps and
+			 * a checker overlay make gross corruption immediately visible.
+			 */
+			if (!frame) {
+				for (uint32_t y = 0; y < mode->vdisplay; y++)
+				for (uint32_t x = 0; x < mode->hdisplay; x++) {
+					uint32_t r = x * 255 / (mode->hdisplay - 1);
+					uint32_t g = y * 255 / (mode->vdisplay - 1);
+					uint32_t b = (x + y) * 255 /
+						     (mode->hdisplay + mode->vdisplay - 2);
+					if (((x / 64) ^ (y / 64)) & 1)
+						b = (b + 24) > 255 ? 255 : b + 24;
+					px[y * stride + x] = r << 16 | g << 8 | b;
+				}
+			}
+			char k;
+			while (read(STDIN_FILENO, &k, 1) > 0)
+				if (k == 'q' || k == 27) goto out;
+			struct timespec ts = { 0, 50000000 };
+			nanosleep(&ts, NULL);
+			continue;
+		}
+
 		/* three boxes at disparities -32/0/+32 px: depth on the TV */
 		int drift = ((frame >> 2) & 31) - 16;  /* slow horizontal drift */
 		for (int eye = 0; eye < 2; eye++) {

@@ -1,0 +1,137 @@
+From: Daniel Campos Ramos <danielcamposramos@users.noreply.github.com>
+Subject: [EXPERIMENTAL DO NOT SUBMIT] drm/nouveau: probe HDMI RGB deep colour
+
+Hardware-discovery patch for the GA106 -> KDL-46HX855 controlled test.
+This is not an upstream-ready commit: General Control Packet generation is
+the hypothesis the sink OSD will test, and the fallback/source-rate policy
+still needs cross-generation review.
+
+The sink advertises DC_30/DC_36 RGB and 225 MHz. 1080p60 at 12 bpc needs
+222.75 MHz. Expose max bpc, select an EDID- and bandwidth-valid RGB depth,
+program the existing SOR/head 36-bpp values, and log the selection.
+
+See docs/research/nouveau-hdmi-deep-colour-plan-2026-09-22.md.
+
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index cc23949..338b21b 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -298,6 +298,12 @@ nouveau_conn_attach_properties(struct drm_connector *connector)
+ 		drm_object_attach_property(&connector->base, dev->mode_config.
+ 					   dvi_i_subconnector_property, 0);
+ 
++	/* Experimental HDMI deep-colour probe.  The actual selected depth is
++	 * clamped to the sink's EDID and mode bandwidth during atomic check.
++	 */
++	if (connector->connector_type == DRM_MODE_CONNECTOR_HDMIA)
++		drm_connector_attach_max_bpc_property(connector, 8, 12);
++
+ 	/* Add overscan compensation options to digital outputs. */
+ 	if (disp->underscan_property &&
+ 	    (connector->connector_type == DRM_MODE_CONNECTOR_DVID ||
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index 6c3a871..b2f5266 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -410,6 +410,7 @@ nv50_outp_atomic_check(struct drm_encoder *encoder,
+ {
+ 	struct drm_connector *connector = conn_state->connector;
+ 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
++	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
+ 	struct nv50_head_atom *asyh = nv50_head_atom(crtc_state);
+ 	int ret;
+ 
+@@ -418,8 +419,38 @@ nv50_outp_atomic_check(struct drm_encoder *encoder,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (crtc_state->mode_changed || crtc_state->connectors_changed)
+-		asyh->or.bpc = connector->display_info.bpc;
++	if (crtc_state->mode_changed || crtc_state->connectors_changed) {
++		if (nv_encoder->dcb->type == DCB_OUTPUT_TMDS &&
++		    connector->display_info.is_hdmi) {
++			const struct drm_display_info *info = &connector->display_info;
++			unsigned int max_rate = info->max_tmds_clock;
++			unsigned int mode_rate;
++			u8 bpc = 8;
++
++			if (conn_state->max_requested_bpc >= 12 &&
++			    info->edid_hdmi_rgb444_dc_modes & DRM_EDID_HDMI_DC_36)
++				bpc = 12;
++			else if (conn_state->max_requested_bpc >= 10 &&
++				 info->edid_hdmi_rgb444_dc_modes & DRM_EDID_HDMI_DC_30)
++				bpc = 10;
++
++			mode_rate = DIV_ROUND_UP(crtc_state->adjusted_mode.clock * bpc, 8);
++			while (bpc > 8 && (!max_rate || mode_rate > max_rate)) {
++				bpc -= 2;
++				mode_rate = DIV_ROUND_UP(crtc_state->adjusted_mode.clock * bpc, 8);
++			}
++
++			asyh->or.bpc = bpc;
++			conn_state->max_bpc = bpc;
++			drm_dbg_kms(connector->dev,
++				    "[CONNECTOR:%d:%s] HDMI deep colour requested=%u selected=%u mode=%d kHz TMDS=%u/%u kHz\n",
++				    connector->base.id, connector->name,
++				    conn_state->max_requested_bpc, bpc,
++				    crtc_state->adjusted_mode.clock, mode_rate, max_rate);
++		} else {
++			asyh->or.bpc = connector->display_info.bpc;
++		}
++	}
+ 
+ 	/* We might have to reduce the bpc */
+ 	nv50_outp_atomic_fix_depth(encoder, crtc_state);
+@@ -1776,6 +1807,14 @@ nv50_sor_atomic_enable(struct drm_encoder *encoder, struct drm_atomic_state *sta
+ 
+ 	switch (nv_encoder->dcb->type) {
+ 	case DCB_OUTPUT_TMDS:
++		switch (asyh->or.bpc) {
++		case 12: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_36_444; break;
++		case 10: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_30_444; break;
++		case  8: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_24_444; break;
++		case  6: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_18_444; break;
++		default: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_DEFAULT; break;
++		}
++
+ 		if (disp->disp->object.oclass != NV50_DISP &&
+ 		    nv_connector->base.display_info.is_hdmi)
+ 			nv50_hdmi_enable(encoder, nv_crtc, nv_connector, state, mode, hda);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headc37d.c b/drivers/gpu/drm/nouveau/dispnv50/headc37d.c
+index 2bcb379..60580dc 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headc37d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headc37d.c
+@@ -39,6 +39,7 @@ headc37d_or(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	 *     improved later for deep colour etc.
+ 	 */
+ 	switch (asyh->or.depth) {
++	case 8: depth = 7; break;
+ 	case 6: depth = 5; break;
+ 	case 5: depth = 4; break;
+ 	case 2: depth = 1; break;
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+index 3f8ba49..87334c7 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+@@ -52,6 +52,7 @@ headc57d_or(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	 *     improved later for deep colour etc.
+ 	 */
+ 	switch (asyh->or.depth) {
++	case 8: depth = 7; break;
+ 	case 6: depth = 5; break;
+ 	case 5: depth = 4; break;
+ 	case 2: depth = 1; break;
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headca7d.c b/drivers/gpu/drm/nouveau/dispnv50/headca7d.c
+index eeaeb15..762f39b 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headca7d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headca7d.c
+@@ -35,6 +35,9 @@ headca7d_or(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	int ret;
+ 
+ 	switch (asyh->or.depth) {
++	case 8:
++		depth = NVCA7D_HEAD_SET_CONTROL_OUTPUT_RESOURCE_PIXEL_DEPTH_BPP_36_444;
++		break;
+ 	case 6:
+ 		depth = NVCA7D_HEAD_SET_CONTROL_OUTPUT_RESOURCE_PIXEL_DEPTH_BPP_30_444;
+ 		break;
