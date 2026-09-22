@@ -427,15 +427,17 @@ artifact:     /K3D/temp/k317/nouveau-hdmi-deep-colour-gcp-audio-preserve-experim
 vermagic:     7.0.10+deb14-amd64 SMP preempt mod_unload
 module SHA-256: 2cfde710b18ab50451f453f27b38f52dbb06e124f03b622c7781a01490504c0e
 verification: clean module build; cumulative patch dry-runs from pristine
-state:        built, never loaded; live run requires owner's explicit go
+state:        owner-tested in run 5; 12-bit OSD and stable picture PASS
 ```
 
-Run-5 acceptance is now precise: the new `gcp-audio` printk must show final
-`subpack=0x00002610` with control enabled. If the TV then frames the picture,
-the clobber was causal. If that final state is measured and the TV still
-refuses, the next isolated lever is the proprietary-only `CTRL_HDMI` call;
-only after that should the proprietary register/rate oracle and closed-clock
-hypothesis move back to the front.
+Run 5 passed. The post-audio readback was `0x01002610`: the low 24 payload
+bits are the required `0x002610`, while bit 24 is a generation-owned bit that
+the masked update deliberately preserves. The HX855 reported **12-bit** and
+displayed a stable green-to-purple gradient over black and white squares,
+with no incompatible-signal OSD. In the owner's requested public wording,
+the test **passed with full colors (pun intended)**. This closes the causal
+chain: the post-commit HDMI-audio operation was erasing CD/PP, and rebuilding
+those fields from the armed output state repairs 12-bpc transport.
 
 Run 5, prepared for the owner to launch as one physical line (the desktop
 will drop; switch the TV to the NVIDIA-connected input and read its OSD):
@@ -453,6 +455,8 @@ same command is rerun afterward.
 
 Narrative log:
 [`tools/stereo-modeset/run22-nouveau-deep12-gcpdbg-incompatible-2026-09-22.log`](../../tools/stereo-modeset/run22-nouveau-deep12-gcpdbg-incompatible-2026-09-22.log).
+Passing log:
+[`tools/stereo-modeset/run23-nouveau-deep12-gcp-audio-preserve-pass-2026-09-22.log`](../../tools/stereo-modeset/run23-nouveau-deep12-gcp-audio-preserve-pass-2026-09-22.log).
 
 ## Staged harness modes
 

@@ -1,10 +1,11 @@
 # Handoff to Codex partner: GA106 nouveau HDMI 12-bpc — clock question (2026-09-22)
 
-> **Audit correction (Codex, later 2026-09-22):** the clock-first diagnosis
-> below is superseded. Run 4 read the GCP before core commit; nouveau's
-> post-commit GSP HDMI-audio path then overwrites it with `0x00000010`.
-> Cumulative v4 preserves CD/PP across that path and is built but never
-> loaded. See the plan's “Independent audit correction and v4” section.
+> **Closure (Codex, later 2026-09-22):** run 5 loaded v4. The post-audio
+> readback retained the required low-24-bit payload (`0x01002610` including
+> a generation-owned high bit), the HX855 reported 12-bit, and the image was
+> stable. The audio-path clobber was causal. This document preserves the
+> superseded hypotheses as an audit trail; the current upstream handoff is
+> `deep-color-dual-upstream-handoff-2026-09-22.md`.
 
 > For GPT-5.6 Sol (Codex CLI). This briefing is standalone; no chat history
 > is assumed. Everything below is either quoted from public sources with
@@ -28,7 +29,7 @@ panel can physically carry 222.75 MHz.
 
 ## Where things stand (measured, all today)
 
-Four runs of a reversible harness
+Five runs of a reversible harness
 (`tools/stereo-modeset/run-nouveau-test.sh deep12`; pause desktop + docker,
 blacklist-swap to nouveau, gate on EDID sha256 `4f6cc1c8…e69d5dc9` on
 HDMI-A-2, set `max bpc=12`, modeset 1920x1080@60, 90-s hold, restore):
@@ -49,11 +50,18 @@ HDMI-A-2, set `max bpc=12`, modeset 1920x1080@60, 90-s hold, restore):
   nouveau: disp: gcp: head 0 subpack w=0x00002610 r=0x00002610 ctrl=0x00000001 avi_ctrl=0x00000200 avi_sp0=0x0828121d
   ```
 
+- **Run 5** (v4): cached CD/PP at HDMI arming and rebuilt the GCP after the
+  GSP HDMI-audio operation. Final readbacks were `enable=1
+  subpack=0x01002610` and, during teardown, `enable=0
+  subpack=0x01002601`. The HX855 reported **12-bit** and displayed the test
+  gradient and black/white squares correctly. PASS — “passed with full
+  colors (pun intended).”
+
 Modules: v2 `nouveau-hdmi-deep-colour-gcp-experimental.ko` sha256
 `1d2f3dc4…a81f`; v3 `nouveau-hdmi-deep-colour-gcp-dbg-experimental.ko`
 sha256 `68768c48…ded4`; v4
 `nouveau-hdmi-deep-colour-gcp-audio-preserve-experimental.ko` sha256
-`2cfde710…04c0e`. All are vermagic-matched; v4 has never been loaded.
+`2cfde710…04c0e`. All are vermagic-matched; v4 is the passing run-5 artifact.
 Patches through `nouveau-hdmi-deep-colour-experimental-v4.patch` are
 cumulative and pristine-base verified. Narratives:
 `tools/stereo-modeset/run2{0,1,2}-*.log`.

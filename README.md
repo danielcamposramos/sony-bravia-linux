@@ -81,6 +81,15 @@ without ever finding this repository. See
 The single partner entry point, kept current, is
 [docs/project-status.md](docs/project-status.md) — read it first.
 
+**Deep Color milestone (2026-09-22):** the same owner-controlled bench also
+found and repaired nouveau's missing HDMI Deep Color path. A GA106 RTX 3060
+now drives the HX855 at measured 12-bpc RGB: its OSD reports 12-bit and the
+test gradient is stable—**passed with full colors (pun intended)**. The
+reproducible log and paired nouveau/NVIDIA upstream state are recorded in
+[the dual-upstream handoff](docs/research/deep-color-dual-upstream-handoff-2026-09-22.md).
+This is a proven SDR transport result, not an HDR claim; 16-bpc and HDR are
+standards-backed follow-up candidates for hardware we do not own.
+
 ## Repository scope — what is and isn't here
 
 This public repo contains **only our own work**: research notes, protocol
