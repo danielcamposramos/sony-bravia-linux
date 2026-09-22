@@ -35,6 +35,20 @@ default-cap companion are being finalized.
 
 **Maintainer feedback, round 2 (2026-09-22, evening):** Marvin Scholz sharpened the same complaint in [note 582115](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582115): gigantic AI-generated walls of text drive reviewers away, and why spend free time reading what the author did not write. Answered in [note 582119](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582119), deliberately short (the complaint was length): the premise is wrong — every message was written by the owner in Portuguese and translated into English and back twice to keep his voice; the disclosure is deliberate; the length is the research done up front so the reviewer does not have to repeat it; the diff is the part to review; and anything that reads as unchecked output gets fixed when pointed at. The note closes with the explicit ask, same wording family as the mpv side: a **technical review of the change itself**, citing that this exact default was already judged on its merits and merged by **mbunkus in mkvtoolnix (!6311)** and **the HandBrake maintainers (HandBrake#8100)**. The owner's dictated PS ("Only Nvidia and AMD had missing pieces, all other drivers are compliant to the HDMI 1.4 3D specs") remains his own browser post per his instruction. Draft on disk: `/K3D/temp/vlc-mr10366-marvin-reply.md`.
 
+### Parked escalation draft — DO NOT POST before the owner's word (planned trigger ~2026-09-29)
+
+Verified facts that shape it: VideoLAN's only written AI policy bans AI output **inside GSoC participation** ([SoC 2026 page](https://wiki.videolan.org/SoC_2026/)); the general [Sending Patches VLC](https://wiki.videolan.org/Sending_Patches_VLC/) checklist gates on content only — and explicitly says **"Don't ping individuals personally; re-ask for review after a week if no response"**, which is why this draft carries **no @jbk ping** by default (the owner may override that explicitly). mbunkus's AI stance is on record in mkvtoolnix meta-issue [#6278](https://codeberg.org/mbunkus/mkvtoolnix/issues/6278): skeptical of AI, does not use LLMs, requires the human to understand and explain every line — and he merged !6311 under that standard.
+
+> One process note, then I stop spending review time on meta.
+>
+> VideoLAN's written policy does not gate AI assistance for regular contributions: its AI restriction is scoped to GSoC participation, and the sending-patches checklist judges the patch itself: conventions, correctness, build and check.
+>
+> The same content-over-tool judgment already happened where the maintainer is openly skeptical of AI: mbunkus states on mkvtoolnix's meta-issue **#6278** that he does not use LLMs and requires the human behind a change to understand and explain every line, and he merged this exact default as **!6311** under that standard; the HandBrake maintainers did the same in **#8100**.
+>
+> That is the review I am asking for: a neutral technical review of the change itself.
+
+Owner's plan (2026-09-22): wait a week, watch the thread by mail notification only; he will ask for this comment when the time comes if nothing changes until then.
+
 **Re-verified against master on 2026-09-22, after the mbunkus/mpv rounds:**
 
 - The patch applies **1:1 to today's master** (`modules/codec/x264.c`,
