@@ -296,6 +296,21 @@ do not invent code authorship or sign-offs for either AI partner.
   can bench-verify 10 bpc on the same sink by clamping `max bpc` to 10
   (OSD reports the received depth). Reply text drafted for the owner's go;
   nothing answered yet.
+- **Sashiko reviewed 1/3 too** (`<20260922193903.DE3BB1F000FF@smtp.kernel.org>`,
+  19:39Z; no mail on 3/3 as of the lore mbox pull): two more findings.
+  (a) **[High] SCDC gate uses pixel clock, not TMDS character rate** —
+  `high_tmds_clock_ratio = mode->clock > 340000` ignores the deep-color
+  multiplier, so 4K30@12bpc (297 MHz pixel → 445.5 MHz char) would skip
+  mandatory scrambling/1:40 ratio (HDMI 2.0 340 MHz char-rate rule). Real
+  spec gap, zero impact on the bench passes (1080p60@36bpp = 222.75 MHz,
+  HDMI 1.4 sink, no SCDC). (b) **[Medium] `max bpc` attached to HDMI-A
+  connectors only** — DVI/DP connectors driving an HDMI sink through a
+  passive adapter stay 8 bpc. Design-scope point; HDMI-only attach matches
+  the conservative mainline precedent (i915), amdgpu is looser. v2 plan:
+  (a) scale the SCDC threshold by the selected depth, (3/3-mail absence
+  noted), plus the 30-bpp GCP arm; (b) answered as scope, extension left to
+  maintainers. Both mails live in `/K3D/temp/thread.mbox` (lore pull,
+  descriptive UA).
 - **Remaining:** after lore archives the series, the index pass per the
   publication order above (issue-tracker/project-status/awesome-linux-hdr);
   VLC escalation draft parked in `tools/serviio/upstream-3d-issues/vlc-mr.md`
