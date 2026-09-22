@@ -217,6 +217,15 @@ mpv #18490, FFmpeg #24530/#24531, x265 #970, Media3 #3419, NVIDIA #1382/#1384,
 the nouveau deep-colour series) linking both repositories,
 github.com/danielcamposramos/sony-bravia-linux (measurements) and
 github.com/danielcamposramos/awesome-stereoscopy (CC0 standards map).
+Then, same session, the demand side was connected: a reply to **robUx4
+(Steve Lhomme)** on #29582 ([note 582088](https://code.videolan.org/videolan/vlc/-/issues/29582#note_582088))
+answering his "no consumer hardware renders 3D since NVIDIA dropped it" —
+the 2010-2014 3DTV fleet auto-engages from the SEI at HDMI, measured on
+owned sets, and frame-compatible layouts need no two-pictures-in-flight
+design change; and a cross-citing comment on the MR ([note
+582090](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582090))
+tying @tailslol's original request to the new default. fkuehne (the Felix
+who approved the account) had called 3D "a goal for 4.1" in April.
 On the email-trigger watch, never polled.
 
 ## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
