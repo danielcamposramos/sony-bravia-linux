@@ -64,7 +64,7 @@ Two details do real work and are easy to leave out.
 
 **The negative control.** `no_sei.mp4` is the same clip encoded without `-x264-params frame-packing=3` and reports `stereo3d_side_data=0`. Without it, a reader cannot tell whether the counter detects the SEI or simply always prints a number.
 
-**The keyframe interval.** `-g 48` over 10 seconds gives five keyframes. A 2-second clip has exactly one, and `1 of 1` cannot distinguish "one per keyframe" from "one per file" — which is precisely the distinction the second commit turns on. Frames 1, 49, 97, 145 and 193 settle it: the side data lands on every keyframe and on nothing else, consistent with `frame_packing_arrangement_repetition_period = 1` ("persists until the next IDR").
+**The keyframe interval.** `-g 48` over 10 seconds gives five keyframes. A 2-second clip has exactly one, and `1 of 1` cannot distinguish "one per keyframe" from "one per file" — which is precisely the distinction the second commit turns on. Frames 1, 49, 97, 145 and 193 settle the observed file behaviour: x264 physically emits the SEI at each IDR. Its `frame_packing_arrangement_repetition_period = 1` instructs the decoder to retain the arrangement; IDR placement is the tested encoder/file cadence, not the standard's persistence boundary.
 
 ## Related
 
