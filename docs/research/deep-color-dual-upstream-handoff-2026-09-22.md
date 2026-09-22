@@ -272,7 +272,14 @@ do not invent code authorship or sign-offs for either AI partner.
   `-2`/`-3`/`-4` same base. lore permalink of the cover:
   `https://lore.kernel.org/dri-devel/20260922192132.114546-1-Capitain_Jack@yahoo.com/`.
   From here: email replies only, never polled.
-- **Remaining:** NVIDIA PR (bbfc670 push + PR naming #1384, nouveau as
-  the open-source counterpart, success phrase now legal) on Daniel's
-  per-act go; then the cross-link/index pass per the publication order
-  above.
+- **NVIDIA PR FILED the same evening:** fork `danielcamposramos/open-gpu-kernel-modules`
+  created, `fix-hdmi-deep-color-default` (bbfc670) pushed, PR opened as
+  <https://github.com/NVIDIA/open-gpu-kernel-modules/pull/1386> on his
+  explicit go ("then go, fork and PR"). Body: run24 PASS evidence + the
+  nouveau series as open-source counterpart (lore cover link) + Refs-not-Fixes
+  on #1384 (its mode-prune and 3D symptoms stay open) + SDR-only scope + dual
+  disclosure lines. Reviewed draft: `docs/upstream/nvidia-deep-color-pr-draft.md`.
+- **Remaining:** after lore archives the series, the index pass per the
+  publication order above (issue-tracker/project-status/awesome-linux-hdr);
+  VLC escalation draft parked in `tools/serviio/upstream-3d-issues/vlc-mr.md`
+  for ~2026-09-29 at the owner's call.

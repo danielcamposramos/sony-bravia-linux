@@ -1,11 +1,13 @@
 # NVIDIA PR draft — nvidia-modeset: raise default max_output_color_depth to 12
 
-**State: ASSEMBLED FOR OWNER REVIEW — nothing pushed, nothing opened.**
-Tree restored from the preserved bundle onto a fresh blobless clone:
-`/K3D/temp/nvidia-open-wt`, branch `fix-hdmi-deep-color-default`, tip
-`bbfc670` on official base `61dcc937` (615.71.09). Daniel has no GitHub
-fork of open-gpu-kernel-modules yet (404 checked 2026-09-22); creating it
-is step 1 in the approval-gated runbook below.
+**State: PR OPEN 2026-09-22 evening — https://github.com/NVIDIA/open-gpu-kernel-modules/pull/1386**
+Runbook executed on the owner's explicit go ("then go, fork and PR"):
+fork `danielcamposramos/open-gpu-kernel-modules` created (no fork existed),
+`fix-hdmi-deep-color-default` pushed over HTTPS via the gh credential
+helper (no GitHub SSH key on this box), PR opened with the body below
+exactly as reviewed. "Refs #1384" in the body already back-references the
+issue timeline; no separate comment was posted on the issue.
+Working tree: `/K3D/temp/nvidia-open-wt`, fix-hdmi-deep-color-default @ bbfc670 on official base 61dcc937 (615.71.09).
 
 ## PR metadata
 
