@@ -33,6 +33,8 @@ the amd-gfx public test report (lore), NVIDIA issues #1382 and #1384,
 and notice that the nouveau deep-color series and the NVIDIA
 default-cap companion are being finalized.
 
+**Maintainer feedback, round 2 (2026-09-22, evening):** Marvin Scholz sharpened the same complaint in [note 582115](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582115): gigantic AI-generated walls of text drive reviewers away, and why spend free time reading what the author did not write. Answered in [note 582119](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582119), deliberately short (the complaint was length): the premise is wrong — every message was written by the owner in Portuguese and translated into English and back twice to keep his voice; the disclosure is deliberate; the length is the research done up front so the reviewer does not have to repeat it; the diff is the part to review; and anything that reads as unchecked output gets fixed when pointed at. The note closes with the explicit ask, same wording family as the mpv side: a **technical review of the change itself**, citing that this exact default was already judged on its merits and merged by **mbunkus in mkvtoolnix (!6311)** and **the HandBrake maintainers (HandBrake#8100)**. The owner's dictated PS ("Only Nvidia and AMD had missing pieces, all other drivers are compliant to the HDMI 1.4 3D specs") remains his own browser post per his instruction. Draft on disk: `/K3D/temp/vlc-mr10366-marvin-reply.md`.
+
 **Re-verified against master on 2026-09-22, after the mbunkus/mpv rounds:**
 
 - The patch applies **1:1 to today's master** (`modules/codec/x264.c`,
