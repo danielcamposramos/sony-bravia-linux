@@ -15,6 +15,19 @@ linking both repositories (sony-bravia-linux measurements +
 awesome-stereoscopy CC0 standards map) and listing the full encode→mux→
 serve→play→drive arc. Email-trigger watch from here on; never polled.
 
+**Maintainer feedback 2026-09-22:** Alexandre Janniaux asked whether the
+MR page was an AI-written wall of text citing unrelated issues, and noted
+he believed the feature was 4.1 material. Answered in [note
+582107](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582107)
+in the owner's own words: English is not his first language, AI assistance
+is disclosed deliberately rather than hidden, the citations are the demand
+trail (#29582 is this same feature on VLC's own tracker; mkvtoolnix !6311
+merged the same default after review; mpv #18490 is in review with the
+ETSI precedence norm cited; HandBrake and UMS already ship it), the patch
+applies 1:1 to master and was verified end to end on hardware, and there
+is no objection to the 4.1 milestone. The MR text itself stays unchanged
+by the owner's explicit decision ("we're changing nothing").
+
 **Re-verified against master on 2026-09-22, after the mbunkus/mpv rounds:**
 
 - The patch applies **1:1 to today's master** (`modules/codec/x264.c`,
