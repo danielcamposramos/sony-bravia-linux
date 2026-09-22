@@ -280,6 +280,27 @@ character rate of 222.75 MHz on its own, with GCP as the pure declaration —
 scaling anywhere near this machinery (only FRL link-rate code, unrelated to
 the TMDS character clock). Acceptance: OSD reports 12-bit at 1080p60.
 
+**Patch v2 built (2026-09-22):** the shape above is implemented exactly as
+specified, compiled clean against the same 7.0.10 tree as v1
+(`make -j8 M=drivers/gpu/drm/nouveau modules`). Both the v1→v2 delta and the
+combined patch were round-trip verified against a pristine base reconstructed
+by reverse-applying v1.
+
+```text
+patch:        docs/upstream/nouveau-hdmi-deep-colour-experimental-v2.patch
+              (pristine 7.0.10 base; includes v1, do not stack them)
+patch SHA-256: ef91566df88d689430a6f9cd26ec85a58591a3245e17bca1bec2f7d4066354f6
+artifact:     /K3D/temp/k317/nouveau-hdmi-deep-colour-gcp-experimental.ko
+vermagic:     7.0.10+deb14-amd64 SMP preempt mod_unload
+module SHA-256: 1d2f3dc41fdeb9a49b8cdc8329ed1964ae27c6b7235425b40d1dcdf3667da81f
+state:        built, never loaded; hardware result pending run 3
+```
+
+Run 3 must pass
+`--setenv=NOUVEAU_TEST_KO=/K3D/temp/k317/nouveau-hdmi-deep-colour-gcp-experimental.ko`
+on the systemd-run line: the harness default still points at the v1 module,
+and environment variables do not cross systemd-run by default.
+
 ## Staged harness modes
 
 The harness modes are deliberately staged:
