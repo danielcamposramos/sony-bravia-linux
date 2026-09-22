@@ -6,7 +6,8 @@
 //
 // cc -o stereo-modeset stereo-modeset.c $(pkg-config --cflags --libs libdrm)
 // usage: stereo-modeset [card] [connector] [sbs|tab|fp|deep12|deep10|deep8] [isolate] [vsif]
-//        [bpc12|bpc10|bpc8] [fmt=rgbfull|rgblimited|rgbauto|yuv444|yuv422] [720p|hz24]
+//        [bpc12|bpc10|bpc8] [fmt=rgbfull|rgblimited|rgbauto|yuv444|yuv422]
+//        [720p|576p|480p|vga|hz24]   (576p/480p/vga: deep probes at SD, BT.601)
 // defaults: /dev/dri/card0 HDMI-A-1 sbs
 // 720p: pick the 1280x720@60 variant instead of 1080p60 (sbs/tab only)
 // hz24: pick the 1920x1080@24 variant instead of 60 Hz (sbs/tab only)
@@ -100,8 +101,9 @@ static int mode_score(drmModeModeInfo const *mode, enum stereo_layout layout,
 {
 	if (layout == LAYOUT_DEEP12) {
 		if ((mode->flags & DRM_MODE_FLAG_3D_MASK) ||
-		    mode->hdisplay != 1920 || mode->vdisplay != 1080 ||
-		    mode->vrefresh != 60)
+		    (mode->flags & DRM_MODE_FLAG_INTERLACE) ||
+		    mode->hdisplay != pref_w || mode->vdisplay != pref_h ||
+		    mode->vrefresh != pref_hz)
 			return -1;
 		return mode->clock == 148500 ? 2 : 1;
 	}
@@ -127,8 +129,9 @@ static int mode_score(drmModeModeInfo const *mode, enum stereo_layout layout,
 	}
 }
 
-static void draw_label(uint32_t *px, uint32_t stride, uint32_t width,
-		       uint32_t height, const char *text)
+/* Returns the first row below the label box. */
+static uint32_t draw_label(uint32_t *px, uint32_t stride, uint32_t width,
+			   uint32_t height, const char *text)
 {
 	/* callers offset px to place the label inside an eye region */
 	/* 8x8 hand glyphs, one byte per row, bit 7 = leftmost pixel.
@@ -189,6 +192,7 @@ static void draw_label(uint32_t *px, uint32_t stride, uint32_t width,
 					px[(y0 + r * scale + dy) * stride +
 					   x0 + (ci * 8 + i) * scale + dx] = 0xFFFF00;
 	}
+	return y0 + gh + 8;
 }
 
 /* Set a connector enum property by its value name; 0 on success. */
@@ -294,10 +298,16 @@ int main(int argc, char **argv)
 			fmt_arg = argv[i] + 4;
 		else if (!strcmp(argv[i], "720p")) {
 			pref_w = 1280; pref_h = 720;
+		} else if (!strcmp(argv[i], "576p")) {
+			pref_w = 720; pref_h = 576; pref_hz = 50;
+		} else if (!strcmp(argv[i], "480p")) {
+			pref_w = 720; pref_h = 480;
+		} else if (!strcmp(argv[i], "vga")) {
+			pref_w = 640; pref_h = 480;
 		} else if (!strcmp(argv[i], "hz24"))
 			pref_hz = 24;
 		else {
-			fprintf(stderr, "unknown option '%s'; use isolate, vsif, bpc12, bpc10, bpc8, fmt=..., 720p and/or hz24\n",
+			fprintf(stderr, "unknown option '%s'; use isolate, vsif, bpc12, bpc10, bpc8, fmt=..., 720p|576p|480p|vga and/or hz24\n",
 				argv[i]);
 			return 2;
 		}
@@ -526,6 +536,7 @@ int main(int argc, char **argv)
 	fcntl(STDIN_FILENO, F_SETFL, fcntl(STDIN_FILENO, F_GETFL) | O_NONBLOCK);
 	uint32_t stride = cre.pitch / 4;
 	memset(px, 0, cre.size); /* includes the frame-packing inter-eye gap */
+	uint32_t label_rows = 0; /* 3D: rows above this keep the label */
 	for (int frame = 0; !stop_flag; frame++) {
 		if (layout == LAYOUT_DEEP12) {
 			/* XRGB8888 is intentional here: this first probe tests physical
@@ -573,7 +584,8 @@ int main(int argc, char **argv)
 				y0 = eye ? mode->vtotal : 0;
 			}
 
-			for (uint32_t y = 0; y < eye_h; y++)
+			/* repainting the label each frame made it flicker */
+			for (uint32_t y = label_rows; y < eye_h; y++)
 			for (uint32_t x = 0; x < eye_w; x++) {
 				uint32_t c = ((x / 40 + y / 40) & 1) ? 0x202020u : 0u;
 				for (int b = 0; b < 3; b++) {
@@ -594,7 +606,9 @@ int main(int argc, char **argv)
 				}
 				px[(y0 + y) * stride + x0 + x] = c;
 			}
-			draw_label(px + y0 * stride + x0, stride, eye_w, eye_h, label);
+			if (!frame)
+				label_rows = draw_label(px + y0 * stride + x0, stride,
+							eye_w, eye_h, label);
 		}
 		char k;
 		while (read(STDIN_FILENO, &k, 1) > 0)

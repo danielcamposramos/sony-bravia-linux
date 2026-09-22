@@ -10,6 +10,9 @@
 #   chroma: one driver swap, then every output format x depth (and three
 #   3D + format combinations) in turn, STEP_SECONDS each, each frame naming
 #   itself; the optional second argument picks the format for a single deep run.
+#   chroma2: follow-up -- frame packing at the doubled link rate, BT.601 at
+#   SD (576p/480p), the 720-line BT.709 boundary, VIC 1 (8 bpc only), and the
+#   3D label repaint fix.
 #   (ONE line -- a line-broken paste runs 'sh' with no script, then runs this
 #    file unprivileged, which the root check below rejects loudly.)
 #
@@ -56,10 +59,11 @@ case "$MODE" in
 	deep10) WANT_LABEL="10-bpc SDR transport"; DEEP_TEST=1 ;;
 	deep8) WANT_LABEL="8-bpc SDR transport"; DEEP_TEST=1 ;;
 	chroma) WANT_LABEL="output format matrix"; DEEP_TEST=1 ;;
+	chroma2) WANT_LABEL="output format follow-up"; DEEP_TEST=1 ;;
 	sbs12) WANT_LABEL="side-by-side half at 12 bpc"; DEEP_TEST=1; BASE_MODE=sbs ;;
 	tab12) WANT_LABEL="top-and-bottom at 12 bpc"; DEEP_TEST=1; BASE_MODE=tab ;;
 	fp12) WANT_LABEL="frame packing at 12 bpc"; DEEP_TEST=1; BASE_MODE=fp ;;
-	*) echo "usage: $0 [sbs|tab|fp|deep12|deep10|deep8|sbs12|tab12|fp12|chroma] [fmt]" >&2; exit 2 ;;
+	*) echo "usage: $0 [sbs|tab|fp|deep12|deep10|deep8|sbs12|tab12|fp12|chroma|chroma2] [fmt]" >&2; exit 2 ;;
 esac
 
 if [ "$DEEP_TEST" = 1 ]; then
@@ -327,15 +331,16 @@ if [ -n "$CONN" ]; then
 		echo "--- requesting $BASE_MODE for ${TEST_SECONDS}s on card1 $CONN"
 		echo "    (Daniel: read the TV OSD: bit depth, colour format, and 3D state where applicable)"
 		echo "    (the image itself names the run in big yellow text near the top)"
-		if [ "$BASE_MODE" = chroma ]; then
-			# RGB full/limited/automatic, YCbCr 4:4:4 and 4:2:2, each at
-			# 12/10/8 bpc, then 3D with a non-default format on each layout.
-			for step in "deep12 fmt=rgbfull" "deep12 fmt=rgblimited" "deep12 fmt=rgbauto" \
-				    "deep10 fmt=rgbfull" "deep10 fmt=rgblimited" \
-				    "deep8 fmt=rgbfull" "deep8 fmt=rgblimited" \
-				    "deep12 fmt=yuv444" "deep10 fmt=yuv444" "deep8 fmt=yuv444" \
-				    "deep12 fmt=yuv422" "deep10 fmt=yuv422" "deep8 fmt=yuv422" \
-				    "sbs bpc12 fmt=yuv444" "tab bpc12 fmt=rgblimited" "fp bpc12 fmt=yuv422"; do
+		if [ "$BASE_MODE" = chroma ] || [ "$BASE_MODE" = chroma2 ]; then
+			if [ "$BASE_MODE" = chroma ]; then
+				# RGB full/limited/automatic, YCbCr 4:4:4 and 4:2:2, each at
+				# 12/10/8 bpc, then 3D with a non-default format on each layout.
+				STEPS='deep12 fmt=rgbfull|deep12 fmt=rgblimited|deep12 fmt=rgbauto|deep10 fmt=rgbfull|deep10 fmt=rgblimited|deep8 fmt=rgbfull|deep8 fmt=rgblimited|deep12 fmt=yuv444|deep10 fmt=yuv444|deep8 fmt=yuv444|deep12 fmt=yuv422|deep10 fmt=yuv422|deep8 fmt=yuv422|sbs bpc12 fmt=yuv444|tab bpc12 fmt=rgblimited|fp bpc12 fmt=yuv422'
+			else
+				STEPS='fp bpc12 fmt=rgbfull|fp bpc12 fmt=yuv444|fp bpc12 fmt=yuv422|deep12 720p fmt=yuv444|deep12 576p fmt=yuv444|deep12 480p fmt=yuv422|deep12 576p fmt=rgbauto|deep12 vga fmt=rgbfull|sbs bpc12 fmt=rgblimited'
+			fi
+			OLDIFS=$IFS; IFS='|'; set -- $STEPS; IFS=$OLDIFS
+			for step in "$@"; do
 				echo "--- chroma step: $step (${STEP_SECONDS}s)"
 				SEEN=$(dmesg | grep -c 'chroma bench:')
 				# shellcheck disable=SC2086 # $step is a deliberate word list
