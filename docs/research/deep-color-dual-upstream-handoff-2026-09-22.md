@@ -429,3 +429,19 @@ do not invent code authorship or sign-offs for either AI partner.
   `<20260922222618.709711-1-Capitain_Jack@yahoo.com>` to sashiko-reviews (its
   Reply-To) + dri-devel + nouveau + maintainers. **Deep colour v3 + colour
   format v2 wait** until maintainers have looked at v2 (a few days).
+- **Next revisions drafted, held:** `/K3D/temp/nouveau-next-deepcolor-v3/`
+  (Changes in v3 credits the Sashiko review + our reply, withdraws v2's
+  GSP-only "pixel clock is correct" claim) and
+  `/K3D/temp/nouveau-next-colorformat-v2/` (rebased on v3, format-aware
+  khz). Send only on the owner's word, after maintainers have seen v2.
+- **Index pass done:** awesome-linux-hdr `d2814fe` (DVI 1.0, VESA DP +
+  DisplayHDR, DP++ helpers; both series in repair maps; Phase A measured)
+  and awesome-stereoscopy `3346fd6` (DP native stereo, DVI/DP++ carry HDMI
+  3D only to HDMI sinks; nouveau series in the HDR driver note). All links
+  fetched and checked by content; awesome-lint unchanged at its 37
+  pre-existing errors.
+- **NVIDIA PR #1386 (owner asked):** CLA signed, mergeable, no reviews yet.
+  The khz finding is nouveau-internal (nvkm non-GSP SOR path); NVKMS's open
+  rate math is already depth/format-aware, so nothing to port. Open question
+  kept unclaimed: NVKMS's open GCP only declares 36 bpp, yet the sink reported
+  10-bit under the proprietary default; closed RM may rewrite it.
