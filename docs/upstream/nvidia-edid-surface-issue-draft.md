@@ -3,8 +3,10 @@ RAW MATERIAL for Daniel's edit pass — not for posting as-is.
 Everything below the ===== line is the draft body in Daniel's voice
 (one sentence per line, no hard wraps, no mid-sentence em dashes).
 Fill the single bracketed [GPU model] before posting.
-Target: new issue at https://github.com/NVIDIA/open-gpu-kernel-modules/issues
-Nothing is posted until Daniel posts it himself in the browser.
+POSTED 2026-09-22 as https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1384
+(via gh as danielcamposramos, explicit per-act approval; GPU fill-in: RTX 3060 GA106, GALAX, 12 Gb VRAM)
+Cross-link comment from #1382: issuecomment-5771657559.
+Kept here as the verbatim record of what was filed.
 Suggested title:
 
 615.71.09 narrows what the EDID declares across independent axes: HDMI 1.4 3D absent, deep colour trained at 10-bit, mode list pruned (siblings #1348, #1369, #1184)
@@ -53,6 +55,6 @@ One honest scope note: I do not own an HDR display, so the HDR connection is arg
 
 Full measurement records (EDID dumps, OSD-confirmed A/B, run logs, patch, design documents): https://github.com/danielcamposramos/sony-bravia-linux — see docs/research/liverecon/nv-vs-amd-deepcolor-osd-2026-09-22.md and docs/upstream/nvidia-615.71.09-hdmi-3d-vsdb-synthesis-design-2026-09-22.md.
 
-My machine: NVIDIA **[GPU model]**, driver 615.71.09, kernel 7.0.10+deb14.
+My machine: NVIDIA GeForce RTX 3060 (GA106), GALAX board with 12 Gb VRAM, driver 615.71.09, kernel 7.0.10+deb14.
 
 Prepared with AI assistance; every number above was measured or byte-verified on my hardware, and every citation re-read, before posting.
