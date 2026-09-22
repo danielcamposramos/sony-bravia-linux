@@ -33,6 +33,24 @@ connector's HDR metadata blob, and `hdmi_drm_infoframe_pack()` serializes it.
 The payload is 26 bytes (`HDMI_DRM_INFOFRAME_SIZE`), or 30 bytes including the
 HDMI header and checksum.
 
+## Normative chain
+
+The implementation target is not inferred from one vendor's behaviour:
+
+- [HDMI Forum's HDMI 2.0a announcement](https://hdmiforum.org/hdmi-forum-inc-release-2-0a-specification/)
+  records the addition of HDR formats by reference to CEA-861.3.
+- [CTA-861.3-A](https://shop.cta.tech/products/cta-861-3) defines the HDR
+  Static Metadata Data Block and Dynamic Range and Mastering InfoFrame; CTA
+  hosts a [free preview of the 2015 edition](https://standards.cta.tech/kwspub/published_docs/CEA-861.3-Preview.pdf).
+- [ITU-R BT.2100-3](https://www.itu.int/rec/R-REC-BT.2100-3-202502-I/en)
+  defines the current HDR television image parameters.
+- Linux exposes the cross-driver userspace contract through
+  [`struct hdr_output_metadata`](https://github.com/torvalds/linux/blob/master/include/uapi/drm/drm_mode.h).
+
+The full standards map, including the boundary between licensed normative
+text and public previews, is maintained in
+[`awesome-stereoscopy/standards.md`](https://github.com/danielcamposramos/awesome-stereoscopy/blob/main/standards.md#hdr-over-hdmi-deep-colour-container-and-static-metadata).
+
 ## Where the real boundary is
 
 nouveau already programs AVI and vendor-specific (VSI) HDMI InfoFrames, but
@@ -115,6 +133,17 @@ display:
 
 Steps 1–5 are locally actionable. Step 6 is a required external validation,
 not a reason to leave the source gap unmapped.
+
+## Research provenance
+
+Daniel Campos Ramos directed the investigation, supplied the owned-hardware
+measurements, and owns every public claim. The initial nouveau source survey
+and draft were produced with LLM Kimi K3 (Claude Code CLI, Ollama provider).
+LLM GPT-5.6 Sol (Codex CLI) audited that draft against Linux 7.3-rc4, found
+the newer Valve GB20x generic-packet work and the r535 36-byte command, and
+narrowed the claims and test boundary recorded here. The result is collective
+research; the absence of an HDR sink is disclosed rather than filled by
+model inference.
 
 ## Relationship to the proprietary NVIDIA finding
 
