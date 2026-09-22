@@ -13,7 +13,11 @@ Working tree: `/K3D/temp/nvidia-open-wt`, fix-hdmi-deep-color-default @ bbfc670 
 
 - Target: `NVIDIA/open-gpu-kernel-modules`, base branch `main`
 - Head: `danielcamposramos:fix-hdmi-deep-color-default` (after fork+push)
-- Title: `nvidia-modeset: raise default max_output_color_depth to 12`
+- Title (RETITLED 2026-09-22 by owner request "cite the specs now", via REST PATCH;
+  second pass same evening per owner: the "max_output_color_depth to 12" half was
+  dropped because it singled out one depth right next to the three VSDB
+  capabilities, and parentheses removed):
+  `nvidia-modeset: raise default output color depth for HDMI 1.4 Deep Color, EDID VSDB DC_30/DC_36/DC_48`
 - Deliberately **not** using "Fixes #1384" — that issue tracks three
   symptoms (mode prune, 3D exposure, deep-colour cap); closing keywords
   would be wrong. The commit and body use "Refs".

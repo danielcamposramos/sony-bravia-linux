@@ -5,12 +5,15 @@
 // the kernel patch is emitting the HDMI vendor-specific infoframe correctly.
 //
 // cc -o stereo-modeset stereo-modeset.c $(pkg-config --cflags --libs libdrm)
-// usage: stereo-modeset [card] [connector] [sbs|tab|fp|deep12] [isolate] [vsif] [bpc12] [720p|hz24]
+// usage: stereo-modeset [card] [connector] [sbs|tab|fp|deep12|deep10] [isolate] [vsif] [bpc12|bpc10] [720p|hz24]
 // defaults: /dev/dri/card0 HDMI-A-1 sbs
 // 720p: pick the 1280x720@60 variant instead of 1080p60 (sbs/tab only)
 // hz24: pick the 1920x1080@24 variant instead of 60 Hz (sbs/tab only)
 // deep12: plain 1080p60 link-depth probe; bpc12 layers the same max-bpc
 // request onto sbs/tab/fp so the already-proven 3D path remains active.
+// deep10: identical probe with max bpc clamped to 10 (30-bpp GCP arm
+// verification). Both deep probes paint their depth in big yellow text
+// near the top so the bench photo identifies the run.
 //
 // vsif: the proprietary nvidia-drm path. nvidia-drm never sets
 // stereo_allowed, so no 3D-flagged mode survives pruning -- but it exposes
@@ -72,6 +75,10 @@ static int parse_layout(char const *arg, enum stereo_layout *layout,
 		*layout = LAYOUT_DEEP12;
 		*name = "12-bpc SDR transport";
 		*flag = 0;
+	} else if (!strcmp(arg, "deep10")) {
+		*layout = LAYOUT_DEEP12;
+		*name = "10-bpc SDR transport";
+		*flag = 0;
 	} else {
 		return -1;
 	}
@@ -112,35 +119,89 @@ static int mode_score(drmModeModeInfo const *mode, enum stereo_layout layout,
 	}
 }
 
+static void draw_label(uint32_t *px, uint32_t stride, uint32_t width,
+		       uint32_t height, const char *text)
+{
+	/* 8x8 hand glyphs, one byte per row, bit 7 = leftmost pixel.
+	 * Only the characters the depth labels need. */
+	static const struct { char c; uint8_t g[8]; } FONT[] = {
+		{ '0', { 0x3C, 0x66, 0x6E, 0x76, 0x66, 0x66, 0x3C, 0 } },
+		{ '1', { 0x18, 0x38, 0x18, 0x18, 0x18, 0x18, 0x7E, 0 } },
+		{ '2', { 0x3C, 0x66, 0x06, 0x0C, 0x30, 0x60, 0x7E, 0 } },
+		{ '-', { 0x00, 0x00, 0x00, 0x7E, 0x00, 0x00, 0x00, 0 } },
+		{ 'A', { 0x18, 0x3C, 0x66, 0x66, 0x7E, 0x66, 0x66, 0 } },
+		{ 'B', { 0x7C, 0x66, 0x66, 0x7C, 0x66, 0x66, 0x7C, 0 } },
+		{ 'C', { 0x3C, 0x66, 0x60, 0x60, 0x60, 0x66, 0x3C, 0 } },
+		{ 'G', { 0x3C, 0x66, 0x60, 0x6E, 0x66, 0x66, 0x3C, 0 } },
+		{ 'I', { 0x3C, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3C, 0 } },
+		{ 'L', { 0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x7E, 0 } },
+		{ 'M', { 0x63, 0x77, 0x7F, 0x6B, 0x63, 0x63, 0x63, 0 } },
+		{ 'P', { 0x7C, 0x66, 0x66, 0x7C, 0x60, 0x60, 0x60, 0 } },
+		{ 'R', { 0x7C, 0x66, 0x66, 0x7C, 0x6C, 0x66, 0x66, 0 } },
+		{ 'T', { 0x7E, 0x18, 0x18, 0x18, 0x18, 0x18, 0x18, 0 } },
+	};
+	int len = strlen(text), scale = 12;
+
+	if (8 * len * scale > (int)width - 64)
+		scale = ((int)width - 64) / (8 * len);
+	if (scale < 1)
+		scale = 1;
+
+	uint32_t gw = 8 * scale * len, gh = 8 * scale;
+	uint32_t x0 = (width - gw) / 2, y0 = 48;
+
+	for (uint32_t y = y0 - 8; y < y0 + gh + 8 && y < height; y++)
+	for (uint32_t x = x0 - 16; x < x0 + gw + 16 && x < width; x++)
+		px[y * stride + x] = 0;
+
+	for (int ci = 0; ci < len; ci++) {
+		const uint8_t *g = NULL;
+		for (size_t f = 0; f < sizeof(FONT) / sizeof(FONT[0]); f++)
+			if (FONT[f].c == text[ci])
+				g = FONT[f].g;
+		if (!g)
+			continue;
+		for (int r = 0; r < 8; r++)
+		for (int i = 0; i < 8; i++)
+			if ((g[r] >> (7 - i)) & 1)
+				for (int dy = 0; dy < scale; dy++)
+				for (int dx = 0; dx < scale; dx++)
+					px[(y0 + r * scale + dy) * stride +
+					   x0 + (ci * 8 + i) * scale + dx] = 0xFFFF00;
+	}
+}
+
 int main(int argc, char **argv)
 {
 	char const *path = argc > 1 ? argv[1] : "/dev/dri/card0";
 	char const *want = argc > 2 ? argv[2] : "HDMI-A-1";
 	char const *layout_arg = argc > 3 ? argv[3] : "sbs";
-	int isolate = 0, vsif = 0, max_bpc_12 = 0;
+	int isolate = 0, vsif = 0, max_bpc = 0;
 	char const *want_stereo;
 	enum stereo_layout layout;
 	uint32_t want_flag;
 
 	if (parse_layout(layout_arg, &layout, &want_stereo, &want_flag)) {
-		fprintf(stderr, "unknown layout '%s'; use sbs, tab, fp, or deep12\n",
+		fprintf(stderr, "unknown layout '%s'; use sbs, tab, fp, deep12, or deep10\n",
 			layout_arg);
 		return 2;
 	}
-	max_bpc_12 = layout == LAYOUT_DEEP12;
+	max_bpc = layout == LAYOUT_DEEP12 ? !strcmp(layout_arg, "deep10") ? 10 : 12 : 0;
 	for (int i = 4; i < argc; i++) {
 		if (!strcmp(argv[i], "isolate"))
 			isolate = 1;
 		else if (!strcmp(argv[i], "vsif"))
 			vsif = 1;
 		else if (!strcmp(argv[i], "bpc12"))
-			max_bpc_12 = 1;
+			max_bpc = 12;
+		else if (!strcmp(argv[i], "bpc10"))
+			max_bpc = 10;
 		else if (!strcmp(argv[i], "720p")) {
 			pref_w = 1280; pref_h = 720;
 		} else if (!strcmp(argv[i], "hz24"))
 			pref_hz = 24;
 		else {
-			fprintf(stderr, "unknown option '%s'; use isolate, vsif, bpc12, 720p and/or hz24\n",
+			fprintf(stderr, "unknown option '%s'; use isolate, vsif, bpc12, bpc10, 720p and/or hz24\n",
 				argv[i]);
 			return 2;
 		}
@@ -266,7 +327,7 @@ int main(int argc, char **argv)
 
 	uint32_t vsif_prop = 0, vsif_blob = 0;
 	uint32_t max_bpc_prop = 0;
-	if (max_bpc_12) {
+	if (max_bpc) {
 		for (int i = 0; i < conn->count_props && !max_bpc_prop; i++) {
 			drmModePropertyPtr pr = drmModeGetProperty(fd, conn->props[i]);
 			if (pr) {
@@ -280,11 +341,11 @@ int main(int argc, char **argv)
 			return 1;
 		}
 		if (drmModeConnectorSetProperty(fd, conn->connector_id,
-						max_bpc_prop, 12)) {
-			perror("set max bpc=12");
+						max_bpc_prop, max_bpc)) {
+			perror("set max bpc");
 			return 1;
 		}
-		printf("requested connector property max bpc=12\n");
+		printf("requested connector property max bpc=%d\n", max_bpc);
 	}
 	if (vsif) {
 		/* Payload per NV_DRM common ioctl doc: 3-byte HDMI OUI (LSB
@@ -353,6 +414,9 @@ int main(int argc, char **argv)
 						b = (b + 24) > 255 ? 255 : b + 24;
 					px[y * stride + x] = r << 16 | g << 8 | b;
 				}
+				draw_label(px, stride, mode->hdisplay, mode->vdisplay,
+					   max_bpc == 10 ? "10-BIT RGB CLAMP"
+							 : "12-BIT RGB");
 			}
 			char k;
 			while (read(STDIN_FILENO, &k, 1) > 0)

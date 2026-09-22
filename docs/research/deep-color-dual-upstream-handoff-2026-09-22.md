@@ -179,8 +179,8 @@ Keep this triage in each description; do not mass-comment unrelated issues.
 
 1. Finish, verify and push both branches.
 2. Open the nouveau MR and NVIDIA PR.
-3. In the NVIDIA PR, call nouveau the “open-source counterpart.”
-4. In the nouveau MR, call NVIDIA the “closed-source counterpart.”
+3. In the NVIDIA PR, call nouveau the "open-source counterpart."
+4. In the nouveau MR, call NVIDIA the "closed-source counterpart."
 5. Post one cross-link comment on each after both stable URLs exist.
 6. Add both URLs, exact revision IDs and test state to
    `docs/upstream/issue-tracker.md`, `docs/project-status.md`,
@@ -311,7 +311,58 @@ do not invent code authorship or sign-offs for either AI partner.
   noted), plus the 30-bpp GCP arm; (b) answered as scope, extension left to
   maintainers. Both mails live in `/K3D/temp/thread.mbox` (lore pull,
   descriptive UA).
-- **Remaining:** after lore archives the series, the index pass per the
-  publication order above (issue-tracker/project-status/awesome-linux-hdr);
-  VLC escalation draft parked in `tools/serviio/upstream-3d-issues/vlc-mr.md`
-  for ~2026-09-29 at the owner's call.
+- **v2 BUILT 2026-09-22 evening (owner: "build v2 before the ack").**
+  Fresh blobless drm-misc-next clone at `/K3D/temp/ndc-v2` (tip still
+  base `73ef663c`, no rebase noise); v1 bundle applied, fixes folded into
+  patch 2 (`5f86153c`) via fixup+autosquash: series now
+  `ec385c04`→`5f86153c`→`a01857bb`, 14 files +144/-21.
+  Fixes: (a) GCP block in `nv50_hdmi_enable()` gains the 30-bpp arm
+  (CD=5, PP = pixels&3 of hdisplay+back-porch, wire 0 = phase 4 per
+  NVIDIA's nvtiming.h numbering; closes Sashiko 2/3 [High]); (b) SCDC
+  gate now thresholds `mode->clock * bpc / 8` (TMDS character rate) per
+  the HDMI 2.0 340 MHz rule, while the NVIF khz argument deliberately
+  stays the pixel clock — measured: link trained at the correct
+  222.75 MHz char rate, sequencer scales internally (closes Sashiko 1/3
+  [High]). HDMI-A-only max-bpc attach kept per i915 precedent=Sashiko
+  1/3 [Medium] answered as scope. checkpatch --strict clean x3;
+  incremental module rebuild clean, `cmp $0xa/$0xc/$0x10` opcodes
+  verified in nouveau.ko disasm of nv50_sor_atomic_enable.
+  Series files: `/K3D/temp/nouveau-deep-color-series-v2-fixed/`
+  (v2-0000..v2-0003). Cover letter subject filled
+  ("[PATCH v2 0/3] drm/nouveau: HDMI Deep Color link depth (30/36/48
+  bpp)"); blurb = v1 text + "Changes in v2" (three findings closed,
+  honest 30-bpp bench note: clamp run being prepared) + the owner's
+  citation round (NVIDIA #1382/#1384/PR #1386 context; HDMI 1.4b §6.5.3,
+  HDMI 2.0a, CTA-861-G, nvtiming.h, dw-hdmi precedent; sony-bravia-linux
+  + awesome-stereoscopy + awesome-linux-hdr URLs).
+- **NVIDIA PR #1386 RETITLED** per owner ("cite the specs now", REST
+  PATCH; then corrected again on his review: the "max_output_color_depth
+  to 12" half singled out one depth beside the three VSDB capabilities
+  and the parentheses went): final title "nvidia-modeset: raise default
+  output color depth for HDMI 1.4 Deep Color, EDID VSDB DC_30/DC_36/DC_48".
+- **Remaining:** 10-bpc clamp bench run (owner's hand); then ack mail in
+  the owner's framing ("the current implementation is the one breaking
+  HDMI specs" / "we're attempting to medicine to that disease") and the
+  v2 send — both on his explicit go.
+- **v2 BENCH PASSED the same evening (owner's hand, A then B).**
+  v2-bench module `/K3D/temp/k317/nouveau-hdmi-deep-colour-v2-experimental.ko`
+  (sha256 `89ced700ae4da204dd5d82014b3b01b20d57b2c3607b8b8979379fbfb7405b79`,
+  vermagic 7.0.10+deb14-amd64) = the running-kernel v4 shape + the two v2
+  fixes ported to `dispnv50/disp.c`. **run25** (deep12, regression): max
+  bpc=12 accepted, 36-bpp link up, renders; **run26** (deep10, new arm):
+  max bpc=10 clamp accepted, sink links at 30 bpp with CD=5 and renders —
+  v1's "CD=0 on a 30-bpp wire" hole is now closed on hardware. Tools grew
+  a `deep10` mode (`max bpc` clamp) and paint the run identity in big
+  yellow text on the frame ("12-BIT RGB" / "10-BIT RGB CLAMP") so pictures
+  and OSD reads can't be mixed up. Owner-verbatim: "Perfect run partner,
+  Both tests rung, A then B, both perfectly displayed with proper text."
+  Logs: `tools/stereo-modeset/run25-nouveau-v2-deep12-regression-pass-2026-09-22.log`,
+  `run26-nouveau-v2-deep10-clamp-pass-2026-09-22.log`. Cover letter's
+  Tested paragraph now reports both runs as done; benched series preserved
+  at `/K3D/temp/dual-upstream-preserve-2026-09-22/nouveau-deep-color-series-v2-benched/`.
+  Owner directive: repo gets the results now; the list/MR do NOT (ack + v2
+  send stay gated); continuation handed to Claude Opus — see
+  `docs/upstream/deep-color-opus-handoff-2026-09-22.md`.
+- **Remaining (post-bench):** ack mail + v2 send on the owner's word;
+  chroma/YCbCr next-series design (Opus lane); VLC escalation draft still
+  parked for ~2026-09-29; the index pass once v2 is on the list.

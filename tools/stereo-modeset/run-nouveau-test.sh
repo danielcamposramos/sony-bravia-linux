@@ -6,7 +6,7 @@
 # the TV switches to 3D by itself on the SBS-half modeset.
 #
 #   sudo systemd-run --unit=nouveau-3d-test --collect \
-#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh [sbs|tab|fp|deep12|sbs12|tab12|fp12]
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh [sbs|tab|fp|deep12|deep10|sbs12|tab12|fp12]
 #   (ONE line -- a line-broken paste runs 'sh' with no script, then runs this
 #    file unprivileged, which the root check below rejects loudly.)
 #
@@ -48,10 +48,11 @@ case "$MODE" in
 	tab) WANT_LABEL="top-and-bottom" ;;
 	fp)  WANT_LABEL="frame packing" ;;
 	deep12) WANT_LABEL="12-bpc SDR transport"; DEEP_TEST=1 ;;
+	deep10) WANT_LABEL="10-bpc SDR transport"; DEEP_TEST=1 ;;
 	sbs12) WANT_LABEL="side-by-side half at 12 bpc"; DEEP_TEST=1; BASE_MODE=sbs ;;
 	tab12) WANT_LABEL="top-and-bottom at 12 bpc"; DEEP_TEST=1; BASE_MODE=tab ;;
 	fp12) WANT_LABEL="frame packing at 12 bpc"; DEEP_TEST=1; BASE_MODE=fp ;;
-	*) echo "usage: $0 [sbs|tab|fp|deep12|sbs12|tab12|fp12]" >&2; exit 2 ;;
+	*) echo "usage: $0 [sbs|tab|fp|deep12|deep10|sbs12|tab12|fp12]" >&2; exit 2 ;;
 esac
 
 if [ "$DEEP_TEST" = 1 ]; then
@@ -316,10 +317,11 @@ echo "chosen connector: ${CONN:-none}"
 
 if [ -n "$CONN" ]; then
 	if [ "$DEEP_TEST" = 1 ]; then
-		echo "--- requesting $BASE_MODE with max bpc=12 for ${TEST_SECONDS}s on card1 $CONN"
+		echo "--- requesting $BASE_MODE for ${TEST_SECONDS}s on card1 $CONN"
 		echo "    (Daniel: read the TV OSD: bit depth, colour format, and 3D state where applicable)"
-		if [ "$BASE_MODE" = deep12 ]; then
-			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" deep12 isolate </dev/null || true
+		echo "    (the image itself names the run in big yellow text near the top)"
+		if [ "$BASE_MODE" = deep12 ] || [ "$BASE_MODE" = deep10 ]; then
+			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate </dev/null || true
 		else
 			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate bpc12 </dev/null || true
 		fi

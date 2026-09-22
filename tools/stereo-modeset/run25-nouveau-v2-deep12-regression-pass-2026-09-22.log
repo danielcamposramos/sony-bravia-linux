@@ -1,0 +1,374 @@
+# run25 (2026-09-22 17:27-17:29 -03): nouveau v2-bench module regression at default depth.
+# Module: /K3D/temp/k317/nouveau-hdmi-deep-colour-v2-experimental.ko sha256 89ced700ae4da204dd5d82014b3b01b20d57b2c3607b8b8979379fbfb7405b79
+#   = v4 audio-preserve shape + Sashiko v2 fixes (30-bpp GCP arm CD=5/PP=pixels&3; SCDC threshold on TMDS character rate).
+# What it proves: the v2 changes do not regress the proven 36-bpp path - the sink still
+#   links at 12 bpc and renders; the frame itself names the run in big yellow text.
+# Owner-verbatim: "Perfect run partner, Both tests rung, A then B, both perfectly
+#   displayed with proper text."
+
+=== nouveau-test 2026-09-22T17:27:13-03:00 layout=deep12 ===
+nouveau module: /K3D/temp/k317/nouveau-hdmi-deep-colour-v2-experimental.ko
+nouveau sha256: 89ced700ae4da204dd5d82014b3b01b20d57b2c3607b8b8979379fbfb7405b79
+vermagic gate passed: 7.0.10+deb14-amd64
+nvidia_uvm refcount=4 before docker pause
+--- pausing 5 docker containers for the test window:
+n8n (9782eff5cab7)
+watchtower (eb13a26eb779)
+browserless (a03261ee84b7)
+open-webui (9372e29cf766)
+qdrant (0a30636c55d8)
+9782eff5cab7
+eb13a26eb779
+a03261ee84b7
+9372e29cf766
+0a30636c55d8
+--- docker stack down (boot-time restore safety net enabled)
+nvidia_uvm refcount: 0 -- gate passed
+autoload guard installed: /run/modprobe.d/zz-nouveau-stereo-test.conf
+stopped nvidia-persistenced
+stopped coolercontrold
+stopped netdata
+cards free after 0s
+vtcon1 unbound
+vtcon0 unbound
+nouveau: not loaded, skip
+nvidia_fs: not loaded, skip
+removed nvidia_drm
+removed nvidia_uvm
+nvidia_modeset: not loaded, skip
+nvidia: not loaded, skip
+--- nvidia-family modules present (guard should keep this empty):
+none -- guard holding
+--- loading nouveau (GSP init on GA106 can take ~10s) ---
+card1 reappeared after 0s under: DRIVER=nouveau
+--- connectors on card1:
+card1-DP-2
+card1-DP-3
+card1-DP-4
+card1-HDMI-A-2
+card1 HDMI-A-2 EDID sha256: 4f6cc1c8b7ce1700f93ef13c76c490ea985752edadd05c64179ae169e69d5dc9
+--- nouveau connector/property inventory:
+opened device `nVidia Riva/TNT/GeForce/Quadro/Tesla/Tegra K1+` on driver `nouveau` (version 1.4.2 at 0)
+Connectors:
+id	encoder	status		name		size (mm)	modes	encoders
+43	45	connected	HDMI-A-2       	1020x570		22	45
+  modes:
+	index name refresh (Hz) hdisp hss hse htot vdisp vss vse vtot
+  #0 1920x1080 60.00 1920 2008 2052 2200 1080 1084 1089 1125 148500 flags: phsync, pvsync; type: preferred, driver
+  #1 1920x1080 59.94 1920 2008 2052 2200 1080 1084 1089 1125 148352 flags: phsync, pvsync; type: driver
+  #2 1920x1080 50.00 1920 2448 2492 2640 1080 1084 1089 1125 148500 flags: phsync, pvsync; type: driver
+  #3 1920x1080 30.00 1920 2008 2052 2200 1080 1084 1089 1125 74250 flags: phsync, pvsync; type: driver
+  #4 1920x1080 29.97 1920 2008 2052 2200 1080 1084 1089 1125 74176 flags: phsync, pvsync; type: driver
+  #5 1920x1080 24.00 1920 2558 2602 2750 1080 1084 1089 1125 74250 flags: phsync, pvsync; type: driver
+  #6 1920x1080 23.98 1920 2558 2602 2750 1080 1084 1089 1125 74176 flags: phsync, pvsync; type: driver
+  #7 1280x1024 60.02 1280 1328 1440 1688 1024 1025 1028 1066 108000 flags: phsync, pvsync; type: driver
+  #8 1280x720 60.00 1280 1390 1430 1650 720 725 730 750 74250 flags: phsync, pvsync; type: driver
+  #9 1280x720 59.94 1280 1390 1430 1650 720 725 730 750 74176 flags: phsync, pvsync; type: driver
+  #10 1280x720 50.00 1280 1720 1760 1980 720 725 730 750 74250 flags: phsync, pvsync; type: driver
+  #11 1280x720 30.00 1280 3040 3080 3300 720 725 730 750 74250 flags: phsync, pvsync; type: driver
+  #12 1280x720 29.97 1280 3040 3080 3300 720 725 730 750 74176 flags: phsync, pvsync; type: driver
+  #13 1280x720 24.00 1280 3040 3080 3300 720 725 730 750 59400 flags: phsync, pvsync; type: driver
+  #14 1280x720 23.98 1280 3040 3080 3300 720 725 730 750 59341 flags: phsync, pvsync; type: driver
+  #15 1024x768 60.00 1024 1048 1184 1344 768 771 777 806 65000 flags: nhsync, nvsync; type: driver
+  #16 800x600 60.32 800 840 968 1056 600 601 605 628 40000 flags: phsync, pvsync; type: driver
+  #17 720x576 50.00 720 732 796 864 576 581 586 625 27000 flags: nhsync, nvsync; type: driver
+  #18 720x480 60.00 720 736 798 858 480 489 495 525 27027 flags: nhsync, nvsync; type: driver
+  #19 720x480 59.94 720 736 798 858 480 489 495 525 27000 flags: nhsync, nvsync; type: driver
+  #20 640x480 60.00 640 656 752 800 480 490 492 525 25200 flags: nhsync, nvsync; type: driver
+  #21 640x480 59.94 640 656 752 800 480 490 492 525 25175 flags: nhsync, nvsync; type: driver
+  props:
+	1 EDID:
+		flags: immutable blob
+		blobs:
+
+		value:
+			00ffffffffffff004dd9027401010101
+			01160103806639780a0dc9a057479827
+			12484c21080081800101010101010101
+			010101010101023a801871382d40582c
+			4500fa3d3200001e011d007251d01e20
+			6e285500fa3d3200001e000000fc0053
+			4f4e592054560a2020202020000000fd
+			00303e0e460f000a202020202020010c
+			02033bf0531f101405130420223c3e12
+			16030711150206012609070715075083
+			01000074030c003000b82d2fd00a0140
+			007f203070809076e200fb023a80d072
+			382d40102c4580fa3d3200001e011d00
+			bc52d01e20b8285540fa3d3200001e01
+			1d80d0721c1620102c2580fa3d320000
+			9e0000000000000000000000000000d5
+	2 DPMS:
+		flags: enum
+		enums: On=0 Standby=1 Suspend=2 Off=3
+		value: 0
+	5 link-status:
+		flags: enum
+		enums: Good=0 Bad=1
+		value: 0
+	6 non-desktop:
+		flags: immutable range
+		values: 0 1
+		value: 0
+	4 TILE:
+		flags: immutable blob
+		blobs:
+
+		value:
+	44 max bpc:
+		flags: range
+		values: 8 12
+		value: 0
+	38 underscan:
+		flags: enum
+		enums: auto=2 off=0 on=1
+		value: 0
+	39 underscan hborder:
+		flags: range
+		values: 0 128
+		value: 0
+	40 underscan vborder:
+		flags: range
+		values: 0 128
+		value: 0
+	41 vibrant hue:
+		flags: range
+		values: 0 180
+		value: 90
+	42 color vibrance:
+		flags: range
+		values: 0 200
+		value: 150
+	33 scaling mode:
+		flags: enum
+		enums: None=0 Full=1 Center=2 Full aspect=3
+		value: 0
+	36 dithering mode:
+		flags: enum
+		enums: auto=34 off=0 static 2x2=25 dynamic 2x2=17 temporal=33
+		value: 34
+	37 dithering depth:
+		flags: enum
+		enums: auto=3 6 bpc=0 8 bpc=2
+		value: 3
+46	0	disconnected	DP-2           	0x0		0	47, 48
+  props:
+	1 EDID:
+		flags: immutable blob
+		blobs:
+
+		value:
+	2 DPMS:
+		flags: enum
+		enums: On=0 Standby=1 Suspend=2 Off=3
+		value: 0
+	5 link-status:
+		flags: enum
+		enums: Good=0 Bad=1
+		value: 0
+	6 non-desktop:
+		flags: immutable range
+		values: 0 1
+		value: 0
+	4 TILE:
+		flags: immutable blob
+		blobs:
+
+		value:
+	38 underscan:
+		flags: enum
+		enums: auto=2 off=0 on=1
+		value: 0
+	39 underscan hborder:
+		flags: range
+		values: 0 128
+		value: 0
+	40 underscan vborder:
+		flags: range
+		values: 0 128
+		value: 0
+	41 vibrant hue:
+		flags: range
+		values: 0 180
+		value: 90
+	42 color vibrance:
+		flags: range
+		values: 0 200
+		value: 150
+	33 scaling mode:
+		flags: enum
+		enums: None=0 Full=1 Center=2 Full aspect=3
+		value: 0
+	36 dithering mode:
+		flags: enum
+		enums: auto=34 off=0 static 2x2=25 dynamic 2x2=17 temporal=33
+		value: 34
+	37 dithering depth:
+		flags: enum
+		enums: auto=3 6 bpc=0 8 bpc=2
+		value: 3
+49	0	disconnected	DP-3           	0x0		0	50, 51
+  props:
+	1 EDID:
+		flags: immutable blob
+		blobs:
+
+		value:
+	2 DPMS:
+		flags: enum
+		enums: On=0 Standby=1 Suspend=2 Off=3
+		value: 0
+	5 link-status:
+		flags: enum
+		enums: Good=0 Bad=1
+		value: 0
+	6 non-desktop:
+		flags: immutable range
+		values: 0 1
+		value: 0
+	4 TILE:
+		flags: immutable blob
+		blobs:
+
+		value:
+	38 underscan:
+		flags: enum
+		enums: auto=2 off=0 on=1
+		value: 0
+	39 underscan hborder:
+		flags: range
+		values: 0 128
+		value: 0
+	40 underscan vborder:
+		flags: range
+		values: 0 128
+		value: 0
+	41 vibrant hue:
+		flags: range
+		values: 0 180
+		value: 90
+	42 color vibrance:
+		flags: range
+		values: 0 200
+		value: 150
+	33 scaling mode:
+		flags: enum
+		enums: None=0 Full=1 Center=2 Full aspect=3
+		value: 0
+	36 dithering mode:
+		flags: enum
+		enums: auto=34 off=0 static 2x2=25 dynamic 2x2=17 temporal=33
+		value: 34
+	37 dithering depth:
+		flags: enum
+		enums: auto=3 6 bpc=0 8 bpc=2
+		value: 3
+52	0	disconnected	DP-4           	0x0		0	53, 54
+  props:
+	1 EDID:
+		flags: immutable blob
+		blobs:
+
+		value:
+	2 DPMS:
+		flags: enum
+		enums: On=0 Standby=1 Suspend=2 Off=3
+		value: 0
+	5 link-status:
+		flags: enum
+		enums: Good=0 Bad=1
+		value: 0
+	6 non-desktop:
+		flags: immutable range
+		values: 0 1
+		value: 0
+	4 TILE:
+		flags: immutable blob
+		blobs:
+
+		value:
+	38 underscan:
+		flags: enum
+		enums: auto=2 off=0 on=1
+		value: 0
+	39 underscan hborder:
+		flags: range
+		values: 0 128
+		value: 0
+	40 underscan vborder:
+		flags: range
+		values: 0 128
+		value: 0
+	41 vibrant hue:
+		flags: range
+		values: 0 180
+		value: 90
+	42 color vibrance:
+		flags: range
+		values: 0 200
+		value: 150
+	33 scaling mode:
+		flags: enum
+		enums: None=0 Full=1 Center=2 Full aspect=3
+		value: 0
+	36 dithering mode:
+		flags: enum
+		enums: auto=34 off=0 static 2x2=25 dynamic 2x2=17 temporal=33
+		value: 34
+	37 dithering depth:
+		flags: enum
+		enums: auto=3 6 bpc=0 8 bpc=2
+		value: 3
+
+chosen connector: HDMI-A-2
+--- requesting deep12 for 90s on card1 HDMI-A-2
+    (Daniel: read the TV OSD: bit depth, colour format, and 3D state where applicable)
+    (the image itself names the run in big yellow text near the top)
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @50 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @50 side-by-side half
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 side-by-side half
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+choosing 1920x1080 1920x1080 @60 clk=148500 (12-bpc SDR transport)
+requested connector property max bpc=12
+scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+restored
+--- restoring nvidia stack
+restarted netdata
+restarted coolercontrold
+restarted nvidia-persistenced
+=== done 2026-09-22T17:29:07-03:00 ===
+--- restoring docker stack
+9782eff5cab7
+eb13a26eb779
+a03261ee84b7
+9372e29cf766
+0a30636c55d8
