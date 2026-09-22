@@ -226,6 +226,12 @@ design change; and a cross-citing comment on the MR ([note
 582090](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582090))
 tying @tailslol's original request to the new default. fkuehne (the Felix
 who approved the account) had called 3D "a goal for 4.1" in April.
+**Review requested from robUx4 personally** ([note
+582092](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582092)):
+the formal reviewer field refused to stick (fork contributors cannot set
+reviewers on the target project — the PUT returned 200 with an empty
+reviewers list), so the ask went as a direct comment mention, the
+mpv-style fallback.
 On the email-trigger watch, never polled.
 
 ## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
