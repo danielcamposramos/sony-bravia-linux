@@ -409,3 +409,8 @@ do not invent code authorship or sign-offs for either AI partner.
   machine has no freedesktop GitLab credentials or CLI, so none could have been
   created from here. Ack reply to the v1 cover staged with both lore links at
   `/K3D/temp/ack/0001-ack-sashiko.eml`, awaiting the owner's final go.
+- **Ack SENT** on the v1 cover thread, 250-accepted:
+  `<20260922220723.649977-1-Capitain_Jack@yahoo.com>` — owner's framing (the
+  HDMI-compliance gaps pre-existed in nouveau; the series patches exactly
+  that; the 30-bpp arm was v1 not yet covering the whole gap), both lore
+  links, disclosure line. From here: email-trigger only, never polled.

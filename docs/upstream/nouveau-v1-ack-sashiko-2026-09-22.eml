@@ -1,0 +1,20 @@
+From Daniel Campos Ramos Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Subject: Re: [PATCH 0/3] drm/nouveau: HDMI Deep Color link depth (30/36/48 bpp)
+In-Reply-To: <20260922192132.114546-1-Capitain_Jack@yahoo.com>
+References: <20260922192132.114546-1-Capitain_Jack@yahoo.com>
+
+None of these compliance gaps were introduced by the series; they were already there, and the series exists to patch exactly that.
+Before it, nouveau sent 8-bpc output with a depth-less GCP to sinks declaring Deep Color, and full-range RGB on CE formats without signalling it.
+The SCDC gate compared the pixel clock because, without Deep Color, the pixel clock was the character rate; the series made that no longer true, so v2 gates on the character rate.
+The missing 30-bpp GCP arm was v1 not yet covering the whole gap: it followed NVIDIA's own reference rule, which only declares 36 bpp. v2 encodes 30, 36 and 48 bpp per HDMI 1.4b 6.5.3, and the 10-bit path is now bench-tested on the same sink.
+The HDMI-A-only attach is closed in the follow-on colour format series, which also brings limited-range RGB and YCbCr.
+Our own bench logs found one more, frame packing rated at the per-eye clock, and v2 fixes that too.
+The current implementation is the one breaking the HDMI specs; we're attempting to medicine that disease.
+
+v2: https://lore.kernel.org/dri-devel/20260922215317.611388-1-Capitain_Jack@yahoo.com/
+Colour format series: https://lore.kernel.org/dri-devel/20260922215336.612239-1-Capitain_Jack@yahoo.com/
+
+AI partners were leveraged in the production of this work.
+
+Daniel
