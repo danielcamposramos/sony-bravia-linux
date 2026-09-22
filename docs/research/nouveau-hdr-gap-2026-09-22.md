@@ -36,12 +36,20 @@ define explicit 36-bpp RGB 4:4:4 values at both SOR and head level. The nearby
 “we don't support more than 10 anyway” comment is confined to DisplayPort
 link reduction. The old open question — whether selecting those existing
 36-bpp values also makes GA106 emit the required HDMI General Control Packet
-deep-colour indication — is now answered by negative measurement: on the
-experimental 36-bpp modeset the driver-side path committed cleanly and the
-HX855 refused the wire (“incompatible signal” OSD), so GCP programming is a
-**separate, missing half** on GA106 [inferred from sink behaviour; no wire
-analyzer]. The measurement and next-experiment fork are recorded in the plan
-document.
+deep-colour indication — was first answered by negative measurement (run 2:
+the experimental 36-bpp modeset committed cleanly and the HX855 refused the
+wire), then by construction and register evidence: patch v2 added the GCP
+programming bit-for-bit from NVIDIA's own public recipe, patch v3 proved via
+readback during run 4 that the GCP subpack `0x00002610` and its enable bit
+land and hold in the SF aperture under GSP, matching the proprietary driver's
+MMIO route — yet the sink still refused. The remaining missing half is
+therefore the **TMDS character-rate derivation**: nothing in the open halves
+raises the link from 148.5 to 222.75 MHz for deep colour; that derivation
+lives inside closed RM/GSP and evidently does not trigger from the state
+nouveau supplies [inferred from sink behaviour plus register readbacks; no
+wire analyzer]. The measurement chain, the two remaining candidate levers,
+and the partner handoff are recorded in the plan document and
+[`nouveau-deep-colour-handoff-to-codex-2026-09-22.md`](nouveau-deep-colour-handoff-to-codex-2026-09-22.md).
 
 The owned HX855 declares a 225 MHz TMDS maximum; 1080p60 at 12-bpc RGB needs
 148.5 × 1.5 = 222.75 MHz. That makes the existing bench a narrow but valid

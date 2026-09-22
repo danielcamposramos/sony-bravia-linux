@@ -375,6 +375,70 @@ sudo systemd-run --setenv=NOUVEAU_TEST_KO=/K3D/temp/k317/nouveau-hdmi-deep-colou
   sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh deep12
 ```
 
+**Run 4 measured (2026-09-22 09:27:59–09:29:55 UTC-3):** the instrumented
+v3 module (sha256 `68768c48…ded4`) repeated the full driver-side pass —
+EDID gate matched, `max bpc=12`, 1080p60 36-bpp modeset committed, zero
+kernel errors, harness restored everything unattended — and the sink again
+answered “incompatible signal” for the whole hold. But this time the kernel
+log spoke back. The instrumentation printed, in order:
+
+```text
+nouveau: disp: gcp: head 0 subpack w=0x00000010 r=0x00000010 ctrl=0x00000001 avi_ctrl=0x00000200 avi_sp0=0x0828121d
+drm: deep-colour probe: TMDS bpc=12 sor-depth=0x8 clock=148500 kHz
+nouveau: disp: gcp: head 0 subpack w=0x00002610 r=0x00002610 ctrl=0x00000001 avi_ctrl=0x00000200 avi_sp0=0x0828121d
+```
+
+What this resolves:
+
+1. The GCP write **lands and holds under GSP**: after the deep-colour
+   modeset the subpack read back `0x00002610` (SB0 Clear_AVMUTE, SB1
+   CD=6|PP=2) with the slot enable bit set. Branch (a) — a dropped or
+   shadowed MMIO write — is dead for the payload we wrote.
+2. NVIDIA's proprietary stack itself sends GCP by the same MMIO slot write
+   under GSP (NVKMS `SendHdmiGcp()`, called from the HDMI audio enable
+   flow at nvkms-hdmi.c:1381; GSP is mandatory on that stack), so a
+   register write at this aperture is the production wire route, not a
+   dead register. The GCP declaration was therefore on the wire [inferred
+   from landed-register plus production-path identity].
+3. The sibling readback exposed GSP ownership of the aperture: the AVI
+   subpack payload persisted (`avi_sp0=0x0828121d`, written by nouveau
+   first) but the AVI enable bit read back clear (`avi_ctrl=0x00000200`,
+   only the CHKSUM_HW reset default) — RM's `SET_HDMI_ENABLE` handler
+   sanitizes the slot control words from its own state. Our GCP write
+   survives precisely because v2/v3 placed it **after** the RM call; that
+   ordering is load-bearing, not stylistic.
+4. By elimination the refusal is branch (b): the stream declared 36-bpp
+   deep colour while the TMDS character rate never rose to 222.75 MHz —
+   the sink measured an 8-bpc-rate link against a 36-bpp declaration and
+   called it “incompatible”, which is exactly correct of it [inferred; no
+   wire analyzer].
+
+For the clock side, the open NVIDIA halves contribute one more narrowing:
+NVKMS's IMP validation block (nvkms-modeset.c:1391-1476) feeds
+`pixelDepth` and the timings into the closed IMP/downgrade layer, and no
+open code anywhere programs a TMDS character-rate clock for deep colour;
+the C37D/C57D core channel exposes no SOR clock method. The derivation is
+entirely RM/GSP-internal. Two RM calls in the neighbourhood were checked
+and ruled different-but-unhelpful: `SET_HDMI_SINK_CAPS` (no deep-colour
+bits) and `CTRL_HDMI` “prior to every modeset” (not used by NVKMS's HDMI
+code at all — its only RM calls on this path are `SET_HDMI_ENABLE`, the
+sink-caps mirror, and the audio/ELD ones, all of which nouveau matches or
+which do not gate video transport).
+
+Next levers, handed to the Codex partner for a second pair of eyes (full
+briefing in
+[`nouveau-deep-colour-handoff-to-codex-2026-09-22.md`](nouveau-deep-colour-handoff-to-codex-2026-09-22.md)):
+find what input GSP RM needs to derive the 222.75 MHz character clock —
+candidates include the proprietary-oracle register diff (the local nvidia
+module exposes `hdmi_deepcolor:bool`, so a Linux-side known-good 12-bpc
+wire can be produced and its aperture/SOR state dumped for comparison),
+and auditing how GSP RM learns link depth — most plausibly from the very
+head OUTPUT_RESOURCE pixel depth nouveau already sends, in which case the
+clock derivation gate is a still-missing RM-visible input.
+
+Narrative log:
+[`tools/stereo-modeset/run22-nouveau-deep12-gcpdbg-incompatible-2026-09-22.log`](../../tools/stereo-modeset/run22-nouveau-deep12-gcpdbg-incompatible-2026-09-22.log).
+
 ## Staged harness modes
 
 The harness modes are deliberately staged:
