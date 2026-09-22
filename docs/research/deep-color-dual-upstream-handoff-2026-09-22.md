@@ -397,3 +397,15 @@ do not invent code authorship or sign-offs for either AI partner.
   series send (recommendation: two series, v2 first); awesome-linux-hdr +
   awesome-stereoscopy pass for DVI / DisplayPort / DP++ (DP carries stereo
   natively: MSA MISC1 / VSC SDP).
+- **BOTH SERIES SENT 2026-09-22 ~18:53 -03** on the owner's go, 11/11
+  messages 250-accepted, to dri-devel, cc nouveau + Lyude Paul + Danilo
+  Krummrich (patch 6 also auto-cc'd sashiko-bot@kernel.org via Reported-by):
+  v2 cover `<20260922215317.611388-1-Capitain_Jack@yahoo.com>` (patches -2..-4);
+  colour-format cover `<20260922215336.612239-1-Capitain_Jack@yahoo.com>`
+  (patches -2..-7). Channel: list + Patchwork only, per MAINTAINERS; no GitLab
+  MR (MAINTAINERS lists the MR queue as an alternative door, not a mirror; a
+  second channel would duplicate review). Accidental-MR check: drm/nouveau MR
+  list has none of ours; drm/misc refuses anonymous API reads (403); this
+  machine has no freedesktop GitLab credentials or CLI, so none could have been
+  created from here. Ack reply to the v1 cover staged with both lore links at
+  `/K3D/temp/ack/0001-ack-sashiko.eml`, awaiting the owner's final go.
