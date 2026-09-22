@@ -6,7 +6,10 @@
 # the TV switches to 3D by itself on the SBS-half modeset.
 #
 #   sudo systemd-run --unit=nouveau-3d-test --collect \
-#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh [sbs|tab|fp|deep12|deep10|sbs12|tab12|fp12]
+#        sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh [sbs|tab|fp|deep12|deep10|deep8|sbs12|tab12|fp12|chroma] [rgbfull|rgblimited|rgbauto|yuv444|yuv422]
+#   chroma: one driver swap, then every output format x depth (and three
+#   3D + format combinations) in turn, STEP_SECONDS each, each frame naming
+#   itself; the optional second argument picks the format for a single deep run.
 #   (ONE line -- a line-broken paste runs 'sh' with no script, then runs this
 #    file unprivileged, which the root check below rejects loudly.)
 #
@@ -40,6 +43,8 @@ DSTATE=/K3D/temp/nouveau-docker.state     # survives the intentional reboot
 DCONS=/K3D/temp/nouveau-docker.containers # containers we stopped, to restart
 GUARD=/run/modprobe.d/zz-nouveau-stereo-test.conf  # tmpfs: gone on any reset
 MODE="${1:-sbs}"
+FMT="${2:-}"
+STEP_SECONDS=30
 DEEP_TEST=0
 BASE_MODE="$MODE"
 
@@ -49,10 +54,12 @@ case "$MODE" in
 	fp)  WANT_LABEL="frame packing" ;;
 	deep12) WANT_LABEL="12-bpc SDR transport"; DEEP_TEST=1 ;;
 	deep10) WANT_LABEL="10-bpc SDR transport"; DEEP_TEST=1 ;;
+	deep8) WANT_LABEL="8-bpc SDR transport"; DEEP_TEST=1 ;;
+	chroma) WANT_LABEL="output format matrix"; DEEP_TEST=1 ;;
 	sbs12) WANT_LABEL="side-by-side half at 12 bpc"; DEEP_TEST=1; BASE_MODE=sbs ;;
 	tab12) WANT_LABEL="top-and-bottom at 12 bpc"; DEEP_TEST=1; BASE_MODE=tab ;;
 	fp12) WANT_LABEL="frame packing at 12 bpc"; DEEP_TEST=1; BASE_MODE=fp ;;
-	*) echo "usage: $0 [sbs|tab|fp|deep12|deep10|sbs12|tab12|fp12]" >&2; exit 2 ;;
+	*) echo "usage: $0 [sbs|tab|fp|deep12|deep10|deep8|sbs12|tab12|fp12|chroma] [fmt]" >&2; exit 2 ;;
 esac
 
 if [ "$DEEP_TEST" = 1 ]; then
@@ -137,7 +144,7 @@ EOU
 	fi
 }
 
-echo "=== nouveau-test $(date -Is) layout=$MODE ==="
+echo "=== nouveau-test $(date -Is) layout=$MODE${FMT:+ fmt=$FMT} ==="
 
 echo 1 > /proc/sys/kernel/sysrq 2>/dev/null || true
 
@@ -320,8 +327,23 @@ if [ -n "$CONN" ]; then
 		echo "--- requesting $BASE_MODE for ${TEST_SECONDS}s on card1 $CONN"
 		echo "    (Daniel: read the TV OSD: bit depth, colour format, and 3D state where applicable)"
 		echo "    (the image itself names the run in big yellow text near the top)"
-		if [ "$BASE_MODE" = deep12 ] || [ "$BASE_MODE" = deep10 ]; then
-			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate </dev/null || true
+		if [ "$BASE_MODE" = chroma ]; then
+			# RGB full/limited/automatic, YCbCr 4:4:4 and 4:2:2, each at
+			# 12/10/8 bpc, then 3D with a non-default format on each layout.
+			for step in "deep12 fmt=rgbfull" "deep12 fmt=rgblimited" "deep12 fmt=rgbauto" \
+				    "deep10 fmt=rgbfull" "deep10 fmt=rgblimited" \
+				    "deep8 fmt=rgbfull" "deep8 fmt=rgblimited" \
+				    "deep12 fmt=yuv444" "deep10 fmt=yuv444" "deep8 fmt=yuv444" \
+				    "deep12 fmt=yuv422" "deep10 fmt=yuv422" "deep8 fmt=yuv422" \
+				    "sbs bpc12 fmt=yuv444" "tab bpc12 fmt=rgblimited" "fp bpc12 fmt=yuv422"; do
+				echo "--- chroma step: $step (${STEP_SECONDS}s)"
+				# shellcheck disable=SC2086 # $step is a deliberate word list
+				timeout "$STEP_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" $step isolate </dev/null || true
+				echo "    driver: $(dmesg | grep 'chroma bench:' | tail -1)"
+			done
+		elif [ "$BASE_MODE" = deep12 ] || [ "$BASE_MODE" = deep10 ] || [ "$BASE_MODE" = deep8 ]; then
+			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate ${FMT:+fmt=$FMT} </dev/null || true
+			echo "    driver: $(dmesg | grep 'chroma bench:' | tail -1)"
 		else
 			timeout "$TEST_SECONDS" stdbuf -oL "$TOOLS/stereo-modeset/stereo-modeset" /dev/dri/card1 "$CONN" "$BASE_MODE" isolate bpc12 </dev/null || true
 		fi
