@@ -153,6 +153,77 @@ exact SHA-256 and inventories with `-M nouveau`. NVIDIA, the desktop, services,
 and all six stopped containers restored normally. This run is harness evidence
 only, not a deep-colour result.
 
+Run 2 (deep12, 05:09:58–05:11:46 UTC-3) completed the full driver-side path
+for the first time. The fixed harness worked end to end: the NVIDIA-input EDID
+matched the gate hash exactly (`4f6cc1c8…e69d5dc9`), the inventory printed
+connector 43 (HDMI-A-2) with the patch-attached `max bpc` property (id 44,
+range 8–12), and the stock-nouveau stereo listing followed run19's proven
+roster. The probe set `max bpc=12`, selected 1920x1080@60 (148.5 MHz pixel
+clock, 222.75 MHz TMDS character rate at 36-bpp), and the modeset committed
+with no driver-side error (`requested connector property max bpc=12`,
+`modeset done (isolated)`). Sink testimony, recorded by Daniel at the set: the
+HX855 displayed “incompatible signal detected, verify your output” — it saw
+the changed wire and refused to frame it. At about 50 seconds into the
+90-second hold Daniel ended the run deliberately (ctrl+alt+del) rather than
+wait; the kernel/desktop restore ran during shutdown (`restored`), and the
+journal shows a clean boot back onto the stock NVIDIA stack with zero
+kernel-error lines from the experimental module (clean GSP bind under
+RM 570.144, four planes, `fb1 = nouveaudrmfb`).
+
+The restore was nevertheless **partial** and this is worth fixing before any
+run 3: a `sh` process that dies to SIGTERM never runs its EXIT trap, and the
+systemd-run unit received exactly that during the reboot. The module/desktop
+half was restored by the reboot itself (nouveau is blacklisted at boot and the
+guard lives in tmpfs `/run/modprobe.d`), but the docker half — which lives only
+in the trap — was skipped. watchtower and open-webui recovered through their
+own restart policies; n8n, mkvbuild, browserless and qdrant stayed down until
+they were restarted manually post-boot from the harness's own recorded
+container list (`/K3D/temp/nouveau-docker.containers`). No restore work may
+live only in an EXIT trap for a run whose possible end is a reboot.
+
+Measured finding: engaging the existing 36-bpp SOR/head values end to end is
+necessary but **not sufficient**. The sink requires a correct General Control
+Packet deep-colour indication to frame a 12-bit stream, and the current
+experimental patch does not yet emit one [inferred from the sink refusal; no
+wire analyzer]. This answers, by negative measurement, the exact open question
+recorded in the source-findings section: the display engine does not derive a
+valid GCP configuration from the SOR/head pixel depth on GA106. The matching
+acceptance-matrix row is “sink loses picture → rollback”; kernel and desktop
+came back clean, with the docker gap above recorded as a harness defect, not a
+driver event.
+
+Harness lesson: the home mirror is written only by the exit trap, so an
+intentional reboot forfeits it. The live append target
+`/var/log/nouveau-deep-colour-test.log` survived the reboot and is the run-2
+narrative source; it is preserved in the repository as
+[`tools/stereo-modeset/run20-nouveau-deep12-incompatible-2026-09-22.log`](../../tools/stereo-modeset/run20-nouveau-deep12-incompatible-2026-09-22.log)
+(it contains the run-1 preflight and run-2 narratives in sequence). Future
+iterations should tee or fsync continuously so an abrupt stop can no longer
+cost a run's record, and move restore work out of the shell trap into a
+systemd-managed path (an `ExecStopPost=` restorer on the run unit, or a
+boot-triggered unit keyed on the state file) so the docker pause always gets
+undone no matter how the run ends.
+
+## Next experiment (pending owner choice)
+
+Run 2 located the boundary; two candidate next moves are on the table, in
+priority order:
+
+1. **GCP emission path (code, no new live run).** Trace how GA106 is supposed
+   to drive the General Control Packet `CD` (colour depth) field — whether the
+   generation-specific HDMI control path already enables a GCP whose fields
+   firmware derives, or whether the r535 GSP `SET_OD_PACKET`-grade generic slot
+   (36 bytes, currently used only for HDMI audio) is the carrier. The hdr-gap
+   document's source map already names the candidate writers; the experimental
+   patch then gains GCP programming before any rerun.
+2. **10-bpc discriminator run (cheap, still a live sink-risk in front of the
+   owner).** Run the same probe at 10 bpc (30 bpp). A second “incompatible
+   signal” would strengthen the missing-GCP hypothesis for any CD ≠ 8; a
+   stable 10-bit picture would instead show the sink tolerates a narrower
+   deep-colour step and refute part of the current model.
+
+## Staged harness modes
+
 The harness modes are deliberately staged:
 
 ```text

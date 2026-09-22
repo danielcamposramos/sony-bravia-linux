@@ -34,9 +34,14 @@ property.
 This is not evidence of an 8-bpc hardware limit. The display class headers
 define explicit 36-bpp RGB 4:4:4 values at both SOR and head level. The nearby
 “we don't support more than 10 anyway” comment is confined to DisplayPort
-link reduction. The open question is whether selecting those existing
+link reduction. The old open question — whether selecting those existing
 36-bpp values also makes GA106 emit the required HDMI General Control Packet
-deep-colour indication, or whether that needs separate programming.
+deep-colour indication — is now answered by negative measurement: on the
+experimental 36-bpp modeset the driver-side path committed cleanly and the
+HX855 refused the wire (“incompatible signal” OSD), so GCP programming is a
+**separate, missing half** on GA106 [inferred from sink behaviour; no wire
+analyzer]. The measurement and next-experiment fork are recorded in the plan
+document.
 
 The owned HX855 declares a 225 MHz TMDS maximum; 1080p60 at 12-bpc RGB needs
 148.5 × 1.5 = 222.75 MHz. That makes the existing bench a narrow but valid

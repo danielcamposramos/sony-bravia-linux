@@ -80,6 +80,9 @@ resume_docker() {
 		echo "--- restoring docker stack"
 		systemctl unmask docker docker.socket containerd 2>&1 || true
 		rm -f "$DSTATE"
+		systemctl disable -q nouveau-docker-restore.service 2>/dev/null || true
+		rm -f /etc/systemd/system/nouveau-docker-restore.service
+		systemctl daemon-reload 2>/dev/null || true
 		systemctl start containerd docker.socket docker 2>&1 || true
 		if [ -s "$DCONS" ]; then
 			while read c; do docker start "$c" 2>&1; done < "$DCONS"
@@ -89,6 +92,11 @@ resume_docker() {
 }
 
 trap 'rm -f "$GUARD"; resume_docker; cp -f "$LOG" "$HOMELOG" 2>/dev/null; chown "$KUSER":"$KUSER" "$HOMELOG" 2>/dev/null; true' 0
+# A SIGTERMed sh never runs its EXIT trap (run 2, 2026-09-22: an intentional
+# Ctrl+Alt+Del skipped the whole restore). Turn TERM into a normal exit so
+# orderly shutdowns still reach the trap; the systemd safety net installed by
+# pause_docker covers the cases where even that races the shutdown.
+trap 'exit 143' TERM
 
 pause_docker() {
 	if systemctl is-active docker >/dev/null 2>&1; then
@@ -102,7 +110,27 @@ pause_docker() {
 		fi
 		systemctl stop docker docker.socket containerd 2>&1 || true
 		echo paused > "$DSTATE"
-		echo "--- docker stack down"
+		# An intentional reboot skips this shell's EXIT trap entirely; give the
+		# docker restore a second, systemic path: a boot-time oneshot keyed on
+		# the state file. Consumes itself on success and stays armed when the
+		# state is the cross-boot masked-awaiting-reboot protocol.
+		cat > /etc/systemd/system/nouveau-docker-restore.service <<'EOU'
+[Unit]
+Description=restore docker stack paused by the nouveau test harness
+ConditionPathExists=/K3D/temp/nouveau-docker.state
+After=docker.service
+Wants=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c 'ST=/K3D/temp/nouveau-docker.state; CS=/K3D/temp/nouveau-docker.containers; case "$(cat $ST 2>/dev/null)" in paused|armed) ;; *) exit 0 ;; esac; while read c; do docker start "$c" 2>&1 || true; done < "$CS"; rm -f "$ST" "$CS"; systemctl disable -q nouveau-docker-restore.service 2>/dev/null; rm -f /etc/systemd/system/nouveau-docker-restore.service'
+
+[Install]
+WantedBy=multi-user.target
+EOU
+		systemctl daemon-reload 2>/dev/null || true
+		systemctl enable -q nouveau-docker-restore.service 2>/dev/null || true
+		echo "--- docker stack down (boot-time restore safety net enabled)"
 	else
 		echo "--- docker not active, nothing to pause"
 	fi
