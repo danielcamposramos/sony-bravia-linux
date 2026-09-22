@@ -58,6 +58,38 @@ Generated patches: `/tmp/nouveau-deep-color-series-v2/`. Before submitting:
 - write a cover letter with the run-5 evidence and scope below;
 - push a contributor fork and open the GitLab MR if authentication exists.
 
+### Last checkpoint before Codex stopped
+
+The commit-message wrap was fixed and the series regenerated. `checkpatch.pl
+--no-tree` reports **0 errors and 0 warnings on all three patches**. Current
+drm-misc-next commit IDs are:
+
+- `ec385c04` — select HDMI deep-color link depth;
+- `78827bdb` — pass HDMI GCP state through NVIF;
+- `a7315e24` — program GCP fields.
+
+The submission-target audit found an important wrinkle. Current
+`MAINTAINERS` names the live code tree as
+`https://gitlab.freedesktop.org/drm/misc/kernel.git` and separately names
+`https://gitlab.freedesktop.org/drm/nouveau/-/merge_requests` as an accepted
+queue. That GitLab project's `nouveau-next` tip is `775b8212` from 2023 and
+does not contain the modern files the series changes (including
+`headca7d.c`); patch 1 cannot apply there. The active base here is
+drm-misc-next `73ef663c` from 2026. The public API shows only old MRs (#16,
+#23, #24, #25, #27), and the drm/misc MR API returned 403. Do **not** rebase
+onto the stale 2023 branch or open a misleading MR. Verify the maintainers'
+current intake convention. The technically correct fallback is the
+signed-off three-patch email series to `dri-devel` and `nouveau`, copying
+Lyude Paul and Danilo Krummrich, because that is the live tree/list
+combination in `MAINTAINERS`.
+
+An attempted shallow checkout remains at `/tmp/nouveau-next`; it has no
+changes. The authoritative branch remains `/tmp/nouveau-drm-misc`. The new
+16-bpc-expanded series has not yet been rebuilt in the configured kernel
+tree; the earlier 12-bpc series did build and pass on hardware. Next safe act
+is to apply `/tmp/nouveau-deep-color-series-v2/` to a clean configured current
+kernel tree and build `M=drivers/gpu/drm/nouveau`.
+
 ## NVIDIA series state
 
 Working tree: `/tmp/nvidia-open`, branch
@@ -65,6 +97,10 @@ Working tree: `/tmp/nvidia-open`, branch
 One uncommitted line changes
 `kernel-open/nvidia-modeset/nvidia-modeset-linux.c` from
 `max_output_color_depth = 10` to `12`. A complete `make modules -j8` passed.
+The change was deliberately **not committed, pushed or published** before
+Codex stopped. No Linux 12-bpc proprietary-driver hardware run has yet been
+performed. Continue from the uncommitted diff; do not use the public success
+phrase for NVIDIA until its own parameter/default test passes.
 
 The current installed 615.71.09 open kernel module confirms
 `hdmi_deepcolor=Y` but `max_output_color_depth=10`. Public NVKMS source
