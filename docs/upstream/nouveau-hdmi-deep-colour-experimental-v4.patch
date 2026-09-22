@@ -1,0 +1,498 @@
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Subject: [EXPERIMENTAL DO NOT SUBMIT v4] drm/nouveau: preserve HDMI deep-colour GCP across audio enable
+
+Hardware-discovery patch, revision 4, for the GA106 -> KDL-46HX855
+controlled test. Includes everything from v3 (do not stack).
+
+Run 4 proved the 12-bpc GCP value reached the SF register immediately
+before the core-channel commit, but the instrumentation did not observe
+the final state. The post-commit HDMI-audio enable path subsequently sends
+SET_OD_PACKET with a legacy zero-depth GCP and overwrites GCP_SUBPACK with
+0x10. That deterministically erases CD=6 and PP=2 after v3's readback.
+
+NVIDIA's NVKMS performs the same legacy EnableHdmiAudio() operation, then
+immediately calls SendHdmiGcp(), rebuilding CD/PP from the committed head
+pixelDepth. Mirror that ordering on nouveau's GSP path: cache the requested
+CD/PP when programming HDMI, then reconstruct the GCP from that state after
+the audio RM calls while updating AVMUTE in SB0. Also make the primary GCP
+writer update only SB0..SB2, matching NVIDIA's read-modify-write packet
+routine, and log the post-audio GCP state.
+
+This patch tests one source-proven clobber only. It does not yet add the
+separate proprietary CTRL_HDMI call discovered behind SendHdmiGcp().
+
+Base: Debian linux-source 7.0.10 tree, same as v1-v3 builds.
+Applies with patch -p1.
+---
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index 6c3a871..838a6ac 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -410,6 +410,7 @@ nv50_outp_atomic_check(struct drm_encoder *encoder,
+ {
+ 	struct drm_connector *connector = conn_state->connector;
+ 	struct nouveau_connector *nv_connector = nouveau_connector(connector);
++	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
+ 	struct nv50_head_atom *asyh = nv50_head_atom(crtc_state);
+ 	int ret;
+ 
+@@ -418,8 +419,38 @@ nv50_outp_atomic_check(struct drm_encoder *encoder,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (crtc_state->mode_changed || crtc_state->connectors_changed)
+-		asyh->or.bpc = connector->display_info.bpc;
++	if (crtc_state->mode_changed || crtc_state->connectors_changed) {
++		if (nv_encoder->dcb->type == DCB_OUTPUT_TMDS &&
++		    connector->display_info.is_hdmi) {
++			const struct drm_display_info *info = &connector->display_info;
++			unsigned int max_rate = info->max_tmds_clock;
++			unsigned int mode_rate;
++			u8 bpc = 8;
++
++			if (conn_state->max_requested_bpc >= 12 &&
++			    info->edid_hdmi_rgb444_dc_modes & DRM_EDID_HDMI_DC_36)
++				bpc = 12;
++			else if (conn_state->max_requested_bpc >= 10 &&
++				 info->edid_hdmi_rgb444_dc_modes & DRM_EDID_HDMI_DC_30)
++				bpc = 10;
++
++			mode_rate = DIV_ROUND_UP(crtc_state->adjusted_mode.clock * bpc, 8);
++			while (bpc > 8 && (!max_rate || mode_rate > max_rate)) {
++				bpc -= 2;
++				mode_rate = DIV_ROUND_UP(crtc_state->adjusted_mode.clock * bpc, 8);
++			}
++
++			asyh->or.bpc = bpc;
++			conn_state->max_bpc = bpc;
++			drm_dbg_kms(connector->dev,
++				    "[CONNECTOR:%d:%s] HDMI deep colour requested=%u selected=%u mode=%d kHz TMDS=%u/%u kHz\n",
++				    connector->base.id, connector->name,
++				    conn_state->max_requested_bpc, bpc,
++				    crtc_state->adjusted_mode.clock, mode_rate, max_rate);
++		} else {
++			asyh->or.bpc = connector->display_info.bpc;
++		}
++	}
+ 
+ 	/* We might have to reduce the bpc */
+ 	nv50_outp_atomic_fix_depth(encoder, crtc_state);
+@@ -777,13 +808,14 @@ nv50_audio_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ static void
+ nv50_hdmi_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ 		 struct nouveau_connector *nv_connector, struct drm_atomic_state *state,
+-		 struct drm_display_mode *mode, bool hda)
++		 struct drm_display_mode *mode, bool hda, u8 bpc)
+ {
+ 	struct nouveau_drm *drm = nouveau_drm(encoder->dev);
+ 	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
+ 	struct drm_hdmi_info *hdmi = &nv_connector->base.display_info.hdmi;
+ 	union hdmi_infoframe infoframe = { 0 };
+ 	const u8 rekey = 56; /* binary driver, and tegra, constant */
++	u8 gcp_cd = 0, gcp_pp = 0;
+ 	u32 max_ac_packet;
+ 	DEFINE_RAW_FLEX(struct nvif_outp_infoframe_v0, args, data, 17);
+ 	const u8 data_len = __member_size(args->data);
+@@ -794,6 +826,20 @@ nv50_hdmi_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ 	max_ac_packet -= 18; /* constant from tegra */
+ 	max_ac_packet /= 32;
+ 
++	/* General Control Packet deep-colour declaration, reproducing the
++	 * proprietary driver's rule bit for bit (open-gpu-kernel-modules,
++	 * nvkms-hdmi.c SendHdmiGcp() with nvtiming.h): only the 36-bpp RGB
++	 * link is declared (CD = 6); PP = 2 when (hActive + hBackPorch) is
++	 * even, else 1; SB2 stays 0 (default packing phase reset per frame).
++	 * Nouveau HDMI is RGB 4:4:4.  Every other depth keeps the legacy
++	 * no-declaration payload, like NVIDIA's own code for depths != 36 bpp.
++	 */
++	if (bpc == 12) {
++		const u32 hbp = mode->crtc_hblank_end - mode->crtc_hsync_end;
++		gcp_cd = 6;
++		gcp_pp = ((mode->crtc_hdisplay + hbp) & 1) ? 1 : 2;
++	}
++
+ 	if (nv_encoder->i2c && hdmi->scdc.scrambling.supported) {
+ 		const bool high_tmds_clock_ratio = mode->clock > 340000;
+ 		u8 scdc;
+@@ -818,7 +864,7 @@ nv50_hdmi_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ 
+ 	ret = nvif_outp_hdmi(&nv_encoder->outp, nv_crtc->index, true, max_ac_packet, rekey,
+ 			     mode->clock, hdmi->scdc.supported, hdmi->scdc.scrambling.supported,
+-			     hdmi->scdc.scrambling.low_rates);
++			     hdmi->scdc.scrambling.low_rates, gcp_cd, gcp_pp);
+ 	if (ret)
+ 		return;
+ 
+@@ -1583,7 +1629,7 @@ nv50_sor_atomic_disable(struct drm_encoder *encoder, struct drm_atomic_state *st
+ 
+ 	if (nv_encoder->dcb->type == DCB_OUTPUT_TMDS && nv_encoder->hdmi.enabled) {
+ 		nvif_outp_hdmi(&nv_encoder->outp, head->base.index,
+-			       false, 0, 0, 0, false, false, false);
++			       false, 0, 0, 0, false, false, false, 0, 0);
+ 		nv_encoder->hdmi.enabled = false;
+ 	}
+ 
+@@ -1776,9 +1822,22 @@ nv50_sor_atomic_enable(struct drm_encoder *encoder, struct drm_atomic_state *sta
+ 
+ 	switch (nv_encoder->dcb->type) {
+ 	case DCB_OUTPUT_TMDS:
++		switch (asyh->or.bpc) {
++		case 12: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_36_444; break;
++		case 10: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_30_444; break;
++		case  8: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_24_444; break;
++		case  6: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_BPP_18_444; break;
++		default: depth = NV837D_SOR_SET_CONTROL_PIXEL_DEPTH_DEFAULT; break;
++		}
++
++		if (asyh->or.bpc != 8)
++			DRM_INFO("deep-colour probe: TMDS bpc=%u sor-depth=0x%x clock=%d kHz\n",
++				 asyh->or.bpc, depth, mode->clock);
++
+ 		if (disp->disp->object.oclass != NV50_DISP &&
+ 		    nv_connector->base.display_info.is_hdmi)
+-			nv50_hdmi_enable(encoder, nv_crtc, nv_connector, state, mode, hda);
++			nv50_hdmi_enable(encoder, nv_crtc, nv_connector, state, mode, hda,
++					 asyh->or.bpc);
+ 
+ 		if (nv_encoder->outp.or.link & 1) {
+ 			proto = NV507D_SOR_SET_CONTROL_PROTOCOL_SINGLE_TMDS_A;
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headc37d.c b/drivers/gpu/drm/nouveau/dispnv50/headc37d.c
+index 2bcb379..60580dc 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headc37d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headc37d.c
+@@ -39,6 +39,7 @@ headc37d_or(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	 *     improved later for deep colour etc.
+ 	 */
+ 	switch (asyh->or.depth) {
++	case 8: depth = 7; break;
+ 	case 6: depth = 5; break;
+ 	case 5: depth = 4; break;
+ 	case 2: depth = 1; break;
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+index 3f8ba49..87334c7 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+@@ -52,6 +52,7 @@ headc57d_or(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	 *     improved later for deep colour etc.
+ 	 */
+ 	switch (asyh->or.depth) {
++	case 8: depth = 7; break;
+ 	case 6: depth = 5; break;
+ 	case 5: depth = 4; break;
+ 	case 2: depth = 1; break;
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headca7d.c b/drivers/gpu/drm/nouveau/dispnv50/headca7d.c
+index eeaeb15..762f39b 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headca7d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headca7d.c
+@@ -35,6 +35,9 @@ headca7d_or(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	int ret;
+ 
+ 	switch (asyh->or.depth) {
++	case 8:
++		depth = NVCA7D_HEAD_SET_CONTROL_OUTPUT_RESOURCE_PIXEL_DEPTH_BPP_36_444;
++		break;
+ 	case 6:
+ 		depth = NVCA7D_HEAD_SET_CONTROL_OUTPUT_RESOURCE_PIXEL_DEPTH_BPP_30_444;
+ 		break;
+diff --git a/drivers/gpu/drm/nouveau/include/nvif/if0012.h b/drivers/gpu/drm/nouveau/include/nvif/if0012.h
+index bde9bfa..ebfa60f 100644
+--- a/drivers/gpu/drm/nouveau/include/nvif/if0012.h
++++ b/drivers/gpu/drm/nouveau/include/nvif/if0012.h
+@@ -176,6 +176,9 @@ union nvif_outp_hdmi_args {
+ 		__u8 scdc_scrambling;
+ 		__u8 scdc_low_rates;
+ 		__u32 khz;
++		__u8 gcp_cd;
++		__u8 gcp_pp;
++		__u8 pad14[2];
+ 	} v0;
+ };
+ 
+diff --git a/drivers/gpu/drm/nouveau/include/nvif/outp.h b/drivers/gpu/drm/nouveau/include/nvif/outp.h
+index bc122a5..3d5ed53 100644
+--- a/drivers/gpu/drm/nouveau/include/nvif/outp.h
++++ b/drivers/gpu/drm/nouveau/include/nvif/outp.h
+@@ -90,7 +90,7 @@ int nvif_outp_bl_set(struct nvif_outp *, int level);
+ int nvif_outp_lvds(struct nvif_outp *, bool dual, bool bpc8);
+ 
+ int nvif_outp_hdmi(struct nvif_outp *, int head, bool enable, u8 max_ac_packet, u8 rekey, u32 khz,
+-		   bool scdc, bool scdc_scrambling, bool scdc_low_rates);
++		   bool scdc, bool scdc_scrambling, bool scdc_low_rates, u8 gcp_cd, u8 gcp_pp);
+ 
+ int nvif_outp_infoframe(struct nvif_outp *, u8 type, struct nvif_outp_infoframe_v0 *, u32 size);
+ int nvif_outp_hda_eld(struct nvif_outp *, int head, void *data, u32 size);
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index cc23949..338b21b 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -298,6 +298,12 @@ nouveau_conn_attach_properties(struct drm_connector *connector)
+ 		drm_object_attach_property(&connector->base, dev->mode_config.
+ 					   dvi_i_subconnector_property, 0);
+ 
++	/* Experimental HDMI deep-colour probe.  The actual selected depth is
++	 * clamped to the sink's EDID and mode bandwidth during atomic check.
++	 */
++	if (connector->connector_type == DRM_MODE_CONNECTOR_HDMIA)
++		drm_connector_attach_max_bpc_property(connector, 8, 12);
++
+ 	/* Add overscan compensation options to digital outputs. */
+ 	if (disp->underscan_property &&
+ 	    (connector->connector_type == DRM_MODE_CONNECTOR_DVID ||
+diff --git a/drivers/gpu/drm/nouveau/nvif/outp.c b/drivers/gpu/drm/nouveau/nvif/outp.c
+index 8cf4775..f72da8f 100644
+--- a/drivers/gpu/drm/nouveau/nvif/outp.c
++++ b/drivers/gpu/drm/nouveau/nvif/outp.c
+@@ -224,7 +224,8 @@ nvif_outp_infoframe(struct nvif_outp *outp, u8 type, struct nvif_outp_infoframe_
+ 
+ int
+ nvif_outp_hdmi(struct nvif_outp *outp, int head, bool enable, u8 max_ac_packet, u8 rekey,
+-	       u32 khz, bool scdc, bool scdc_scrambling, bool scdc_low_rates)
++	       u32 khz, bool scdc, bool scdc_scrambling, bool scdc_low_rates,
++	       u8 gcp_cd, u8 gcp_pp)
+ {
+ 	struct nvif_outp_hdmi_v0 args;
+ 	int ret;
+@@ -238,6 +239,9 @@ nvif_outp_hdmi(struct nvif_outp *outp, int head, bool enable, u8 max_ac_packet,
+ 	args.scdc = scdc;
+ 	args.scdc_scrambling = scdc_scrambling;
+ 	args.scdc_low_rates = scdc_low_rates;
++	args.gcp_cd = gcp_cd;
++	args.gcp_pp = gcp_pp;
++	args.pad14[0] = args.pad14[1] = 0;
+ 
+ 	ret = nvif_mthd(&outp->object, NVIF_OUTP_V0_HDMI, &args, sizeof(args));
+ 	NVIF_ERRON(ret, &outp->object,
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/g84.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/g84.c
+index 1be97a6..f3361f4 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/g84.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/g84.c
+@@ -76,7 +76,8 @@ g84_sor_hdmi_infoframe_avi(struct nvkm_ior *ior, int head, void *data, u32 size)
+ 
+ 
+ static void
+-g84_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey)
++g84_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey,
++	 u8 gcp_cd, u8 gcp_pp)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+ 	const u32 ctrl = 0x40000000 * enable |
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gf119.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gf119.c
+index 83a1323..7dd08af 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gf119.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gf119.c
+@@ -250,7 +250,8 @@ gf119_sor_hdmi_infoframe_avi(struct nvkm_ior *ior, int head, void *data, u32 siz
+ }
+ 
+ static void
+-gf119_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey)
++gf119_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey,
++	 u8 gcp_cd, u8 gcp_pp)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+ 	const u32 ctrl = 0x40000000 * enable |
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gk104.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gk104.c
+index a3e2fba..10cda5a 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gk104.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gk104.c
+@@ -74,7 +74,8 @@ gk104_sor_hdmi_infoframe_avi(struct nvkm_ior *ior, int head, void *data, u32 siz
+ }
+ 
+ void
+-gk104_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey)
++gk104_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey,
++	 u8 gcp_cd, u8 gcp_pp)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+ 	const u32 ctrl = 0x40000000 * enable |
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gt215.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gt215.c
+index 6318721..27e37ec 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gt215.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gt215.c
+@@ -138,7 +138,8 @@ gt215_sor_hdmi_infoframe_avi(struct nvkm_ior *ior, int head, void *data, u32 siz
+ }
+ 
+ static void
+-gt215_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey)
++gt215_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey,
++	 u8 gcp_cd, u8 gcp_pp)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+ 	const u32 ctrl = 0x40000000 * enable |
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c
+index dbd984d..575da5f 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c
+@@ -142,8 +142,44 @@ gv100_sor_hdmi_infoframe_avi(struct nvkm_ior *ior, int head, void *data, u32 siz
+ 	nvkm_mask(device, 0x6f0000 + hoff, 0x00000001, 0x00000001);
+ }
+ 
++/* General Control Packet (GCP) slot, NVD5.x SF-HDMI aperture (per-head
++ * stride 0x400, matching the working AVI slot at +0x00 and VSI at +0x100).
++ * Register layout bit-matches NVIDIA's own class header
++ * NV9171_SF_HDMI_GCP_SUBPACK: SB0 bits 7:0, SB1 bits 15:8, SB2 bits 23:16.
++ * Payload fields reproduce the proprietary driver's construction
++ * (open-gpu-kernel-modules, nvkms-hdmi.c SendHdmiGcp()): SB0 = 0x10
++ * (Clear_AVMUTE), SB1 = CD | PP << 4, SB2 = 0 (reset default packing phase).
++ */
++void
++gv100_sor_hdmi_gcp(struct nvkm_ior *ior, int head, u8 cd, u8 pp)
++{
++	struct nvkm_device *device = ior->disp->engine.subdev.device;
++	const u32 hdmi = head * 0x400;
++	const u32 subpack = 0x00000010 | (cd << 8) | (pp << 12);
++
++	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000000);
++	/* Match NVIDIA's packet writer: update SB0..SB2 without disturbing
++	 * generation-specific control/reserved bits in the same register.
++	 */
++	nvkm_mask(device, 0x6f00cc + hdmi, 0x00ffffff, subpack);
++	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000001);
++
++	/* Experimental instrumentation (runs 4+): prove whether the CPU-side
++	 * MMIO write sticks under GSP, and cross-check the sibling AVI slot
++	 * at the same aperture.  Read-only.
++	 */
++	nvkm_warn(&ior->disp->engine.subdev,
++		  "gcp: head %d subpack w=0x%08x r=0x%08x ctrl=0x%08x avi_ctrl=0x%08x avi_sp0=0x%08x\n",
++		  head, subpack,
++		  nvkm_rd32(device, 0x6f00cc + hdmi),
++		  nvkm_rd32(device, 0x6f00c0 + hdmi),
++		  nvkm_rd32(device, 0x6f0000 + hdmi),
++		  nvkm_rd32(device, 0x6f000c + hdmi));
++}
++
+ static void
+-gv100_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey)
++gv100_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packet, u8 rekey,
++		    u8 gcp_cd, u8 gcp_pp)
+ {
+ 	struct nvkm_device *device = ior->disp->engine.subdev.device;
+ 	const u32 ctrl = 0x40000000 * enable |
+@@ -161,9 +197,7 @@ gv100_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packe
+ 	}
+ 
+ 	/* General Control (GCP). */
+-	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000000);
+-	nvkm_wr32(device, 0x6f00cc + hdmi, 0x00000010);
+-	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000001);
++	gv100_sor_hdmi_gcp(ior, head, gcp_cd, gcp_pp);
+ 
+ 	/* Audio Clock Regeneration (ACR). */
+ 	nvkm_wr32(device, 0x6f0080 + hdmi, 0x82000000);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/ior.h b/drivers/gpu/drm/nouveau/nvkm/engine/disp/ior.h
+index 3ba04be..cbe5318 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/ior.h
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/ior.h
+@@ -46,6 +46,8 @@ struct nvkm_ior {
+ 	/* Armed TMDS state. */
+ 	struct {
+ 		bool high_speed;
++		u8 gcp_cd;
++		u8 gcp_pp;
+ 	} tmds;
+ };
+ 
+@@ -69,7 +71,8 @@ struct nvkm_ior_func {
+ 	} *bl;
+ 
+ 	const struct nvkm_ior_func_hdmi {
+-		void (*ctrl)(struct nvkm_ior *, int head, bool enable, u8 max_ac_packet, u8 rekey);
++		void (*ctrl)(struct nvkm_ior *, int head, bool enable, u8 max_ac_packet, u8 rekey,
++			     u8 gcp_cd, u8 gcp_pp);
+ 		void (*scdc)(struct nvkm_ior *, u32 khz, bool support, bool scrambling,
+ 			     bool scrambling_low_rates);
+ 		void (*infoframe_avi)(struct nvkm_ior *, int head, void *data, u32 size);
+@@ -169,7 +172,7 @@ void gf119_sor_hda_eld(struct nvkm_ior *, int, u8 *, u8);
+ 
+ int gk104_sor_new(struct nvkm_disp *, int);
+ extern const struct nvkm_ior_func_hdmi gk104_sor_hdmi;
+-void gk104_sor_hdmi_ctrl(struct nvkm_ior *, int, bool, u8, u8);
++void gk104_sor_hdmi_ctrl(struct nvkm_ior *, int, bool, u8, u8, u8, u8);
+ void gk104_sor_hdmi_infoframe_avi(struct nvkm_ior *, int, void *, u32);
+ void gk104_sor_hdmi_infoframe_vsi(struct nvkm_ior *, int, void *, u32);
+ 
+@@ -187,6 +190,7 @@ int gp100_sor_new(struct nvkm_disp *, int);
+ int gv100_sor_cnt(struct nvkm_disp *, unsigned long *);
+ void gv100_sor_state(struct nvkm_ior *, struct nvkm_ior_state *);
+ extern const struct nvkm_ior_func_hdmi gv100_sor_hdmi;
++void gv100_sor_hdmi_gcp(struct nvkm_ior *, int, u8, u8);
+ void gv100_sor_hdmi_infoframe_avi(struct nvkm_ior *, int, void *, u32);
+ void gv100_sor_hdmi_infoframe_vsi(struct nvkm_ior *, int, void *, u32);
+ void gv100_sor_dp_audio(struct nvkm_ior *, int, bool);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/uoutp.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/uoutp.c
+index 377d0e0..ebcf487 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/uoutp.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/uoutp.c
+@@ -260,12 +260,13 @@ nvkm_uoutp_mthd_hdmi(struct nvkm_outp *outp, void *argv, u32 argc)
+ 	if (!args->v0.enable) {
+ 		ior->func->hdmi->infoframe_avi(ior, args->v0.head, NULL, 0);
+ 		ior->func->hdmi->infoframe_vsi(ior, args->v0.head, NULL, 0);
+-		ior->func->hdmi->ctrl(ior, args->v0.head, false, 0, 0);
++		ior->func->hdmi->ctrl(ior, args->v0.head, false, 0, 0, 0, 0);
+ 		return 0;
+ 	}
+ 
+ 	ior->func->hdmi->ctrl(ior, args->v0.head, args->v0.enable,
+-			      args->v0.max_ac_packet, args->v0.rekey);
++			      args->v0.max_ac_packet, args->v0.rekey,
++			      args->v0.gcp_cd, args->v0.gcp_pp);
+ 	if (ior->func->hdmi->scdc)
+ 		ior->func->hdmi->scdc(ior, args->v0.khz, args->v0.scdc, args->v0.scdc_scrambling,
+ 				      args->v0.scdc_low_rates);
+diff --git a/drivers/gpu/drm/nouveau/nvkm/subdev/gsp/rm/r535/disp.c b/drivers/gpu/drm/nouveau/nvkm/subdev/gsp/rm/r535/disp.c
+index 6e63df8..31fe41b 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/subdev/gsp/rm/r535/disp.c
++++ b/drivers/gpu/drm/nouveau/nvkm/subdev/gsp/rm/r535/disp.c
+@@ -547,18 +547,33 @@ r535_sor_hdmi_audio(struct nvkm_ior *sor, int head, bool enable)
+ {
+ 	struct nvkm_device *device = sor->disp->engine.subdev.device;
+ 	const u32 hdmi = head * 0x400;
++	const u32 gcp = sor->tmds.gcp_cd << 8 | sor->tmds.gcp_pp << 12;
+ 
+ 	r535_sor_hdmi_ctrl_audio(sor->asy.outp, enable);
+ 	r535_sor_hdmi_ctrl_audio_mute(sor->asy.outp, !enable);
+ 
+ 	/* General Control (GCP). */
+ 	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000000);
+-	nvkm_wr32(device, 0x6f00cc + hdmi, !enable ? 0x00000001 : 0x00000010);
++	/* SET_OD_PACKET above carries the legacy audio-only GCP with SB1/SB2
++	 * cleared.  Rebuild the cached deep-colour CD/PP declaration while
++	 * applying audio's AVMUTE change in SB0.  NVIDIA's
++	 * NVKMS does the same in the opposite direction: EnableHdmiAudio() is
++	 * immediately followed by SendHdmiGcp(), rebuilt from head pixelDepth.
++	 */
++	nvkm_mask(device, 0x6f00cc + hdmi, 0x00ffffff,
++		  gcp | (!enable ? 0x00000001 : 0x00000010));
+ 	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000001);
++
++	nvkm_warn(&sor->disp->engine.subdev,
++		  "gcp-audio: head %d enable=%d subpack=0x%08x ctrl=0x%08x\n",
++		  head, enable,
++		  nvkm_rd32(device, 0x6f00cc + hdmi),
++		  nvkm_rd32(device, 0x6f00c0 + hdmi));
+ }
+ 
+ static void
+-r535_sor_hdmi_ctrl(struct nvkm_ior *sor, int head, bool enable, u8 max_ac_packet, u8 rekey)
++r535_sor_hdmi_ctrl(struct nvkm_ior *sor, int head, bool enable, u8 max_ac_packet, u8 rekey,
++		   u8 gcp_cd, u8 gcp_pp)
+ {
+ 	struct nvkm_disp *disp = sor->disp;
+ 	NV0073_CTRL_SPECIFIC_SET_HDMI_ENABLE_PARAMS *ctrl;
+@@ -573,8 +588,16 @@ r535_sor_hdmi_ctrl(struct nvkm_ior *sor, int head, bool enable, u8 max_ac_packet
+ 
+ 	ctrl->displayId = BIT(sor->asy.outp->index);
+ 	ctrl->enable = enable;
++	sor->tmds.gcp_cd = gcp_cd;
++	sor->tmds.gcp_pp = gcp_pp;
+ 
+ 	WARN_ON(nvkm_gsp_rm_ctrl_wr(&disp->rm.objcom, ctrl));
++
++	/* The RM HDMI-enable call does not program the GCP slot.  The AVI/VSI
++	 * writers on this same table already reach the SF aperture by direct
++	 * MMIO, so declare the link depth the same way (see gv100.c).
++	 */
++	gv100_sor_hdmi_gcp(sor, head, gcp_cd, gcp_pp);
+ }
+ 
+ static const struct nvkm_ior_func_hdmi

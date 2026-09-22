@@ -1,5 +1,11 @@
 # Handoff to Codex partner: GA106 nouveau HDMI 12-bpc — clock question (2026-09-22)
 
+> **Audit correction (Codex, later 2026-09-22):** the clock-first diagnosis
+> below is superseded. Run 4 read the GCP before core commit; nouveau's
+> post-commit GSP HDMI-audio path then overwrites it with `0x00000010`.
+> Cumulative v4 preserves CD/PP across that path and is built but never
+> loaded. See the plan's “Independent audit correction and v4” section.
+
 > For GPT-5.6 Sol (Codex CLI). This briefing is standalone; no chat history
 > is assumed. Everything below is either quoted from public sources with
 > file:line, or measured on the local bench and labelled. Inferences are
@@ -34,8 +40,8 @@ HDMI-A-2, set `max bpc=12`, modeset 1920x1080@60, 90-s hold, restore):
 - **Run 3** (v2 patch): added the General Control Packet programming,
   bit-for-bit from NVIDIA's own public recipe (see below). Same refusal.
 - **Run 4** (v3 patch = v2 + read-only register instrumentation): same
-  refusal, but now the kernel log proves what was on the wire. Verbatim
-  from `journalctl -k` during the deep modeset:
+  refusal. The kernel log proves the immediate pre-commit SF-register
+  value, not the final value or cable packet. Verbatim from `journalctl -k`:
 
   ```text
   nouveau: disp: gcp: head 0 subpack w=0x00000010 r=0x00000010 ctrl=0x00000001 avi_ctrl=0x00000200 avi_sp0=0x0828121d
@@ -45,10 +51,12 @@ HDMI-A-2, set `max bpc=12`, modeset 1920x1080@60, 90-s hold, restore):
 
 Modules: v2 `nouveau-hdmi-deep-colour-gcp-experimental.ko` sha256
 `1d2f3dc4…a81f`; v3 `nouveau-hdmi-deep-colour-gcp-dbg-experimental.ko`
-sha256 `68768c48…ded4`. Both vermagic-matched. Patches:
-`docs/upstream/nouveau-hdmi-deep-colour-experimental{,-v2,-v3}.patch`
-(each cumulative, each round-trip verified against a reconstructed pristine
-7.0.10 base). Narratives: `tools/stereo-modeset/run2{0,1,2}-*.log`.
+sha256 `68768c48…ded4`; v4
+`nouveau-hdmi-deep-colour-gcp-audio-preserve-experimental.ko` sha256
+`2cfde710…04c0e`. All are vermagic-matched; v4 has never been loaded.
+Patches through `nouveau-hdmi-deep-colour-experimental-v4.patch` are
+cumulative and pristine-base verified. Narratives:
+`tools/stereo-modeset/run2{0,1,2}-*.log`.
 
 ## What the code actually does on GA106 (verified line by line)
 
@@ -71,35 +79,32 @@ sha256 `68768c48…ded4`. Both vermagic-matched. Patches:
    Called from both the direct gv100 ctrl and the GSP r535 ctrl **after**
    the RM `SET_HDMI_ENABLE` call. Payload construction mirrors NVKMS
    `SendHdmiGcp()` (nvkms-hdmi.c:412-470) exactly.
-3. **RM call parity.** On this path NVKMS calls only `SET_HDMI_ENABLE`
-   (nvkms-hdmi.c:1426 via `HdmiSendEnable`), `SET_HDMI_SINK_CAPS` (SCDC /
-   scrambling / FRL caps only — no deep-colour bits, so not a hidden gate),
-   and the audio/ELD calls. Nouveau matches the video-relevant ones.
-   `CTRL_HDMI` (0x730274, "call prior to every modeset" per its header
-   comment) is **not** referenced from nvkms-hdmi.c at all.
+3. **RM call parity is incomplete.** NVKMS calls `SET_HDMI_ENABLE` directly,
+   but `SendHdmiGcp()` also reaches `CTRL_HDMI` (0x730274) indirectly through
+   `NvHdmiPkt_PacketWrite()` → C671 → `hdmiPacketWrite9171()` whenever the
+   GCP clears AVMUTE. Nouveau's r535 path does not make that call. Searching
+   `nvkms-hdmi.c` alone missed the packet-library dependency.
 4. **Nothing rate-like anywhere open.** No TMDS character-clock programming
    exists in nvkms-hdmi.c, nvkms-modeset.c, nvkms-hw-states.c, or
    nvkms-evo3.c for deep colour; the only clock-touching structure is the
    IMP validation record (`NVValidateImpOneDispHeadParamsRec`, fed
    `pixelDepth` + timings at nvkms-modeset.c:1398-1476), and IMP itself is
    closed. The C37D/C57D core channel exposes no SOR clock method.
-5. **GCP emission is provenly MMIO under GSP.** NVKMS's only call site for
-   `SendHdmiGcp()` is the HDMI audio enable/mute flow
-   (nvkms-hdmi.c:1381), and GSP firmware is mandatory on the proprietary
-   stack — so register-slot writes at this aperture do reach the wire in
-   production.
+5. **MMIO is the proprietary production route, but run 4 did not prove its
+   final packet.** NVKMS's only `SendHdmiGcp()` call site is the HDMI-audio
+   flow. That establishes source provenance for the aperture, while run 4
+   establishes only that nouveau's immediate write was readable.
 
 ## The current diagnosis
 
-By elimination: the GCP declaration was on the wire [inferred: register
-landed + read back + production path identity], the depth state matched
-NVIDIA's, and the sink's refusal is exactly what a compliant HDMI 1.4 sink
-should say to a stream whose GCP declares 36 bpp while the measured link
-runs at the 8-bpc character rate (148.5 MHz): it computes 148.5/1.5 = 99
-MHz pixel clock, matches no mode, and refuses. **The missing piece is the
-TMDS character-rate derivation inside closed RM/GSP** — what input makes it
-program the SOR/link clock at pclk × 1.5 for deep colour, and what nouveau
-isn't supplying to trigger that [inferred; no wire analyzer].
+The first unresolved item is no longer the closed clock derivation. The
+source-proven failure is that `r535_sor_hdmi_audio()` runs after the core
+commit and destroys v3's CD/PP fields twice: first through its zero-depth
+`SET_OD_PACKET`, then through a full-register `0x10` write. NVIDIA performs
+the same legacy audio operation but follows it with `SendHdmiGcp()` rebuilt
+from head state. V4 mirrors that final-state restoration. The character
+rate remains unmeasured: the `148500` printk is the mode pixel clock, not a
+TMDS-rate readback.
 
 One run-4 anomaly worth your eyes: the AVI **payload** survived our write
 (`avi_sp0=0x0828121d`) but the AVI **enable bit** read back clear
@@ -109,7 +114,12 @@ moments after nouveau's AVI writer had set it — strong evidence that RM's
 aperture from its own state under GSP. Our GCP ordering (after the RM call)
 is load-bearing because of exactly this.
 
-## Candidate levers to rank, poke holes in, or replace
+## Candidate levers after the correction
+
+- **L0 — v4 final-state test.** On the owner's explicit go, run the existing
+  `deep12` harness with the v4 artifact. Require `gcp-audio` to read final
+  `0x00002610`. Picture acceptance would close the transport bug; continued
+  refusal with that final state promotes L1.
 
 - **L1 — proprietary-oracle register diff.** The local `nvidia` module
   exposes `hdmi_deepcolor:bool` and `max_output_color_depth:uint` (modinfo
@@ -156,7 +166,7 @@ is load-bearing because of exactly this.
 - Commits: author Daniel Campos Ramos <Capitain_Jack@yahoo.com>, trailer
   `Co-Authored-By: Claude Code <noreply@anthropic.com>` style applied per
   the human's current convention.
-- Kernel tree: /K3D/temp/k317/linux-source-7.0 (7.0.10, v1+v2+v3 applied,
+- Kernel tree: /K3D/temp/k317/linux-source-7.0 (7.0.10, v1+v2+v3+v4 applied,
   not git); builds `make -j8 M=drivers/gpu/drm/nouveau modules` with
   gcc-15; harness `tools/stereo-modeset/run-nouveau-test.sh`.
 - Fetched NVIDIA public sources for this work live in /K3D/temp:
