@@ -28,6 +28,27 @@ mails us; never necro closed issues. Sorted by activity, not importance.
   exposure. Ours is the first report there; the patch carries no Closes line because
   there is no number to close. The one 3D-adjacent noise field is power-management
   (D3cold) and rendering performance, unrelated.
+- 2026-09-22 color/HDR sweep, for the record (all states, `gh search` over
+  NVIDIA/open-gpu-kernel-modules): our exact 10-vs-12-bit training symptom
+  (DC_36bit declared, exposed ceilings identical, link trains 10-bit where
+  amdgpu trains 12, Windows unaffected — same card, same sink) is
+  UNREPORTED there; the filed unified-surface issue would be the first.
+  Same-shape siblings found, each an independent axis of the
+  NVKMS-narrows-the-EDID-surface family and each citeable without touching
+  its thread: **#1348** (same driver 615.71.09; HF-VSDB `DSC_MaxSlices`
+  misparse forces YCbCr 4:2:2-limited on HDMI 2.1; zero maintainer replies
+  since 2026-09-10 — the load-bearing adjacency), **#1369** (mode pruned
+  after sink power-cycle, identical EDID, Windows unaffected — siblings our
+  17/51 prune), **#1184** (EDID Max_FRL_Rate ignored → capped 4K60),
+  HDR trio #1285/#779/#933 (colorspace EINVAL / HDR never activates;
+  HDR10's stock transport is 10-bit YCC422 carried at 12-bit container
+  depth, so depth narrowing plausibly feeds this family — [qualified], not
+  proven), **#1101** (HDR DRM props missing on force-enabled connectors,
+  fixed in 610.43.02 — precedent that glue-side surfacing works). Full
+  query list + reasoning in the sweep section of
+  `../research/liverecon/nv-vs-amd-deepcolor-osd-2026-09-22.md`. Nothing was
+  filed or commented from this sweep; the unified NVKMS EDID-surface issue
+  (3 measured symptoms + #1348 citation) is Daniel's call.
 - Rows 1–3 are the live hardware-driver campaign; everything else is parked until its
   owning human moves.
 - "Watch on request" means Daniel asks for a status pull; nothing on this page gets
