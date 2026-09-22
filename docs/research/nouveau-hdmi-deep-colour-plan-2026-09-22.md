@@ -301,6 +301,80 @@ Run 3 must pass
 on the systemd-run line: the harness default still points at the v1 module,
 and environment variables do not cross systemd-run by default.
 
+**Run 3 measured (2026-09-22 09:09:53–09:11:49 UTC-3):** the v2 GCP module
+(`nouveau-hdmi-deep-colour-gcp-experimental.ko`, sha256 `1d2f3dc4…a81f`)
+completed the full driver-side path again — EDID gate hash matched, `max
+bpc=12` accepted, the 1080p60 36-bpp modeset committed, zero nouveau errors
+in the kernel log across load, hold, and restore. The sink answered with the
+same “incompatible signal” OSD for the entire hold. No reboot this run: the
+hardened harness restored the NVIDIA stack, desktop, services, and all six
+stopped Docker containers by itself — the run-2 harness defect is fixed and
+measured fixed. Narrative:
+[`tools/stereo-modeset/run21-nouveau-deep12-gcp-incompatible-2026-09-22.log`](../../tools/stereo-modeset/run21-nouveau-deep12-gcp-incompatible-2026-09-22.log).
+
+**Post-run-3 correction and narrowing (source-only, same evening).**
+Cross-checking NVIDIA's evo3 code (`nvkms-evo3.c`) against what was actually
+emitted corrects a phrasing this document has used since the plan stage:
+
+- On the C37D/C57D cores that GA106's display runs, the `SOR_SET_CONTROL`
+  method has **no** PIXEL_DEPTH field (clc37d.h: OWNER, PROTOCOL,
+  DE_SYNC_POLARITY, PIXEL_REPLICATE only), matching NVKMS's
+  `EvoSORSetControlC3()`. Nouveau's `sorc37d_ctrl()` pushes its control
+  dword without ever merging the NV837D depth bits — that merge exists only
+  in `sor507d.c`, which this hardware does not use. Runs 2/3 therefore
+  already matched NVIDIA exactly: link depth reaches the hardware through
+  the head `OUTPUT_RESOURCE` PIXEL_DEPTH field (`nvEvoGetPixelDepthC3()`),
+  which v1 had already programmed correctly (SOR code 8 → head code 7 =
+  36_444). Earlier wording here about “selecting 36-bpp SOR/head values”
+  should read “head output-resource depth”; the SOR dword was always
+  NVIDIA-conformant.
+- NVKMS's `SET_HDMI_SINK_CAPS` RM call forwards SCDC/scrambling/FRL caps
+  only — no deep-colour bits — so it cannot be a hidden gate for the rate.
+- hdmipkt's control write for GCP is a plain `INFO_CTRL.ENABLE` bit,
+  identical to Nouveau's bit-0 mask writes; CHKSUM/OTHER fields do not
+  apply to GCP.
+- NVKMS contains no other TMDS rate-related deep-colour programming
+  anywhere open; the character clock must be derived inside closed
+  RM/GSP from the head/OR state [inferred from absence].
+
+The failure split now has exactly two branches, both consistent with the
+same sink message: **(a)** the CPU-side GCP MMIO write did not stick under
+GSP firmware ownership of the SF aperture — run 3 would then be
+wire-identical to run 2 and taught nothing new — or **(b)** the GCP landed
+but the TMDS character rate stayed at 148.5 MHz, in which case a
+deep-colour-declared stream at 8-bpc timing is precisely what this sink
+calls “incompatible”. The OSD reports one message for both classes; a
+register readback separates them.
+
+**Patch v3 built (2026-09-22) — instrumentation only,** no new hardware
+behaviour: `gv100_sor_hdmi_gcp()` prints the written subpack plus readbacks
+of the GCP subpack and control registers and the sibling AVI control and
+subpack at the same aperture (proving both that the write landed and that
+the aperture is live during that modeset); `nv50_sor_atomic_enable()`
+prints the selected non-8-bpc TMDS depth and mode clock. Run-4 evidence
+splits the branches: GCP subpack reading back `0x00002610` with control
+enabled means branch (b) — the GCP is on the wire and the chase moves to
+GSP RM clock derivation; anything else is branch (a) and the aperture
+needs a different route.
+
+```text
+patch:        docs/upstream/nouveau-hdmi-deep-colour-experimental-v3.patch
+              (pristine 7.0.10 base; cumulative, includes v1+v2)
+patch SHA-256: 48494cfe581da4ee216f993e8a652502688e837e328b90d99b89b9f4988ec541
+artifact:     /K3D/temp/k317/nouveau-hdmi-deep-colour-gcp-dbg-experimental.ko
+vermagic:     7.0.10+deb14-amd64 SMP preempt mod_unload
+module SHA-256: 68768c48ecf7e901330655a9aa2f7d5a1616f3a8b49a2c549073b7444748ded4
+state:        built, never loaded; hardware result pending run 4
+```
+
+Run 4, on the owner's explicit go only:
+
+```bash
+sudo systemd-run --setenv=NOUVEAU_TEST_KO=/K3D/temp/k317/nouveau-hdmi-deep-colour-gcp-dbg-experimental.ko \
+  --unit=nouveau-deep-colour-test --collect \
+  sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-nouveau-test.sh deep12
+```
+
 ## Staged harness modes
 
 The harness modes are deliberately staged:
