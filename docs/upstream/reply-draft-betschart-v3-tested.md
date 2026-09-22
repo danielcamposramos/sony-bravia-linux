@@ -50,3 +50,12 @@ Notes for Daniel (not for the list):
 - If you'd rather attach the two mboxes in a later, separate mail when someone bites, the
   paragraph still works unchanged.
 - The run happened 12:14-12:19 UTC-3 on 2026-09-21; machine is already back on stock 7.0.10.
+
+---
+
+Outcome (2026-09-22): Adrian acknowledged OFF-LIST (private reply, no list CC)
+at 09:53 +0200: thank you for running v3 exactly as posted on 7.3-rc4 and for
+testing top-and-bottom first; a Tested-by covering the series as it sits on
+the list is worth a lot; the 7.0 backport readiness is a nice thing for people
+on older kernels. No asks. Our public mail with the Tested-by verified present
+in the lore thread (t.mbox check, message-id 20260921153400.53321-1-...).
