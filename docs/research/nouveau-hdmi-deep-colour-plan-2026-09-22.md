@@ -204,23 +204,81 @@ systemd-managed path (an `ExecStopPost=` restorer on the run unit, or a
 boot-triggered unit keyed on the state file) so the docker pause always gets
 undone no matter how the run ends.
 
-## Next experiment (pending owner choice)
+## GCP route: located end to end (2026-09-22)
 
-Run 2 located the boundary; two candidate next moves are on the table, in
-priority order:
+The route chase commissioned after run 2 is complete. Every needed value is
+public — NVIDIA's own open repository carries the full recipe — and the sink
+refusal now has a fully sourced explanation.
 
-1. **GCP emission path (code, no new live run).** Trace how GA106 is supposed
-   to drive the General Control Packet `CD` (colour depth) field — whether the
-   generation-specific HDMI control path already enables a GCP whose fields
-   firmware derives, or whether the r535 GSP `SET_OD_PACKET`-grade generic slot
-   (36 bytes, currently used only for HDMI audio) is the carrier. The hdr-gap
-   document's source map already names the candidate writers; the experimental
-   patch then gains GCP programming before any rerun.
-2. **10-bpc discriminator run (cheap, still a live sink-risk in front of the
-   owner).** Run the same probe at 10 bpc (30 bpp). A second “incompatible
-   signal” would strengthen the missing-GCP hypothesis for any CD ≠ 8; a
-   stable 10-bit picture would instead show the sink tolerates a narrower
-   deep-colour step and refute part of the current model.
+**What the proprietary driver sends (readable code):**
+`src/nvidia-modeset/src/nvkms-hdmi.c` `SendHdmiGcp()` builds the General
+Control Packet as `{0x03, 0, 0, SB0, SB1, SB2, 0…}`:
+
+- SB0 = `0x10` (Clear_AVMUTE) for an operating stream;
+- SB1 = `CD | PP << 4`, with `CD = 0x6` (36 bpp) when the head's pixel depth
+  is 36_444 RGB (not YCbCr 4:2:2, not FRL), and `PP` the pixel-packing phase:
+  if (hActive + hBackPorch) is even → phase 2, else phase 1;
+- SB2 = `0x0` (reset default pixel-packing phase each frame edge).
+
+Field constants are in `src/common/modeset/timing/nvtiming.h`
+(`NVT_HDMI_COLOR_DEPTH_36 = 0x6`, `NVT_HDMI_GCP_SB1_CD_SHIFT = 0`,
+`NVT_HDMI_GCP_SB1_PP_SHIFT = 4`) and `src/common/inc/hdmi_spec.h`
+(`HDMI_GENCTRL_PACKET_MUTE_ENABLE = 0x01`, `_DISABLE = 0x10`).
+For 1080p60 the parity rule gives PP = 2, so SB1 = `0x26`.
+
+**Where it lands on the silicon:**
+`src/common/modeset/hdmipacket/` — the class table in `nvhdmipkt_class.h` maps
+GA102/GA106 (Ampere) to class `NVHDMIPKT_C671`; `nvhdmipkt_C671.c` delegates
+GENERAL_CONTROL writes to `hdmiPacketWrite9171()`, which stores SB0/SB1/SB2
+into `NV9171_SF_HDMI_GCP_SUBPACK(head)` and enables the slot via
+`INFO_CTRL(head, IDX_GCP=3)`. NVIDIA's own register header
+`src/common/sdk/nvidia/inc/class/cl9171.h` grounds the layout:
+`INFO_CTRL(i,j) = base + head*0x400 + j*64`, bit 0 = ENABLE;
+`GCP_SUBPACK(i) = base + 0xCC + head*0x400`, SB0 bits 7:0, SB1 bits 15:8,
+SB2 bits 23:16 (`SB0_CLR_AVMUTE = 0x10`).
+
+**What nouveau already does with that same slot:**
+`nvkm/engine/disp/gv100.c` `gv100_sor_hdmi_ctrl()` (inherited by GA10x as
+`ga102.c: .hdmi = &gv100_sor_hdmi`) already emits this very GCP at the
+generation's SF aperture base (0x6f instead of cl9171's 0x69 — the
+block-internal layout is identical, and the working AVI at 0x6f0000 / VSI at
+0x6f0100 prove the base on this hardware): it disables the slot at
+`0x6f00c0 + head*0x400`, writes the **fixed constant `0x00000010`** to
+`0x6f00cc`, and re-enables. That constant decodes (same bitfields) as
+SB0 = Clear_AVMUTE, SB1 = CD-not-indicated / PP 0 — an 8-bpc-only GCP.
+So on the direct path the GCP exists and declares nothing.
+
+**What happens on our GSP path:** under GSP firmware, `ga102_disp_new()`
+routes to `r535_disp_new()`, whose `r535_sor_hdmi_ctrl` performs only the
+`NV0073_CTRL_CMD_SPECIFIC_SET_HDMI_ENABLE` RM call and never touches the GCP
+slot, while AVI/VSI on the very same table are still written by direct MMIO
+(`gv100_sor_hdmi_infoframe_*`). Run 2 therefore emitted **no GCP at all**
+on GA106 — the sink faced a 36-bpp-packed stream with zero deep-colour
+declaration, and “incompatible signal” is its exact expected answer.
+
+**Patch v2 shape** (no new hardware question beyond the sufficiency test):
+
+1. one helper computing the SUBPACK dword from (selected pixel depth, colour
+   format, hActive, hBackPorch), reproducing NVKMS's rule bit for bit
+   (`0x00002610` on this mode);
+2. call it from both ctrl sites: replace the fixed constant in
+   `gv100_sor_hdmi_ctrl` (direct path), and write the slot by MMIO in
+   `r535_sor_hdmi_ctrl` after the RM enable (GSP path — MMIO writes to this
+   aperture are exactly what that path already does for AVI/VSI);
+3. plumb the depth/timings into both call sites — the current func signature
+   carries only `(enable, max_ac_packet, rekey)`, so the depth comes from the
+   atomic head state the experimental patch already extends.
+
+Out of scope for v2, mirroring NVIDIA's visible code: 10 bpc (NVKMS fills CD
+only for 36 bpp — no 30-bpp GCP branch is public), which also shelves the
+10-bpc discriminator run: it would fail for the same missing-GCP reason.
+
+**What run 3 would then test:** whether the SOR `PIXEL_DEPTH_BPP_36_444`
+selection (already in the experimental patch) additionally derives the TMDS
+character rate of 222.75 MHz on its own, with GCP as the pure declaration —
+[inferred], because NVIDIA's open halves contain no deep-colour TMDS clock
+scaling anywhere near this machinery (only FRL link-rate code, unrelated to
+the TMDS character clock). Acceptance: OSD reports 12-bit at 1080p60.
 
 ## Staged harness modes
 
