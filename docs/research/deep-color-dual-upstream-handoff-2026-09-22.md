@@ -279,6 +279,23 @@ do not invent code authorship or sign-offs for either AI partner.
   nouveau series as open-source counterpart (lore cover link) + Refs-not-Fixes
   on #1384 (its mode-prune and 3D symptoms stay open) + SDR-only scope + dual
   disclosure lines. Reviewed draft: `docs/upstream/nvidia-deep-color-pr-draft.md`.
+  CLAassistant gate appeared; **owner signed the NVIDIA CLA the same evening**
+  (his browser act, recorded from his report; check state to settle on its own).
+- **First review feedback on the series (Sashiko AI review, patch 2/3, same
+  evening):** flagged that `nv50_hdmi_enable()` only encodes GCP CD/PP for
+  12 and 16 bpc while patch 1's selection can pick **10 bpc** (DC_30-only
+  sinks, or `max bpc` clamped to 10) — leaving CD=0 ("default 24 bpp") on a
+  30-bpp wire. **Verified real in the series tree:** selection at
+  `dispnv50/disp.c:424-428` reaches bpc=10; the GCP block (`disp.c:834-840`)
+  has no bpc==10 arm; all three writers (gv100.c:152 CPU path, tu102.c:43 and
+  gb202.c:79 GSP hooks via uoutp.c:271) consume the single value computed
+  there, so one arm fixes every path. Our 12-bpc bench result is unaffected
+  (the HX855 declares DC_36, so 12 is what gets selected and measured). v2
+  will add the 30-bpp arm (CD=5 + the four-pixel-group packing phase, HDMI
+  1.4b section 6.5.3 — the same spec dw-hdmi.c cites for its GCP rules) and
+  can bench-verify 10 bpc on the same sink by clamping `max bpc` to 10
+  (OSD reports the received depth). Reply text drafted for the owner's go;
+  nothing answered yet.
 - **Remaining:** after lore archives the series, the index pass per the
   publication order above (issue-tracker/project-status/awesome-linux-hdr);
   VLC escalation draft parked in `tools/serviio/upstream-3d-issues/vlc-mr.md`
