@@ -1,0 +1,268 @@
+=== nvidia-patched-probe 2026-09-22T00:32:07-03:00 ===
+kernel 7.0.10+deb14-amd64; nvidia-drm 615.71.09
+STOCK srcversion: D2F81AEE3A9B0BF1DED722C
+PATCHED ko: /usr/src/nvidia-615.71.09/kernel-open/nvidia-drm.ko md5=f4f0b1f1332346ace6ee457bdf2f5369
+HPD live after 0s (connected)
+=== PROBE 1/2: STOCK nvidia-drm (srcversion above) ===
+probe: /dev/dri/card1 connector HDMI-A-2
+
+without caps:
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+verdict: no stereo modes appeared even with the capability set
+(counts: none=17 stereo=17 aspect=17 both=17)
+== dropping display stack ==
+fds free after 30s
+stock nvidia_drm unloaded
+patched nvidia-drm.ko loaded
+PATCHED srcversion: 80F530B9505265913A9BF33
+=== PROBE 2/2: PATCHED nvidia-drm (stereo_allowed=true) ===
+probe: /dev/dri/card1 connector HDMI-A-2
+
+without caps:
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+verdict: no stereo modes appeared even with the capability set
+(counts: none=17 stereo=17 aspect=17 both=17)
+== restore: stock module + desktop ==
+stock nvidia_drm restored
+=== done 2026-09-22T00:32:43-03:00 ===
+=== nvidia-patched-probe 2026-09-22T01:54:39-03:00 ===
+kernel 7.0.10+deb14-amd64; nvidia-drm 615.71.09
+STOCK srcversion: D2F81AEE3A9B0BF1DED722C
+PATCHED ko: /usr/src/nvidia-615.71.09/kernel-open/nvidia-drm.ko md5=32c1ffac28cdf0c7b08cc3506c95d01f
+HPD live after 0s (connected)
+=== PROBE 1/2: STOCK nvidia-drm (srcversion above) ===
+probe: /dev/dri/card1 connector HDMI-A-2
+
+without caps:
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+verdict: no stereo modes appeared even with the capability set
+(counts: none=17 stereo=17 aspect=17 both=17)
+== dropping display stack ==
+fds free after 30s
+stock nvidia_drm unloaded
+patched nvidia-drm.ko loaded
+PATCHED srcversion: 8EBDD4C40F084663449B31D
+=== PROBE 2/2: PATCHED nvidia-drm (stereo_allowed=true) ===
+probe: /dev/dri/card1 connector HDMI-A-2
+
+without caps:
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  modes on HDMI-A-2: 39 total, 22 stereo
+
+with ASPECT_RATIO:
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 17 total, 0 stereo
+
+with STEREO_3D|ASPECT_RATIO:
+  drmSetClientCap(STEREO_3D, 1) -> 0 (accepted)
+  drmSetClientCap(ASPECT_RATIO, 1) -> 0 (accepted)
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148500 flags=0x020005 side-by-side half 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1920x1080 @ 60 Hz clk=148350 flags=0x020005 side-by-side half 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1920x1080 @ 50 Hz clk=148500 flags=0x020005 side-by-side half 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x004005 frame packing 
+    HDMI-A-2       1920x1080 @ 30 Hz clk= 74180 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x004005 frame packing 
+    HDMI-A-2       1920x1080 @ 24 Hz clk= 74180 flags=0x020005 side-by-side half 
+    HDMI-A-2       1280x1024 @ 60 Hz clk=108000 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x004005 frame packing 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74250 flags=0x020005 side-by-side half 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x000005 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x004005 frame packing 
+    HDMI-A-2       1280x720  @ 60 Hz clk= 74180 flags=0x020005 side-by-side half 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x000005 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x01c005 top-and-bottom 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x004005 frame packing 
+    HDMI-A-2       1280x720  @ 50 Hz clk= 74250 flags=0x020005 side-by-side half 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x000006 
+    HDMI-A-2       1280x720  @ 30 Hz clk= 74180 flags=0x004006 frame packing 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x000005 
+    HDMI-A-2       1280x720  @ 24 Hz clk= 59340 flags=0x004005 frame packing 
+    HDMI-A-2       1024x768  @ 60 Hz clk= 65000 flags=0x00000a 
+    HDMI-A-2        800x600  @ 60 Hz clk= 40000 flags=0x000005 
+    HDMI-A-2        720x576  @ 50 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        720x480  @ 60 Hz clk= 27000 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25175 flags=0x00000a 
+    HDMI-A-2        640x480  @ 60 Hz clk= 25170 flags=0x00000a 
+  modes on HDMI-A-2: 39 total, 22 stereo
+
+verdict: the kernel DOES expose stereo mode(s) on request
+(counts: none=17 stereo=39 aspect=17 both=39)
+== restore: stock module + desktop ==
+stock nvidia_drm restored
+=== done 2026-09-22T01:55:15-03:00 ===

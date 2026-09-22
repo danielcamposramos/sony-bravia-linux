@@ -146,6 +146,39 @@ count moves 0 → low 20s and total moves 17 → low 40s; stock remains 17/0.
 A no-delta result would mean validation rejects stereo-flagged clones despite
 identical timings — itself a reportable finding.
 
+## Measured — run19 (2026-09-22, same boot style, KDL-46HX855 on HDMI-A-2)
+
+Log: `tools/stereo-modeset/run19-nvidia-vsdb-synthesis-22-stereo-2026-09-22.log`.
+Module under test: md5 32c1ffac28cdf0c7b08cc3506c95d01f (this design's build).
+
+| client caps | stock 615.71.09 | v2 (stereo_allowed + synthesis) |
+|---|---|---|
+| none | 17 / 0 | 17 / 0 |
+| ASPECT_RATIO only | 17 / 0 | 17 / 0 |
+| STEREO_3D | 17 / 0 | **39 / 22** |
+| both | 17 / 0 | **39 / 22** |
+
+Unique stereo modes synthesized for this sink, by structure:
+
+- frame packing: 1080p24, 1080p30, 720p24, 720p30, 720p50, 720p60 x2 (7)
+- top-and-bottom: 1080p24, 1080p30, 1080p50, 1080p60 x2, 720p50, 720p60 x2 (8)
+- side-by-side half: 1080p24, 1080p50, 1080p60 x2, 720p50, 720p60 x2 (7)
+
+Prediction check (~43/~26): the four excess modes were exactly the
+mandatory-table TaB clones that overlap the mask-derived ones (1080p24,
+720p50, 720p60 x2).  The kernel probe collapses exact timing+flag
+duplicates, so 26 synthesized -> 22 unique.  Everything else matched,
+including the structural absence of all 1080i variants: the sink declares
+Frame Packing on VIC 20/5 (1080i50/60, the broadcast 3D formats) but the
+NVKMS base list carries no interlaced timing, so those six entries resolve
+to zero clones.  That is the second NVKMS-list gap (mode pruning being the
+first, deep-color training the third nearby symptom) that only the
+NVKMS-side lane can reach.
+
+Reference deltas, same EDID: nouveau 51/29; this patch 39/22
+(the ~7-mode gap to nouveau is the entire missing 1080i family plus one
+refresh-variant duplicate nouveau lists).
+
 ## Files
 
 - Patch (v2 = v1 stereo_allowed + synthesis):
