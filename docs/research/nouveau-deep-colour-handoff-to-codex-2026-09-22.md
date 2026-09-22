@@ -176,8 +176,11 @@ is load-bearing because of exactly this.
 
 ## Deliverable
 
-Your ranked reading of L1–L5 (or better hypotheses), the exact experiment
-or source audit you'd run next for each, and — if you find it — the
-specific RM-visible input that gates the deep-colour TMDS clock derivation.
-Everything else in this mystery is measured and pinned; the clock is the
-last mask on the table.
+L0 (the v4 run) is the immediate next act and is gated on Daniel's go, so
+it needs no ranking. Your deliverable is the ranked reading of what comes
+after it — L1–L5 or better hypotheses — with the exact experiment or
+source audit you would run for each branch of the v4 outcome (picture
+accepted / final subpack `0x00002610` yet refusal / no `gcp-audio` line).
+The RM-visible input that gates the deep-colour TMDS clock derivation
+becomes the priority only if v4 holds the right final state and the sink
+still refuses; until then the audio clobber is the mask on the table.
