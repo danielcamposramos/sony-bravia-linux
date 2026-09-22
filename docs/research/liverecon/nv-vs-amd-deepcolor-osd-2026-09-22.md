@@ -79,3 +79,11 @@ axis of the same NVKMS-narrows-the-EDID-surface family:
 - **#1101**: HDR DRM properties missing on force-enabled connectors —
   reported fixed on 610.43.02, i.e. the open glue *can* expose the HDR
   property surface once it is wired (precedent for the stereo lane too).
+
+Test-scope caveat (owner's position, recorded verbatim in substance): no
+bench in this project owns an HDR display, so the HDR-family connection is
+argued from the transport mechanics above and from the sibling tickets —
+it is NOT measured here. The owner assesses the HDR failures on NVIDIA
+cards as certainly related to this color-depth bug; this document keeps
+the [qualified] marker on the mechanistic chain until an HDR-capable sink
+confirms it on the link.
