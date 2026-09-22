@@ -241,3 +241,25 @@ do not invent code authorship or sign-offs for either AI partner.
   technically correct route stands per the checkpoint above: signed-off
   email series to dri-devel + nouveau, CC Lyude Paul and Danilo Krummrich.
   Daniel sends (or explicitly green-lights) any outward act.
+
+### Completion log addendum (Kimi K3, later evening 2026-09-22)
+
+- **NVIDIA parameter test: PASS.** Owner green-lit the hardware run; the
+  v4 harness (`tools/stereo-modeset/run-nvidia-deepcolor-param12.sh`,
+  three honest no-test aborts before it) unloaded the full proprietary
+  stack and reloaded `nvidia_modeset max_output_color_depth=12
+  hdmi_deepcolor=1` — post-reload readback confirmed both live in the
+  running session. With the desktop mirrored to both TV inputs, the
+  HX855 OSD reported **12-bit** on the NVIDIA link, owner-verbatim:
+  "OSD says 12-bit! ... the same desktop at both inputs". The default-cap
+  thesis is now measured on this exact card/sink/cable: lifting the
+  default 10→12 alone is sufficient. Evidence log:
+  `tools/stereo-modeset/run24-nvidia-deepcolor-param12-pass-2026-09-22.log`.
+  The NVIDIA PR is unblocked (still Daniel's per-act go for push+
+  PR creation), and the public "staged companion" claim made on VLC MR
+  !10366 (note 582109) is now backed by the bench.
+- **Send CC list resolved from MAINTAINERS** (drm-misc-next
+  `a7315e24` tree): Lyude Paul `<lyude@redhat.com>`, Danilo Krummrich
+  `<dakr@kernel.org>`; lists `dri-devel@lists.freedesktop.org` (to) and
+  `nouveau@lists.freedesktop.org` (cc), per the "DRM DRIVER FOR NVIDIA
+  GEFORCE/QUADRO GPUS" entry.

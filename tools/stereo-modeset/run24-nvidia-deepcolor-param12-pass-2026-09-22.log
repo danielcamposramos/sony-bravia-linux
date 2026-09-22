@@ -1,0 +1,93 @@
+=== run24 NVIDIA proprietary max_output_color_depth=12 deep-colour test — PASS 2026-09-22 ===
+stack: NVIDIA 615.71.09 open kernel modules (nvidia-modeset), GA106 (GALAX RTX 3060 12 GB)
+sink: Sony KDL-46HX855 (HDMI 1.4, EDID DC_30/DC_36, TMDS max 225 MHz) @ 1920x1080p60 RGB = 222.75 MHz required
+kernel: 7.0.10+deb14-amd64
+nvidia-modeset: 615.71.09
+
+--- module state at verification (running session, post-reload):
+max_output_color_depth=12 hdmi_deepcolor=Y
+nvidia_drm            176128  11
+nvidia_uvm           2166784  4
+nvidia_modeset       1990656  4 nvidia_drm
+nvidia              18513920  187 nvidia_uvm,nvidia_modeset
+
+--- harness attempts (all four, verbatim):
+=== run24 nvidia max_output_color_depth=12 attempt 2026-09-22T16:02:35-03:00 ===
+2026-09-22T16:02:35-03:00 sddm stopped
+2026-09-22T16:02:38-03:00 docker/containerd stopped
+2026-09-22T16:03:39-03:00 GPU still busy after 60s, abort reload; starting sddm back
+=== run24 nvidia max_output_color_depth=12 attempt v3 2026-09-22T16:06:33-03:00 ===
+2026-09-22T16:06:33-03:00 sddm stopped, user session terminated
+2026-09-22T16:06:36-03:00 docker/containerd stopped
+2026-09-22T16:06:36-03:00 stopped nvidia-persistenced
+2026-09-22T16:06:37-03:00 stopped coolercontrold
+2026-09-22T16:06:38-03:00 stopped netdata
+2026-09-22T16:06:38-03:00 cards free after 0s
+2026-09-22T16:06:38-03:00 removed nvidia_drm
+2026-09-22T16:06:39-03:00 removed nvidia_uvm
+2026-09-22T16:06:39-03:00 nvidia_modeset already out
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+2026-09-22T16:06:47-03:00 FAILED to remove nvidia after retries; no test happened
+nvidia_uvm           2166784  0
+nvidia_fs             294912  0
+nvidia              18513920  2 nvidia_uvm,nvidia_fs
+2026-09-22T16:06:52-03:00 desktop + daemons restored
+=== run24 nvidia max_output_color_depth=12 attempt v3 2026-09-22T16:07:20-03:00 ===
+2026-09-22T16:07:20-03:00 sddm stopped, user session terminated
+2026-09-22T16:07:23-03:00 docker/containerd stopped
+2026-09-22T16:07:23-03:00 stopped nvidia-persistenced
+2026-09-22T16:07:24-03:00 stopped coolercontrold
+2026-09-22T16:07:25-03:00 stopped netdata
+2026-09-22T16:07:25-03:00 cards free after 0s
+2026-09-22T16:07:25-03:00 removed nvidia_drm
+2026-09-22T16:07:26-03:00 removed nvidia_uvm
+2026-09-22T16:07:26-03:00 nvidia_modeset already out
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+modprobe: FATAL: Module nvidia is in use.
+2026-09-22T16:07:34-03:00 FAILED to remove nvidia after retries; no test happened
+nvidia_uvm           2166784  0
+nvidia_fs             294912  0
+nvidia              18513920  2 nvidia_uvm,nvidia_fs
+2026-09-22T16:07:39-03:00 desktop + daemons restored
+=== run24 nvidia max_output_color_depth=12 attempt v4 2026-09-22T16:10:17-03:00 ===
+2026-09-22T16:10:17-03:00 autoload guard installed: /run/modprobe.d/zz-deepcolor-param12-off.conf
+2026-09-22T16:10:17-03:00 sddm stopped, user session terminated
+2026-09-22T16:10:20-03:00 docker/containerd stopped
+2026-09-22T16:10:20-03:00 stopped nvidia-persistenced
+2026-09-22T16:10:21-03:00 stopped coolercontrold
+2026-09-22T16:10:22-03:00 stopped netdata
+2026-09-22T16:10:22-03:00 cards free after 0s
+2026-09-22T16:10:22-03:00 vtcon1 unbound
+2026-09-22T16:10:22-03:00 vtcon0 unbound
+2026-09-22T16:10:23-03:00 removed nvidia_fs
+2026-09-22T16:10:23-03:00 removed nvidia_drm
+2026-09-22T16:10:24-03:00 removed nvidia_uvm
+2026-09-22T16:10:24-03:00 nvidia_modeset not loaded, skip
+2026-09-22T16:10:24-03:00 nvidia not loaded, skip
+2026-09-22T16:10:24-03:00 nvidia family fully unloaded (guard holding)
+2026-09-22T16:10:27-03:00 AFTER RELOAD: max_output_color_depth=12 hdmi_deepcolor=Y
+2026-09-22T16:10:32-03:00 desktop + daemons restored
+2026-09-22T16:10:32-03:00 VERDICT-READY: param live at 12 - read the TV OSD now
+
+--- driver reload evidence, current boot journal:
+Sep 22 16:06:38 zionsparkyx64 kernel: nvidia-modeset: Unloading
+Sep 22 16:07:25 zionsparkyx64 kernel: nvidia-modeset: Unloading
+Sep 22 16:10:23 zionsparkyx64 kernel: nvidia-modeset: Unloading
+Sep 22 16:10:26 zionsparkyx64 kernel: NVRM: loading NVIDIA UNIX Open Kernel Module for x86_64  615.71.09  Release Build  (root@zionsparkyx64)  Fri Sep 18 09:55:03 PM -03 2026
+
+--- owner observation (verbatim): 'OSD says 12-bit! I enabled a copy of this output,
+    so it's the same desktop at both inputs'. The 10-bit flash seen during the cycle was
+    the transition window (old stack's last frames / kwin's probe modeset), not the
+    measurement; the stable session with the param live at 12 reports 12-bit on the OSD.
+
+RESULT: PASS. With only the module default lifted to 12 at load time, the NVIDIA
+proprietary Linux driver drives this EDID-DC_36 sink at 12 bpc. No other change.
+The default-cap thesis is measured-correct; the companion patch (bbfc670) is the
+same change made permanent. No HDR claim; SDR RGB deep colour only.
