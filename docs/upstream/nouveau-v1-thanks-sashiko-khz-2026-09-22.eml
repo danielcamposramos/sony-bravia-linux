@@ -1,0 +1,17 @@
+From Daniel Campos Ramos Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Subject: Re: [PATCH 1/3] drm/nouveau: select HDMI deep-color link depth
+In-Reply-To: <20260922193903.DE3BB1F000FF@smtp.kernel.org>
+References: <20260922192132.114546-1-Capitain_Jack@yahoo.com> <20260922192132.114546-2-Capitain_Jack@yahoo.com> <20260922193903.DE3BB1F000FF@smtp.kernel.org>
+
+Thank you, this one was right, and it helped.
+The SCDC gate half was already fixed in v2, but the second half was not: v2 still passes the pixel clock as khz to nvif_outp_hdmi().
+On GSP boards that value is ignored, which is why our GA106 bench never showed it, and why the v2 cover letter's claim that the pixel clock is correct there only holds for GSP.
+Without GSP, gm200_sor_hdmi_scdc() derives tmds.high_speed from it, and that sets the SOR scrambler, the 1/40 clock ratio and the clock divider.
+So when Deep Color pushes the character rate past 340 MHz while the pixel clock stays under it, v2 would tell the sink to scramble at 1/40 while the SOR stays at 1/10.
+The next revision passes the TMDS character rate there; it is ready, and will go out once the maintainers have had a chance to look at v2.
+The max bpc attach on DVI connectors is handled in the colour format series, where patch 6 closes this report.
+
+AI partners were leveraged in the production of this work.
+
+Daniel

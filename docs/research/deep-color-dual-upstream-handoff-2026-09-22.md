@@ -414,3 +414,18 @@ do not invent code authorship or sign-offs for either AI partner.
   HDMI-compliance gaps pre-existed in nouveau; the series patches exactly
   that; the 30-bpp arm was v1 not yet covering the whole gap), both lore
   links, disclosure line. From here: email-trigger only, never polled.
+- **Late-arriving Sashiko 1/3 mail re-checked (owner request):** same
+  message as the 19:39Z review already handled, but its second half was
+  right and not fixed in v2: the `khz` argument to `nvif_outp_hdmi()` stays
+  the pixel clock, and on non-GSP boards (`gm200_sor_hdmi_scdc`, GM20x..TU10x
+  without GSP) it sets `tmds.high_speed` = SOR scrambler, 1/40 ratio and clock
+  divider. GSP ignores it, so the GA106 bench could not show it; the v2 cover's
+  "measured, pixel clock is correct" holds for GSP only. Fixed locally: khz =
+  TMDS character rate (format-aware via `nv50_hdmi_char_rate` in the colour
+  series). Branches rebased: deep colour `477df2bd → c93f4a77 → 0d1a9489`,
+  colour format `ee885c41 … 27e91e45`; bundle
+  `nouveau-deepcolor-v3-plus-colorformat-v2.bundle`. **Thank-you reply SENT**
+  (owner: "we deny things we solved, but also recognize things he's right")
+  `<20260922222618.709711-1-Capitain_Jack@yahoo.com>` to sashiko-reviews (its
+  Reply-To) + dri-devel + nouveau + maintainers. **Deep colour v3 + colour
+  format v2 wait** until maintainers have looked at v2 (a few days).
