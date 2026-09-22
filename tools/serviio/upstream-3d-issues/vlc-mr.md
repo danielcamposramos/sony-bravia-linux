@@ -26,7 +26,12 @@ merged the same default after review; mpv #18490 is in review with the
 ETSI precedence norm cited; HandBrake and UMS already ship it), the patch
 applies 1:1 to master and was verified end to end on hardware, and there
 is no objection to the 4.1 milestone. The MR text itself stays unchanged
-by the owner's explicit decision ("we're changing nothing").
+by the owner's explicit decision ("we're changing nothing"). For the
+record, the owner then also posted the driver-lane cross-links as [note
+582109](https://code.videolan.org/videolan/vlc/-/merge_requests/10366#note_582109):
+the amd-gfx public test report (lore), NVIDIA issues #1382 and #1384,
+and notice that the nouveau deep-color series and the NVIDIA
+default-cap companion are being finalized.
 
 **Re-verified against master on 2026-09-22, after the mbunkus/mpv rounds:**
 

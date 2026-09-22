@@ -196,3 +196,48 @@ prepared v4. GPT/Codex independently audited the handoff, extended the clean
 upstream series and traced the NVIDIA Linux default cap and cross-format
 scope. Credit this collective work in the public evidence/provenance links;
 do not invent code authorship or sign-offs for either AI partner.
+
+## Completion log (Kimi K3, evening 2026-09-22)
+
+- **Preservation.** All of the above trees lived in `/tmp` (wiped at boot);
+  mirrored to `/K3D/temp/dual-upstream-preserve-2026-09-22/`: series-v2
+  patches + cover letter, a `73ef663c..nouveau-hdmi-deep-color` git bundle,
+  the NVIDIA branch bundle (`61dcc937..fix-hdmi-deep-color-default`), the
+  pre-commit diff and base notes.
+- **Cover letter written.** The `0000` skeleton's placeholders are filled:
+  subject "drm/nouveau: HDMI Deep Color link depth (30/36/48 bpp)", run-5
+  evidence, the audio-clobber mechanism, and explicit scope paragraphs —
+  RGB-only with YCbCr as the declared next series (owner's chroma directive
+  lands there and in the HDR wording, since HDR10's baseline transport is
+  10-bpc YCbCr 4:2:2 in a 12-bpc container), the 16-bpc "might enable"
+  wording, the HDR "might benefit ... no hardware to test or claim" wording,
+  the NVIDIA counterpart context, and the AI-assistance disclosure line.
+  Verified first that nouveau has zero connector color-format/colorspace
+  infrastructure on drm-misc-next (`nouveau_connector.c`), so YCbCr cannot
+  honestly ride along in this series.
+- **NVIDIA one-liner committed** as `bbfc670` on
+  `fix-hdmi-deep-color-default` (Daniel's Signed-off-by, AI co-author
+  trailers), citing #1384. Not pushed; the PR is gated on the module
+  parameter (`max_output_color_depth=12`) hardware test, which itself is
+  gated on Daniel's explicit go.
+- **7.0.10 apply audit.** Against the pristine 7.0.10 source: patch 1
+  applies with line offsets, patch 2 clean, patch 3 partially — `gb202.c`
+  does not exist yet on 7.0 and the `tu102.c` hunk fails because
+  `tu102_sor_hdmi_gcp` (the `.gsp.hdmi_gcp` hook, called from
+  `nvkm/subdev/gsp/rm/r535/disp.c:567`) only exists after the post-7.0
+  refactor. Conclusion: v4 *is* the correct 7.0.10 backport of the same
+  logic; the series' proper verification target is drm-misc-next itself.
+- **Build verification on the real target (done, clean).** Full tree
+  materialized at series tip `a7315e24` (the drm-misc clone is blobless +
+  sparse; `git archive` fetched the rest), bench config + gcc-15. Entire
+  `drivers/gpu/drm` subtree compiles with **zero errors**; `vmlinux` links;
+  `drm.ko` and `nouveau.ko` are produced. Scripted import closure:
+  `nm -u nouveau.ko` reduces to 11 undefined symbols, all stock nouveau
+  optional deps satisfied elsewhere in this config's module set
+  (`acpi_video`, `i2c-algo-bit`, `mxm_wmi`, `wmi` — unchanged by the
+  series). Artifacts: `/K3D/temp/k317/ndc-series-build/drivers/gpu/drm/`
+  (`nouveau.ko` 250 MB with debug info).
+- **freedesktop GitLab:** no account/credentials found locally, so the
+  technically correct route stands per the checkpoint above: signed-off
+  email series to dri-devel + nouveau, CC Lyude Paul and Danilo Krummrich.
+  Daniel sends (or explicitly green-lights) any outward act.
