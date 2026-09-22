@@ -21,6 +21,29 @@ implementation gap, not a measured claim about picture quality.
 | `max bpc` connector property | **not attached**; the existing bpc uses are DP link math and dithering depth | amdgpu and i915; proprietary `nvidia-drm` also exposes it |
 | Dynamic Range and Mastering InfoFrame | **not constructed or emitted** | amdgpu and i915 emit it; proprietary `nvidia-drm` hands the blob to closed NVKMS |
 
+### Deep colour is a second, earlier gap
+
+The same audit found a testable prerequisite below HDR metadata. On HDMI,
+`nouveau_connector_detect_depth()` falls back to 8 bpc when the EDID base
+field does not supply a depth; it does not turn the HDMI VSDB's `DC_30` and
+`DC_36` flags into an HDMI depth choice. `nv50_outp_atomic_check()` then uses
+that value rather than `max_requested_bpc`, and `nv50_sor_atomic_enable()`
+leaves TMDS pixel depth at its default. Nouveau also exposes no `max bpc`
+property.
+
+This is not evidence of an 8-bpc hardware limit. The display class headers
+define explicit 36-bpp RGB 4:4:4 values at both SOR and head level. The nearby
+“we don't support more than 10 anyway” comment is confined to DisplayPort
+link reduction. The open question is whether selecting those existing
+36-bpp values also makes GA106 emit the required HDMI General Control Packet
+deep-colour indication, or whether that needs separate programming.
+
+The owned HX855 declares a 225 MHz TMDS maximum; 1080p60 at 12-bpc RGB needs
+148.5 × 1.5 = 222.75 MHz. That makes the existing bench a narrow but valid
+deep-colour probe. The complete source map, safety transaction, and acceptance
+table are in
+[`nouveau-hdmi-deep-colour-plan-2026-09-22.md`](nouveau-hdmi-deep-colour-plan-2026-09-22.md).
+
 `nouveau_conn_attach_properties()` in `nouveau_connector.c` attaches the
 legacy scaling, underscan, dithering, vibrance and hue surfaces. Searches for
 `drm_connector_attach_hdr_output_metadata_property()`, the Colorspace attach
