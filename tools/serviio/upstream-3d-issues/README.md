@@ -199,13 +199,19 @@ mapping (video.c:1261) and the transcode fmt_in copy
 the current enum; no competing open MR; #29582 still open. The mbunkus
 precedence rule (explicit > container > stream > default, no forced mono
 write) is now stated explicitly in the MR text, the ETSI citation sharpened
-to TS 101 547-2 V1.2.1 clause 6.5, the Hardware-verified line added, and
+to TS 101 547-2 V1.2.1 clause 6.5, the hardware-verified line added, and
 the IDR-cadence lesson noted so review does not rediscover it. Side
 observation parked for later hardware-verified filing: master's
 `avcodec/video.c` maps FFmpeg `AV_STEREO3D_COLUMNS→MULTIVIEW_STEREO_ROW`
 and `LINES→COL`, which reads swapped between row/column interleave —
 pre-existing, untouched by our patch, and deliberately left out of the MR
-(scope discipline, mbunkus-style). Ready to submit, owner's go.
+(scope discipline, mbunkus-style). **Fork `capitain_jack/vlc` created from
+here (owner go), branch `x264-frame-packing-from-input` pushed as
+`0f3d63a`, and MR
+[!10366](https://code.videolan.org/videolan/vlc/-/merge_requests/10366)
+OPENED 2026-09-22** — the permission gate held the MR act until the owner
+switched to manual mode and said "retry". On the email-trigger watch,
+never polled.
 
 ## repo Discussion #1 — Samsung cross-brand follow-up posted (2026-09-18)
 

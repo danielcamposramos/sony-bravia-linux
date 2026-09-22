@@ -1,10 +1,15 @@
 # VLC merge request — x264: signal the input stereoscopic layout by default
 
-**Status 2026-09-22: account approved (Felix, vlc-devel); ready for the
-owner to submit.** Token stored at `~/.config/code.videolan.org/token`
-(mode 600); git via the SparkyLinux2026 SSH key like the other remotes.
-Per doctrine the owner submits in his own words; the AI-assistance line
-stays in the description.
+**MR OPENED 2026-09-22: https://code.videolan.org/videolan/vlc/-/merge_requests/10366**
+(owner green-lit fork + branch + MR; the session permission gate held the MR
+act until he switched to manual mode and said "retry"). Fork
+`capitain_jack/vlc` created from here (id 5420, import finished, master
+verified). Branch `x264-frame-packing-from-input` pushed as `0f3d63a`
+(`git am` of the patch, committer set to the owner's identity, Co-Authored-By
+trailer appended per the honesty doctrine — the mpv revert episode showed
+why it must stay). Token at `~/.config/code.videolan.org/token` (600); git
+via the SparkyLinux2026 SSH key (agent-loaded, `ssh -T` greeted
+`@capitain_jack`). Email-trigger watch from here on; never polled.
 
 **Re-verified against master on 2026-09-22, after the mbunkus/mpv rounds:**
 
