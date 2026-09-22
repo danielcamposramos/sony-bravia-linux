@@ -124,6 +124,12 @@ the 3D implementation. The custom module defaults to
 `/K3D/temp/k317/nouveau-hdmi-deep-colour-experimental.ko`, and the harness
 refuses a vermagic or fixed-EDID mismatch before modesetting.
 
+The HX855's two occupied inputs have input-specific HDMI physical addresses,
+so their complete EDID hashes differ even though their declared display
+capabilities do not. AMD/input 1.0.0.0 is `fbe6a3b4…eadc`; NVIDIA/input
+3.0.0.0—the nouveau test target—is `4f6cc1c8…5dc9`. The harness gates on the
+latter rather than treating the control input's hash as universal.
+
 After the dual-input observation, the AMD harness was tightened for future
 one-at-a-time work: it removes only `nvidia_drm` while leaving the NVIDIA CUDA
 stack and containers running, and invokes the modesetter with `isolate` so

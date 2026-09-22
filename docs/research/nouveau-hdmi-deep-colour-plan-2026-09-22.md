@@ -19,8 +19,12 @@ necessary part of both native HDR and high-precision HDR-to-SDR output.
 - CPU/control GPU: Ryzen 5 5500G (Cezanne amdgpu);
 - GPU under test: GALAX RTX 3060, GA106, 12 GB;
 - sink: Sony KDL-46HX855;
-- EDID SHA-256:
+- HX855 EDID identity on the AMD-connected TV input (HDMI source physical
+  address 1.0.0.0):
   `fbe6a3b455e69eab37f36bd0e7b0084a4d105c2adba101e37f0d5309c0a8eadc`;
+- HX855 EDID identity on the NVIDIA-connected TV input (source physical
+  address 3.0.0.0):
+  `4f6cc1c8b7ce1700f93ef13c76c490ea985752edadd05c64179ae169e69d5dc9`;
 - kernel under test: `7.0.10+deb14-amd64`;
 - existing controls on the same television: amdgpu reports 12-bit at
   1920x1080p60; proprietary NVIDIA reports 10-bit; Windows on the same NVIDIA
@@ -31,8 +35,12 @@ The full control measurement is in
 
 ## Why 1080p60 at 12 bpc is a valid target
 
-The EDID's HDMI VSDB declares `DC_30bit`, `DC_36bit`, `DC_Y444`, and a 225 MHz
-maximum TMDS clock. For RGB 4:4:4 deep colour:
+Both input-specific EDIDs have identical timing/capability payloads: their only
+byte differences are the HDMI VSDB source physical address (1.0.0.0 versus
+3.0.0.0) and the extension checksum that follows from it. The NVIDIA-input
+hash is therefore the live-test gate; the AMD-input hash is the control. Their
+HDMI VSDB declares `DC_30bit`, `DC_36bit`, `DC_Y444`, and a 225 MHz maximum
+TMDS clock. For RGB 4:4:4 deep colour:
 
 ```text
 1920x1080p60 pixel clock       = 148.500 MHz
@@ -120,7 +128,7 @@ Reuse the already proven nouveau module-swap transaction:
    autoload guard, and release the proprietary modules;
 4. load the experimental nouveau module and wait for its DRM card;
 5. select only the NVIDIA-connected HDMI connector whose EDID hash matches the
-   fixed value above;
+   fixed 3.0.0.0 input identity above;
 6. atomically request `max bpc = 12` with 1920x1080p60 and show a deterministic
    gradient for 90 seconds;
 7. Daniel reads and records the television OSD while the second AMD control

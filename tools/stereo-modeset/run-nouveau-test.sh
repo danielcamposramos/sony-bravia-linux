@@ -255,7 +255,10 @@ ls /sys/class/drm/ | grep "^card1-" || echo "none"
 
 CONN=""
 if [ "$DEEP_TEST" = 1 ]; then
-	EXPECTED_EDID=fbe6a3b455e69eab37f36bd0e7b0084a4d105c2adba101e37f0d5309c0a8eadc
+	# The HX855 changes the HDMI VSDB source physical address per TV input.
+	# NVIDIA is wired to input 3.0.0.0; its extension checksum therefore also
+	# differs from the AMD cable's otherwise identical 1.0.0.0 EDID.
+	EXPECTED_EDID=4f6cc1c8b7ce1700f93ef13c76c490ea985752edadd05c64179ae169e69d5dc9
 	for c in $(ls /sys/class/drm/ 2>/dev/null | grep "^card1-HDMI" | sed 's/card1-//'); do
 		EDID=/sys/class/drm/card1-$c/edid
 		[ -s "$EDID" ] || continue
