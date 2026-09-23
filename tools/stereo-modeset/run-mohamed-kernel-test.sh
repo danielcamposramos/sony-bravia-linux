@@ -43,6 +43,8 @@ finish() {
 trap finish EXIT
 
 echo "=== mohamed-bench $(date -Is) kernel=$(uname -r) ==="
+# The r8168 DKMS alias routes the NIC to a driver absent from this kernel.
+modprobe r8169 2>/dev/null && echo "network: r8169 loaded" || true
 echo "installed nouveau (with CD=5): $(modinfo -n nouveau) sha256 $(sha256sum "$(modinfo -n nouveau)" | cut -c1-64)"
 echo "A/B nouveau (without CD=5):    $NOFIX sha256 $(sha256sum "$NOFIX" | cut -c1-64)"
 echo "vermagic A/B module: $(modinfo -F vermagic "$NOFIX")"
