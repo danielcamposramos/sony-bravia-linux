@@ -4,8 +4,8 @@ People who asked, in public, for what our VLC builds now do. Gathered 2026-09-23
 
 **The builds:**
 - **VLC with the 3D fix** (all platforms): VLC detects the H.264 frame-packing SEI and keeps it through transcoding. Released: [3.0.24-3d1](https://github.com/danielcamposramos/vlc/releases/tag/3.0.24-3d1).
-- **VLC-HiFi** (Android, in preparation): full-precision audio path, float from decoder to AudioTrack and SoXR at its highest quality. With a ROM whose HAL is opened up (below), measured end to end on a TV box: 24/96 FLAC in, `S24_LE`/48 kHz out.
-- **VLC-3D-HiFi** (Android, in preparation): both. For the ultimate 3D cinema experience with high-definition audio, on the boxes that drive 3D televisions.
+- **VLC-HiFi** (Android, [released 3.7.1-hifi.1](https://github.com/danielcamposramos/vlc-android/releases/tag/3.7.1-hifi.1)): full-precision audio path, float from decoder to AudioTrack and SoXR at its highest quality. With a ROM whose HAL is opened up (below), measured end to end on a TV box: 24/96 FLAC in, `S24_LE`/48 kHz out.
+- **VLC-3D-HiFi** (Android, same release): both. For the ultimate 3D cinema experience with high-definition audio, on the boxes that drive 3D televisions.
 
 ## The player is half of it: the ROM caps the rest
 
