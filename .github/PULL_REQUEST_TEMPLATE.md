@@ -11,7 +11,7 @@
 - [ ] Links point to the publisher's or project's own page, and I opened each one myself.
 - [ ] No firmware, keys, manuals or other files that the project cannot redistribute.
 
-**AI assistance** (see [PROVENANCE.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/PROVENANCE.md#on-slop); disclosure is never held against you):
+**AI assistance** (see [PROVENANCE.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/PROVENANCE.md#on-slop); disclosure is never held against you; assistants can load [ai-skill/SKILL.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/ai-skill/SKILL.md)):
 
 - [ ] None
 - [ ] Used, and I checked every claim and ran every result myself. Tool or model:
