@@ -22,7 +22,7 @@ Everything below is a rule. Rules are followed when someone is watching. This pa
 - **Own the error first.** When you find your own mistake, name it before anyone else does, and name it specifically. This project corrects itself in public, in the thread where the mistake was made.
 - **Protect the maintainers from your own output.** Upstream people read everything we send. Every sentence costs them attention.
 
-**On the tool question.** Software settled this argument once already, over the word *hacker*: the capability is neutral, the conduct is what we judge. The owner's position is in [PROVENANCE.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/PROVENANCE.md#on-slop): we judge the artefact, not the author. Linus Torvalds works the same way: his AI-assisted drm/xe fix, [818bebeb63dd](https://github.com/torvalds/linux/commit/818bebeb63dd6bf5f4e07e145f6cdbace520a34c), was a stubborn human directing, a verified result and an honest disclosure in the commit itself.
+**On the tool question.** Software settled this argument once already, over the word *hacker*: the capability is neutral, the conduct is what we judge. Daniel's position is in [PROVENANCE.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/PROVENANCE.md#on-slop): we judge the artefact, not the author. Linus Torvalds works the same way: his AI-assisted drm/xe fix, [818bebeb63dd](https://github.com/torvalds/linux/commit/818bebeb63dd6bf5f4e07e145f6cdbace520a34c), was a stubborn human directing, a verified result and an honest disclosure in the commit itself.
 
 ---
 
@@ -31,17 +31,17 @@ Everything below is a rule. Rules are followed when someone is watching. This pa
 ## Hard constraints
 
 - **Your own hardware and your own network only.** Nothing here touches anyone else's device.
-- **No DRM circumvention.** PlayReady, WMDRM, Marlin and CI+ are out of scope. The project serves the owner's own media to the owner's own sets.
+- **No DRM circumvention.** PlayReady, WMDRM, Marlin and CI+ are out of scope. The project serves Daniel's own media to Daniel's own sets.
 - **Never open a TV, and never port-scan one.** Non-invasive work only. Talk to documented endpoints only.
-- **Test on the expendable set first.** On the owner's bench that is the EX725; the HX855 is a working monitor and is never crash-tested.
-- **No firmware or update host is ever redirected.** The DNS overrides are a closed, owner-approved list; adding one needs the owner first.
-- **Nothing Sony-copyrighted enters the repository.** Firmware, widget packages, manuals and recovered bundles stay in the owner's private archive. The repository publishes analysis, method and our own reconstructions.
+- **Test on the expendable set first.** On Daniel's bench that is the EX725; the HX855 is a working monitor and is never crash-tested.
+- **No firmware or update host is ever redirected.** The DNS overrides are a closed list Daniel approved; adding one needs Daniel first.
+- **Nothing Sony-copyrighted enters the repository.** Firmware, widget packages, manuals and recovered bundles stay in Daniel's private archive. The repository publishes analysis, method and our own reconstructions.
 - **Never print a credential file.** When checking configuration, extract host names only. Key material lives in the private archive and on the server, never in the repository.
 - **Heavy media jobs run on the server**, never on the workstation.
 
 ## The pull-request checklist
 
-The template asks for: the hardware and software you tested on, every hardware claim tied to a run you did with its log committed, untested parts labelled as untested, links you opened yourself, nothing the project cannot redistribute, and whether AI assistance was used. Branch `main` is protected: a pull request needs the owner's review.
+The template asks for: the hardware and software you tested on, every hardware claim tied to a run you did with its log committed, untested parts labelled as untested, links you opened yourself, nothing the project cannot redistribute, and whether AI assistance was used. Branch `main` is protected: a pull request needs Daniel's review.
 
 ---
 
@@ -58,7 +58,7 @@ The template asks for: the hardware and software you tested on, every hardware c
 3. **Check your source reading before it goes public.** A claim about what another codebase does must be checked in that codebase at the right version, down to the function.
 4. **Say what the evidence does not cover.** No HDR display on the bench means HDR is argued from the specifications, not measured, and every post says so.
 5. **Never claim a specification says more than it does.** Quote the clause or leave the claim out.
-6. **Credit where it came from.** When the owner's question or a reviewer's finding cracked something, the record says so by name.
+6. **Credit where it came from.** When Daniel's question or a reviewer's finding cracked something, the record says so by name.
 
 ## Driver and kernel work
 
@@ -73,7 +73,7 @@ The template asks for: the hardware and software you tested on, every hardware c
 12. **Pace matters.** Several good posts in a short span are still a flood. Hold finished work until the current thread has settled.
 13. **Follow each project's own rules.** Mailing lists get plain-text mail threaded with the right headers; trackers get their templates; a project that bans AI mentions in commit messages gets its rule honoured.
 14. **Accept correct review, including from bots.** When an automated reviewer is right, fix it and thank it in the thread. When it is wrong, say what was measured.
-15. **The owner posts in the owner's own voice.** Drafts are raw material. Anything public goes out under the owner's name only with the owner's approval.
+15. **Posts go out in Daniel's own words.** Drafts are raw material. Nothing public goes out under Daniel's name without Daniel's approval.
 
 ## Access and sources
 

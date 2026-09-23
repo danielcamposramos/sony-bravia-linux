@@ -13,6 +13,6 @@ It is plain Markdown on purpose, so it is not tied to any one assistant:
 - **Anything else, including a local model:** paste it at the top of the conversation.
 - **No assistant at all:** it works as a human checklist.
 
-The owner's position on AI assistance is in [PROVENANCE.md](../PROVENANCE.md#on-slop). The sibling skill for the Consumer Rights Wiki is [crwiki-ai-skill](../crwiki-ai-skill/).
+Daniel's position on AI assistance is in [PROVENANCE.md](../PROVENANCE.md#on-slop). The sibling skill for the Consumer Rights Wiki is [crwiki-ai-skill](../crwiki-ai-skill/).
 
 CC0, like the rest of this repository. Corrections are welcome as pull requests.
