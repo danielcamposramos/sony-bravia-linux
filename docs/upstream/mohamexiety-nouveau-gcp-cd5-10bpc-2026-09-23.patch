@@ -1,0 +1,61 @@
+From 83accf62b07f089a73ea742520945814d0399053 Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Wed, 23 Sep 2026 17:35:31 -0300
+Subject: [PATCH] drm/nouveau/dispnv50: declare CD=5 in the GCP at 10 bpc
+
+At 10 bpc the GCP goes out with CD=0 (not indicated) on a 30-bpp link;
+HDMI 1.4b section 6.5.3 requires CD=5 and the packing phase (four-pixel
+group). This adds the 10 bpc case with the same phase rule as the 12 bpc
+one.
+
+On my bench (GA106, Sony KDL-46HX855, DC_30/DC_36) a missing CD at
+36 bpp gave the TV's incompatible-signal screen, and CD=5 at 30 bpp was
+accepted (log: run26 in sony-bravia-linux).
+
+Found with AI help; the change is two lines, checked against the spec
+and the dw-hdmi packetizer. It comes from our withdrawn series:
+https://lore.kernel.org/all/20260923201930.1836730-1-Capitain_Jack@yahoo.com/
+
+Assisted-by: Claude:claude-opus-5-5
+---
+ drivers/gpu/drm/nouveau/dispnv50/disp.c       | 6 +++++-
+ drivers/gpu/drm/nouveau/include/nvif/if0012.h | 2 +-
+ 2 files changed, 6 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index cac000b75..de6151499 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -1019,11 +1019,15 @@ nv50_hdmi_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ 	tmds_clock = hw.crtc_clock * asyh->or.bpc / 8;
+ 
+ 	/* At 12 bpc, GCP SB1 carries CD=6 and a packing phase selected by the
+-	 * parity of the back porch plus active width.
++	 * parity of the back porch plus active width. At 10 bpc it carries
++	 * CD=5 and the phase within the four-pixel group (HDMI 1.4b 6.5.3).
+ 	 */
+ 	if (asyh->or.bpc == 12)
+ 		gcp_sb1 = 0x06 | ((hw.crtc_htotal - hw.crtc_hsync_end +
+ 				   hw.crtc_hdisplay) & 1 ? 0x10 : 0x20);
++	else if (asyh->or.bpc == 10)
++		gcp_sb1 = 0x05 | (((hw.crtc_htotal - hw.crtc_hsync_end +
++				    hw.crtc_hdisplay) & 3) << 4);
+ 
+ 	max_ac_packet  = mode->htotal - mode->hdisplay;
+ 	max_ac_packet -= rekey;
+diff --git a/drivers/gpu/drm/nouveau/include/nvif/if0012.h b/drivers/gpu/drm/nouveau/include/nvif/if0012.h
+index 022df916a..9e0dafe38 100644
+--- a/drivers/gpu/drm/nouveau/include/nvif/if0012.h
++++ b/drivers/gpu/drm/nouveau/include/nvif/if0012.h
+@@ -176,7 +176,7 @@ union nvif_outp_hdmi_args {
+ 		__u8 scdc_scrambling;
+ 		__u8 scdc_low_rates;
+ 		__u32 khz;
+-		/* GCP SB1: CD[3:0], PP[7:4], zero below 12 bpc. */
++		/* GCP SB1: CD[3:0], PP[7:4], zero below 10 bpc. */
+ 		__u8 gcp_sb1;
+ 		__u8 pad0d[3];
+ 	} v0;
+-- 
+2.53.0
+
