@@ -73,7 +73,7 @@ The template asks for: the hardware and software you tested on, every hardware c
 12. **Pace matters.** Several good posts in a short span are still a flood. Hold finished work until the current thread has settled.
 13. **Follow each project's own rules.** Mailing lists get plain-text mail threaded with the right headers; trackers get their templates; a project that bans AI mentions in commit messages gets its rule honoured.
 14. **Accept correct review, including from bots.** When an automated reviewer is right, fix it and thank it in the thread. When it is wrong, say what was measured.
-15. **Posts go out in Daniel's own words.** Drafts are raw material. Nothing public goes out under Daniel's name without Daniel's approval.
+15. **What you post under your name is yours.** An assistant's draft is raw material: read it, make it say what you mean, and disclose the assistance. Nothing should go out under your name that you have not read and would not defend.
 
 ## Access and sources
 
