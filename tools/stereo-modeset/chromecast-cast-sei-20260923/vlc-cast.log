@@ -1,0 +1,365 @@
+[0000561d48cce400] main libvlc debug: VLC media player - 3.0.23 Vetinari
+[0000561d48cce400] main libvlc debug: Copyright © 1996-2025 the VideoLAN team
+[0000561d48cce400] main libvlc debug: revision 3.0.23-2-0-g79128878dd
+[0000561d48cce400] main libvlc debug: configured with ./configure  '--build=x86_64-linux-gnu' '--prefix=/usr' '--includedir=${prefix}/include' '--mandir=${prefix}/share/man' '--infodir=${prefix}/share/info' '--sysconfdir=/etc' '--localstatedir=/var' '--disable-option-checking' '--disable-silent-rules' '--libdir=${prefix}/lib/x86_64-linux-gnu' '--runstatedir=/run' '--disable-maintainer-mode' '--disable-dependency-tracking' '--disable-debug' '--config-cache' '--disable-update-check' '--enable-fast-install' '--docdir=/usr/share/doc/vlc' '--with-binary-version=3.0.23-0+deb13u1+3d1' '--enable-aa' '--enable-aribsub' '--enable-avahi' '--enable-bluray' '--enable-caca' '--enable-chromaprint' '--enable-chromecast' '--enable-dav1d' '--enable-dbus' '--enable-dvbpsi' '--enable-dvdnav' '--enable-faad' '--enable-flac' '--enable-fluidsynth' '--enable-freetype' '--enable-fribidi' '--enable-gles2' '--enable-gnutls' '--enable-harfbuzz' '--enable-jack' '--enable-kate' '--enable-libass' '--enable-libxml2' '--enable-lirc' '--enable-mad' '--enable-matroska' '--enable-mod' '--enable-mpc' '--enable-mpg123' '--enable-mtp' '--enable-ncurses' '--enable-notify' '--enable-ogg' '--enable-opus' '--enable-pulse' '--enable-qt' '--enable-realrtsp' '--enable-samplerate' '--enable-sftp' '--enable-shine' '--enable-shout' '--enable-skins2' '--enable-soxr' '--enable-spatialaudio' '--enable-speex' '--enable-srt' '--enable-svg' '--enable-svgdec' '--enable-taglib' '--enable-theora' '--enable-twolame' '--enable-upnp' '--enable-vdpau' '--enable-vnc' '--enable-vorbis' '--enable-x264' '--enable-x265' '--enable-zvbi' '--with-kde-solid=/usr/share/solid/actions/' '--disable-a52' '--disable-aom' '--disable-crystalhd' '--disable-d3d11va' '--disable-dca' '--disable-decklink' '--disable-directx' '--disable-dsm' '--disable-dxva2' '--disable-fdkaac' '--disable-fluidlite' '--disable-freerdp' '--disable-goom' '--disable-gst-decode' '--disable-libmpeg2' '--disable-libplacebo' '--disable-libtar' '--disable-live555' '--disable-macosx' '--disable-macosx-avfoundation' '--disable-macosx-qtkit' '--disable-mfx' '--disable-microdns' '--disable-omxil' '--disable-opencv' '--disable-oss' '--disable-projectm' '--disable-schroedinger' '--disable-sdl-image' '--disable-sndio' '--disable-sparkle' '--disable-telx' '--disable-vpx' '--disable-vsxu' '--disable-wasapi' '--enable-alsa' '--enable-dc1394' '--enable-dv1394' '--enable-linsys' '--enable-nfs' '--enable-udev' '--enable-v4l2' '--enable-wayland' '--enable-libva' '--enable-vcd' '--enable-smbclient' '--enable-mmx' '--enable-sse' '--disable-neon' '--disable-altivec' 'build_alias=x86_64-linux-gnu' 'CFLAGS=-g -O2 -Werror=implicit-function-declaration -ffile-prefix-map=/src/vlc-3.0.23=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection ' 'LDFLAGS=-Wl,-z,relro -Wl,-z,now' 'CPPFLAGS=-Wdate-time -D_FORTIFY_SOURCE=2' 'CXXFLAGS=-g -O2 -ffile-prefix-map=/src/vlc-3.0.23=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection ' 'OBJCFLAGS=-g -O2 -ffile-prefix-map=/src/vlc-3.0.23=. -fstack-protector-strong -fstack-clash-protection -Wformat -Werror=format-security -fcf-protection'
+[0000561d48cce400] main libvlc debug: searching plug-in modules
+[0000561d48cce400] main libvlc debug: loading plugins cache file /usr/lib/x86_64-linux-gnu/vlc/plugins/plugins.dat
+[0000561d48cce400] main libvlc debug: recursively browsing `/usr/lib/x86_64-linux-gnu/vlc/plugins'
+[0000561d48cce400] main libvlc debug: plug-ins loaded: 468 modules
+[0000561d48cce400] main libvlc debug: opening config file (/home/caster/.config/vlc/vlcrc)
+[0000561d48cce750] main logger debug: looking for logger module matching "any": 4 candidates
+[0000561d48cce750] main logger debug: using logger module "console"
+[0000561d48cce400] main libvlc debug: translation test: code is "C"
+[0000561d48cd1cf0] main keystore debug: looking for keystore module matching "memory": 4 candidates
+[0000561d48cd1cf0] main keystore debug: using keystore module "memory"
+[0000561d48cce400] main libvlc debug: CPU has capabilities MMX MMXEXT SSE SSE2 SSE3 SSSE3 SSE4.1 SSE4.2 SSE4A AVX AVX2 FPU 
+[0000561d48d58310] main playlist debug: creating audio output
+[0000561d48d5a400] main audio output debug: looking for audio output module matching "any": 5 candidates
+[0000561d48d5a400] vlcpulse audio output debug: using library version 17.0.0
+[0000561d48d5a400] vlcpulse audio output debug:  (compiled with version 17.0.0, protocol 35)
+[0000561d48d5a400] vlcpulse audio output error: PulseAudio server connection failure: Connection refused
+[0000561d48d5a400] alsa audio output debug: Available ALSA PCM devices:
+[0000561d48d5a400] alsa audio output debug: Discard all samples (playback) or generate zero samples (capture) (null)
+[0000561d48d5a400] main audio output debug: using audio output module "alsa"
+[0000561d48d58310] main playlist debug: keeping audio output
+[0000561d48d68620] main interface debug: looking for interface module matching "dbus,none": 16 candidates
+[0000561d48d68620] dbus interface error: Failed to connect to the D-Bus session daemon: Unable to autolaunch a dbus-daemon without a $DISPLAY for X11
+[0000561d48d68620] main interface debug: no interface modules matched
+[0000561d48d68620] main interface error: no suitable interface module
+[0000561d48cce400] main libvlc error: interface "dbus,none" initialization failed
+[0000561d48d68620] main interface debug: looking for interface module matching "hotkeys,none": 16 candidates
+[00007f2264000c30] main input debug: Creating an input for preparsing 'clip.mp4'
+[0000561d48d68620] main interface debug: using interface module "hotkeys"
+[0000561d48d8a260] main interface debug: looking for interface module matching "globalhotkeys,none": 16 candidates
+[0000561d48d8a260] main interface debug: no interface modules matched
+[0000561d48d8a260] main interface error: no suitable interface module
+[0000561d48cce400] main libvlc error: interface "globalhotkeys,none" initialization failed
+[0000561d48d8a260] main interface debug: looking for interface module matching "dummy": 16 candidates
+[0000561d48d8a260] dummy interface: using the dummy interface module...
+[0000561d48d8a260] main interface debug: using interface module "dummy"
+[0000561d48d58310] main playlist debug: processing request item: null, node: Playlist, skip: 0
+[0000561d48d58310] main playlist debug: rebuilding array of current - root Playlist
+[0000561d48d58310] main playlist debug: rebuild done - 1 items, index -1
+[0000561d48d58310] main playlist debug: starting playback of new item
+[0000561d48d58310] main playlist debug: resyncing on clip.mp4
+[0000561d48d58310] main playlist debug: clip.mp4 is at 0
+[0000561d48d58310] main playlist debug: creating new input thread
+[00007f2260000c90] main input debug: Creating an input for 'clip.mp4'
+[00007f225c081ab0] main meta fetcher debug: looking for meta fetcher module matching "any": 1 candidates
+[00007f225c081ab0] lua meta fetcher debug: Trying Lua scripts in /home/caster/.local/share/vlc/lua/meta/fetcher
+[00007f225c081ab0] lua meta fetcher debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+[00007f225c081ab0] lua meta fetcher debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+[0000561d48d58310] main playlist debug: requesting art for new input thread
+[00007f225c081ab0] main meta fetcher debug: no meta fetcher modules matched
+[00007f225c081560] main art finder debug: looking for art finder module matching "any": 2 candidates
+[00007f2250000e50] main stream output debug: using sout chain=`chromecast{ip=192.168.0.20}'
+[00007f2250000e50] main stream output debug: stream=`chromecast'
+[00007f2250001170] main stream out debug: looking for sout stream module matching "chromecast": 23 candidates
+[00007f225c081560] lua art finder debug: Trying Lua scripts in /home/caster/.local/share/vlc/lua/meta/art
+[00007f225c081560] lua art finder debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+[00007f225c081560] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+[00007f225c081560] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+[00007f225c081560] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+[00007f225c081560] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+[00007f225c081560] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+[00007f2250001170] main stream out debug: set config option: sout-chromecast-ip to 192.168.0.20
+[00007f2250001170] main stream out warning: httpd timeout disabled
+[00007f2250001170] main stream out debug: net: listening to * port 8010
+[00007f225c081560] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+[00007f225c081560] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+[00007f225c081560] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+[00007f225c081560] lua art finder debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+[00007f225c081560] main art finder debug: no art finder modules matched
+[00007f225c081560] main meta fetcher debug: looking for meta fetcher module matching "any": 1 candidates
+[00007f225c081560] lua meta fetcher debug: Trying Lua scripts in /home/caster/.local/share/vlc/lua/meta/fetcher
+[00007f225c081560] lua meta fetcher debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/fetcher
+[00007f2250004420] main tls client debug: looking for tls client module matching "any": 1 candidates
+[00007f225c081560] lua meta fetcher debug: Trying Lua scripts in /usr/share/vlc/lua/meta/fetcher
+[00007f225c081560] main meta fetcher debug: no meta fetcher modules matched
+[00007f225c081ab0] main art finder debug: looking for art finder module matching "any": 2 candidates
+[00007f225c081ab0] lua art finder debug: Trying Lua scripts in /home/caster/.local/share/vlc/lua/meta/art
+[00007f225c081ab0] lua art finder debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art
+[00007f225c081ab0] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+[00007f2250004420] gnutls tls client debug: using GnuTLS version 3.8.9
+[00007f225c081ab0] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/00_musicbrainz.luac
+[00007f225c081ab0] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+[00007f2250004420] gnutls tls client debug: loaded 0 trusted CAs from system
+[00007f2250004420] main tls client debug: using tls client module "gnutls"
+[00007f2250004420] main tls client debug: resolving 192.168.0.20 ...
+[00007f225c081ab0] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/01_googleimage.luac
+[00007f225c081ab0] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+[00007f225c081ab0] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/02_frenchtv.luac
+[00007f225c081ab0] lua art finder debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+[00007f225c081ab0] lua art finder debug: skipping script (unmatched scope) /usr/lib/x86_64-linux-gnu/vlc/lua/meta/art/03_lastfm.luac
+[00007f225c081ab0] lua art finder debug: Trying Lua scripts in /usr/share/vlc/lua/meta/art
+[00007f225c081ab0] main art finder debug: no art finder modules matched
+[00007f2250004420] gnutls tls client debug: TLS handshake: Resource temporarily unavailable, try again.
+[00007f2250004420] gnutls tls client debug: TLS handshake: Success.
+[00007f2250004420] gnutls tls client error: Certificate verification failure: The certificate is NOT trusted. The certificate issuer is unknown. The name in the certificate does not match the expected. 
+[00007f2250004420] gnutls tls client: Accepting self-signed/untrusted CA certificate.
+[00007f2250001170] main stream out debug: using sout stream module "stream_out_chromecast"
+[00007f2260000c90] main input debug: using timeshift granularity of 50 MiB
+[00007f2260000c90] main input debug: using default timeshift path
+[00007f2260000c90] main input debug: `file:///clip.mp4' gives access `file' demux `any' path `/clip.mp4'
+[00007f22500147f0] main input source debug: creating demux: access='file' demux='any' location='/clip.mp4' file='/clip.mp4'
+[00007f225000bd20] main demux debug: looking for access_demux module matching "file": 16 candidates
+[00007f225000bd20] main demux debug: no access_demux modules matched
+[00007f2250011fb0] main stream debug: creating access: file:///clip.mp4
+[00007f2250011fb0] main stream debug:  (path: /clip.mp4)
+[00007f2250011fb0] main stream debug: looking for access module matching "file": 28 candidates
+[00007f2250011fb0] main stream debug: using access module "filesystem"
+[00007f22500133a0] main stream debug: looking for stream_filter module matching "prefetch,cache_read": 26 candidates
+[00007f22500133a0] cache_read stream debug: Using stream method for AStream*
+[00007f22500133a0] cache_read stream debug: starting pre-buffering
+[00007f22500133a0] cache_read stream debug: received first data after 0 ms
+[00007f22500133a0] cache_read stream debug: pre-buffering done 1024 bytes in 0s - 38461 KiB/s
+[00007f22500133a0] main stream debug: using stream_filter module "cache_read"
+[00007f2250013560] main stream debug: looking for stream_filter module matching "any": 26 candidates
+[00007f2250013560] lua stream debug: Trying Lua scripts in /home/caster/.local/share/vlc/lua/playlist
+[00007f2250013560] lua stream debug: Trying Lua scripts in /usr/lib/x86_64-linux-gnu/vlc/lua/playlist
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/anevia_streams.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/anevia_xml.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/appletrailers.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/bbc_co_uk.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/cue.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/dailymotion.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/jamendo.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/koreus.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/liveleak.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/newgrounds.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/rockbox_fm_presets.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/soundcloud.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/twitch.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/vimeo.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/vocaroo.luac
+[00007f2250013560] lua stream debug: Trying Lua playlist script /usr/lib/x86_64-linux-gnu/vlc/lua/playlist/youtube.luac
+[00007f2250013560] lua stream debug: Trying Lua scripts in /usr/share/vlc/lua/playlist
+[00007f2250013560] main stream debug: no stream_filter modules matched
+[00007f2250c28940] main stream_directory debug: looking for stream_directory module matching "any": 1 candidates
+[00007f2250c28940] main stream_directory debug: no stream_directory modules matched
+[00007f22500147f0] main input source debug: attachment of directory-extractor failed for file:///clip.mp4
+[00007f2250013560] main stream debug: looking for stream_filter module matching "record": 26 candidates
+[00007f2250013560] main stream debug: using stream_filter module "record"
+[00007f22500147f0] main input source debug: creating demux: access='file' demux='any' location='/clip.mp4' file='/clip.mp4'
+[00007f225000bd20] main demux debug: looking for demux module matching "mp4": 55 candidates
+[00007f2250013560] mp4 stream debug: dumping root Box "root"
+[00007f2250013560] mp4 stream debug: |   + ftyp size 32 offset 0
+[00007f2250013560] mp4 stream debug: |   + free size 8 offset 32
+[00007f2250013560] mp4 stream debug: |   + mdat size 42334750 offset 40
+[00007f2250013560] mp4 stream debug: |   + moov size 38629 offset 42334790
+[00007f2250013560] mp4 stream debug: |   |   + mvhd size 108 offset 42334798
+[00007f2250013560] mp4 stream debug: |   |   + trak size 19207 offset 42334906
+[00007f2250013560] mp4 stream debug: |   |   |   + tkhd size 92 offset 42334914
+[00007f2250013560] mp4 stream debug: |   |   |   + edts size 36 offset 42335006
+[00007f2250013560] mp4 stream debug: |   |   |   |   + elst size 28 offset 42335014
+[00007f2250013560] mp4 stream debug: |   |   |   + mdia size 19071 offset 42335042
+[00007f2250013560] mp4 stream debug: |   |   |   |   + mdhd size 32 offset 42335050
+[00007f2250013560] mp4 stream debug: |   |   |   |   + hdlr size 45 offset 42335082
+[00007f2250013560] mp4 stream debug: |   |   |   |   + minf size 18986 offset 42335127
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   + vmhd size 20 offset 42335135
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   + dinf size 36 offset 42335155
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + dref size 28 offset 42335163
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   + url  size 12 offset 42335179
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   + stbl size 18922 offset 42335191
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stsd size 194 offset 42335199
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   + avc1 size 178 offset 42335215
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   |   + avcC size 56 offset 42335301
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   |   + pasp size 16 offset 42335357
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   |   + btrt size 20 offset 42335373
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stts size 24 offset 42335393
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stss size 40 offset 42335417
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + ctts size 7064 offset 42335457
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stsc size 40 offset 42342521
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stsz size 5780 offset 42342561
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stco size 5772 offset 42348341
+[00007f2250013560] mp4 stream debug: |   |   + trak size 19209 offset 42354113
+[00007f2250013560] mp4 stream debug: |   |   |   + tkhd size 92 offset 42354121
+[00007f2250013560] mp4 stream debug: |   |   |   + edts size 36 offset 42354213
+[00007f2250013560] mp4 stream debug: |   |   |   |   + elst size 28 offset 42354221
+[00007f2250013560] mp4 stream debug: |   |   |   + mdia size 19073 offset 42354249
+[00007f2250013560] mp4 stream debug: |   |   |   |   + mdhd size 32 offset 42354257
+[00007f2250013560] mp4 stream debug: |   |   |   |   + hdlr size 45 offset 42354289
+[00007f2250013560] mp4 stream debug: |   |   |   |   + minf size 18988 offset 42354334
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   + smhd size 16 offset 42354342
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   + dinf size 36 offset 42354358
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + dref size 28 offset 42354366
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   + url  size 12 offset 42354382
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   + stbl size 18928 offset 42354394
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stsd size 126 offset 42354402
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   + mp4a size 110 offset 42354418
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   |   + esds size 54 offset 42354454
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   |   |   + btrt size 20 offset 42354508
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stts size 32 offset 42354528
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stsc size 1660 offset 42354560
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stsz size 11276 offset 42356220
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + stco size 5772 offset 42367496
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + sgpd size 26 offset 42373268
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + sbgp size 28 offset 42373294
+[00007f2250013560] mp4 stream debug: |   |   + udta size 97 offset 42373322
+[00007f2250013560] mp4 stream debug: |   |   |   + meta size 89 offset 42373330
+[00007f2250013560] mp4 stream debug: |   |   |   |   + hdlr size 33 offset 42373342
+[00007f2250013560] mp4 stream debug: |   |   |   |   + ilst size 44 offset 42373375
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   + ctoo size 36 offset 42373383
+[00007f2250013560] mp4 stream debug: |   |   |   |   |   |   + data size 28 offset 42373391
+[00007f225000bd20] mp4 demux debug: ISO Media (isom) version 512.
+[00007f225000bd20] mp4 demux debug: found 2 tracks
+[00007f225000bd20] mp4 demux warning: elst box found
+[00007f225000bd20] mp4 demux debug:    - [0] duration=60000ms media time=83ms) rate=1.0
+[00007f225000bd20] mp4 demux debug: track[Id 0x1] read 1439 chunk
+[00007f225000bd20] mp4 demux warning: STTS table of 1 entries
+[00007f225000bd20] mp4 demux warning: CTTS table of 881 entries
+[00007f225000bd20] mp4 demux debug: track[Id 0x1] read 1440 samples length:60s
+[00007f2260000c90] main input debug: selecting program id=0
+[00007f225000bd20] mp4 demux debug: adding track[Id 0x1] video (enable) language undef
+[00007f225000bd20] mp4 demux warning: elst box found
+[00007f225000bd20] mp4 demux debug:    - [0] duration=60000ms media time=21ms) rate=1.0
+[00007f225000bd20] mp4 demux debug: track[Id 0x2] read 1439 chunk
+[00007f225000bd20] mp4 demux warning: STTS table of 2 entries
+[00007f225000bd20] mp4 demux debug: track[Id 0x2] read 2814 samples length:60s
+[00007f225000bd20] mp4 demux debug: adding track[Id 0x2] audio (enable) language undef
+[00007f225000bd20] main demux debug: using demux module "mp4"
+[00007f225000e1d0] main demux_filter debug: looking for demux_filter module matching "demux_chromecast": 2 candidates
+[00007f2260000c90] main input debug: ES_OUT_RESET_PCR called
+[00007f225000e1d0] main demux_filter debug: using demux_filter module "demux_chromecast"
+[00007f2260000c90] main input debug: looking for a subtitle file in /
+[00007f2250c1dd30] main decoder debug: looking for packetizer module matching "any": 25 candidates
+[00007f2250c1dd30] h264 decoder debug: found NAL_SPS (sps_id=0)
+[00007f2250c1dd30] h264 decoder debug: found NAL_PPS (pps_id=0 sps_id=0)
+[00007f2250c1dd30] h264 decoder debug: Packetizer fed with AVC, nal length size=4
+[00007f2250c1dd30] main decoder debug: using packetizer module "h264"
+[00007f2250c2abe0] main decoder debug: looking for packetizer module matching "any": 25 candidates
+[00007f2250c2abe0] mpeg4audio decoder debug: running MPEG4 audio packetizer
+[00007f2250c2abe0] mpeg4audio decoder debug: AACv2 48000Hz 1024 samples/frame
+[00007f2250c2abe0] main decoder debug: using packetizer module "mpeg4audio"
+[00007f2260000c90] main input debug: starting in sync mode
+[00007f22500150b0] main demux meta debug: looking for meta reader module matching "any": 2 candidates
+[00007f2250c1f7b0] main stream debug: creating access: file:///clip.mp4
+[00007f2250c1f7b0] main stream debug:  (path: /clip.mp4)
+[00007f2250c1f7b0] main stream debug: looking for access module matching "file": 28 candidates
+[00007f2250c1f7b0] main stream debug: using access module "filesystem"
+[00007f2250c17110] main stream debug: looking for stream_filter module matching "prefetch,cache": 26 candidates
+[00007f2250c17110] main stream debug: no stream_filter modules matched
+[00007f2250c1f7b0] main stream debug: removing module "filesystem"
+[00007f22500150b0] main demux meta debug: using meta reader module "taglib"
+[00007f225000e1d0] main demux_filter debug: removing module "taglib"
+[00007f2260000c90] main input debug: `file:///clip.mp4' successfully opened
+[00007f225000bd20] mp4 demux debug: elst (0) gives 0ms (movie)-> 83ms (track)
+[00007f225000bd20] mp4 demux debug: track[Id 0x1] using Sync Sample Box (stss)
+[00007f225000bd20] mp4 demux debug: stss gives 2 --> 0 (sample number)
+[00007f225000bd20] mp4 demux debug: elst (0) gives 0ms (movie)-> 21ms (track)
+[00007f2260000c90] main input debug: Buffering 0%
+[00007f2260000c90] main input debug: switching to async mode
+[00007f2250000e50] main stream output debug: adding a new sout input for `h264` (sout_input: 0x7f224800eb90)
+[00007f2250000e50] main stream output debug: adding a new sout input for `mp4a` (sout_input: 0x7f224c000b90)
+[00007f2260000c90] main input debug: Buffering 25%
+[00007f2260000c90] main input debug: Buffering 50%
+[00007f2260000c90] main input debug: Buffering 75%
+[00007f2260000c90] main input debug: Buffering 100%
+[00007f2260000c90] main input debug: Stream buffering done (1250 ms in 1 ms)
+[00007f2260000c90] main input debug: Decoder wait done in 0 ms
+[00007f2250001170] stream_out_chromecast stream out debug: Creating chain chromecast-proxy:std{mux=avformat{mux=matroska,options={live=1},reset-ts},access=chromecast-http}
+[00007f2250000e50] main stream output debug: stream=`std'
+[00007f224800f340] main stream out debug: looking for sout stream module matching "std": 23 candidates
+[00007f224800f340] main stream out debug: set config option: sout-standard-mux to avformat{mux=matroska,options={live=1},reset-ts}
+[00007f224800f340] main stream out debug: set config option: sout-standard-access to chromecast-http
+[00007f2248010620] main access out debug: looking for sout access module matching "chromecast-http": 10 candidates
+[00007f2248010620] main access out debug: using sout access module "stream_out_chromecast"
+[00007f2248010820] main mux debug: looking for sout mux module matching "avformat": 11 candidates
+[00007f2248010820] avformat mux debug: using ffmpeg Lavf61.7.103
+[00007f2248010820] avformat mux debug: CPU flags: 0x020fd3db
+[00007f2248010820] main mux debug: set config option: sout-avformat-mux to matroska
+[00007f2248010820] main mux debug: set config option: sout-avformat-options to live=1
+[00007f2248010820] main mux debug: set config option: sout-avformat-reset-ts to (null)
+[00007f2248010820] main mux debug: using sout mux module "avformat"
+[00007f224800f340] stream_out_standard stream out debug: using `chromecast-http/avformat{mux=matroska,options={live=1},reset-ts}://(null)'
+[00007f224800f340] main stream out debug: using sout stream module "stream_out_standard"
+[00007f2250000e50] main stream output debug: stream=`chromecast-proxy'
+[00007f2248a112e0] main stream out debug: looking for sout stream module matching "chromecast-proxy": 23 candidates
+[00007f2248a112e0] main stream out debug: using sout stream module "stream_out_chromecast"
+[00007f2248010820] main mux debug: adding a new input
+[00007f2248010820] avformat mux debug: adding input
+[00007f2248010820] avformat mux debug: Muxing framerate will be 24/1 = 24.00 fps
+[00007f2248010820] avformat mux debug: Muxing aspect ratio will be 1/1
+[00007f2248010820] avformat mux warning: Missing video bitrate, assuming 512k
+[00007f2248010820] main mux debug: adding a new input
+[00007f2248010820] avformat mux debug: adding input
+[00007f2248010820] avformat mux warning: Missing audio bitrate, assuming 64k
+[00007f2248010820] avformat mux debug: writing header
+[00007f2250001170] stream_out_chromecast stream out debug: Loading content
+[00007f2250001170] stream_out_chromecast stream out debug: Starting the media receiver application
+[00007f2250001170] stream_out_chromecast stream out debug: Media receiver application has been started.
+[00007f2250001170] stream_out_chromecast stream out debug: s_chromecast_url: http://192.168.0.4:8010/chromecast/90422286688/402432362/stream
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: IDLE sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: BUFFERING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: New mediaSessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: BUFFERING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2248010820] avformat mux debug: removing input
+[00007f2248010820] avformat mux debug: removing input
+[00007f2248010820] main mux warning: no more input streams for this mux
+[00007f2248a112e0] main stream out debug: destroying chain... (name=chromecast-proxy)
+[00007f2248a112e0] main stream out debug: removing module "stream_out_chromecast"
+[00007f2248a112e0] main stream out debug: destroying chain done
+[00007f224800f340] main stream out debug: destroying chain... (name=std)
+[00007f224800f340] main stream out debug: removing module "stream_out_standard"
+[00007f2248010820] main mux debug: removing module "avformat"
+[00007f2248010620] main access out debug: removing module "stream_out_chromecast"
+[00007f224800f340] main stream out debug: destroying chain done
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: PLAYING sessionId: 1
+[00007f2250001170] stream_out_chromecast stream out debug: Player state: IDLE sessionId: 1
+[00007f2260000c90] main input debug: EOF reached
+[00007f2250c1dd30] main decoder debug: killing decoder fourcc `h264'
+[00007f2250c1dd30] main decoder debug: removing module "h264"
+[00007f2250000e50] main stream output debug: removing a sout input (sout_input: 0x7f224800eb90)
+[00007f2250c2abe0] main decoder debug: killing decoder fourcc `mp4a'
+[00007f2250c2abe0] main decoder debug: removing module "mpeg4audio"
+[00007f2250000e50] main stream output debug: removing a sout input (sout_input: 0x7f224c000b90)
+[00007f225000e1d0] main demux_filter debug: removing module "demux_chromecast"
+[00007f225000bd20] main demux debug: removing module "mp4"
+[00007f225000bd20] mp4 demux debug: freeing all memory
+[00007f2260000c90] main input debug: Program doesn't contain anymore ES
+[00007f2250013560] main stream debug: removing module "record"
+[00007f22500133a0] main stream debug: removing module "cache_read"
+[00007f2250011fb0] main stream debug: removing module "filesystem"
+[0000561d48d58310] main playlist debug: dead input
+[00007f2250000e50] main stream output debug: destroying useless sout
+[00007f2250001170] main stream out debug: destroying chain... (name=chromecast)
+[00007f2250001170] main stream out debug: removing module "stream_out_chromecast"
+[00007f2250000e50] main stream output debug: attempt to destroy nonexistent variable "sout-chromecast-sout-mux-caching"
+[00007f2250002d70] main http host debug: HTTP host removed
+[00007f2250001170] main stream out debug: destroying chain done
+[0000561d48d58310] main playlist debug: changing item without a request (current 0/1)
+[0000561d48d58310] main playlist debug: nothing to play
+[0000561d48d58310] main playlist: end of playlist, exiting
+[0000561d48cce400] main libvlc debug: exiting
+[0000561d48cce400] main libvlc debug: exiting
+[0000561d48cce400] main libvlc debug: removing all interfaces
+[0000561d48d8a260] main interface debug: removing module "dummy"
+[0000561d48d68620] main interface debug: removing module "hotkeys"
+[0000561d48d58310] main playlist debug: destroying
+[0000561d48d58310] main playlist debug: deactivating the playlist
+[0000561d48d5a400] main audio output debug: removing module "alsa"
+[0000561d48d8bd50] main playlist export debug: saving media library to file /home/caster/.local/share/vlc/ml.xspf.tmp7
+[0000561d48d8bd50] main playlist export debug: looking for playlist export module matching "export-xspf": 4 candidates
+[0000561d48d8bd50] main playlist export debug: using playlist export module "export"
+[0000561d48d8bd50] main playlist export debug: removing module "export"
+[0000561d48d58310] main playlist debug: deleting item `Media Library'
+[0000561d48d58310] main playlist debug: deleting item `clip.mp4'
+[0000561d48d58310] main playlist debug: deleting item `Playlist'
+[0000561d48cd1cf0] main keystore debug: removing module "memory"
