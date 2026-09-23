@@ -16,7 +16,7 @@ VLC-HiFi hands Android a float track. What reaches the HDMI after that is decide
 - **AudioPolicy never sees HDMI audio.** `WiredAccessoryManager` only accepts extcon names matching `.*audio.*`; the board calls it `hdmi`. Its disconnect logic is also broken.
 - **What fixed it on our ROM:** a primary HAL that honours a configured format (48 kHz, `PCM_8_24` / `S24_LE`), taken from the connected TV's EDID and the ALSA hardware. With it, the chain measured end to end is: FLAC 24/96, VLC float, SoXR VHQ to 48 kHz, AudioFlinger `PCM_FLOAT`, HAL `PCM_8_24`, ALSA `S24_LE` at 48 kHz.
 
-The RK322x box (Android 7.1) has the same cap in the Rockchip HAL (44.1 kHz / PCM16); its 24-bit HAL is validated but not yet baked into the ROM.
+The RK322x box has the same cap in the stock Rockchip HAL (44.1 kHz / PCM16). Our Android 8.1 ROM for it (R3) carries the 24-bit HAL, and the same stock-versus-HiFi comparison was measured there on 2026-09-23.
 
 **This is likely true of most Android devices, in any version.** The vendor HAL and audio policy decide the output format, and a PCM16 primary output is the common default. That is why the requests, bug reports, blog posts and news pieces below keep appearing: a better player alone cannot lift the cap. On a stock ROM, VLC-HiFi still gives the full-precision float path and the best resampler up to AudioFlinger; the last step to 24-bit needs the ROM changes above.
 
