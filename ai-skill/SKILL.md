@@ -5,6 +5,8 @@ description: Operating rules for working on sony-bravia-linux (right-to-repair r
 
 # Working on sony-bravia-linux with AI assistance
 
+> **What this file is.** A guide for people who contribute to this repository with their own AI assistant, the way a CONTRIBUTING file guides human contributors. It is not a prompt that produced Daniel's posts to other projects: it was first written on 2026-09-23 at 02:59 UTC ([commit d1c9e7d](https://github.com/danielcamposramos/sony-bravia-linux/commit/d1c9e7d)), after the mpv pull request #18490 and its review replies (16 to 21 September) and after the VLC merge request !10366 and its first replies (22 September). Daniel's use of AI assistance is disclosed in [PROVENANCE.md](../PROVENANCE.md) and in the commit trailers of his contributions.
+
 Two halves. The first is what this project requires, taken from its own rules. The second is how to actually meet them, learned by getting it wrong first.
 
 **Check freshness first.** These rules were written on 2026-09-23. The canonical state of the project is [docs/project-status.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/project-status.md), including its *Rules of engagement*. If it has changed since, it wins and this skill is history.
