@@ -59,3 +59,22 @@ Versions are pinned in each filename; a `-p1 --dry-run` against your tree is ste
 Bug reports, matrix results from other sinks, and improvement PRs are welcome in the
 repo — that's also where the upstream issue drafts live when the contribution path
 moves.
+
+## If upstream does not act
+
+Upstream first, always.
+Every fix here goes to NVIDIA, AMD and the kernel lists before anything else, in small verified pieces, at the maintainers' pace.
+That is the path we want, and we are on it.
+
+But the NVIDIA kernel modules are open source under the MIT licence, and the licence gives everyone the right to modify and redistribute them.
+If a fix is right, measured and offered, and still never lands, the answer is not a fight.
+
+**We do the FOSS thing and fork it.**
+
+We carry the patches against each major driver release, published here with the same verification as everything else.
+Whoever wants them, uses them.
+Whoever does not, does not.
+Nobody is forced either way, and upstream stays welcome to take any of it at any time.
+
+We do not want this outcome.
+It is the fallback that keeps the work alive, not the plan.
