@@ -1,0 +1,122 @@
+# run32 (2026-09-23): 10 bpc A/B only, Mohamed Ahmed nouveau-imp-upstr-v120 (7.3.0-rc1), GA106 -> KDL-46EX725 over the 10 m cable.
+# Frames tagged: "RGB 10-BIT CD-ON" (our CD=5 fix) then "RGB 10-BIT CD-OFF" (his branch as-is, CD=0), 45 s each, OSD read on both.
+# Daniel: "both 10 bit" -- same picture, OSD 10-bit in both. CD=5 makes no visible difference on this sink: spec compliance only.
+=== mohamed-bench 2026-09-23T18:56:20-03:00 kernel=7.3.0-rc1-mohamed-imp ===
+network: r8169 loaded
+installed nouveau (with CD=5): /lib/modules/7.3.0-rc1-mohamed-imp/kernel/drivers/gpu/drm/nouveau/nouveau.ko.xz sha256 406bf61ddbb64026ada9e5d13f71f02f3da8461ff627c012e9d47ac86616f239
+A/B nouveau (without CD=5):    /K3D/temp/mohamed-bench/nouveau-without-cd5.ko sha256 79c28c053b36b360a64eade466ebe02c88814f1330f539e9636231babc0d9bc7
+vermagic A/B module: 7.3.0-rc1-mohamed-imp SMP preempt mod_unload 
+--- [with CD=5] card=card1 connector=HDMI-A-2 after 0s
+sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b95:
+    Model: 11266
+    Made in: week 1 of 2011
+    DC_36bit
+    DC_30bit
+    DC_Y444
+    Maximum TMDS clock: 225 MHz
+    RGB quantization: Selectable (via AVI Q)
+	46 max bpc:
+		flags: range
+		values: 8 16
+		value: 16
+--
+	49 max bpc:
+		flags: range
+		values: 6 16
+--- [with CD=5] step: deep10 tag=CD-ON (45s) 18:56:26
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @50 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @50 side-by-side half
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 side-by-side half
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+choosing 1920x1080 1920x1080 @60 clk=148500 (10-bpc SDR transport)
+requested connector property max bpc=10
+frame label: RGB 10-BIT CD-ON
+scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+restored
+--- swapping to the module without the fix
+--- [without CD=5] card=card1 connector=HDMI-A-2 after 0s
+sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b95:
+    Model: 11266
+    Made in: week 1 of 2011
+    DC_36bit
+    DC_30bit
+    DC_Y444
+    Maximum TMDS clock: 225 MHz
+    RGB quantization: Selectable (via AVI Q)
+	46 max bpc:
+		flags: range
+		values: 8 16
+		value: 16
+--
+	49 max bpc:
+		flags: range
+		values: 6 16
+--- [without CD=5] step: deep10 tag=CD-OFF (45s) 18:57:14
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @60 side-by-side half
+stereo mode: 1920x1080  1920x1080 @50 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @50 side-by-side half
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @30 frame packing
+stereo mode: 1920x1080  1920x1080 @30 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1920x1080  1920x1080 @24 top-and-bottom
+stereo mode: 1920x1080  1920x1080 @24 frame packing
+stereo mode: 1920x1080  1920x1080 @24 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @60 top-and-bottom
+stereo mode: 1280x720   1280x720 @60 frame packing
+stereo mode: 1280x720   1280x720 @60 side-by-side half
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 top-and-bottom
+stereo mode: 1280x720   1280x720 @50 frame packing
+stereo mode: 1280x720   1280x720 @50 side-by-side half
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @30 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+stereo mode: 1280x720   1280x720 @24 frame packing
+choosing 1920x1080 1920x1080 @60 clk=148500 (10-bpc SDR transport)
+requested connector property max bpc=10
+frame label: RGB 10-BIT CD-OFF
+scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
+restored
+=== done 2026-09-23T18:58:00-03:00 ===
