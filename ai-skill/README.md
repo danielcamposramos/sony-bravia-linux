@@ -15,4 +15,4 @@ It is plain Markdown on purpose, so it is not tied to any one assistant:
 
 Daniel's position on AI assistance is in [PROVENANCE.md](../PROVENANCE.md#on-slop). The sibling skill for the Consumer Rights Wiki is [crwiki-ai-skill](../crwiki-ai-skill/).
 
-CC0, like the rest of this repository. Corrections are welcome as pull requests.
+Corrections are welcome as pull requests.
