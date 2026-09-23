@@ -129,7 +129,9 @@ format×bpc search, amdgpu-shaped:
 ## 6. Bench plan (owned hardware: GA106 → KDL-46HX855)
 
 HX855 EDID (sha256 fbe6a3b4… for input 1; per-input PA differs): YCbCr 4:4:4
-+ 4:2:2, DC_30/DC_36/**DC_Y444**, 225 MHz TMDS, **no VCDB (QS=0)**, no 4:2:0.
++ 4:2:2, DC_30/DC_36/**DC_Y444**, 225 MHz TMDS, ~~no VCDB (QS=0)~~ **VCDB present, RGB and YCbCr quantization selectable (QS=1)**, no 4:2:0.
+
+> **Correction 2026-09-23:** "no VCDB (QS=0)" was wrong. `edid-decode` of this exact EDID (and of the KDL-46EX725's) shows a Video Capability Data Block with QS=1 and QY=1 (`tools/stereo-modeset/edid-2026-09-23/`). On this sink, stock nouveau declaring full range is honoured, so the full-range/limited mismatch this series targeted does not occur here; it applies to sinks without a VCDB. amdgpu reads the same bit (`rgb_quant_range_selectable` -> `qs_bit`) and declares full range correctly.
 
 | run | format | bpc | rate @1080p60 | expectation |
 |---|---|---|---|---|
