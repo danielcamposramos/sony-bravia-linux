@@ -65,7 +65,7 @@ Four avenues, all checked on 2026-09-17:
 |---|---|
 | **Sony live server** — the tokenised `Download/common/<token>/<file>` URLs from the archived page | **404.** Delisted *and* deleted. |
 | **Internet Archive** — the binaries behind those URLs | **Not archived.** The Wayback Machine captured the HTML pages, never the payloads. |
-| **GitHub mirrors** — repo and code search for `sony-target-dev`, BRAVIA GPL drops, the oss.sony.net paths | **None found.** Only incidental references. |
+| **GitHub mirrors** — repo and code search for `sony-target-dev`, BRAVIA GPL drops, the oss.sony.net paths | **None found for these sets.** Only incidental references. One later-generation drop exists: [Bleeblun/Sony-Bravia-TV](https://github.com/Bleeblun/Sony-Bravia-TV) (uploaded 2021-04-12) is a Sony BRAVIA kernel, Linux 3.10.27 for ARM Cortex-A, `bravia_defconfig` with `CONFIG_ARCH_MT5890` and MediaTek MT5398 Android configs alongside: the 2015-era Android TV platform, not the MIPS / Linux 2.6.35 KDL sets (found by Daniel, checked 2026-09-23). |
 | **Our own archive** | **The kernel survives** — 35 727 files, with `COPYING` at the tree root, fetched while it was still offered. |
 
 So the position is: *the manifest is recovered, the kernel is held, and
