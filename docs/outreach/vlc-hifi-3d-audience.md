@@ -20,6 +20,8 @@ The RK322x box (Android 7.1) has the same cap in the Rockchip HAL (44.1 kHz / PC
 
 **This is likely true of most Android devices, in any version.** The vendor HAL and audio policy decide the output format, and a PCM16 primary output is the common default. That is why the requests, bug reports, blog posts and news pieces below keep appearing: a better player alone cannot lift the cap. On a stock ROM, VLC-HiFi still gives the full-precision float path and the best resampler up to AudioFlinger; the last step to 24-bit needs the ROM changes above.
 
+**Planned (Daniel, 2026-09-23): a Consumer Rights Wiki article on capability gating** of audio output on capable Android devices: the hardware carries 24-bit and high rates, the software ships capped. Before writing: verify in AOSP source whether the reference audio policy itself declares a 16-bit primary output (the "main, not only these makers" point); list which Android versions and devices got bit-perfect paths; research, as an open question until documented, whether fees or certification programmes stand behind better outputs. Evidence to cite: the T10 and RK322x measurements (stock ROM cap, stock VLC 16-bit, fixed ROM plus VLC-HiFi float).
+
 ## Direct requests
 
 | Where | When | Platform | What they asked | Answered by |
