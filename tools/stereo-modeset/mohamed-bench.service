@@ -7,7 +7,7 @@ Wants=graphical.target
 [Service]
 Type=oneshot
 ExecStartPre=/bin/sleep 45
-ExecStart=/bin/sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-mohamed-kernel-test.sh --reboot-after
+ExecStart=/bin/sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-mohamed-kernel-test.sh --reboot-after --ab10
 
 [Install]
 WantedBy=graphical.target

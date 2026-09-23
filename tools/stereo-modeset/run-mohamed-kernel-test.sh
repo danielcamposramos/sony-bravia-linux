@@ -38,7 +38,13 @@ esac
 
 exec >"$LOG" 2>&1
 REBOOT_AFTER=0
-[ "${1:-}" = --reboot-after ] && REBOOT_AFTER=1
+AB10=0
+for a in "$@"; do
+	case "$a" in
+		--reboot-after) REBOOT_AFTER=1 ;;
+		--ab10) AB10=1; STEP_SECONDS=45 ;; # only 10 bpc with, then without, the fix
+	esac
+done
 finish() {
 	modprobe -r nouveau 2>&1 || true
 	echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
@@ -99,11 +105,19 @@ run_steps() { # label, steps separated by |
 }
 
 modprobe nouveau
-run_steps "with CD=5" 'deep12|fp bpc12|sbs bpc12|tab bpc12|deep10|deep8'
+if [ "$AB10" = 1 ]; then
+	run_steps "with CD=5" 'deep10 tag=CD-ON'
+else
+	run_steps "with CD=5" 'deep12|fp bpc12|sbs bpc12|tab bpc12|deep10|deep8'
+fi
 
 echo "--- swapping to the module without the fix"
 # rmmod, not modprobe -r: the latter also unloads nouveau's helper modules,
 # and insmod does not reload them (run30: "Unknown symbol in module").
 rmmod nouveau 2>&1 || { sleep 2; rmmod nouveau 2>&1; }
 insmod "$NOFIX"
-run_steps "without CD=5" 'deep10|deep12'
+if [ "$AB10" = 1 ]; then
+	run_steps "without CD=5" 'deep10 tag=CD-OFF'
+else
+	run_steps "without CD=5" 'deep10|deep12'
+fi

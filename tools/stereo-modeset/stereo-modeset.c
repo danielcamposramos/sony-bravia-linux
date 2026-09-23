@@ -270,6 +270,7 @@ int main(int argc, char **argv)
 	char const *layout_arg = argc > 3 ? argv[3] : "sbs";
 	int isolate = 0, vsif = 0, max_bpc = 0;
 	char const *fmt_arg = NULL;
+	char const *tag = NULL; /* extra label text, e.g. to tell A/B steps apart */
 	char label[48];
 	char const *want_stereo;
 	enum stereo_layout layout;
@@ -296,6 +297,8 @@ int main(int argc, char **argv)
 			max_bpc = 8;
 		else if (!strncmp(argv[i], "fmt=", 4))
 			fmt_arg = argv[i] + 4;
+		else if (!strncmp(argv[i], "tag=", 4))
+			tag = argv[i] + 4;
 		else if (!strcmp(argv[i], "720p")) {
 			pref_w = 1280; pref_h = 720;
 		} else if (!strcmp(argv[i], "576p")) {
@@ -307,7 +310,7 @@ int main(int argc, char **argv)
 		} else if (!strcmp(argv[i], "hz24"))
 			pref_hz = 24;
 		else {
-			fprintf(stderr, "unknown option '%s'; use isolate, vsif, bpc12, bpc10, bpc8, fmt=..., 720p|576p|480p|vga and/or hz24\n",
+			fprintf(stderr, "unknown option '%s'; use isolate, vsif, bpc12, bpc10, bpc8, fmt=..., tag=..., 720p|576p|480p|vga and/or hz24\n",
 				argv[i]);
 			return 2;
 		}
@@ -485,6 +488,10 @@ int main(int argc, char **argv)
 	snprintf(label, sizeof(label), "%s%s %d-BIT",
 		 layout == LAYOUT_SBS ? "SBS " : layout == LAYOUT_TAB ? "TAB " :
 		 layout == LAYOUT_FP ? "FP " : "", fmt_label, max_bpc ? max_bpc : 8);
+	if (tag) {
+		size_t n = strlen(label);
+		snprintf(label + n, sizeof(label) - n, " %s", tag);
+	}
 	printf("frame label: %s\n", label);
 	if (vsif) {
 		/* Payload per NV_DRM common ioctl doc: 3-byte HDMI OUI (LSB
