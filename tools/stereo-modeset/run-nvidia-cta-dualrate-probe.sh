@@ -48,6 +48,7 @@ restore() {
 	rmmod nvidia_modeset 2>/dev/null
 	rm -f "$GUARD"
 	modprobe nvidia_drm && echo "stock pair restored (modeset srcversion $(cat /sys/module/nvidia_modeset/srcversion 2>/dev/null))"
+	systemctl start nvidia-persistenced 2>/dev/null || true
 	systemctl start sddm
 	echo "=== done $(date -Is) ==="
 	sync
@@ -83,12 +84,16 @@ echo "=== PROBE 1/2: STOCK nvidia-modeset ==="
 echo "== dropping display stack =="
 systemctl stop sddm
 loginctl terminate-user "$KUSER" 2>/dev/null || true
+# nvidia-persistenced holds /dev/nvidia-modeset; it must go for the swap
+# (run 24 did the same). restore() starts it again.
+systemctl stop nvidia-persistenced 2>/dev/null && echo "nvidia-persistenced stopped"
 i=0
 while [ $i -lt 30 ]; do
 	fuser /dev/dri/card1 /dev/nvidia-modeset >/dev/null 2>&1 || break
 	sleep 1; i=$((i + 1))
 done
 echo "fds free after ${i}s"
+echo "remaining holders of /dev/nvidia-modeset: $(fuser /dev/nvidia-modeset 2>/dev/null || echo none)"
 
 guard_on
 if rmmod nvidia_drm && rmmod nvidia_modeset; then
