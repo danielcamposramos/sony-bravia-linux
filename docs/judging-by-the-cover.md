@@ -410,6 +410,11 @@ process rather than on the code; its full sequence is in
 `docs/upstream/media-stack/README.md`. When the others are read,
 this section gains a line each.
 
+- **Epilogue, 2026-09-23: #18490 was merged by kasper93**, mpv's lead
+  maintainer. He reviewed the code, the changes he asked for were made,
+  and he rewrote the commit messages to mpv's own rules, keeping Daniel
+  as author. The contest on process ended on the code.
+
 ## Seven policies, and what actually predicted the reception (2026-09-19)
 
 With the campaign now spanning seven upstream projects plus the Consumer

@@ -54,7 +54,7 @@ hardware:
   browser content path.
 
 It also confirms, from the panel side, the premise of
-[mpv PR #18490](https://github.com/mpv-player/mpv/pull/18490): the
+[mpv PR #18490](https://github.com/mpv-player/mpv/pull/18490) (merged 2026-09-23): the
 in-stream 3D signal is real, present, and read by real hardware. mpv was
 ignoring a signal this television detects live.
 

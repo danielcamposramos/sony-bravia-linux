@@ -7,8 +7,9 @@ lanes (2026-09-15). Every draft follows the campaign framing: we bring
 the **diagnosis + a working fix**, not just a feature request.
 
 **Status: all 9 original targets engaged + 4 more filed 2026-09-18 (see
-the ecosystem section below).** **2 merged** (HandBrake PR #8100;
-UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0`), the rest
+the ecosystem section below).** **4 merged** (HandBrake PR #8100;
+UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0`; MKVToolNix
+!6311, 2026-09-21; mpv PR #18490, 2026-09-23 by kasper93), the rest
 posted/filed — including mkvmerge, whose Codeberg signup had read as a
 paywall but turned out to be the donate page wearing the same layout
 (account created; issue filed). First audience-facing target: the LTT
@@ -17,9 +18,10 @@ description and the thread spent two weeks asking for. The videohelp
 post cleared moderation 2026-09-16 (post #2803756); the mpv player-side
 pair (issue #18489 + PR #18490, from a parallel Opus session) completes
 the pipeline end to end: encode → remux → robustness → player → DLNA.
-PR #18490 is in review (hostile start, then 8 technical threads — all
-answered same day in the owner's own words, no apology; see the mpv
-review section below). Per campaign doctrine, the drafts here are raw
+PR #18490 was **merged on 2026-09-23 by kasper93**, mpv's lead
+maintainer, after a hostile start, 8 technical threads answered the same
+day, a second review round, and his own rewrite of the commit messages
+to mpv's rules (see the mpv review section below). Per campaign doctrine, the drafts here are raw
 material — the owner approves/rewords and posts; no AI-drafted text
 goes out without owner approval.
 

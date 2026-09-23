@@ -181,7 +181,7 @@ path. This one does now:
   [#24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531)), and this
   repo ships `bravia_sei3d.py` for lossless in-file injection.
 - **Read the SEI** — mpv was ignoring it ([issue #18489](https://github.com/mpv-player/mpv/issues/18489),
-  [PR #18490](https://github.com/mpv-player/mpv/pull/18490)); hardware 3D
+  [PR #18490](https://github.com/mpv-player/mpv/pull/18490), **merged 2026-09-23**); hardware 3D
   TVs already read it, by the DVB obligation above.
 - **Deliver it** — a Serviio profile plus SEI injection restores fully
   automatic 3D over DLNA on stock free software (this repo,

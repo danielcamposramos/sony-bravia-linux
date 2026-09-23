@@ -74,8 +74,13 @@ merged 2026-09-16) and by **Universal Media Server**
 ([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
 merged 2026-09-19, after its maintainer read the measurements and asked
 for the code) — the encoder end and the server end of the same chain.
-Everyone with one of these televisions benefits from those two merges
-without ever finding this repository. See
+**MKVToolNix** now carries it into Matroska
+([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311), merged
+2026-09-21), and **mpv** now reads it
+([PR #18490](https://github.com/mpv-player/mpv/pull/18490), merged
+2026-09-23 by its lead maintainer, kasper93). Everyone with one of these
+televisions benefits from those merges without ever finding this
+repository. See
 [the campaign](#the-3d-signalling-campaign) for the whole front.
 
 The single partner entry point, kept current, is
@@ -161,10 +166,10 @@ short form linked in every upstream post is
 | Front | Outcome |
 |---|---|
 | HandBrake | **[PR #8100 merged](https://github.com/HandBrake/HandBrake/pull/8100)** (2026-09-16) — encoder now writes the missing SEI; closes their #5826 |
-| FFmpeg | [bug #24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) + [enhancement #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) led to **[PR #24628](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24628), open 2026-09-22** — exports H.264/HEVC frame-packing SEI as stereo side data and tracks mid-stream changes; FATE samples verified |
+| FFmpeg | [bug #24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) + [enhancement #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) led to **[PR #24628](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24628), open 2026-09-22** — exports H.264/HEVC frame-packing SEI as stereo side data and tracks mid-stream changes; FATE samples verified. **[PR #24643](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24643), open 2026-09-23**, fixes #24530's `EEXIST` abort: the coded SEI wins by default, the container on request |
 | StaxRip | [answered stranded user on #1873](https://github.com/staxrip/staxrip/issues/1873#issuecomment-5685902578) |
 | x265 | [issue #970](https://github.com/Multicorewareinc/x265/issues/970) filed |
-| mpv | [issue #18489](https://github.com/mpv-player/mpv/issues/18489) + [PR #18490](https://github.com/mpv-player/mpv/pull/18490) in review — completes the pipeline end to end; ecosystem follow-up posted on the issue |
+| mpv | **[PR #18490 merged](https://github.com/mpv-player/mpv/pull/18490)** (2026-09-23, by kasper93, closing [issue #18489](https://github.com/mpv-player/mpv/issues/18489)) — mpv reads the layout signalled in the stream (frame-packing SEI, MP4 `st3d`), and the bitstream wins over the container tag; kasper93 added three follow-ups of his own on top. Completes the pipeline end to end |
 | BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756) — answered, closed out, cross-brand confirmed (Samsung) |
 | MKVToolNix | **[!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) (AVC) merged 2026-09-21; [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) (HEVC) in final review**, from [#6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309). The HEVC branch was rebased over the merge, its sample set acknowledged by mbunkus, and all seven technical requests answered. Testing his review also found that `mkvmerge --stereo-mode 0:0` discarded an explicitly requested "mono"; the fix landed with the AVC work |
 | Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — DLNA profile mislabel (first version was wrong and corrected in place). **Owner-verified on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |

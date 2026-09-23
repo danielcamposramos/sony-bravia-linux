@@ -208,7 +208,7 @@ call for Daniel.
 |---|---|---|
 | [HandBrake #8100](https://github.com/HandBrake/HandBrake/pull/8100) | x264 encoder writes the frame packing SEI | **merged** 2026-09-16 |
 | [Universal Media Server #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330) | SEI injection on transcode; Sony renderer fixes | **merged** 2026-09-19 |
-| [mpv #18490](https://github.com/mpv-player/mpv/pull/18490) / [#18489](https://github.com/mpv-player/mpv/issues/18489) | player reads stream-signalled stereo | in review |
+| [mpv #18490](https://github.com/mpv-player/mpv/pull/18490) / [#18489](https://github.com/mpv-player/mpv/issues/18489) | player reads stream-signalled stereo | **merged** 2026-09-23 |
 | [mkvtoolnix #6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309) | mkvmerge sets StereoMode from the SEI | patch accepted in principle; this MR |
 | [AndroidX Media3 #3419](https://github.com/androidx/media/issues/3419) | parse the SEI in ExoPlayer | open |
 | [Gerbera #3937](https://github.com/gerbera/gerbera/issues/3937) | optional SEI injection | open |
