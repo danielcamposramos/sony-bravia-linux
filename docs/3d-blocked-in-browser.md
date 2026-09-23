@@ -135,6 +135,6 @@ is present and switched off in software.**
 - [3d-signalling-explainer.md](3d-signalling-explainer.md) — what the
   in-stream signal is
 - [era-media-element.md](era-media-element.md) — the browser video path
-- `tools/serviio/upstream-3d-issues/` — the upstream campaign this
+- `docs/upstream/media-stack/` — the upstream campaign this
   corroborates
 - [right-to-repair.md](right-to-repair.md)

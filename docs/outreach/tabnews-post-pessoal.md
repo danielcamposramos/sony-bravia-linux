@@ -6,7 +6,7 @@
 # publicar. Esta versão já foi escrita TENTANDO a perspectiva dele —
 # a jornada, não o relatório — a partir de docs/judging-by-the-cover.md.
 #
-# Diferença para o v2 (docs/tabnews-post.md): o v2 é o caso, bem
+# Diferença para o v2 (docs/outreach/tabnews-post.md): o v2 é o caso, bem
 # documentado, em terceira pessoa disfarçada de primeira. Este v3 é a
 # JORNADA, e assume de frente a questão que o v2 deixou como decisão
 # pendente — o uso de IA — porque na doutrina do próprio projeto essa
@@ -231,7 +231,7 @@ O hardware não envelheceu. O servidor é que parou de responder. E servidor, na
 
 ## Notas (não fazem parte do post)
 
-**O que este v3 faz de diferente do v2 (`docs/tabnews-post.md`):**
+**O que este v3 faz de diferente do v2 (`docs/outreach/tabnews-post.md`):**
 
 1. **Abre pela jornada, não pelo caso.** A licença que o Vadim Asadov te deu em 2011 é o começo real da história, e transforma o post de "denúncia técnica" em "pessoa que passou quinze anos no mesmo assunto". Também explica, sem precisar dizer, por que você foi atrás disso.
 2. **Fecha o círculo na seção 4**: driver que forçava 3D em jogos sem 3D (2011) → patch que grava o 3D em arquivos sem 3D (2026). Isso não é enfeite, é a tese da sua trajetória, e é o parágrafo que as pessoas vão citar.

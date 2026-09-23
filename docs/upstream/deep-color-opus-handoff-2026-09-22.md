@@ -115,7 +115,7 @@ disasm-verify, then Daniel fires the bench run.
 
 ## Queue 4 — parked items that may wake during your watch
 
-- VLC MR !10366 escalation draft: `tools/serviio/upstream-3d-issues/vlc-mr.md`,
+- VLC MR !10366 escalation draft: `docs/upstream/media-stack/vlc-mr.md`,
   trigger ~2026-09-29, ONLY on Daniel's explicit ask. Verified policy facts
   are in that file.
 - mpv PR #18490 CI rerun needs a maintainer's first-time-contributor approve —

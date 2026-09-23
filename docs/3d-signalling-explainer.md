@@ -2,7 +2,7 @@
 
 > **Audience:** developers of rippers, converters, muxers and encoder
 > front-ends. This is the tool-agnostic companion to
-> [serviio-3d-explainer.md](serviio-3d-explainer.md) (same findings,
+> [serviio-3d-explainer.md](../tools/serviio/serviio-3d-explainer.md) (same findings,
 > written for the media-server side). Everything here is
 > live-hardware-proven on two TV generations (KDL-46EX725/2011,
 > KDL-46HX855/2012), single-variable tests, 2026-09-13.
@@ -126,5 +126,5 @@ but we could not find it.
 ## The evidence base
 
 Full test log, sink matrices (live `GetProtocolInfo` captures), and
-the media-server-side story: [serviio-3d-explainer.md](serviio-3d-explainer.md).
+the media-server-side story: [serviio-3d-explainer.md](../tools/serviio/serviio-3d-explainer.md).
 Repo: https://github.com/danielcamposramos/sony-bravia-linux

@@ -1,5 +1,7 @@
 # Upstream 3D-signalling campaign — issue drafts and posted links
 
+Moved here from `tools/serviio/upstream-3d-issues/` on 2026-09-23: this is the media-stack side of the upstream work (encoders, muxers, players, servers), not Serviio tooling. The driver side lives one level up in `docs/upstream/`, and the running record of every thread is `docs/upstream/issue-tracker.md`.
+
 One draft per upstream target, built from the four verified research
 lanes (2026-09-15). Every draft follows the campaign framing: we bring
 the **diagnosis + a working fix**, not just a feature request.
@@ -256,7 +258,7 @@ existed; disclosure block kept where the project's norms expect it.
 
 - **Jellyfin** — comment on PR #18060 ("Flatten frame packed 3D video",
   the layout-detection point): [#issuecomment-5726381078](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078).
-  Draft + posted log: `docs/jellyfin-18060-comment-draft.md`
+  Draft + posted log: `docs/upstream/media-stack/jellyfin-18060-comment-draft.md`
 - **Universal Media Server** — feature request: [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329)
 - **Gerbera** — issue #3937, framed as an *optional no-remux SEI
   injection* step after the owner's correction (they can keep "no
@@ -280,7 +282,7 @@ discuss 3D content (~21:10); the "first 30 minutes" video does not, so
 its thread was deliberately skipped (campaign rule: only where 3D
 content is actually discussed). Cross-cites the earlier projector
 comment; the two posts now reference each other chronologically.
-Draft: `docs/ltt-steamframe-forum-comment.md`
+Draft: `docs/outreach/ltt-steamframe-forum-comment.md`
 
 ## mpv PR #18490 — their AI rule, and how it was answered (2026-09-19)
 

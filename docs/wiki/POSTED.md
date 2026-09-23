@@ -141,7 +141,7 @@ holds his posted text verbatim, not the draft.
 
 **TabNews is closed as a venue for this** (owner's decision, 2026-09-20): reception
 there was hostile, and the essay of 17/09 already stands as a dated public record.
-A follow-up draft exists at `docs/tabnews-post-criterio-aplicado.md` and is not to
+A follow-up draft exists at `docs/outreach/tabnews-post-criterio-aplicado.md` and is not to
 be published.
 
 ### Matching the Sony article's conventions (2026-09-20)

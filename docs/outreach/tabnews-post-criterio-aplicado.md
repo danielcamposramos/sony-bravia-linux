@@ -1,5 +1,5 @@
 # TabNews post — o critério aplicado, duas semanas depois — RASCUNHO 2026-09-20
-# Sequência: este é o follow-up de docs/tabnews-post-slop.md (publicado 17/09/2026).
+# Sequência: este é o follow-up de docs/outreach/tabnews-post-slop.md (publicado 17/09/2026).
 #
 # DOUTRINA: matéria-prima. O dono reescreve na própria voz antes de publicar.
 #

@@ -407,7 +407,7 @@ unread yet — open-source review queues are long. The one that *has* been
 read and not merged, mpv
 [#18490](https://github.com/mpv-player/mpv/pull/18490), is contested on
 process rather than on the code; its full sequence is in
-`tools/serviio/upstream-3d-issues/README.md`. When the others are read,
+`docs/upstream/media-stack/README.md`. When the others are read,
 this section gains a line each.
 
 ## Seven policies, and what actually predicted the reception (2026-09-19)
@@ -450,7 +450,7 @@ the owner send it in his own words.
 
 ## Related in-repo records
 
-- The episode itself: `tools/serviio/upstream-3d-issues/README.md`,
+- The episode itself: `docs/upstream/media-stack/README.md`,
   section "mpv PR #18490 — review round 1".
 - The owner's standing question that the maintainers never answered:
   what is "AI-slop," if the sloppiest contribution in the thread (a

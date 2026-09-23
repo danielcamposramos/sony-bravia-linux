@@ -151,7 +151,7 @@ the measurements and asked for code.
 
 Full drafts, per-target status,
 and links live in
-[tools/serviio/upstream-3d-issues/](tools/serviio/upstream-3d-issues/);
+[docs/upstream/media-stack/](docs/upstream/media-stack/);
 the ecosystem evidence base (DVB mandate with honest scope, a decade of
 symptom threads, cross-brand survey, timed video citations) is
 [docs/3d-signalling-ecosystem.md](docs/3d-signalling-ecosystem.md); the
@@ -202,7 +202,7 @@ anaglyph. Two additions the owner set in 2026-09-18:
   reports that phereo lost everything published between roughly
   January 2019 and October 2022 but still holds more than 200,000
   images, so the honest reading is slow and lossy rather than dead
-  ([docs/jackdesbwa-exchange.md](docs/jackdesbwa-exchange.md)).
+  ([docs/upstream/media-stack/jackdesbwa-exchange.md](docs/upstream/media-stack/jackdesbwa-exchange.md)).
 
 First results on the owner's own stack, before any upstream ask, as
 in both earlier acts.
@@ -313,9 +313,9 @@ information rot found while sourcing the articles themselves. Both are
 reproduced in [docs/wiki/](docs/wiki/).
 
 Drafts and publication notes for these live in
-[docs/tabnews-post-pessoal.md](docs/tabnews-post-pessoal.md),
-[docs/tabnews-post-slop.md](docs/tabnews-post-slop.md) and
-[docs/tabnews-post.md](docs/tabnews-post.md) (a neutral-register
+[docs/outreach/tabnews-post-pessoal.md](docs/outreach/tabnews-post-pessoal.md),
+[docs/outreach/tabnews-post-slop.md](docs/outreach/tabnews-post-slop.md) and
+[docs/outreach/tabnews-post.md](docs/outreach/tabnews-post.md) (a neutral-register
 variant of the same case, written to be quotable by someone who is not
 the owner). The wiki update as posted (and its noticeboard follow-up)
 is in [docs/wiki/](docs/wiki/).
@@ -343,14 +343,14 @@ is in [docs/wiki/](docs/wiki/).
   [TrackID recovery](docs/trackid-bgmsearch-recovered.md)), the
   **campaign record**
   ([judging by the cover](docs/judging-by-the-cover.md),
-  [Rossmann outreach](docs/rossmann-outreach.md)), research notes
+  [Rossmann outreach](docs/outreach/rossmann-outreach.md)), research notes
   (`docs/research/`, incl. live LAN recon artifacts), and wiki page
   drafts (`docs/wiki/`)
 - `tools/` — extraction/analysis tooling and notes: the
   [tv-mediabrowser](tools/serviio/tv-mediabrowser/README.md) media app
   (live on the owner's LAN), Serviio renderer profiles + 3D fix,
   the SEI 3D injector, the rd1 portal, the [upstream 3D-signalling
-  campaign](tools/serviio/upstream-3d-issues/), and the [systemd
+  campaign](docs/upstream/media-stack/), and the [systemd
   stack](tools/systemd/README.md) that runs it all
 - `certs/` — CA + leaf certificates for the era-TLS lanes
 
