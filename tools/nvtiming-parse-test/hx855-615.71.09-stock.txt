@@ -1,0 +1,29 @@
+parse status 0, 28 timings
+EDID-Detailed:1920x1080x60.000Hz         1920x1080 p rrx1k= 60000 pclk1khz= 148500 type=9 vic=16
+EDID-Detailed:1280x720x60.000Hz          1280x720  p rrx1k= 60000 pclk1khz=  74250 type=9 vic=4
+CTA-861G:# 31: 1920x1080x 50.000Hz/P     1920x1080 p rrx1k= 50000 pclk1khz= 148500 type=13 vic=31
+CTA-861G:# 16: 1920x1080x 59.940Hz/P     1920x1080 p rrx1k= 59940 pclk1khz= 148350 type=13 vic=16
+CTA-861G:# 20: 1920x1080x 50.000Hz/I     1920x1080 i rrx1k= 50000 pclk1khz=  74250 type=13 vic=20
+CTA-861G:#  5: 1920x1080x 59.940Hz/I     1920x1080 i rrx1k= 59940 pclk1khz=  74180 type=13 vic=5
+CTA-861G:# 19: 1280x 720x 50.000Hz/P     1280x720  p rrx1k= 50000 pclk1khz=  74250 type=13 vic=19
+CTA-861G:#  4: 1280x 720x 59.940Hz/P     1280x720  p rrx1k= 59940 pclk1khz=  74180 type=13 vic=4
+CTA-861G:# 32: 1920x1080x 23.976Hz/P     1920x1080 p rrx1k= 23976 pclk1khz=  74180 type=13 vic=32
+CTA-861G:# 34: 1920x1080x 29.970Hz/P     1920x1080 p rrx1k= 29970 pclk1khz=  74180 type=13 vic=34
+CTA-861G:# 60: 1280x 720x 23.976Hz/P     1280x720  p rrx1k= 23976 pclk1khz=  59340 type=13 vic=60
+CTA-861G:# 62: 1280x 720x 29.970Hz/P     1280x720  p rrx1k= 29970 pclk1khz=  74180 type=13 vic=62
+CTA-861G:# 18:  720x 576x 50.000Hz/P      720x576  p rrx1k= 50000 pclk1khz=  27000 type=13 vic=18
+CTA-861G:# 22: 1440x 576x 50.000Hz/I     1440x576  i rrx1k= 50000 pclk1khz=  27000 type=13 vic=22
+CTA-861G:#  3:  720x 480x 59.940Hz/P      720x480  p rrx1k= 59940 pclk1khz=  27000 type=13 vic=3
+CTA-861G:#  7: 1440x 480x 59.940Hz/I     1440x480  i rrx1k= 59940 pclk1khz=  27000 type=13 vic=7
+CTA-861G:# 17:  720x 576x 50.000Hz/P      720x576  p rrx1k= 50000 pclk1khz=  27000 type=13 vic=17
+CTA-861G:# 21: 1440x 576x 50.000Hz/I     1440x576  i rrx1k= 50000 pclk1khz=  27000 type=13 vic=21
+CTA-861G:#  2:  720x 480x 59.940Hz/P      720x480  p rrx1k= 59940 pclk1khz=  27000 type=13 vic=2
+CTA-861G:#  6: 1440x 480x 59.940Hz/I     1440x480  i rrx1k= 59940 pclk1khz=  27000 type=13 vic=6
+CTA-861G:#  1:  640x 480x 59.940Hz/P      640x480  p rrx1k= 59940 pclk1khz=  25170 type=13 vic=0
+CTA-861Long: 1920x1080x 50.000Hz/P       1920x1080 p rrx1k= 50000 pclk1khz= 148500 type=16 vic=31
+CTA-861Long: 1280x 720x 50.000Hz/P       1280x720  p rrx1k= 50000 pclk1khz=  74250 type=16 vic=19
+CTA-861Long: 1920x1080x 50.000Hz/I       1920x1080 i rrx1k= 50000 pclk1khz=  74250 type=16 vic=20
+EDID-STD(DMT):1280x1024x60Hz             1280x1024 p rrx1k= 60020 pclk1khz= 108000 type=10 vic=0
+EDID-EST(VESA):640x480x60Hz               640x480  p rrx1k= 60000 pclk1khz=  25175 type=11 vic=0
+EDID-EST(VESA):800x600x60Hz               800x600  p rrx1k= 60317 pclk1khz=  40000 type=11 vic=0
+EDID-EST(VESA):1024x768x60Hz             1024x768  p rrx1k= 60004 pclk1khz=  65000 type=11 vic=0
