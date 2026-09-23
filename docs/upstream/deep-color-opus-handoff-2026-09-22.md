@@ -74,8 +74,8 @@ Structure (draft for his review, then send):
   this repo: Yahoo SMTP, user capitain_jack — credential in his
   `~/.git-credentials`, never print it):
   `git send-email --reroll-count 2 --to dri-devel@lists.freedesktop.org
-   --cc nouveau@lists.freedesktop.org --cc lyude@redhat.com
-   --cc dakr@kernel.org /K3D/temp/nouveau-deep-color-series-v2-fixed/v2-00*.patch`
+   --cc nouveau@lists.freedesktop.org --cc "<Lyude Paul, see MAINTAINERS>"
+   --cc "<Danilo Krummrich, see MAINTAINERS>" /K3D/temp/nouveau-deep-color-series-v2-fixed/v2-00*.patch`
   DRY-RUN first (`--dry-run`) and show him; then fire on his word.
 - After lore archives v2: update issue-tracker row 13 (v2 cover Message-ID),
   then the index pass: `docs/project-status.md`, awesome-linux-hdr, and

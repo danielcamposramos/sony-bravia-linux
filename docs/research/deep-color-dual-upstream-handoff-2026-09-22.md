@@ -259,8 +259,8 @@ do not invent code authorship or sign-offs for either AI partner.
   PR creation), and the public "staged companion" claim made on VLC MR
   !10366 (note 582109) is now backed by the bench.
 - **Send CC list resolved from MAINTAINERS** (drm-misc-next
-  `a7315e24` tree): Lyude Paul `<lyude@redhat.com>`, Danilo Krummrich
-  `<dakr@kernel.org>`; lists `dri-devel@lists.freedesktop.org` (to) and
+  `a7315e24` tree): Lyude Paul, Danilo Krummrich
+ ; lists `dri-devel@lists.freedesktop.org` (to) and
   `nouveau@lists.freedesktop.org` (cc), per the "DRM DRIVER FOR NVIDIA
   GEFORCE/QUADRO GPUS" entry.
 - **SERIES SENT 2026-09-22 16:21 -03.** Daniel's standing conditional

@@ -7,7 +7,7 @@ line, no hard-wrapped lines inside a sentence, em dashes only in list items and 
 Envelope for an in-thread reply:
 - To: amd-gfx@lists.freedesktop.org
 - Cc: dri-devel@lists.freedesktop.org
-- In-Reply-To: 20260907125015.69811-1-adrian.betschart@cinemaone.ch (his v3 cover letter, 2026-09-07)
+- In-Reply-To: his v3 cover letter (thread: https://lore.kernel.org/amd-gfx/?q=f%3ABetschart+s%3A%22HDMI+1.4+3D%22) (his v3 cover letter, 2026-09-07)
 - Subject: Re: [PATCH v3 0/3] drm/amd/display: HDMI 1.4 3D output (frame packing, top-and-bottom, side-by-side)
 
 ---

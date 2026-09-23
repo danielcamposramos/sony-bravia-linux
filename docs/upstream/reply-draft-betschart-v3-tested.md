@@ -9,13 +9,13 @@ explicit green after his review edits; body above is exactly what went out), Res
 archived in-thread on lore. Message-ID <20260921153400.53321-1-capitain_jack@yahoo.com>.
 
 Envelope (as sent — full reply-all to the set Adrian included):
-- To: Adrian Betschart <adrian.betschart@cinemaone.ch>
-- Cc: Harry Wentland <harry.wentland@amd.com>, Leo Li <sunpeng.li@amd.com>,
-  Rodrigo Siqueira <siqueira@igalia.com>, Alex Deucher <alexander.deucher@amd.com>,
-  Christian König <christian.koenig@amd.com>, David Airlie <airlied@gmail.com>,
-  Simona Vetter <simona@ffwll.ch>, amd-gfx@lists.freedesktop.org,
+- To: Adrian Betschart
+- Cc: Harry Wentland, Leo Li,
+  Rodrigo Siqueira, Alex Deucher,
+  Christian König, David Airlie,
+  Simona Vetter, amd-gfx@lists.freedesktop.org,
   dri-devel@lists.freedesktop.org, linux-kernel@vger.kernel.org
-- In-Reply-To: 20260921080126.98936-1-adrian.betschart@cinemaone.ch (his 2026-09-21 reply asking for the v3 run)
+- In-Reply-To: his 2026-09-21 reply (thread: https://lore.kernel.org/amd-gfx/?q=f%3ABetschart+s%3A%22HDMI+1.4+3D%22) (his 2026-09-21 reply asking for the v3 run)
 - Subject: Re: [PATCH v3 0/3] drm/amd/display: HDMI 1.4 3D output (frame packing, top-and-bottom, side-by-side)
 
 ---

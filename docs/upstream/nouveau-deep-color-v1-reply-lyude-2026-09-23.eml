@@ -4,7 +4,7 @@ Subject: Re: [PATCH 0/3] drm/nouveau: HDMI Deep Color link depth (30/36/48 bpp)
 In-Reply-To: <2493dc57eb887650642ddb7858c7c2f4def67877.camel@redhat.com>
 References: <20260922192132.114546-1-Capitain_Jack@yahoo.com> <2493dc57eb887650642ddb7858c7c2f4def67877.camel@redhat.com>
 
-On Wed, 2026-09-23, lyude@redhat.com wrote:
+On Wed, 2026-09-23, Lyude Paul wrote:
 > Can you please clarify how LLM tooling was used in the production of
 > this work? If you actually generated code with it that is part of this
 > submission, then you need to append a Assisted-by: tag to each commit

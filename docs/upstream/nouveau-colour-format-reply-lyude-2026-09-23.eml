@@ -4,7 +4,7 @@ Subject: Re: [PATCH 0/6] drm/nouveau: HDMI output colour format and quantization
 In-Reply-To: <c78df20bd86437dd3987053765a550b3bac0cc65.camel@redhat.com>
 References: <20260922215336.612239-1-Capitain_Jack@yahoo.com> <c78df20bd86437dd3987053765a550b3bac0cc65.camel@redhat.com>
 
-On Wed, 2026-09-23 at 12:13 -0400, lyude@redhat.com wrote:
+On Wed, 2026-09-23 at 12:13 -0400, Lyude Paul wrote:
 > You need to either tag your work with Assisted-by: if it is generated
 > by an LLM. If you did the right thing and wrote it by hand and just
 > used these tools for analysis, that's fine.
