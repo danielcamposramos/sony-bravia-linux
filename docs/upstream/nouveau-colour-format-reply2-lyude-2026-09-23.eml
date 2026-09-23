@@ -1,0 +1,16 @@
+From Daniel Campos Ramos Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Subject: Re: [PATCH 0/6] drm/nouveau: HDMI output colour format and quantization range
+In-Reply-To: <07d66ea7e0f0c7aef313b11d0881ca9170f05c77.camel@redhat.com>
+References: <20260922215336.612239-1-Capitain_Jack@yahoo.com> <c78df20bd86437dd3987053765a550b3bac0cc65.camel@redhat.com> <20260923162348.1037898-1-Capitain_Jack@yahoo.com> <07d66ea7e0f0c7aef313b11d0881ca9170f05c77.camel@redhat.com>
+
+Thank you, Lyude, for the detailed answer; it makes sense.
+
+The bandwidth point is fair: my sink tops out at 225 MHz, so deep colour at higher resolutions was never exercised here.
+I withdraw both series, this one and the HDMI Deep Color series v2.
+Please treat them as a proof of concept, in the spirit of the ray tracing work, if any of it is useful.
+
+Where can I find the other developer's work?
+I would be glad to test it on my bench and report back with a Tested-by: a GA106 driving a Sony KDL-46HX855 (HDMI 1.4, Deep Color 30/36, no VCDB), including 12-bit frame-packed 3D at 222.75 MHz and full against limited range on a sink without a VCDB.
+
+Daniel
