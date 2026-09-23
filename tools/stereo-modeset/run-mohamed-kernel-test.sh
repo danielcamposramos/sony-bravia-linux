@@ -3,7 +3,10 @@
 # nouveau-imp-upstr-v120, Linux 7.3-rc1) with and without our two-line
 # GCP CD=5 fix, on the RTX 3060 (GA106) -> KDL-46HX855 HDMI input 3.
 #
-# Run ONLY while booted into the test kernel (uname -r ends in -mohamed-imp):
+# Runs ONLY while booted into the test kernel (uname -r ends in -mohamed-imp).
+# Automatic: mohamed-bench.service (next to this script) starts it with
+# --reboot-after about 45 s after the desktop is up, and it reboots back to the
+# normal kernel when done. By hand:
 #   sudo systemd-run --unit=mohamed-bench --collect sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-mohamed-kernel-test.sh
 #
 # The installed kernel's nouveau.ko carries the fix. nouveau is blacklisted at
@@ -32,13 +35,20 @@ case "$(uname -r)" in
 esac
 
 exec >"$LOG" 2>&1
+REBOOT_AFTER=0
+[ "${1:-}" = --reboot-after ] && REBOOT_AFTER=1
 finish() {
-	echo "--- restoring the desktop"
 	modprobe -r nouveau 2>&1 || true
 	echo 1 > /sys/class/vtconsole/vtcon1/bind 2>/dev/null || true
-	systemctl start sddm
 	echo "=== done $(date -Is) ==="
 	cp "$LOG" "$HOMELOG" 2>/dev/null; chown daniel: "$HOMELOG" 2>/dev/null
+	sync
+	if [ "$REBOOT_AFTER" = 1 ]; then
+		# GRUB's default is the normal kernel; this returns there.
+		systemctl reboot
+	else
+		systemctl start sddm
+	fi
 }
 trap finish EXIT
 

@@ -1,0 +1,13 @@
+[Unit]
+Description=nouveau bench run of Mohamed Ahmed's branch (test kernel only)
+ConditionKernelVersion=7.3.0-rc1-mohamed-imp
+After=graphical.target
+Wants=graphical.target
+
+[Service]
+Type=oneshot
+ExecStartPre=/bin/sleep 45
+ExecStart=/bin/sh /K3D/GitHub/sony-bravia-linux/tools/stereo-modeset/run-mohamed-kernel-test.sh --reboot-after
+
+[Install]
+WantedBy=graphical.target
