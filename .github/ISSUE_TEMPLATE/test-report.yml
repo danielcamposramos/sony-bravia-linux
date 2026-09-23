@@ -1,0 +1,30 @@
+name: Test report from your TV
+description: You ran something from this project on your own set. Worked or failed, both help.
+labels: [test-report]
+body:
+  - type: input
+    id: model
+    attributes:
+      label: TV model and firmware version
+      placeholder: KDL-46HX855, PKG 3.xxx
+    validations:
+      required: true
+  - type: input
+    id: what
+    attributes:
+      label: What you ran
+      description: Tool, doc section or commit.
+    validations:
+      required: true
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options: [Worked, Partly worked, Failed]
+    validations:
+      required: true
+  - type: textarea
+    id: log
+    attributes:
+      label: Log or output
+      render: text
