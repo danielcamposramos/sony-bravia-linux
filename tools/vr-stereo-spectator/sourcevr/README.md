@@ -68,12 +68,15 @@ caught it.
 
 ## Configuration
 
-Environment variables, set through Steam's launch options
-(`VAR=value %command%`):
+`KEY=VALUE` lines in `svrtv.ini` next to the module (so the bench suite
+switches steps by rewriting one file). The same names in the environment
+win, so Steam's launch options (`VAR=value %command%`) work too. Without
+`SVRTV_LAYOUT` the module stays inert: it reports no headset, never forces
+VR mode, and the game runs in 2D exactly as with Valve's module.
 
 | variable | default | meaning |
 |---|---|---|
-| `SVRTV_LAYOUT` | `sbs` | `sbs` or `tab` |
+| `SVRTV_LAYOUT` | unset (inert) | `sbs` or `tab` |
 | `SVRTV_WIDTH`, `SVRTV_HEIGHT` | 1920, 1080 | output size; match `-w`/`-h` |
 | `SVRTV_ASPECT` | width/height | displayed aspect |
 | `SVRTV_SEPARATION` | 2.5 | eye separation in game units (about 64 mm) |
@@ -81,15 +84,23 @@ Environment variables, set through Steam's launch options
 | `SVRTV_SWAP` | 0 | 1 packs the right eye first |
 | `SVRTV_LOG` | none | append a log to this file |
 
-## First in-game test (planned)
+## In the game
 
-1. Back up Valve's module: `bin/sourcevr.so` to `bin/sourcevr.so.valve`.
-   Copy `out/32/sourcevr.so` in its place. Steam's "Verify integrity of
-   game files" restores Valve's.
-2. Launch options:
-   `SVRTV_LAYOUT=sbs SVRTV_LOG=/K3D/temp/svrtv.log %command% -w 1920 -h 1080 -console`
-3. In the console: `map d1_town_01`, then `vr_activate`. Television in
-   side-by-side 3D mode.
+The first version made Half-Life 2 crash at every launch: it forced VR mode
+at start even with no layout set, and the client's first call,
+`GetViewportBounds(eye, NULL, NULL, &w, &h)`, passes NULL for the outputs it
+does not want. Both are fixed: the module is inert without a layout and
+accepts NULL outputs (`test_geometry.cpp` checks both).
+
+2026-09-24: installed as `bin/sourcevr.so` (Valve's kept as
+`bin/sourcevr.so.valve`; Steam's "Verify integrity of game files" restores
+it), the game loads it and runs in 2D with no crash, on both Sonys, through
+the bench suite's view steps (`tools/hl2-bench/`). The 3D steps are next.
+
+To try 3D by hand: Steam launch options
+`SVRTV_LAYOUT=sbs SVRTV_LOG=/K3D/temp/svrtv.log %command% -w 1920 -h 1080 -console`,
+television in side-by-side 3D mode. The module forces VR mode at start;
+`vr_activate` in the console does the same by hand.
 
 Open questions only the game can answer:
 

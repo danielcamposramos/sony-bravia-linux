@@ -14,9 +14,12 @@
 // convention follows mathlib's MatrixBuildPerspectiveX (view looks down -z,
 // depth 0..1).
 //
-// Configuration, from the environment (Steam launch options accept
+// Configuration: KEY=VALUE lines in svrtv.ini next to this module (so a
+// benchmark suite can switch steps by rewriting one file), overridden by the
+// same names in the environment (Steam launch options accept
 // "VAR=value %command%"):
-//   SVRTV_LAYOUT       sbs (default) or tab
+//   SVRTV_LAYOUT       sbs or tab; unset, the module stays inert and the game
+//                      runs in 2D exactly as with Valve's module
 //   SVRTV_WIDTH/HEIGHT output size in pixels (default 1920x1080; match -w/-h)
 //   SVRTV_ASPECT       displayed aspect, default WIDTH/HEIGHT
 //   SVRTV_SEPARATION   eye separation in game units (default 2.5, about 64 mm)
@@ -31,12 +34,14 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #include "sourcevr/isourcevirtualreality.h"
 
 namespace {
 
 struct Config {
+	bool enabled;   // 3D requested (SVRTV_LAYOUT set); otherwise fully inert
 	bool tab;
 	int width, height;
 	double aspect;
@@ -48,9 +53,96 @@ struct Config {
 
 Config g_cfg;
 
-double env_double(const char *name, double def)
+// svrtv.ini next to this module: up to 32 KEY=VALUE lines.
+char g_ini[32][2][128];
+int g_nini;
+
+// Hex without strtoul/sscanf, which current glibc redirects to its
+// C23 variants (GLIBC_2.38) under _GNU_SOURCE.
+uintptr_t parse_hex(const char **c)
+{
+	uintptr_t v = 0;
+	for (;; (*c)++) {
+		char h = **c;
+		int d = (h >= '0' && h <= '9') ? h - '0' : (h >= 'a' && h <= 'f') ? h - 'a' + 10 : -1;
+		if (d < 0)
+			return v;
+		v = v * 16 + d;
+	}
+}
+
+// Finds this module's own path in /proc/self/maps (plain stdio, so no
+// newer-glibc symbol such as dladdr@GLIBC_2.34 is pulled in).
+bool module_path(char *out, size_t size)
+{
+	FILE *m = fopen("/proc/self/maps", "r");
+	if (!m)
+		return false;
+	uintptr_t self = (uintptr_t)&module_path;
+	char line[1200];
+	bool found = false;
+	while (fgets(line, sizeof(line), m)) {
+		const char *c = line;
+		uintptr_t lo = parse_hex(&c);
+		if (*c++ != '-')
+			continue;
+		uintptr_t hi = parse_hex(&c);
+		if (self < lo || self >= hi)
+			continue;
+		char *p = strchr(line, '/');
+		if (p) {
+			p[strcspn(p, "\n")] = 0;
+			snprintf(out, size, "%s", p);
+			found = true;
+		}
+		break;
+	}
+	fclose(m);
+	return found;
+}
+
+void load_ini()
+{
+	char path[1024];
+	if (!module_path(path, sizeof(path)))
+		return;
+	char *slash = strrchr(path, '/');
+	if (!slash)
+		return;
+	snprintf(slash + 1, sizeof(path) - (slash + 1 - path), "svrtv.ini");
+	FILE *f = fopen(path, "r");
+	if (!f)
+		return;
+	char line[300];
+	while (g_nini < 32 && fgets(line, sizeof(line), f)) {
+		char *eq = strchr(line, '=');
+		if (line[0] == '#' || !eq)
+			continue;
+		*eq = 0;
+		char *val = eq + 1;
+		val[strcspn(val, "\r\n")] = 0;
+		snprintf(g_ini[g_nini][0], 128, "%s", line);
+		snprintf(g_ini[g_nini][1], 128, "%s", val);
+		g_nini++;
+	}
+	fclose(f);
+}
+
+// The environment wins over svrtv.ini.
+const char *setting(const char *name)
 {
 	const char *v = getenv(name);
+	if (v && *v)
+		return v;
+	for (int i = 0; i < g_nini; i++)
+		if (!strcmp(g_ini[i][0], name))
+			return g_ini[i][1];
+	return NULL;
+}
+
+double env_double(const char *name, double def)
+{
+	const char *v = setting(name);
 	return (v && *v) ? atof(v) : def;
 }
 
@@ -71,7 +163,9 @@ void logf(const char *fmt, ...)
 
 void load_config()
 {
-	const char *layout = getenv("SVRTV_LAYOUT");
+	load_ini();
+	const char *layout = setting("SVRTV_LAYOUT");
+	g_cfg.enabled = layout && *layout;
 	g_cfg.tab = layout && !strcmp(layout, "tab");
 	g_cfg.width = (int)env_double("SVRTV_WIDTH", 1920);
 	g_cfg.height = (int)env_double("SVRTV_HEIGHT", 1080);
@@ -79,12 +173,12 @@ void load_config()
 	g_cfg.separation = env_double("SVRTV_SEPARATION", 2.5);
 	g_cfg.convergence = env_double("SVRTV_CONVERGENCE", 120.0);
 	g_cfg.swap = env_double("SVRTV_SWAP", 0) != 0;
-	const char *lp = getenv("SVRTV_LOG");
+	const char *lp = setting("SVRTV_LOG");
 	g_cfg.log = (lp && *lp) ? fopen(lp, "a") : NULL;
 	if (g_cfg.convergence <= 0)
 		g_cfg.convergence = 120.0;
-	logf("config: layout=%s %dx%d aspect=%.4f separation=%.3f convergence=%.1f swap=%d\n",
-	     g_cfg.tab ? "tab" : "sbs", g_cfg.width, g_cfg.height, g_cfg.aspect,
+	logf("config (%d lines from svrtv.ini): enabled=%d layout=%s %dx%d aspect=%.4f separation=%.3f convergence=%.1f swap=%d\n",
+	     g_nini, (int)g_cfg.enabled, g_cfg.tab ? "tab" : "sbs", g_cfg.width, g_cfg.height, g_cfg.aspect,
 	     g_cfg.separation, g_cfg.convergence, (int)g_cfg.swap);
 }
 
@@ -117,26 +211,36 @@ public:
 	InitReturnVal_t Init() { return INIT_OK; }
 	void Shutdown() {}
 
-	// The television is always present; VR mode is on only after vr_activate.
-	bool ShouldRunInVR() { return m_active; }
-	bool IsHmdConnected() { return true; }
+	// Without SVRTV_LAYOUT the module behaves like Valve's with no headset:
+	// no device, never VR. (Reporting a device and forcing VR mode always made
+	// the client switch to VR at startup in 2D runs, and crash; see below.)
+	bool ShouldRunInVR() { return g_cfg.enabled && m_active; }
+	bool IsHmdConnected() { return g_cfg.enabled; }
 
 	void GetViewportBounds(VREye eye, int *x, int *y, int *w, int *h)
 	{
 		// The left eye takes the first half: left in side-by-side, top in
 		// top-and-bottom, as HDMI 1.4 packs them.
+		// Any output may be NULL: the client's Activate() asks only for the
+		// size (client_virtualreality.cpp, GetViewportBounds(eye, NULL, NULL,
+		// &w, &h)). Writing through those crashed Half-Life 2 at startup.
 		bool first = (eye == VREye_Left) != g_cfg.swap;
+		int vx, vy, vw, vh;
 		if (g_cfg.tab) {
-			*x = 0;
-			*w = g_cfg.width;
-			*h = g_cfg.height / 2;
-			*y = first ? 0 : g_cfg.height / 2;
+			vx = 0;
+			vw = g_cfg.width;
+			vh = g_cfg.height / 2;
+			vy = first ? 0 : g_cfg.height / 2;
 		} else {
-			*y = 0;
-			*h = g_cfg.height;
-			*w = g_cfg.width / 2;
-			*x = first ? 0 : g_cfg.width / 2;
+			vy = 0;
+			vh = g_cfg.height;
+			vw = g_cfg.width / 2;
+			vx = first ? 0 : g_cfg.width / 2;
 		}
+		if (x) *x = vx;
+		if (y) *y = vy;
+		if (w) *w = vw;
+		if (h) *h = vh;
 	}
 
 	// No lenses: nothing to undistort, and the HUD is left to the client.
@@ -224,6 +328,8 @@ public:
 
 	bool Activate()
 	{
+		if (!g_cfg.enabled)
+			return false;
 		m_active = true;
 		logf("activated\n");
 		return true;
@@ -235,7 +341,7 @@ public:
 	}
 
 	// "VR because Steam said so": skips the client's headset-adapter checks.
-	bool ShouldForceVRMode() { return true; }
+	bool ShouldForceVRMode() { return g_cfg.enabled; }
 	void SetShouldForceVRMode() {}
 
 private:

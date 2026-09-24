@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=HL2 bench session B (test kernel only, one-shot)
+Exec=/K3D/GitHub/sony-bravia-linux/tools/hl2-bench/session-b-autostart.sh
+X-KDE-autostart-phase=2
+NoDisplay=true

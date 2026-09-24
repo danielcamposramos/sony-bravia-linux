@@ -4,6 +4,7 @@
 #include <dlfcn.h>
 #include <math.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "sourcevr/isourcevirtualreality.h"
 typedef void *(*Factory)(const char *, int *);
 
@@ -25,6 +26,14 @@ int main(int argc, char **argv)
 	if (!h) { printf("dlopen: %s\n", dlerror()); return 1; }
 	int rc = -1;
 	ISourceVirtualReality *vr = (ISourceVirtualReality *)((Factory)dlsym(h, "CreateInterface"))(SOURCE_VIRTUAL_REALITY_INTERFACE_VERSION, &rc);
+	// The client's Activate() asks only for the size: NULL x and y must be fine.
+	{ int w = -1, h = -1; vr->GetViewportBounds(ISourceVirtualReality::VREye_Left, NULL, NULL, &w, &h);
+	  printf("NULL outputs accepted: size %dx%d\n", w, h); }
+	if (getenv("SVRTV_EXPECT_INERT")) {
+		bool inert = !vr->IsHmdConnected() && !vr->ShouldForceVRMode() && !vr->Activate() && !vr->ShouldRunInVR();
+		printf("%s\n", inert ? "INERT OK (no headset, no forced VR, Activate refused)" : "INERT FAIL");
+		return !inert;
+	}
 	printf("CreateInterface rc=%d ptr=%s  QueryInterface self=%d  ShouldForceVRMode=%d\n", rc, vr ? "ok" : "NULL",
 	       vr && vr->QueryInterface(SOURCE_VIRTUAL_REALITY_INTERFACE_VERSION) == vr, vr->ShouldForceVRMode());
 	vr->SampleTrackingState(75.0f, 0.0f);

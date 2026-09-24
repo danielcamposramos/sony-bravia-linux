@@ -1,0 +1,11 @@
+[Unit]
+Description=Load nouveau for the HL2 bench's open-driver session (test kernel only)
+ConditionKernelVersion=7.3.0-rc1-mohamed-imp
+Before=display-manager.service
+
+[Service]
+Type=oneshot
+ExecStart=/sbin/modprobe nouveau
+
+[Install]
+WantedBy=graphical.target
