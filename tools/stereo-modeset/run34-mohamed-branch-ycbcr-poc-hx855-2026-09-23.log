@@ -1,37 +1,24 @@
-# run33 (2026-09-23 22:42-22:53 -03): the withdrawn colour-format series ported onto Mohamed Ahmed's
-#   nouveau-imp-upstr-v120 (Linux 7.3-rc1) as local branch ycbcr-poc, tip f970f8e60:
-#   CD=5 fix + NVC57D OCSC/clamp + head conversion + Broadcast RGB + YCbCr 4:4:4/4:2:2 + 4:2:0 (GA102+,
-#   untestable here) + DVI properties. Mode --ycbcr: run27+run28 matrix, 22 steps x 30 s, no module swap.
-# Sink: KDL-46EX725 (model 11266, 2011) over the 10 m cable, RTX 3060 (GA106), HDMI-A-2.
-# Result, Daniel's table verbatim ("OSD" = bit depth confirmed on the OSD; 8-bit shows nothing):
-#   "all pass, no issues. Not a single time I had to enable 3D by hand."
+# run34 (2026-09-23 23:20-23:31 -03): same as run33 on the other Sony, after the 4:2:2 readback fix.
+#   Branch ycbcr-poc tip 396725d9d (Mohamed Ahmed's nouveau-imp-upstr-v120, Linux 7.3-rc1, + CD=5 fix +
+#   the colour-format series port; patch 4 now reads the 4:2:2 depth codes back). Mode --ycbcr, 22 steps.
+# Sink: KDL-46HX855 (model 29698, 2012), input 3, RTX 3060 (GA106), HDMI-A-2.
+# Result, Daniel's table verbatim ("osd" = bit depth confirmed on the OSD; it does not announce 8-bit):
+#   "all pass as before"
 #   RGB 12 - F [pass osd] L [pass osd] A [pass osd]; 10 - F [pass osd] L [pass osd]; 8 - F [pass osd] L [pass osd]
-#   YUV 4:4:4 - 12 [pass osd] 10 [pass osd] 8 [pass osd]; 4:2:2 - 12 [pass] 10 [pass] 8 [pass osd]
+#   YUV 4:4:4 - 12 [pass osd] 10 [pass osd] 8 [pass osd]; 4:2:2 - 12 [pass] 10 [pass] 8 [pass]
 #   SBS 4:4:4 12-bit [pass osd] no 3d button needed; TaB L 12-bit [pass osd] no 3d button needed
 #   FP 4:2:2 [pass]; FP 4:4:4 12-bit [pass osd]; 720p 4:4:4 [pass osd 12 bit]; 576p 4:4:4 [pass osd 12 bit]
 #   480p 4:2:2 [pass]; 576p auto [pass osd 12 bit]; 640x480 F [pass osd 12 bit]
-#   Correction by Daniel after run34: the "osd" on 4:2:2 8-bit above was wrong; "since the oem osd does
-#   not announce 8bit, I felt more right to not put in." The step passed; the OSD shows no 8-bit depth.
-# Post-run review (Opus): the kernel journal of the test boot holds 8020 WARNINGs in gv100_head_state,
-#   one per vblank during every 4:2:2 step and no other (60/s; 24/s in FP at 24 Hz). The branch's head
-#   state readback warns on unknown pixel-depth codes and did not know the 4:2:2 ones (RAX=3 =
-#   BPP_24_422). Readback only (its consumers are DP/LVDS paths); the picture was unaffected. Fixed in
-#   ycbcr-poc patch 4 (tip 396725d9d), re-verified in run34. The "kernel:" lines below are attached to the
-#   480p step by the old dmesg line-count filter, which the flood broke; the runner now counts warnings
-#   per step from the journal.
-#   The pre-flight "without CD=5" lines are the header of the A/B mode, absent in --ycbcr (no module swap).
-=== mohamed-bench 2026-09-23T22:42:01-03:00 kernel=7.3.0-rc1-mohamed-imp ===
+# Kernel: 0 warnings on every step (per-step count from the journal, below), and 0 WARNING lines in the
+#   whole test-boot kernel journal. run33's 8020 per-vblank 4:2:2 readback warnings are gone.
+=== mohamed-bench 2026-09-23T23:20:21-03:00 kernel=7.3.0-rc1-mohamed-imp ===
 network: r8169 loaded
-installed nouveau (with CD=5): /lib/modules/7.3.0-rc1-mohamed-imp/kernel/drivers/gpu/drm/nouveau/nouveau.ko.xz sha256 35c39f3eae5a633ef13159d597a8e4a325702543834e223bd537cf6dc040ed6e
-sha256sum: /K3D/temp/mohamed-bench/nouveau-without-cd5.ko: Arquivo ou diretório inexistente
-A/B nouveau (without CD=5):    /K3D/temp/mohamed-bench/nouveau-without-cd5.ko sha256 
-modinfo: ERROR: Module /K3D/temp/mohamed-bench/nouveau-without-cd5.ko not found.
-vermagic A/B module: 
+installed nouveau (with CD=5): /lib/modules/7.3.0-rc1-mohamed-imp/kernel/drivers/gpu/drm/nouveau/nouveau.ko.xz sha256 8a47b8e8389c51eafb553cca0a778832f504fa6c12186e420d41c94d8e0fc93b
 branch: ycbcr-poc (Broadcast RGB + color format)
 --- [ycbcr-poc RGB] card=card1 connector=HDMI-A-2 after 0s
-sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b95:
-    Model: 11266
-    Made in: week 1 of 2011
+sink EDID sha256 4f6cc1c8b7ce1700f93ef13c76c490ea985752edadd05c64179ae169e69d5dc9:
+    Model: 29698
+    Made in: week 1 of 2012
     DC_36bit
     DC_30bit
     DC_Y444
@@ -45,7 +32,7 @@ sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b9
 	51 max bpc:
 		flags: range
 		values: 6 16
---- [ycbcr-poc RGB] step: deep12 fmt=rgbfull (30s) 22:42:07
+--- [ycbcr-poc RGB] step: deep12 fmt=rgbfull (30s) 23:20:27
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -86,7 +73,8 @@ requested connector property color format=RGB
 frame label: RGB FULL 12-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc RGB] step: deep12 fmt=rgblimited (30s) 22:42:38
+    kernel warnings this step: 0
+--- [ycbcr-poc RGB] step: deep12 fmt=rgblimited (30s) 23:20:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -127,7 +115,8 @@ requested connector property color format=RGB
 frame label: RGB LIMITED 12-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc RGB] step: deep12 fmt=rgbauto (30s) 22:43:07
+    kernel warnings this step: 0
+--- [ycbcr-poc RGB] step: deep12 fmt=rgbauto (30s) 23:21:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -168,7 +157,8 @@ requested connector property color format=RGB
 frame label: RGB AUTO 12-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc RGB] step: deep10 fmt=rgbfull (30s) 22:43:37
+    kernel warnings this step: 0
+--- [ycbcr-poc RGB] step: deep10 fmt=rgbfull (30s) 23:21:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -209,7 +199,8 @@ requested connector property color format=RGB
 frame label: RGB FULL 10-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc RGB] step: deep10 fmt=rgblimited (30s) 22:44:07
+    kernel warnings this step: 0
+--- [ycbcr-poc RGB] step: deep10 fmt=rgblimited (30s) 23:22:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -250,7 +241,8 @@ requested connector property color format=RGB
 frame label: RGB LIMITED 10-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc RGB] step: deep8 fmt=rgbfull (30s) 22:44:37
+    kernel warnings this step: 0
+--- [ycbcr-poc RGB] step: deep8 fmt=rgbfull (30s) 23:22:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -291,7 +283,8 @@ requested connector property color format=RGB
 frame label: RGB FULL 8-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc RGB] step: deep8 fmt=rgblimited (30s) 22:45:07
+    kernel warnings this step: 0
+--- [ycbcr-poc RGB] step: deep8 fmt=rgblimited (30s) 23:23:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -332,10 +325,11 @@ requested connector property color format=RGB
 frame label: RGB LIMITED 8-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
+    kernel warnings this step: 0
 --- [ycbcr-poc YUV] card=card1 connector=HDMI-A-2 after 0s
-sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b95:
-    Model: 11266
-    Made in: week 1 of 2011
+sink EDID sha256 4f6cc1c8b7ce1700f93ef13c76c490ea985752edadd05c64179ae169e69d5dc9:
+    Model: 29698
+    Made in: week 1 of 2012
     DC_36bit
     DC_30bit
     DC_Y444
@@ -349,7 +343,7 @@ sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b9
 	51 max bpc:
 		flags: range
 		values: 6 16
---- [ycbcr-poc YUV] step: deep12 fmt=yuv444 (30s) 22:45:37
+--- [ycbcr-poc YUV] step: deep12 fmt=yuv444 (30s) 23:23:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -390,7 +384,8 @@ requested connector property color format=YUV 4:4:4
 frame label: YUV444 12-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc YUV] step: deep10 fmt=yuv444 (30s) 22:46:08
+    kernel warnings this step: 0
+--- [ycbcr-poc YUV] step: deep10 fmt=yuv444 (30s) 23:24:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -431,7 +426,8 @@ requested connector property color format=YUV 4:4:4
 frame label: YUV444 10-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc YUV] step: deep8 fmt=yuv444 (30s) 22:46:38
+    kernel warnings this step: 0
+--- [ycbcr-poc YUV] step: deep8 fmt=yuv444 (30s) 23:24:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -472,7 +468,8 @@ requested connector property color format=YUV 4:4:4
 frame label: YUV444 8-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc YUV] step: deep12 fmt=yuv422 (30s) 22:47:08
+    kernel warnings this step: 0
+--- [ycbcr-poc YUV] step: deep12 fmt=yuv422 (30s) 23:25:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -513,7 +510,8 @@ requested connector property color format=YUV 4:2:2
 frame label: YUV422 12-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc YUV] step: deep10 fmt=yuv422 (30s) 22:47:38
+    kernel warnings this step: 0
+--- [ycbcr-poc YUV] step: deep10 fmt=yuv422 (30s) 23:25:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -554,7 +552,8 @@ requested connector property color format=YUV 4:2:2
 frame label: YUV422 10-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc YUV] step: deep8 fmt=yuv422 (30s) 22:48:08
+    kernel warnings this step: 0
+--- [ycbcr-poc YUV] step: deep8 fmt=yuv422 (30s) 23:26:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -595,10 +594,11 @@ requested connector property color format=YUV 4:2:2
 frame label: YUV422 8-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
+    kernel warnings this step: 0
 --- [ycbcr-poc 3D+SD] card=card1 connector=HDMI-A-2 after 0s
-sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b95:
-    Model: 11266
-    Made in: week 1 of 2011
+sink EDID sha256 4f6cc1c8b7ce1700f93ef13c76c490ea985752edadd05c64179ae169e69d5dc9:
+    Model: 29698
+    Made in: week 1 of 2012
     DC_36bit
     DC_30bit
     DC_Y444
@@ -612,7 +612,7 @@ sink EDID sha256 836180905c56c2bc93dead00ef2f07452a6e301a53b50b25dde44735956b0b9
 	51 max bpc:
 		flags: range
 		values: 6 16
---- [ycbcr-poc 3D+SD] step: sbs bpc12 fmt=yuv444 (30s) 22:48:38
+--- [ycbcr-poc 3D+SD] step: sbs bpc12 fmt=yuv444 (30s) 23:26:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -653,7 +653,8 @@ requested connector property color format=YUV 4:4:4
 frame label: SBS YUV444 12-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc 3D+SD] step: tab bpc12 fmt=rgblimited (30s) 22:49:08
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: tab bpc12 fmt=rgblimited (30s) 23:27:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -694,7 +695,8 @@ requested connector property color format=RGB
 frame label: TAB RGB LIMITED 12-BIT
 scanout buffer: 1920x1080; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc 3D+SD] step: fp bpc12 fmt=yuv422 (30s) 22:49:38
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: fp bpc12 fmt=yuv422 (30s) 23:27:58
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -735,7 +737,8 @@ requested connector property color format=YUV 4:2:2
 frame label: FP YUV422 12-BIT
 scanout buffer: 1920x2205; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc 3D+SD] step: fp bpc12 fmt=yuv444 (30s) 22:50:08
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: fp bpc12 fmt=yuv444 (30s) 23:28:28
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -776,7 +779,8 @@ requested connector property color format=YUV 4:4:4
 frame label: FP YUV444 12-BIT
 scanout buffer: 1920x2205; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc 3D+SD] step: deep12 720p fmt=yuv444 (30s) 22:50:38
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: deep12 720p fmt=yuv444 (30s) 23:28:59
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -817,7 +821,8 @@ requested connector property color format=YUV 4:4:4
 frame label: YUV444 12-BIT
 scanout buffer: 1280x720; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc 3D+SD] step: deep12 576p fmt=yuv444 (30s) 22:51:08
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: deep12 576p fmt=yuv444 (30s) 23:29:29
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -858,7 +863,8 @@ requested connector property color format=YUV 4:4:4
 frame label: YUV444 12-BIT
 scanout buffer: 720x576; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc 3D+SD] step: deep12 480p fmt=yuv422 (30s) 22:51:38
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: deep12 480p fmt=yuv422 (30s) 23:29:59
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -899,14 +905,8 @@ requested connector property color format=YUV 4:2:2
 frame label: YUV422 12-BIT
 scanout buffer: 720x480; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
-    kernel: [  666.414914]  nv50_head_vblank_handler+0x19/0x40 [nouveau]
-    kernel: [  666.414956]  nvkm_client_event+0x12/0x20 [nouveau]
-    kernel: [  666.415003]  nvkm_event_ntfy+0xb5/0xf0 [nouveau]
-    kernel: [  666.415055]  tu102_disp_intr+0xc6/0xe0 [nouveau]
-    kernel: [  666.415112]  ? __pfx_tu102_disp_intr+0x10/0x10 [nouveau]
-    kernel: [  666.415161]  nvkm_intr+0x14e/0x270 [nouveau]
-    kernel: [  666.415211]  ? __pfx_nvkm_intr+0x10/0x10 [nouveau]
---- [ycbcr-poc 3D+SD] step: deep12 576p fmt=rgbauto (30s) 22:52:08
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: deep12 576p fmt=rgbauto (30s) 23:30:29
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -947,7 +947,8 @@ requested connector property color format=RGB
 frame label: RGB AUTO 12-BIT
 scanout buffer: 720x576; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
---- [ycbcr-poc 3D+SD] step: deep12 vga fmt=rgbfull (30s) 22:52:38
+    kernel warnings this step: 0
+--- [ycbcr-poc 3D+SD] step: deep12 vga fmt=rgbfull (30s) 23:30:59
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
 stereo mode: 1920x1080  1920x1080 @60 side-by-side half
 stereo mode: 1920x1080  1920x1080 @60 top-and-bottom
@@ -988,4 +989,5 @@ requested connector property color format=RGB
 frame label: RGB FULL 12-BIT
 scanout buffer: 640x480; modeset done (isolated) -- TV should auto-switch now. q/ESC quits.
 restored
-=== done 2026-09-23T22:53:09-03:00 ===
+    kernel warnings this step: 0
+=== done 2026-09-23T23:31:30-03:00 ===
