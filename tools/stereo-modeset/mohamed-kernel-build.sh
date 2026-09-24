@@ -6,6 +6,8 @@
 #   docker run --rm -v /K3D/temp/mohamexiety-nouveau:/src -v $B:/out debian:testing sh /out/build.sh
 # Then: dpkg -i the .deb, pin GRUB_DEFAULT to the normal kernel, grub-reboot into -mohamed-imp,
 # and enable mohamed-bench.service (next to this file).
+# YCbCr PoC (2026-09-24): build the ycbcr-poc branch from a worktree, NO_AB=1
+# (docker run -e NO_AB=1 ...) skips the A/B module; runner mode --ycbcr.
 # Build Mohamed Ahmed's nouveau-imp-upstr-v120 (+ our CD=5 fix, commit 83accf62b)
 # as Debian kernel packages, plus a nouveau.ko WITHOUT the fix for the A/B.
 # Runs inside debian:testing; the tree is /src (mounted), output /out.
@@ -27,6 +29,11 @@ grep -E '^CONFIG_DRM_NOUVEAU=' .config
 make -s -j12 bindeb-pkg LOCALVERSION=-mohamed-imp KDEB_PKGVERSION=1
 cp ../linux-image-*mohamed-imp*_1_amd64.deb /out/ 2>/dev/null || true
 cp drivers/gpu/drm/nouveau/nouveau.ko /out/nouveau-with-cd5.ko
+if [ -n "${NO_AB:-}" ]; then
+	sha256sum /out/*.deb /out/nouveau-*.ko
+	modinfo -F vermagic /out/nouveau-with-cd5.ko
+	exit 0
+fi
 # A/B: the same tree without our two lines
 git revert --no-edit -n 83accf62b
 make -s -j12 M=drivers/gpu/drm/nouveau modules
