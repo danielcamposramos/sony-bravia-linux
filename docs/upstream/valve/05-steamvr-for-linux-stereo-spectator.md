@@ -1,6 +1,6 @@
 # Draft 05: SteamVR on 3D displays (ValveSoftware/SteamVR-for-Linux, new issue)
 
-Status: DRAFT for Daniel. Not posted. Post after draft 01 and its link is filled in.
+Status: **POSTED 2026-09-24 21:57 UTC as https://github.com/ValveSoftware/SteamVR-for-Linux/issues/961** (approved by Daniel; his LTT forum comments added at his request; `openvr #706` written as `ValveSoftware/openvr#706` so GitHub links it).
 Target: https://github.com/ValveSoftware/SteamVR-for-Linux/issues/new
 
 ---
@@ -27,7 +27,7 @@ Linus Tech Tips' first look at the Frame names the problem it solves: it is "a l
 With a stereo spectator, the rest of the room is in the game too, in depth, while one person wears the headset.
 
 2. **Player.** No headset: an OpenVR driver presents the 3D display as the headset, the view follows the mouse or controller, and the compositor's output is one side-by-side frame.
-openvr #706 tried exactly this in 2018 and found the compositor refusing a double-width viewport unless it is a valid display resolution; it was never answered.
+ValveSoftware/openvr#706 tried exactly this in 2018 and found the compositor refusing a double-width viewport unless it is a valid display resolution; it was never answered.
 The ask: is there a supported way for a driver to receive both eyes in one frame, side by side or top and bottom, at the display's own resolution?
 I will write the driver; I only need to know the path the compositor accepts.
 
@@ -37,6 +37,7 @@ A stereo spectator output is that same side-by-side frame, going the other way.
 One side-by-side output would serve the Frame and every 3D display at once.
 And people want it.
 Building a passive 3D home theater, Linus Tech Tips said that "almost no new hardware supports 3D anymore" (https://www.youtube.com/watch?v=_4Sz6J49jho&t=52s), then asked the audience for "the best way" to "play games in Stereo 3D", "the greatest stereo 3D gaming setup of all time" (https://www.youtube.com/watch?v=_4Sz6J49jho&t=1012s).
+I answered that call on the LTT forum (https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161), and again under the Frame review (https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512).
 In their Frame review, asked about stereoscopic content, the answer was "there's so little content available for it" (https://www.youtube.com/watch?v=3PGKMwgjla0&t=1261s).
 A stereo spectator output turns every VR game into that content, for the displays people already have.
 
@@ -44,6 +45,5 @@ A stereo spectator output turns every VR game into that content, for the display
 
 Notes for Daniel (not for posting):
 - The LTT quotes come from YouTube's auto-generated captions (your subtitle files in `sony-bravia-linux.private/docs/research/LTT videos/`); only short, clean phrases are quoted, each with its timestamp. Worth a listen at those three points before posting.
-- If you want to point at your own comments under both LTT threads, the forum links are: https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161 and https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512 (behind a Cloudflare check for scripts; they open in a browser).
 - kisak-valve's words on #337, for your reading, not for quoting back at him: "too far outside of the scope of SteamVR or Proton", and "If you dig into this and figure out how to wire it up, it most likely would need to go to a popular third party Proton build". The spectator ask is a feature of SteamVR's own mirror window; the player ask we build ourselves.
 - Disclosure, if you want it, goes once at the end.
