@@ -1,0 +1,17 @@
+VR Stereo Spectator: sourcevr module for 3D televisions
+Copyright (c) 2026 Daniel Campos Ramos
+
+This module is built on Valve's Source SDK 2013: it implements the SDK's
+ISourceVirtualReality interface and compiles against the SDK's headers. It
+is distributed under the same terms as the SDK it is based on, the Source 1
+SDK License, reproduced in LICENSE-SOURCE-1-SDK in this directory together
+with Valve's third-party notices (thirdpartylegalnotices.txt), as that
+license requires.
+
+In short, and the license text governs: free of charge, for use with games
+on Valve's Source 1 engine, and any distribution must stay free and include
+LICENSE-SOURCE-1-SDK, thirdpartylegalnotices.txt and Valve's copyright
+notice.
+
+The Source SDK material it uses is Copyright (c) Valve Corporation. All
+rights reserved.

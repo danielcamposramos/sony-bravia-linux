@@ -8,6 +8,8 @@ one side-by-side or top-and-bottom frame the television unpacks. No lens
 distortion, no head tracking, no per-game shader fixes.
 
 **Status (2026-09-24): built and geometry-verified, not yet run in a game.**
+License: the Source 1 SDK License, the license of the SDK it is built on
+(`LICENSE`, `LICENSE-SOURCE-1-SDK`); provenance in [../PROVENANCE.md](../PROVENANCE.md).
 
 ## How it fits the engine
 
