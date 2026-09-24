@@ -24,5 +24,11 @@ if [ -f "$ENVFILE" ]; then
 	fi
 	[ -n "${STEP_OUT:-}" ] && printf '%s\n' "$@" $STEP_ARGS >"$STEP_OUT/launch-args.txt"
 fi
+# Anaglyph steps run the game inside gamescope, which applies the effect
+# (the suite sets SVRTV_GAMESCOPE to its arguments).
+# shellcheck disable=SC2086 # deliberate word lists
+# The game must use gamescope's own X11 display, not the desktop's Wayland
+# (a Vulkan test program that inherited WAYLAND_DISPLAY aborted inside it).
+[ -n "${SVRTV_GAMESCOPE:-}" ] && exec gamescope $SVRTV_GAMESCOPE -- env -u WAYLAND_DISPLAY "$@" $STEP_ARGS
 # shellcheck disable=SC2086 # STEP_ARGS is a deliberate word list
 exec "$@" $STEP_ARGS

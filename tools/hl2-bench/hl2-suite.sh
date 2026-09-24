@@ -85,7 +85,9 @@ close_game() { # app
 # Place the game's window with a KWin rule: HL2's -displayindex is not
 # followed on this desktop (session 0: the window went to the screen with the
 # mouse). The rule forces position (the target output's origin) and
-# fullscreen, matched on the window class (a regular expression: native
+# fullscreen and keyboard focus (focus-stealing prevention off: under
+# gamescope the keys did not reach the game, 2026-09-24), matched on the
+# window class (a regular expression: native
 # hl2_linux, and Proton's steam_app_<id> for HL2 on Windows and HL2 RTX,
 # which a plain match missed on 2026-09-24); the user's own rules file is
 # backed up and restored after every step.
@@ -105,12 +107,16 @@ rules=hl2bench
 
 [hl2bench]
 Description=HL2 bench suite: place the game on $1 (temporary)
-wmclass=^(hl2_linux|steam_app_220|steam_app_2477290|hl2\\.exe)$
+wmclass=^(hl2_linux|steam_app_220|steam_app_2477290|hl2\\.exe|gamescope)$
 wmclassmatch=3
 position=$x,$y
 positionrule=2
 fullscreen=true
 fullscreenrule=2
+acceptfocus=true
+acceptfocusrule=2
+fsplevel=0
+fsplevelrule=2
 EOR
 	kwin_reload
 	echo "$x,$y"
@@ -222,11 +228,30 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# wiz3D (vr=wiz) is installed for its step only; our module stays idle.
 	if [ "$vr" = wiz ]; then "$HERE/wiz3d-setup.sh" install | sed 's/^/    /'; fi
 
+	# Anaglyph steps: the module packs side by side and gamescope (64-bit,
+	# outside the game) turns it into red/cyan anaglyph with
+	# tools/vr-stereo-spectator/anaglyph/svrtv-anaglyph.fx: technique 0
+	# "CRT", 1 "modern screens".
+	# gamescope must composite on the GPU the game renders on (RTX 3060,
+	# 10de:2504): on another one the import of the game's frames failed and
+	# gamescope aborted (2026-09-24). --backend sdl: in Steam's launch
+	# environment the automatic choice fell to headless.
+	local GS_VK_DEVICE=${GS_VK_DEVICE:-10de:2504}
+	local layout=$vr gsfx=""
+	case "$vr" in
+		anaglyph-crt) layout=sbs; gsfx=0 ;;
+		anaglyph-modern) layout=sbs; gsfx=1 ;;
+	esac
+	if [ -n "$gsfx" ]; then
+		mkdir -p "$HOME/.local/share/gamescope/reshade/Shaders"
+		cp "$HERE/../vr-stereo-spectator/anaglyph/svrtv-anaglyph.fx" "$HOME/.local/share/gamescope/reshade/Shaders/"
+	fi
+
 	# Stereo module settings (native HL2 only).
 	if [ "$app" = 220 ]; then
 		if [ "$vr" = off ] || [ "$vr" = wiz ]; then rm -f "$game/bin/svrtv.ini"
 		else
-			printf 'SVRTV_LAYOUT=%s\nSVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$vr" "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"
+			printf 'SVRTV_LAYOUT=%s\nSVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$layout" "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"
 			# Extra module settings for a test run, e.g. SVRTV_EXTRA="SVRTV_HUDCOPY=1".
 			[ -n "${SVRTV_EXTRA:-}" ] && printf '%s\n' $SVRTV_EXTRA >>"$game/bin/svrtv.ini"
 		fi
@@ -252,13 +277,15 @@ run_step() { # id app renderer vr runs frame kind [display]
 			printf '%s\t%s\t%s\t%s\t%s\t\t\t\t\t\t\t\tno-display-%s\n' "$id" "$kind" "$app" "$renderer" "$vr" "$disp" >>"$SUITE/summary.tsv"
 			return
 		fi
-		args="-displayindex $didx $args"
+		# Inside gamescope the game sees one display; gamescope picks the TV.
+		[ -z "$gsfx" ] && args="-displayindex $didx $args"
 		echo "    display $disp = index $didx, KWin rule at $(kwin_rule_set "$disp")"
 	fi
 
 	{
 		echo "STEP_OUT=$out"
 		echo "STEP_ARGS=\"$args\""
+		[ -n "$gsfx" ] && echo "SVRTV_GAMESCOPE=\"--backend sdl --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $RES_W -h $RES_H ${didx:+--display-index $didx} --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx\""
 		# Render on the RTX 3060 (the desktop runs on the AMD iGPU), through
 		# the driver family the steps file names in its "# gpu:" line.
 		if [ "$GPU" = mesa ]; then
@@ -294,7 +321,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 		echo "con_logfile \"bench/$id.log\""
 		case "$kind" in watch|play) echo "mat_vsync 1" ;; *) echo "mat_vsync 0"; echo "fps_max 0" ;; esac
 		echo "demo_quitafterplayback 1"
-		case "$vr" in sbs|tab) [ "$kind" != view ] && echo "vr_activate" ;; esac
+		case "$vr" in sbs|tab|anaglyph-*) [ "$kind" != view ] && echo "vr_activate" ;; esac
 		# Extra console commands for a test run, separated by ";"
 		# (e.g. HL2BENCH_CMDS="sv_cheats 1;viewmodel_fov 75").
 		[ -n "${HL2BENCH_CMDS:-}" ] && printf '%s\n' "$HL2BENCH_CMDS" | tr ';' '\n'
