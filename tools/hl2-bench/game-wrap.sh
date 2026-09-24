@@ -29,6 +29,12 @@ fi
 # shellcheck disable=SC2086 # deliberate word lists
 # The game must use gamescope's own X11 display, not the desktop's Wayland
 # (a Vulkan test program that inherited WAYLAND_DISPLAY aborted inside it).
+# gamescope's SDL window goes through X11 (its Wayland path hands NVIDIA
+# buffers to KWin on the AMD iGPU, which cannot import them).
+if [ -n "${SVRTV_GAMESCOPE:-}" ]; then
+	export SDL_VIDEODRIVER=x11
+	[ -n "${STEP_OUT:-}" ] && env | grep -E '^(DISPLAY|WAYLAND_DISPLAY|XDG_RUNTIME_DIR|XDG_SESSION_TYPE|SDL_VIDEODRIVER)=' >"$STEP_OUT/gamescope-env.txt"
+fi
 [ -n "${SVRTV_GAMESCOPE:-}" ] && exec gamescope $SVRTV_GAMESCOPE -- env -u WAYLAND_DISPLAY "$@" $STEP_ARGS
 # shellcheck disable=SC2086 # STEP_ARGS is a deliberate word list
 exec "$@" $STEP_ARGS

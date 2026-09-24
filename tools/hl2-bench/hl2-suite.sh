@@ -234,8 +234,10 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# "CRT", 1 "modern screens".
 	# gamescope must composite on the GPU the game renders on (RTX 3060,
 	# 10de:2504): on another one the import of the game's frames failed and
-	# gamescope aborted (2026-09-24). --backend sdl: in Steam's launch
-	# environment the automatic choice fell to headless.
+	# gamescope aborted (2026-09-24). The backend is named, since in Steam's
+	# launch environment the automatic choice fell to headless: sdl. The
+	# wayland backend hands frames to KWin as NVIDIA buffers, which KWin on the
+	# AMD iGPU cannot import (the same dmabuf error, then an abort).
 	local GS_VK_DEVICE=${GS_VK_DEVICE:-10de:2504}
 	local layout=$vr gsfx=""
 	case "$vr" in
@@ -285,7 +287,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 	{
 		echo "STEP_OUT=$out"
 		echo "STEP_ARGS=\"$args\""
-		[ -n "$gsfx" ] && echo "SVRTV_GAMESCOPE=\"--backend sdl --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $RES_W -h $RES_H ${didx:+--display-index $didx} --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx\""
+		[ -n "$gsfx" ] && echo "SVRTV_GAMESCOPE=\"--backend ${GS_BACKEND:-sdl} -g --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $RES_W -h $RES_H ${didx:+--display-index $didx} --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx\""
 		# Render on the RTX 3060 (the desktop runs on the AMD iGPU), through
 		# the driver family the steps file names in its "# gpu:" line.
 		if [ "$GPU" = mesa ]; then

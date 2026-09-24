@@ -24,7 +24,7 @@ in linear light (the sampler decodes sRGB, the pass encodes it again).
 mkdir -p ~/.local/share/gamescope/reshade/Shaders
 cp svrtv-anaglyph.fx ~/.local/share/gamescope/reshade/Shaders/
 # Steam launch options of the game (Half-Life 2 with the module: SVRTV_LAYOUT=sbs in bin/svrtv.ini):
-gamescope --backend sdl --prefer-vk-device 10de:2504 -f -W 1920 -H 1080 -w 1920 -h 1080 \
+SDL_VIDEODRIVER=x11 gamescope --backend sdl -g --prefer-vk-device 10de:2504 -f -W 1920 -H 1080 -w 1920 -h 1080 \
     --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx 1 -- env -u WAYLAND_DISPLAY %command% -vulkan
 ```
 
@@ -42,24 +42,32 @@ steps (`tools/hl2-bench/`).
   (`--prefer-vk-device`, here the RTX 3060): on the other one the import of
   the game's frames failed (`importing the supplied dmabufs failed`) and
   gamescope aborted.
-- **`--backend sdl`**: in Steam's launch environment the automatic choice
-  fell to headless, which shows nothing.
+- **`--backend sdl`**, with gamescope's SDL on X11: in Steam's launch
+  environment the automatic choice fell to headless, which shows nothing;
+  the `wayland` backend hands NVIDIA buffers to KWin on the AMD iGPU, which
+  cannot import them (the same dmabuf error, then an abort).
 - **`env -u WAYLAND_DISPLAY`** for the game: inside gamescope it must use
   gamescope's X11 display, not the desktop's Wayland.
 - **Keyboard:** under gamescope the keys did not reach the game (the mouse
-  did): KWin did not give gamescope's window keyboard focus. The suite's
-  KWin rule now forces focus with focus-stealing prevention off (untested
-  yet).
+  did), even with a KWin rule forcing focus. `-g` (gamescope's "grab the
+  keyboard") fixed it (Daniel, 2026-09-24).
 - `Couldn't find texture with name: V__BackBufferTex` in gamescope's log is
   harmless: gamescope binds the frame to the `COLOR` texture at draw time.
 
 ## Result
 
 Daniel, on the HX855 (no glasses to hand, a long-time anaglyph viewer): "both
-perfect results", CRT and modern screens. In fast mouse pans the colours
-flicker out of step; slow pans are clean. The same on the EX725 (NVIDIA port,
-no copy between GPUs) and on a cheap LED panel through a DisplayPort adapter,
-so neither one TV's processing nor the GPU copy. The likely cause is the
-panels: sample-and-hold LCD/LED with colour-dependent response times, a
-documented motion artifact that anaglyph makes visible. Pending: the same
-fast pans in side by side with shutter glasses, to clear the render.
+perfect results", CRT and modern screens.
+
+**Open: static geometry swims in depth while the camera turns.** In fast
+mouse pans the walls appear to move in depth; slow pans are clean. The same
+on the EX725 (NVIDIA port, no copy between GPUs) and on a cheap LED panel
+through a DisplayPort adapter. It is not the panels: once walking was
+possible, fast-moving objects (a swinging object, explosions) showed nothing;
+only camera movement does. Side by side with shutter glasses stayed solid in
+the same pans. Working hypothesis: the two eyes of a frame are rendered from
+slightly different view angles during a turn (input updating the view between
+the left and the right eye), a false depth offset that grows with turn speed;
+the television's 3D mode shows the eyes one after the other in time, which
+would hide it, while anaglyph shows both at once. Next: log the view angle at
+each eye's render during fast turns.
