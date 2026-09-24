@@ -65,6 +65,19 @@ taught:
 | a08 OpenGL 3D | crashed after 20 s in the engine's render thread (materialsystem, studiorender, shaderapidx9), not in the module |
 | a09 Vulkan 3D | went side by side once the demo played |
 
+Session A, second pass (same day, 15:48-16:31, with the fixes below):
+
+| step | result |
+|---|---|
+| a06 OpenGL 2D, EX725 | 464 / 473 fps |
+| a07 Vulkan 2D, EX725 | 585 / 588 fps |
+| a09 Vulkan 3D side by side | 444 fps (view fixed ahead); 380 fps once the view followed the demo (mode 7); a third run in one launch hung on the level reload |
+| a18 OpenGL 2D, HX855 through PRIME | 550 / 561 fps, faster than direct; not yet understood |
+| a08, a10, a13, a14, a19 OpenGL 3D | crash after 20 s, every time (engine render thread) |
+| a11, a15 HL2 RTX | the demo is refused: `game directories don't match (hl2rtx / hl2_complete)`; HL2 RTX needs its own demo |
+| a12 OpenGL 2D demo frame | saved (with `timedemo_runcount 2` before `benchframe`) |
+| a16 Vulkan 3D watch | full demo at 60 fps, the view following the recorded one |
+
 Fixes that came out of it:
 
 - The engine sleeps 50 ms per frame while its window is unfocused
@@ -77,6 +90,15 @@ Fixes that came out of it:
   length.
 - This build writes `hl2/sourcebench.csv` in lowercase.
 - 3D view pictures come out black: the first frame in VR mode is empty.
+- The game's DXVK is v2.0: it reads a config file, not the `DXVK_CONFIG`
+  variable (2.1+); `game-wrap.sh` writes the file next to the game. Watch
+  steps force vsync there (`presentInterval = 1`).
+- Every timed step needs 2 runs or more; 3D steps exactly 2.
+- The KWin rule matches Proton windows too (`steam_app_220`,
+  `steam_app_2477290`).
+- `-condebug`: the whole console from the first line, as `condebug.log`.
+- `SVRTV_EXTRA="KEY=value ..."` adds module settings to `svrtv.ini` for a
+  test run.
 
 What did not work, and why the view step is now one picture:
 

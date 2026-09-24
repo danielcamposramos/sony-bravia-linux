@@ -12,6 +12,16 @@ if [ -f "$ENVFILE" ]; then
 	# shellcheck disable=SC1090
 	. "$ENVFILE"
 	set +a
+	# The game's DXVK is v2.0, which reads a config file but not the
+	# DXVK_CONFIG variable (2.1+). Write the suite's settings next to the
+	# game, where Steam's runtime container sees it.
+	if [ -n "${DXVK_CONFIG:-}" ]; then
+		for a in "$@"; do case $a in */hl2.sh) gd=${a%/hl2.sh} ;; esac; done
+		if [ -n "${gd:-}" ]; then
+			printf '%s\n' "$DXVK_CONFIG" | tr ';' '\n' >"$gd/hl2-bench-dxvk.conf"
+			export DXVK_CONFIG_FILE="$gd/hl2-bench-dxvk.conf"
+		fi
+	fi
 	[ -n "${STEP_OUT:-}" ] && printf '%s\n' "$@" $STEP_ARGS >"$STEP_OUT/launch-args.txt"
 fi
 # shellcheck disable=SC2086 # STEP_ARGS is a deliberate word list

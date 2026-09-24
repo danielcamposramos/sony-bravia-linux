@@ -83,7 +83,9 @@ close_game() { # app
 # Place the game's window with a KWin rule: HL2's -displayindex is not
 # followed on this desktop (session 0: the window went to the screen with the
 # mouse). The rule forces position (the target output's origin) and
-# fullscreen, matched on the window class; the user's own rules file is
+# fullscreen, matched on the window class (a regular expression: native
+# hl2_linux, and Proton's steam_app_<id> for HL2 on Windows and HL2 RTX,
+# which a plain match missed on 2026-09-24); the user's own rules file is
 # backed up and restored after every step.
 export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}
 KWINRULES=$HOME/.config/kwinrulesrc
@@ -101,8 +103,8 @@ rules=hl2bench
 
 [hl2bench]
 Description=HL2 bench suite: place the game on $1 (temporary)
-wmclass=hl2_linux
-wmclassmatch=2
+wmclass=^(hl2_linux|steam_app_220|steam_app_2477290|hl2\\.exe)$
+wmclassmatch=3
 position=$x,$y
 positionrule=2
 fullscreen=true
@@ -221,13 +223,20 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# Stereo module settings (native HL2 only).
 	if [ "$app" = 220 ]; then
 		if [ "$vr" = off ] || [ "$vr" = wiz ]; then rm -f "$game/bin/svrtv.ini"
-		else printf 'SVRTV_LAYOUT=%s\nSVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$vr" "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"; fi
+		else
+			printf 'SVRTV_LAYOUT=%s\nSVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$vr" "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"
+			# Extra module settings for a test run, e.g. SVRTV_EXTRA="SVRTV_HUDCOPY=1".
+			[ -n "${SVRTV_EXTRA:-}" ] && printf '%s\n' $SVRTV_EXTRA >>"$game/bin/svrtv.ini"
+		fi
 	fi
 
 	# This build ignores "wait" unless sv_allow_wait_command is on (session 0
 	# showed every wait skipped). View steps load the map from the command
 	# line, before the step config runs.
-	args="-novid -console -w $RES_W -h $RES_H -fullscreen -timedemo_comment $id +sv_allow_wait_command 1"
+	# -condebug: the whole console from the first line (con_logfile starts
+	# only when bench_step runs), to game-dir/console.log.
+	rm -f "$write/console.log"
+	args="-condebug -novid -console -w $RES_W -h $RES_H -fullscreen -timedemo_comment $id +sv_allow_wait_command 1"
 	[ "$kind" = view ] && args="$args +sv_cheats 1 +map d1_town_01"
 	rm -f "$write/bench/$id.log" "$write/cfg/game.cfg"
 	args="$args +exec bench_step"
@@ -262,7 +271,13 @@ run_step() { # id app renderer vr runs frame kind [display]
 		fi
 		# DXVK (the -vulkan renderer) presents with its own interval; the
 		# engine's mat_vsync 0 does not reach it (a07: locked at 59.94 fps).
-		[ "$renderer" = vulkan ] && [ "$kind" != watch ] && echo 'DXVK_CONFIG="d3d9.presentInterval = 0"'
+		# Watch steps force vsync the same way: VR mode's Activate() sets
+		# mat_vsync 0 on Linux, and once that reached the display the demo
+		# raced at 364 fps (2026-09-24).
+		if [ "$renderer" = vulkan ]; then
+			if [ "$kind" = watch ]; then echo 'DXVK_CONFIG="d3d9.presentInterval = 1"'
+			else echo 'DXVK_CONFIG="d3d9.presentInterval = 0"'; fi
+		fi
 		if command -v mangohud >/dev/null && [ "$kind" = timedemo ]; then
 			echo "MANGOHUD=1"
 			echo "MANGOHUD_DLSYM=1"
@@ -276,10 +291,15 @@ run_step() { # id app renderer vr runs frame kind [display]
 		if [ "$kind" = watch ]; then echo "mat_vsync 1"; else echo "mat_vsync 0"; echo "fps_max 0"; fi
 		echo "demo_quitafterplayback 1"
 		case "$vr" in sbs|tab) [ "$kind" != view ] && echo "vr_activate" ;; esac
+		# Extra console commands for a test run, separated by ";"
+		# (e.g. HL2BENCH_CMDS="sv_cheats 1;viewmodel_fov 75").
+		[ -n "${HL2BENCH_CMDS:-}" ] && printf '%s\n' "$HL2BENCH_CMDS" | tr ';' '\n'
 		case "$kind" in
 			view) ;;   # the sequence goes in game.cfg, below
 			timedemo) echo "timedemo_runcount $runs"; echo "timedemo $DEMO" ;;
-			frame) echo "benchframe $DEMO $frame ${id}_frame$frame" ;;
+			# benchframe plays the demo once, and this demo's first playback
+			# stops after 2 frames; a second run is where frame $frame comes.
+			frame) echo "timedemo_runcount 2"; echo "benchframe $DEMO $frame ${id}_frame$frame" ;;
 			# Real speed: a timed demo at vsync 60 Hz takes the demo's own length
 			# (a07, 164 s). This demo's first playback always stops after 2
 			# frames (every timed step), so the second run is the one to watch.
@@ -353,6 +373,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 
 	# Collect.
 	cp "$write/bench/$id.log" "$out/console.log" 2>/dev/null
+	cp "$write/console.log" "$out/condebug.log" 2>/dev/null
 	for csv in "$write/sourcebench.csv" "$write/SourceBench.csv" "$game/sourcebench.csv" "$game/SourceBench.csv"; do
 		[ -f "$csv" ] || continue
 		{ head -1 "$csv"; tail -n +"$((before + 1))" "$csv" | grep -v '^demofile'; } >"$out/SourceBench-rows.csv"

@@ -104,44 +104,97 @@ ghosting, the default separation (2.5) and convergence (120) looked right,
 crosshair in 3D. In that build each eye renders straight into its half of
 the frame.
 
-What the log showed, and what is open:
+**The HUD, same day (build `2765a3bb…`):** the 3D scene at the back, the
+HUD as a transparent layer across the whole screen, identical in both eyes,
+so it sits on the screen plane. Daniel: "perfect hud". How it works, and
+what it took:
 
-- The engine never calls `CreateRenderTargets`. The client asks for
-  `GetRenderTarget`, then calls `DoDistortionProcessing` and
-  `CompositeHud` for each eye.
-- No HUD: the client paints the HUD and menus into a 640x480 target named
-  `_rt_gui` and draws it into each eye; this game creates `_rt_gui` only
-  when VR was set up at start (console: `couldn't find
-  materials/_rt_gui.vtf`). For the same reason, the loading screen shows
-  as a 640x480 picture in the top-left corner.
-- OpenGL in VR mode crashed after 20 s, in the engine's render thread
-  (materialsystem, studiorender, shaderapidx9), not in the module.
-- After the window was refocused, the view stopped following the demo's
-  recorded angles: VR mode switches to raw mouse input.
+- The engine never calls `CreateRenderTargets` (not even with
+  `VRModeAdapter "0"` in `videoconfig_linux.cfg`; with that edit in place
+  the watch lost vsync, so it was reverted).
+  The module takes the material system from the factory passed to
+  `Connect()` and makes its targets on first use, inside the engine's
+  render-target allocation bracket: one per eye, the HUD sheet `_rt_gui`
+  (640x480, which this game only makes when VR is set up at start), and a
+  copy of that sheet, `_rt_svrtv_gui`, refreshed once a frame.
+- Each eye renders into its own target; `DoDistortionProcessing` copies it
+  into its half of the frame, and `CompositeHud` (which also runs during
+  screenshots) blends the HUD copy over it.
+- The HUD paste first showed a purple-black checkerboard (Source's missing
+  texture). Tests ruled out the texture (the engine's own
+  `_rt_FullFrameFB` showed the same), the material (a healthy one did too),
+  and the interface layout (the 2013 and 2025 SDK headers agree on every
+  slot the module calls). The cause: with the engine's threaded renderer, a
+  material first used without a main-thread precache draws as the error
+  material. The module now holds a reference and calls
+  `CacheUsedMaterials()` once (log: `precached 0 -> 1`).
+- The client's own `vgui/inworldui` is not used: it is set up while
+  `_rt_gui` does not exist. The paste uses `vgui/icon_con_grey`, the same
+  kind of material (the server browser's connection icon, never shown in
+  single-player), with its `$basetexture` pointed at the HUD copy.
+- The sheet is 4:3; by default it is stretched across the full width, as
+  Daniel asked; `SVRTV_HUD43=1` keeps the 4:3 shape.
 
-The source here goes one step further, untested yet: the module takes the
-material system from the factory the engine passes to `Connect()` and makes
-one target per eye on first use, inside the engine's render-target
-allocation bracket; `DoDistortionProcessing` copies each eye into its half
-and `CompositeHud` pastes `_rt_gui` with the client's own in-world HUD
-material. Making `_rt_gui` itself when it is missing is the next step.
+**Crosshair and the rest, same day (build `8c35ea5b…`):** Daniel, with
+glasses: crosshair visible, identical in both eyes; muzzle sprite on the
+muzzle; HUD at the top. Two modes:
+
+| mode | how | crosshair | picture |
+|---|---|---|---|
+| full resolution (default) | eyes at their half of the frame (960x1080) | HL2's classic crosshair, drawn by the module on the 2D layer, once per eye | sharp: for high-resolution textures |
+| native crosshair | `SVRTV_EYE=640x480` | the client's own (quick-info dot and brackets), centred | softer: fine for the original textures |
+
+- In VR mode the client paints its crosshair straight into each eye at the
+  centre of a 640x480 screen (dump: eye pixel ~314,240), whatever the eye
+  size. With 640x480 eyes that is the true centre; at full resolution the
+  module turns it off (`crosshair 0`) and draws `crosshair_default`
+  (`sprites/crosshairs`, 0,48, 24x24) with `sprites/crosshairs_tluc`, which
+  blends by the texture's alpha. HL2's quick-info dot (`sprites/qi_center`)
+  is additive, DXT1 without alpha: drawn per eye its look depended on the
+  background, which differs between the eyes; drawn into the HUD sheet it
+  became a black square.
+- When VR starts, the module issues console commands itself through the
+  engine's client interface (`VEngineClient013`, from the `Connect()`
+  factory; `ClientCmd_Unrestricted` sits at the same slot in the 2013 and
+  2025 headers). Default (`SVRTV_ONVR`): `vr_moveaim_mode 7`,
+  `vr_moveaim_mode_zoom 7` (the view follows the game, not a headset: the
+  SDK's HMM_SHOOTMOVELOOKMOUSE; the default left the view fixed while the
+  demo's player looked around), then Valve's own HL2 VR settings from
+  `hl2/cfg/sourcevr_hl2.cfg` (`vr_first_person_uses_world_model 0`,
+  `hud_draw_fixed_reticle 0`, `r_flashlightscissor 0`), which the client is
+  meant to run when VR starts and this build does not.
+- `crosshair` is a saved setting. When the module turns it off it leaves
+  `svrtv-crosshair-off` next to itself; stopping VR, or the next start of
+  the game (2D included, after `config.cfg`), turns it back on.
+- HUD: HL2's health and ammo row (sheet rows 432-467 of 480, 12 rows above
+  the bottom) moves to the top with the same 12-row margin
+  (`SVRTV_HUDTOP=0.125`, the fraction of the sheet swapped between bottom
+  and top; 0 keeps HL2's layout). Messages that fade in and out stay where
+  HL2 puts them.
+- Muzzle sprite: the flash sprite at the gun's tip is placed by converting
+  the gun's attachment from `viewmodel_fov` to the world's field of view;
+  in VR mode the gun is drawn with the eye projection, so the sprite
+  missed the gun. `viewmodel_fov 90` puts it exactly on the muzzle
+  (confirmed by eye). It is a cheat-protected setting (`sv_cheats 1`), so
+  it is not in the defaults. For Valve: allow it for this view.
+
+Open:
+
+- **Real play is untested:** so far everything ran on a demo. Level
+  transitions (see the reload hang below), the Esc menu, save/load and the
+  loading screen need a playthrough.
+- OpenGL in VR mode crashes after 20 s in the engine's render thread
+  (materialsystem, studiorender, shaderapidx9), not in the module; every
+  OpenGL 3D run did. Use `-vulkan` for 3D.
+- In VR mode, the second level reload within one launch hung (GPU idle) in
+  a timed demo; in real play every chapter change is a reload.
+- 3D view screenshots come out black (the first frame in VR mode).
+- Test switches: `SVRTV_HUDCOPY=1` (paste the sheet with a plain copy),
+  `SVRTV_HUDTEX=<texture>` (sample another texture), `SVRTV_HUDMAT=<material>`.
 
 To try 3D by hand: Steam launch options
-`SVRTV_LAYOUT=sbs SVRTV_LOG=svrtv.log %command% -w 1920 -h 1080 -console`
+`SVRTV_LAYOUT=sbs SVRTV_LOG=svrtv.log %command% -vulkan -w 1920 -h 1080 -console`
 (a relative log path lands next to the module; Steam runs the game in a
 container that may not see other folders),
 television in side-by-side 3D mode. The module forces VR mode at start;
 `vr_activate` in the console does the same by hand.
-
-Open questions only the game can answer:
-
-- whether the engine loads the module and calls `CreateInterface` at start
-  (the log says);
-- whether rendering straight into the viewports works with no offscreen
-  targets (`GetRenderTarget` returns none), or the eyes must render into
-  targets that the module then copies into the frame;
-- how the menus and HUD behave: VR mode forces a 640x480 UI and can draw
-  the HUD in the world;
-- whether `GetDisplayBounds` resizes the window as intended;
-- comfortable defaults for separation and convergence, compared with wiz3D
-  on the same scene.

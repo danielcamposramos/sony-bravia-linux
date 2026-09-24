@@ -39,6 +39,9 @@
 #include "sourcevr/isourcevirtualreality.h"
 #include "materialsystem/imaterialsystem.h"
 #include "materialsystem/itexture.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
+#include "cdll_int.h"
 
 namespace {
 
@@ -50,6 +53,15 @@ struct Config {
 	double separation;
 	double convergence;
 	bool swap;
+	bool hudcopy;   // test: paste the HUD sheet with a plain copy
+	bool hudwide;   // HUD across the full width (default; SVRTV_HUD43=1 keeps the sheet's 4:3)
+	char hudtex[64];   // test: texture the HUD paste samples
+	char hudmat[64];   // material the HUD paste draws with
+	double hudband;   // HUD bottom band moved to the top (fraction of the sheet; 0 = off)
+	int dump;         // diagnostics: write the HUD sheet and the frame to files at this frame
+	int eyew, eyeh;   // eye render size (SVRTV_EYE=WxH); 0: its half of the frame
+	bool xhair;       // the module draws the crosshair on the 2D layer (client's off)
+	char onvr[512];   // console commands issued when VR starts
 	FILE *log;
 };
 
@@ -178,6 +190,45 @@ void load_config()
 	g_cfg.separation = env_double("SVRTV_SEPARATION", 2.5);
 	g_cfg.convergence = env_double("SVRTV_CONVERGENCE", 120.0);
 	g_cfg.swap = env_double("SVRTV_SWAP", 0) != 0;
+	g_cfg.hudcopy = env_double("SVRTV_HUDCOPY", 0) != 0;
+	g_cfg.hudwide = env_double("SVRTV_HUD43", 0) == 0;
+	// HL2's health and ammo row fills sheet rows 432-467 of 480, 12 rows
+	// above the bottom edge (dump, 2026-09-24); a band of 60 rows (0.125)
+	// puts it 12 rows below the top edge, the same margin (Daniel's ask).
+	g_cfg.hudband = env_double("SVRTV_HUDTOP", 0.125);
+	if (g_cfg.hudband < 0 || g_cfg.hudband > 0.45)
+		g_cfg.hudband = 0;
+	g_cfg.dump = (int)env_double("SVRTV_DUMP", 0);
+	g_cfg.eyew = g_cfg.eyeh = 0;
+	const char *ov = setting("SVRTV_ONVR");
+	// A television has no head tracking: the view follows the game (mode 7,
+	// the SDK's HMM_SHOOTMOVELOOKMOUSE); then Valve's own VR settings for
+	// Half-Life 2 (hl2/cfg/sourcevr_hl2.cfg, which this build never runs).
+	snprintf(g_cfg.onvr, sizeof(g_cfg.onvr), "%s", ov ? ov :
+		"vr_moveaim_mode 7;vr_moveaim_mode_zoom 7;vr_first_person_uses_world_model 0;hud_draw_fixed_reticle 0;r_flashlightscissor 0");
+	const char *es = setting("SVRTV_EYE");
+	if (es && *es) {
+		const char *c = es;
+		int w = 0, h = 0;
+		while (*c >= '0' && *c <= '9') w = w * 10 + (*c++ - '0');
+		if (*c == 'x' || *c == 'X') {
+			c++;
+			while (*c >= '0' && *c <= '9') h = h * 10 + (*c++ - '0');
+		}
+		if (w >= 64 && h >= 64 && w <= g_cfg.width && h <= g_cfg.height) {
+			g_cfg.eyew = w;
+			g_cfg.eyeh = h;
+		}
+	}
+	// Two crosshair modes. At full eye resolution the client's own crosshair
+	// lands off-centre (it is painted for a 640x480 screen), so the module
+	// draws HL2's crosshair on the 2D layer, once per eye. With 640x480 eyes
+	// (SVRTV_EYE=640x480) the client's own crosshair is centred and is kept.
+	g_cfg.xhair = env_double("SVRTV_CROSSHAIR", g_cfg.eyew == 0 ? 1 : 0) != 0;
+	const char *hm = setting("SVRTV_HUDMAT");
+	snprintf(g_cfg.hudmat, sizeof(g_cfg.hudmat), "%s", (hm && *hm) ? hm : "vgui/icon_con_grey");
+	const char *ht = setting("SVRTV_HUDTEX");
+	snprintf(g_cfg.hudtex, sizeof(g_cfg.hudtex), "%s", ht ? ht : "");
 	// A relative log path is taken from this module's directory: Steam runs
 	// the game in a runtime container that sees the game's folders but not
 	// necessarily the caller's.
@@ -223,6 +274,14 @@ public:
 		m_shown[0] = m_shown[1] = false;
 		for (int i = 0; i < 8; i++)
 			m_traced[i] = false;
+		m_hudLogs = 0;
+		m_hud = NULL;
+		m_hudCopied = false;
+		m_matReady = false;
+		m_frame = 0;
+		m_fovLogs = 0;
+		m_engine = NULL;
+		m_xhairReady = false;
 	}
 
 	// IAppSystem
@@ -259,7 +318,7 @@ public:
 		ensure_targets();
 		if (m_rt[0] && m_rt[1]) {
 			// Each eye renders into its own target, from its corner.
-			half(eye, NULL, NULL, &vw, &vh);
+			eye_size(eye, &vw, &vh);
 			vx = vy = 0;
 		} else
 			half(eye, &vx, &vy, &vw, &vh);
@@ -267,6 +326,20 @@ public:
 		if (y) *y = vy;
 		if (w) *w = vw;
 		if (h) *h = vh;
+	}
+
+	// The size each eye renders at: its half of the frame, or SVRTV_EYE.
+	// In VR mode the client paints the crosshair straight into the eye at the
+	// centre of a 640x480 screen (dump, 2026-09-24: eye pixel ~314,240), so a
+	// 640x480 eye puts it in the true centre; the copy stretches the eye to
+	// its half.
+	void eye_size(VREye eye, int *w, int *h)
+	{
+		if (g_cfg.eyew > 0 && g_cfg.eyeh > 0) {
+			*w = g_cfg.eyew;
+			*h = g_cfg.eyeh;
+		} else
+			half(eye, NULL, NULL, w, h);
 	}
 
 	// Where an eye goes in the output frame.
@@ -313,24 +386,216 @@ public:
 		if (!m_ms)
 			return false;
 		ITexture *gui = m_ms->FindTexture("_rt_gui", NULL, false);
-		IMaterial *mat = m_ms->FindMaterial(translucent ? "vgui/inworldui" : "vgui/inworldui_opaque", TEXTURE_GROUP_VGUI, false);
-		if (!gui || !mat)
+		if (gui && gui->IsError())
+			gui = NULL;
+		// Not the client's own vgui/inworldui: it is set up while _rt_gui does
+		// not exist yet and then draws the purple-black error pattern whatever
+		// texture it is given (2026-09-24: even the engine's _rt_FullFrameFB).
+		// vgui/icon_con_grey is the same kind of material (UnlitGeneric,
+		// translucent, ignorez), set up normally; it is the server browser's
+		// connection icon, which single-player never shows, so in 3D mode the
+		// module takes it over for the HUD.
+		(void)translucent;
+		IMaterial *mat = m_ms->FindMaterial(g_cfg.hudmat, TEXTURE_GROUP_VGUI, false);
+		if (!gui || !mat || mat->IsErrorMaterial())
 			return false;
+		// With the engine's threaded renderer, a material first used from the
+		// render thread without a main-thread precache draws as the error
+		// material. The client precaches everything it draws; the module
+		// holds a reference and asks for the precache once.
+		if (!m_matReady) {
+			m_matReady = true;
+			bool was = mat->IsPrecached();
+			mat->IncrementReferenceCount();
+			m_ms->CacheUsedMaterials();
+			logf("hud material %s: precached %d -> %d\n", mat->GetName(), (int)was, (int)mat->IsPrecached());
+		}
+		// Sample a fresh copy of the sheet (see make_targets), copied once a
+		// frame, before the first eye's paste.
+		if (m_hud && !m_hudCopied) {
+			m_hudCopied = true;
+			int gw = gui->GetActualWidth(), gh = gui->GetActualHeight();
+			Rect_t src = { 0, 0, gw, gh };
+			Rect_t dst = { 0, 0, m_hud->GetActualWidth(), m_hud->GetActualHeight() };
+			CMatRenderContextPtr c(m_ms);
+			c->PushRenderTargetAndViewport(m_hud);
+			c->CopyTextureToRenderTargetEx(0, gui, &src, &dst);
+			c->PopRenderTargetAndViewport();
+		}
+		ITexture *sheet = m_hud ? m_hud : gui;
+		// Test switch: sample another texture instead (SVRTV_HUDTEX=name,
+		// e.g. _rt_FullFrameFB or _rt_svrtv_left), to tell a material problem
+		// from a texture problem.
+		if (g_cfg.hudtex[0]) {
+			ITexture *t = m_ms->FindTexture(g_cfg.hudtex, NULL, false);
+			if (t && !t->IsError())
+				sheet = t;
+		}
+		bool found = false;
+		IMaterialVar *base = mat->FindVar("$basetexture", &found, false);
+		ITexture *before = (found && base) ? base->GetTextureValue() : NULL;
+		if (found && base && before != sheet)
+			base->SetTextureValue(sheet);
 		int hx, hy, hw, hh;
 		half(eye, &hx, &hy, &hw, &hh);
-		// NDC: x -1..1 left to right, y -1..1 bottom to top.
-		int x0 = hx + (int)((ndc[0] * 0.5f + 0.5f) * hw);
-		int x1 = hx + (int)((ndc[2] * 0.5f + 0.5f) * hw);
-		int y0 = hy + (int)((0.5f - ndc[3] * 0.5f) * hh);
-		int y1 = hy + (int)((0.5f - ndc[1] * 0.5f) * hh);
+		// A television is not a headset: the HUD fills the screen as in 2D,
+		// at the same place in both eyes, so it sits on the screen plane
+		// (zero parallax). The client's own placement (ndc, a floating panel
+		// sized for a headset) covered only the middle (Daniel, 2026-09-24).
+		// The sheet is 4:3; keep that shape: full height, centred.
+		(void)ndc;
+		double wf = g_cfg.hudwide ? 1.0 : (4.0 / 3.0) / g_cfg.aspect;
+		if (wf > 1.0)
+			wf = 1.0;
+		int x0 = hx + (int)(hw * (1.0 - wf) / 2.0);
+		int x1 = x0 + (int)(hw * wf);
+		int y0 = hy;
+		int y1 = hy + hh;
+		if (m_hudLogs < 4) {
+			m_hudLogs++;
+			ITexture *after = (found && base) ? base->GetTextureValue() : NULL;
+			logf("hud pointers: gui %p sheet %p before %p after %p\n", (void *)gui, (void *)sheet, (void *)before, (void *)after);
+			logf("hud: eye %d material %s (error %d) $basetexture found %d before %s after %s; gui %s %dx%d error %d; ndc %.3f %.3f %.3f %.3f -> rect %d,%d %dx%d translucent %d\n",
+			     (int)eye, mat->GetName(), (int)mat->IsErrorMaterial(), (int)found,
+			     before ? before->GetName() : "-", after ? after->GetName() : "-",
+			     gui->GetName(), gui->GetActualWidth(), gui->GetActualHeight(), (int)gui->IsError(),
+			     ndc[0], ndc[1], ndc[2], ndc[3], x0, y0, x1 - x0, y1 - y0, (int)translucent);
+		}
 		if (x1 <= x0 || y1 <= y0)
 			return false;
-		int tw = gui->GetActualWidth(), th = gui->GetActualHeight();
+		int tw = sheet->GetActualWidth(), th = sheet->GetActualHeight();
 		CMatRenderContextPtr ctx(m_ms);
+		if (g_cfg.hudcopy) {
+			// Test path: a plain copy of the sheet, no material, no blending.
+			Rect_t src = { 0, 0, tw, th };
+			Rect_t dst = { x0, y0, x1 - x0, y1 - y0 };
+			ctx->PushRenderTargetAndViewport(NULL);
+			ctx->CopyTextureToRenderTargetEx(0, gui, &src, &dst);
+			ctx->PopRenderTargetAndViewport();
+			return true;
+		}
 		ctx->PushRenderTargetAndViewport(NULL, 0, 0, g_cfg.width, g_cfg.height);
-		ctx->DrawScreenSpaceRectangle(mat, x0, y0, x1 - x0, y1 - y0, 0, 0, tw - 1, th - 1, tw, th);
+		int w = x1 - x0, h = y1 - y0;
+		if (g_cfg.hudband > 0) {
+			// HL2 keeps health and ammo in the bottom band, where the ammo
+			// panel lands over the gun, which in 3D is confusing and tiring
+			// (Daniel, 2026-09-24). Swap the bottom and top bands of the
+			// sheet; the middle, with the crosshair, stays where it is.
+			int sb = (int)(th * g_cfg.hudband), db = (int)(h * g_cfg.hudband);
+			ctx->DrawScreenSpaceRectangle(mat, x0, y0 + db, w, h - 2 * db, 0, sb, tw - 1, th - sb - 1, tw, th);
+			ctx->DrawScreenSpaceRectangle(mat, x0, y0, w, db, 0, th - sb, tw - 1, th - 1, tw, th);
+			ctx->DrawScreenSpaceRectangle(mat, x0, y0 + h - db, w, db, 0, 0, tw - 1, sb - 1, tw, th);
+		} else
+			ctx->DrawScreenSpaceRectangle(mat, x0, y0, w, h, 0, 0, tw - 1, th - 1, tw, th);
+		if (g_cfg.xhair)
+			draw_crosshair(ctx, x0, y0, w, h);
 		ctx->PopRenderTargetAndViewport();
+		if (g_cfg.dump && m_frame == g_cfg.dump) {
+			if (eye == VREye_Left)
+				dump(ctx, sheet, "svrtv-hud.tga");
+			else
+				dump(ctx, NULL, "svrtv-frame.tga");
+		}
 		return true;
+	}
+
+	// The engine's client interface, from the factory passed to Connect()
+	// (VEngineClient013: the same slots in the 2013 and 2025 SDK headers).
+	IVEngineClient *engine()
+	{
+		if (!m_engine && m_factory)
+			m_engine = (IVEngineClient *)m_factory(VENGINE_CLIENT_INTERFACE_VERSION_13, NULL);
+		return m_engine;
+	}
+
+	// Queues console commands, ";"-separated.
+	void command(const char *cmds)
+	{
+		IVEngineClient *e = engine();
+		if (!e || !cmds || !*cmds)
+			return;
+		char line[600];
+		snprintf(line, sizeof(line), "%s\n", cmds);
+		e->ClientCmd_Unrestricted(line);
+		logf("console: %s", line);
+	}
+
+	// crosshair is a saved setting: when the module turns it off it leaves a
+	// marker next to itself, so a later start (2D included) turns it back on
+	// even if the game quit while in VR.
+	void marker_path(char *out, size_t n) { snprintf(out, n, "%ssvrtv-crosshair-off", g_dir); }
+	void crosshair_off()
+	{
+		command("crosshair 0");
+		char p[1200];
+		marker_path(p, sizeof(p));
+		FILE *f = fopen(p, "w");
+		if (f)
+			fclose(f);
+	}
+	void crosshair_restore()
+	{
+		char p[1200];
+		marker_path(p, sizeof(p));
+		FILE *f = fopen(p, "r");
+		if (!f)
+			return;
+		fclose(f);
+		command("crosshair 1");
+		remove(p);
+	}
+
+	// HL2's classic crosshair (hud_textures.txt "crosshair_default":
+	// sprites/crosshairs, x 0 y 48, 24x24 of the 128x128 sheet), drawn with
+	// sprites/crosshairs_tluc, which blends by the texture's alpha. The
+	// quick-info dot (sprites/qi_center) is additive, DXT1 with no alpha: its
+	// look depends on what is behind it, which differs between the eyes
+	// (Daniel, 2026-09-24), and it cannot be drawn into the transparent HUD
+	// sheet (a black square). Drawn once per eye, at the centre of the HUD
+	// rectangle, so both eyes get the same pixels and it sits on the screen
+	// plane.
+	void draw_crosshair(IMatRenderContext *ctx, int x0, int y0, int w, int h)
+	{
+		IMaterial *m = m_ms->FindMaterial("sprites/crosshairs_tluc", TEXTURE_GROUP_VGUI, false);
+		if (!m || m->IsErrorMaterial())
+			return;
+		if (!m_xhairReady) {
+			m_xhairReady = true;
+			m->IncrementReferenceCount();
+			m_ms->CacheUsedMaterials();
+			logf("crosshair material %s: precached %d\n", m->GetName(), (int)m->IsPrecached());
+		}
+		int cw = w * 24 / 640, ch = h * 24 / 480;
+		ctx->DrawScreenSpaceRectangle(m, x0 + (w - cw) / 2, y0 + (h - ch) / 2, cw, ch, 0, 48, 23, 71, 128, 128);
+	}
+
+	// Diagnostics: a render target (NULL: the frame) to a 32-bit TGA next to
+	// the module.
+	void dump(IMatRenderContext *ctx, ITexture *t, const char *name)
+	{
+		int w = t ? t->GetActualWidth() : g_cfg.width;
+		int h = t ? t->GetActualHeight() : g_cfg.height;
+		unsigned char *px = (unsigned char *)malloc((size_t)w * h * 4);
+		if (!px)
+			return;
+		memset(px, 0, (size_t)w * h * 4);
+		ctx->PushRenderTargetAndViewport(t);
+		ctx->ReadPixels(0, 0, w, h, px, IMAGE_FORMAT_BGRA8888);
+		ctx->PopRenderTargetAndViewport();
+		char path[1200];
+		snprintf(path, sizeof(path), "%s%s", g_dir, name);
+		FILE *f = fopen(path, "wb");
+		if (f) {
+			// Uncompressed true-colour TGA, top-left origin.
+			unsigned char hdr[18] = { 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+				(unsigned char)(w & 255), (unsigned char)(w >> 8),
+				(unsigned char)(h & 255), (unsigned char)(h >> 8), 32, 0x28 };
+			fwrite(hdr, 1, sizeof(hdr), f);
+			fwrite(px, 1, (size_t)w * h * 4, f);
+			fclose(f);
+		}
+		logf("dump %s: %dx%d at frame %d\n", name, w, h, m_frame);
+		free(px);
 	}
 
 	// Copies an eye's target into its half of the frame, once per frame.
@@ -342,7 +607,9 @@ public:
 		m_shown[i] = true;
 		int hx, hy, hw, hh;
 		half(eye, &hx, &hy, &hw, &hh);
-		Rect_t src = { 0, 0, hw, hh };
+		int ew, eh;
+		eye_size(eye, &ew, &eh);
+		Rect_t src = { 0, 0, ew, eh };
 		Rect_t dst = { hx, hy, hw, hh };
 		CMatRenderContextPtr ctx(m_ms);
 		ctx->PushRenderTargetAndViewport(NULL);
@@ -363,9 +630,16 @@ public:
 	bool SampleTrackingState(float playerGameFov, float)
 	{
 		// Called once per frame before the eyes render: a new frame.
+		m_frame++;
 		m_shown[0] = m_shown[1] = false;
-		if (playerGameFov > 1.0f && playerGameFov < 179.0f)
+		m_hudCopied = false;
+		if (playerGameFov > 1.0f && playerGameFov < 179.0f) {
+			if (playerGameFov != m_fovX && m_fovLogs < 8) {
+				m_fovLogs++;
+				logf("game fov %.3f at frame %d\n", playerGameFov, m_frame);
+			}
 			m_fovX = playerGameFov;
+		}
 		return true;
 	}
 
@@ -459,7 +733,7 @@ public:
 		static const char *names[2] = { "_rt_svrtv_left", "_rt_svrtv_right" };
 		for (int i = 0; i < 2; i++) {
 			int w, h;
-			half(i ? VREye_Right : VREye_Left, NULL, NULL, &w, &h);
+			eye_size(i ? VREye_Right : VREye_Left, &w, &h);
 			m_rt[i] = ms->CreateNamedRenderTargetTextureEx(names[i], w, h, RT_SIZE_LITERAL,
 				ms->GetBackBufferFormat(), MATERIAL_RT_DEPTH_SHARED,
 				0x4 | 0x8 | 0x100 | 0x200,   // TEXTUREFLAGS_CLAMPS|CLAMPT|NOMIP|NOLOD
@@ -469,6 +743,32 @@ public:
 		}
 		if (!m_rt[0] || !m_rt[1])
 			m_rt[0] = m_rt[1] = NULL;
+
+		// The HUD sheet. The client paints the HUD and menus into "_rt_gui"
+		// (640x480, with alpha for the in-world HUD material) and this game
+		// makes it only when VR was set up at start; without it there is no
+		// HUD in 3D and the loading screen sits in a corner.
+		ITexture *gui = ms->FindTexture("_rt_gui", NULL, false);
+		if (!gui || gui->IsError()) {
+			gui = ms->CreateNamedRenderTargetTextureEx("_rt_gui", 640, 480, RT_SIZE_LITERAL,
+				IMAGE_FORMAT_RGBA8888, MATERIAL_RT_DEPTH_SHARED,
+				0x4 | 0x8 | 0x100 | 0x200, 0);
+			logf("render target _rt_gui: made %dx%d\n",
+			     gui ? gui->GetActualWidth() : 0, gui ? gui->GetActualHeight() : 0);
+		} else
+			logf("render target _rt_gui: present %dx%d\n", gui->GetActualWidth(), gui->GetActualHeight());
+
+		// A fresh copy of the sheet for the HUD material to sample. When
+		// _rt_gui starts life as the engine's error placeholder, the object
+		// works as a render target (the client paints the HUD into it; a
+		// plain copy of it shows the HUD) but a material sampling it still
+		// gets the purple-black error texture, even after a Refresh()
+		// (2026-09-24). A target under a new name has no such history.
+		m_hud = ms->CreateNamedRenderTargetTextureEx("_rt_svrtv_gui", 640, 480, RT_SIZE_LITERAL,
+			IMAGE_FORMAT_RGBA8888, MATERIAL_RT_DEPTH_NONE,
+			0x4 | 0x8 | 0x100 | 0x200, 0);
+		logf("render target _rt_svrtv_gui: made %dx%d\n",
+		     m_hud ? m_hud->GetActualWidth() : 0, m_hud ? m_hud->GetActualHeight() : 0);
 	}
 	void ShutdownRenderTargets()
 	{
@@ -495,16 +795,27 @@ public:
 			return false;
 		m_active = true;
 		logf("activated\n");
+		command(g_cfg.onvr);
+		if (g_cfg.xhair)
+			crosshair_off();
 		return true;
 	}
 	void Deactivate()
 	{
 		m_active = false;
 		logf("deactivated\n");
+		crosshair_restore();
 	}
 
 	// "VR because Steam said so": skips the client's headset-adapter checks.
-	bool ShouldForceVRMode() { return g_cfg.enabled; }
+	// The client asks once startup is complete (after config.cfg), which is
+	// also when a crosshair left off by a VR session is turned back on.
+	bool ShouldForceVRMode()
+	{
+		if (!g_cfg.enabled || !g_cfg.xhair)
+			crosshair_restore();
+		return g_cfg.enabled;
+	}
 	void SetShouldForceVRMode() {}
 
 private:
@@ -526,6 +837,14 @@ private:
 	ITexture *m_rt[2];
 	bool m_shown[2];
 	bool m_traced[8];
+	int m_hudLogs;
+	ITexture *m_hud;
+	bool m_hudCopied;
+	bool m_matReady;
+	int m_frame;
+	int m_fovLogs;
+	IVEngineClient *m_engine;
+	bool m_xhairReady;
 };
 
 CSourceVRTelevision g_television;
