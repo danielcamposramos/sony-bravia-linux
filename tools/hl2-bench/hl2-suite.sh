@@ -14,6 +14,8 @@
 #   frame     benchframe: one fixed demo frame saved as an image, for
 #             comparing renderers, drivers and wiz3D picture for picture;
 #   watch     real-time playback for Daniel's eyes on the television;
+#   play      Daniel plays, starting on the map in the frame column; nothing
+#             is scripted, and the step ends when he quits the game;
 #   view      "does it render at all": load d1_town_01 and save one picture
 #             of the spawn view (4526 -2747 -3760, yaw 90, read from the
 #             map's entity lump), independent of the demo, so it also
@@ -238,6 +240,8 @@ run_step() { # id app renderer vr runs frame kind [display]
 	rm -f "$write/console.log"
 	args="-condebug -novid -console -w $RES_W -h $RES_H -fullscreen -timedemo_comment $id +sv_allow_wait_command 1"
 	[ "$kind" = view ] && args="$args +sv_cheats 1 +map d1_town_01"
+	# play: Daniel plays; the frame column names the map to start on.
+	[ "$kind" = play ] && args="$args +map $frame"
 	rm -f "$write/bench/$id.log" "$write/cfg/game.cfg"
 	args="$args +exec bench_step"
 	case "$renderer" in opengl) args="-opengl $args" ;; vulkan) args="-vulkan $args" ;; esac
@@ -275,7 +279,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 		# mat_vsync 0 on Linux, and once that reached the display the demo
 		# raced at 364 fps (2026-09-24).
 		if [ "$renderer" = vulkan ]; then
-			if [ "$kind" = watch ]; then echo 'DXVK_CONFIG="d3d9.presentInterval = 1"'
+			if [ "$kind" = watch ] || [ "$kind" = play ]; then echo 'DXVK_CONFIG="d3d9.presentInterval = 1"'
 			else echo 'DXVK_CONFIG="d3d9.presentInterval = 0"'; fi
 		fi
 		if command -v mangohud >/dev/null && [ "$kind" = timedemo ]; then
@@ -288,7 +292,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 	{
 		echo "sv_allow_wait_command 1"
 		echo "con_logfile \"bench/$id.log\""
-		if [ "$kind" = watch ]; then echo "mat_vsync 1"; else echo "mat_vsync 0"; echo "fps_max 0"; fi
+		case "$kind" in watch|play) echo "mat_vsync 1" ;; *) echo "mat_vsync 0"; echo "fps_max 0" ;; esac
 		echo "demo_quitafterplayback 1"
 		case "$vr" in sbs|tab) [ "$kind" != view ] && echo "vr_activate" ;; esac
 		# Extra console commands for a test run, separated by ";"
@@ -304,6 +308,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 			# (a07, 164 s). This demo's first playback always stops after 2
 			# frames (every timed step), so the second run is the one to watch.
 			watch) echo "timedemo_runcount 2"; echo "timedemo $DEMO" ;;
+			play) ;;
 		esac
 	} >"$write/cfg/bench_step.cfg"
 	cp "$write/cfg/bench_step.cfg" "$out/"
@@ -356,7 +361,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# are done as soon as their image exists.
 	# A frame step reaches demo frame 3000 in well under a minute; a view
 	# step waits for the level (HL2 RTX took 53 s on its first launch).
-	case "$kind" in frame) limit=240 ;; view) limit=180 ;; *) limit=$(( (runs > 0 ? runs : 1) * 400 + 300 )) ;; esac
+	case "$kind" in frame) limit=240 ;; view) limit=180 ;; play) limit=86400 ;; *) limit=$(( (runs > 0 ? runs : 1) * 400 + 300 )) ;; esac
 	local result=exited
 	i=0
 	while kill -0 "$pid" 2>/dev/null && [ $i -lt $limit ]; do

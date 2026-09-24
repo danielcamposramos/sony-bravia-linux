@@ -167,10 +167,13 @@ muzzle; HUD at the top. Two modes:
   `svrtv-crosshair-off` next to itself; stopping VR, or the next start of
   the game (2D included, after `config.cfg`), turns it back on.
 - HUD: HL2's health and ammo row (sheet rows 432-467 of 480, 12 rows above
-  the bottom) moves to the top with the same 12-row margin
-  (`SVRTV_HUDTOP=0.125`, the fraction of the sheet swapped between bottom
-  and top; 0 keeps HL2's layout). Messages that fade in and out stay where
-  HL2 puts them.
+  the bottom) moves to the top with the same 12-row margin, and the rest of
+  the sheet moves down by that band's height, whole (`SVRTV_HUDTOP=0.125`,
+  the band's fraction of the sheet; 0 keeps HL2's layout). Swapping the two
+  bands instead cut the weapon selection (drawn at the top) in two. While
+  a menu or dialog is open (the client passes `translucent` false when the
+  cursor is visible), the sheet keeps HL2's layout: moving the band sent
+  Save/Cancel to the top and made the cursor wrap around.
 - Muzzle sprite: the flash sprite at the gun's tip is placed by converting
   the gun's attachment from `viewmodel_fov` to the world's field of view;
   in VR mode the gun is drawn with the eye projection, so the sprite
@@ -178,16 +181,35 @@ muzzle; HUD at the top. Two modes:
   (confirmed by eye). It is a cheat-protected setting (`sv_cheats 1`), so
   it is not in the defaults. For Valve: allow it for this view.
 
+
+**First real playthrough, same day (build `ed278357…`, HX855, Vulkan, side
+by side):** Daniel loaded an old save and rode the airboat through the
+canals chased by the helicopter: "what a blast". In one launch: two save
+loads (`d1_town_01`, `d1_canals_10`) and two level transitions
+(`d1_canals_10` to `11` to `12`), no hang, no crash; shadows right;
+weapon selection, HUD, crosshair and menus whole.
+
+Compared with wiz3D's own record for Half-Life 2 (README compatibility
+table, `effcol/wiz3D`): "Mostly Working. `steam_legacy` beta branch. Use
+`-game` command line argument. Shadows have issues." Here: the current
+build, native Linux, shadows right, because the engine renders each eye
+itself. wiz3D is universal (one DX9 proxy for hundreds of games, HelixMod
+shader fixes); this module reaches only Source games that carry Valve's VR
+interface. A side-by-side run on the same machine is session C of the
+bench.
+
 Open:
 
-- **Real play is untested:** so far everything ran on a demo. Level
-  transitions (see the reload hang below), the Esc menu, save/load and the
-  loading screen need a playthrough.
+- **Mouse:** the system pointer spans the whole window (both eyes) while
+  the game's UI is one 640x480 sheet shown in each eye; in menus the
+  cursor can still leave the menu area to the left and downward. Next:
+  confine the pointer to one eye and map it onto the sheet (the game's
+  SDL2 has `SDL_SetWindowGrab`, `SDL_WarpMouseInWindow`).
 - OpenGL in VR mode crashes after 20 s in the engine's render thread
   (materialsystem, studiorender, shaderapidx9), not in the module; every
   OpenGL 3D run did. Use `-vulkan` for 3D.
 - In VR mode, the second level reload within one launch hung (GPU idle) in
-  a timed demo; in real play every chapter change is a reload.
+  a repeated timed demo. Real play did not: see below.
 - 3D view screenshots come out black (the first frame in VR mode).
 - Test switches: `SVRTV_HUDCOPY=1` (paste the sheet with a plain copy),
   `SVRTV_HUDTEX=<texture>` (sample another texture), `SVRTV_HUDMAT=<material>`.

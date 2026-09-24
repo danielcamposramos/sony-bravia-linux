@@ -395,7 +395,6 @@ public:
 		// translucent, ignorez), set up normally; it is the server browser's
 		// connection icon, which single-player never shows, so in 3D mode the
 		// module takes it over for the HUD.
-		(void)translucent;
 		IMaterial *mat = m_ms->FindMaterial(g_cfg.hudmat, TEXTURE_GROUP_VGUI, false);
 		if (!gui || !mat || mat->IsErrorMaterial())
 			return false;
@@ -476,15 +475,18 @@ public:
 		}
 		ctx->PushRenderTargetAndViewport(NULL, 0, 0, g_cfg.width, g_cfg.height);
 		int w = x1 - x0, h = y1 - y0;
-		if (g_cfg.hudband > 0) {
+		// The client passes translucent = false while the mouse cursor is
+		// visible: a menu or dialog is open. Those keep HL2's layout (moving
+		// the bottom band sent Save/Cancel to the top; Daniel, 2026-09-24).
+		if (g_cfg.hudband > 0 && translucent) {
 			// HL2 keeps health and ammo in the bottom band, where the ammo
 			// panel lands over the gun, which in 3D is confusing and tiring
-			// (Daniel, 2026-09-24). Swap the bottom and top bands of the
-			// sheet; the middle, with the crosshair, stays where it is.
+			// (Daniel, 2026-09-24). That band goes to the top and the rest of
+			// the sheet moves down by the band's height, whole (swapping the
+			// two bands cut the weapon selection, drawn at the top, in two).
 			int sb = (int)(th * g_cfg.hudband), db = (int)(h * g_cfg.hudband);
-			ctx->DrawScreenSpaceRectangle(mat, x0, y0 + db, w, h - 2 * db, 0, sb, tw - 1, th - sb - 1, tw, th);
+			ctx->DrawScreenSpaceRectangle(mat, x0, y0 + db, w, h - db, 0, 0, tw - 1, th - sb - 1, tw, th);
 			ctx->DrawScreenSpaceRectangle(mat, x0, y0, w, db, 0, th - sb, tw - 1, th - 1, tw, th);
-			ctx->DrawScreenSpaceRectangle(mat, x0, y0 + h - db, w, db, 0, 0, tw - 1, sb - 1, tw, th);
 		} else
 			ctx->DrawScreenSpaceRectangle(mat, x0, y0, w, h, 0, 0, tw - 1, th - 1, tw, th);
 		if (g_cfg.xhair)
