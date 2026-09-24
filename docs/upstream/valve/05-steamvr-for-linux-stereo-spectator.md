@@ -23,6 +23,8 @@ What a VR engine needs to change for a display instead of a headset is written u
 1. **Spectator.** Someone plays in the headset and the room watches in 3D on the TV.
 The VR View mirror window already shows the eye images on the desktop, in 2D.
 The ask: a side-by-side and a top-and-bottom option for that window, with the two eyes as rendered, so any 3D display next to the headset shows the game in depth.
+Linus Tech Tips' first look at the Frame names the problem it solves: it is "a little inconvenient for certain games that involve swapping who's wearing the VR headset a lot" (https://www.youtube.com/watch?v=dU3ru09HTng&t=505s).
+With a stereo spectator, the rest of the room is in the game too, in depth, while one person wears the headset.
 
 2. **Player.** No headset: an OpenVR driver presents the 3D display as the headset, the view follows the mouse or controller, and the compositor's output is one side-by-side frame.
 openvr #706 tried exactly this in 2018 and found the compositor refusing a double-width viewport unless it is a valid display resolution; it was never answered.
@@ -42,6 +44,7 @@ A stereo spectator output turns every VR game into that content, for the display
 
 Notes for Daniel (not for posting):
 - The LTT quotes come from YouTube's auto-generated captions (your subtitle files in `sony-bravia-linux.private/docs/research/LTT videos/`); only short, clean phrases are quoted, each with its timestamp. Worth a listen at those three points before posting.
+- Check before posting: your subtitle file for the first look is titled "Our first 30 mins with the steam frame", while YouTube now titles `dU3ru09HTng` "Every Other VR Headset is Obsolete Now - Steam Frame First Look"; the 8:25 timestamp assumes they are the same video.
 - If you want to point at your own comments under both LTT threads, the forum links are: https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161 and https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512 (behind a Cloudflare check for scripts; they open in a browser).
 - kisak-valve's words on #337, for your reading, not for quoting back at him: "too far outside of the scope of SteamVR or Proton", and "If you dig into this and figure out how to wire it up, it most likely would need to go to a popular third party Proton build". The spectator ask is a feature of SteamVR's own mirror window; the player ask we build ourselves.
 - Disclosure, if you want it, goes once at the end.
