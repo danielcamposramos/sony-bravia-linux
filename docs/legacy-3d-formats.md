@@ -9,7 +9,7 @@ tags from it, mpv reads it, and the gap is mapped
 the serving side** — the DLNA servers that strip the container tag got
 the same finding (Jellyfin, UMS, Gerbera). Act three is the content
 itself: the 3D material made before and beside the SBS/TAB era, in
-formats nothing modern signals for. The umbrella goal is the owner's
+formats nothing modern signals for. The umbrella goal is Daniel's
 phrase: **enable all 3D content ever made, on modern displays.**
 
 ## The legacy formats never left the standard
@@ -67,19 +67,79 @@ synchronised. He reaches the same point from the hardware side that
 this section reaches from the standard's side: temporal stereo is the
 hard case, and the 24 fps floor is why.
 
-One consequence for this act. Types 0-4 are spatial packings — the
-two views share one frame's *area* — while type 5 is temporal, the
-two views sharing one frame's *time*, which is why it is the one
-packing the front-B SBS conversion cannot touch: there is nothing to
-interleave when no shutter is being driven. We document type 5; we do
-not convert it.
-
 The format war that set the 24 fps floor is told in one sitting in
 Slidebean's *Why Do Movies Have Black Bars?*
 (https://www.youtube.com/watch?v=Pq8YoHpmlKs); the aspect-ratio half
 of that war is the 2D fight this 3D campaign sits on top of.
 
-### A future path: generated frames (owner's hypothesis)
+One consequence for this act. Types 0-4 are spatial packings — the
+two views share one frame's *area* — while type 5 is temporal, the
+two views sharing one frame's *time*. That makes type 5 the hard case
+to **display** without a shutter, but not to **convert**. An earlier
+version of this page said the SBS conversion "cannot touch" type 5;
+that confused the display with the content, and it was wrong.
+
+Field-sequential material, the SD form of type 5 (odd field one eye,
+even field the other, as the CRT shutter-glass kits and field-sequential
+3D DVDs carried it), converts to side-by-side with stock ffmpeg:
+
+```
+ffmpeg -i in.mpg -vf "separatefields,stereo3d=al:sbs2l,scale=1920:1080,setsar=1" \
+       -c:v libx264 -x264-params frame-packing=3 out.mp4
+```
+
+`separatefields` splits each frame into its two fields in the stream's
+own field order, `stereo3d=al` pairs them (left eye in the temporally
+first field; `ar` when it is the second), and x264 writes the
+frame-packing SEI these sets engage on. The cost is stated, not hidden:
+each eye keeps half the vertical lines (288 or 240), and a 50- or
+60-field source becomes 25 or 30 stereo pairs a second. Verified on
+synthetic 576i top-field-first and 480i bottom-field-first clips, every
+frame checked for the right view on each side and both views from the
+same instant: 0 failures, and the SEI reads back as side-by-side
+([tools/fieldseq-3d/verify-fieldseq-to-sbs.sh](../tools/fieldseq-3d/verify-fieldseq-to-sbs.sh),
+2026-09-24). Not yet run on a real field-sequential disc.
+
+### Interlaced 3D: why we do not chase it
+
+Our sets declare 1080i and 480i/576i, and HDMI 1.4 makes 1080i
+side-by-side one of the mandatory 3D formats. We still do not pursue an
+interlaced 3D output path, for five reasons:
+
+1. **No HDMI-era 3D device is interlaced-only.** The HDMI 1.4 mandatory
+   list binds every 3D sink (televisions, projectors, headsets) to
+   accept progressive frame packing (1080p24, 720p50/60) as well as
+   1080i side-by-side. Anything that can show 1080i 3D can show the
+   progressive formats.
+2. **Sources are not required to send interlaced, and the PC drivers
+   do not.** The requirements fall on sinks. NVIDIA's modesetting code
+   rejects every interlaced mode ("Interlaced modes are not supported",
+   `nvkms-modepool.c`); nouveau disables interlace from Volta on because
+   the display hardware rejects it (commit `8ba9249396be`, 2022); amdgpu
+   DC sets `interlace_allowed = false` for every connector. Opening that
+   would be new driver work for a format every 3D set already receives
+   progressively.
+3. **Interlaced 3D content converts.** 1080i side-by-side recordings
+   deinterlace like any 1080i picture, and field-sequential SD converts
+   as shown above. The content is served; only the interlaced wire form
+   is dropped.
+4. **Interlace ends at 1080.** Of the 154 CTA-861 formats in the Linux
+   EDID tables, 21 are interlaced and none is wider than 1920 pixels;
+   no 4K or 8K format is interlaced, and Rec. 2020 allows progressive
+   frame rates only.
+5. **The interlaced-only 3D devices are analog.** SD CRT televisions,
+   and some head-mounted displays and projectors fed composite video,
+   with field-sequential shutter kits: the display is plain 2D and the
+   3D lives in the fields. Their future is their content, converted,
+   which is this act's job, not an output mode.
+
+Measured on this bench (2026-09-23): neither PC card offers an
+interlaced mode for these sets, under nouveau, the proprietary NVIDIA
+driver or amdgpu; the progressive runs are indexed in
+[tools/stereo-modeset/README.md](../tools/stereo-modeset/README.md).
+
+
+### A future path: generated frames (Daniel's hypothesis)
 
 The 24 fps floor is the problem this section keeps returning to, and
 the newest tools attack it from the other direction: instead of raising
@@ -89,7 +149,7 @@ frames that were never filmed — can lift a 24 fps-per-eye stream toward
 48 or 60 per eye, which is exactly the motion the alternating-frame
 judder LTT measured was missing.
 
-This is the owner's working thesis, recorded here as hypothesis rather
+This is Daniel's working thesis, recorded here as hypothesis rather
 than result. Interpolated frames are invented frames, and in stereo
 they must be invented twice — once per eye — and kept consistent with
 each other, or the two views drift into rivalry and the depth breaks.
@@ -102,7 +162,7 @@ is invented motion, good for watchability, not a recovery of what was
 filmed — which is why this is a future path and not one of the
 conversion lanes this repo ships.
 
-## Two fronts (owner's framing)
+## Two fronts (Daniel's framing)
 
 **Front A — play as-is on modern outputs (live remux).** Serve the
 content with zero or minimal pixel processing. Anaglyph is the poster
@@ -113,7 +173,7 @@ with a matching native mode (passive FPR monitors); our active-shutter
 BRAVIAs cannot accept it over HDMI, which is why front B exists.
 
 **Front B — convert to the modern format (SBS + SEI). The proper
-path (owner's call).** One conversion and the content becomes a
+path (Daniel's call).** One conversion and the content becomes a
 first-class citizen everywhere: every player, every DLNA server, every
 hardware 3D display — the same standard every act-one file already
 speaks. The pipeline is clean and every component already exists:
@@ -142,14 +202,14 @@ packings. The missing piece is packaging: a one-command "legacy-3D
 modernizer" (legacy in, SBS + SEI out) — small, standard-based code
 in this repo, on the same ethos as the 42-line mpv patch.
 
-**Anaglyph runs in both directions (owner's call, 2026-09-18).**
+**Anaglyph runs in both directions (Daniel's call, 2026-09-18).**
 
 The display direction, SBS in and anaglyph out for any screen with
 glasses, is the practical one, and the reference code already exists.
 PhereoRoll3D renders it client-side, and that MIT implementation is
 the reference for our server-side chain.
 
-**The inverse is the one the owner wants enabled too**: anaglyph in,
+**The inverse is the one Daniel wants enabled too**: anaglyph in,
 SBS out, the modern format. It splits into three honest sub-lanes:
 
 1. **Monochrome extraction — well-posed.** Each eye's luminance
@@ -184,7 +244,7 @@ was better glasses. The software descendant of that fix: a per-channel
 filter chain (gain/gamma per channel, Dubois-style optimization)
 computed for the *target panel* instead of a 1998 tube, carried by
 stock ffmpeg (`colorchannelmixer`, per-channel curves/`lut3d`), and
-packaged as ordinary video. The owner's formulation is the charter:
+packaged as ordinary video. Daniel's formulation is the charter:
 clever color filtering plus color adjustment plus clever packaging —
 the old result, on a modern display, possibly better than it ever
 looked new.
@@ -231,13 +291,13 @@ contemporary reviews:
 
 ## Test material — the 3D-photography community corpus
 
-`/media/Arquivos/Pictures/3D` (owner's private archive, not the repo):
+`/media/Arquivos/Pictures/3D` (Daniel's private archive, not the repo):
 140 files from 2010–2011 — **11 `.jps`** (JPEG Stereo, the
 community's native stereo-pair exchange format), SBS PNG pairs, and a
-full anaglyph set. **Provenance: these are NOT the owner's photos.**
+full anaglyph set. **Provenance: these are NOT Daniel's photos.**
 They are shared material from the 3D-photography community — which
 is still active — held in the archive for study and testing. They are
-never republished by this project; test use only. What the owner
+never republished by this project; test use only. What Daniel
 contributes is the hardware and the knowledge: two LG Optimus 3D
 (P920) exemplars — the dual-5MP stereo camera of that generation,
 and the actual glasses-free (parallax-barrier) display in this
@@ -332,7 +392,7 @@ here is reverse-engineered; his code is the map:
   2. **`interleaved (i) [Not tested on actual device yet]`** — his
      own README, still unchanged. He wrote the output mode for
      autostereoscopic and passive panels and never had one to point
-     at it. **The owner has four**: two active-shutter BRAVIAs, the
+     at it. **Daniel has four**: two active-shutter BRAVIAs, the
      parallax-barrier LG Optimus 3D (column-interleaved is its native
      format), and the glasses-free Gadmei T883-3D. That is a real
      contribution to offer, and it costs us one afternoon.
@@ -363,7 +423,7 @@ Two hosts, same afternoon, same workstation, polite single requests.
 
 The reading at charter time was "the site is up, the backend is
 struggling today".
-That was too kind, and the owner's follow-up research says why.
+That was too kind, and Daniel's follow-up research says why.
 Third-party reports going back years describe phereo as down, flaky
 or abandoned: the [DPReview "Phereo website is down"
 thread](https://www.dpreview.com/forums/threads/phereo-website-is-down.4483928/)
@@ -382,7 +442,7 @@ against it.
 
 **What this changes, concretely:**
 
-1. **The corpus on the owner's disks stops being only test material.**
+1. **The corpus on Daniel's disks stops being only test material.**
    If the platform that hosted it is dying, a private archive of
    community photos is preservation, held for study, still never
    republished. The provenance rule does not loosen because the
@@ -402,7 +462,7 @@ capability: a 3D display with a 2D-only photo player, because the
 photo path was never wired to the 3D switch. This lane is that
 player, with **two sources on one server-rendered gallery**:
 
-1. **Serviio (the owner's library)** — the UPnP ContentDirectory
+1. **Serviio (Daniel's library)** — the UPnP ContentDirectory
    already serves `imageItem`s, browsed by the same pattern as the
    media lanes; the corpus above lives on the media disks, so it
    serves straight through. No new plumbing.
@@ -420,7 +480,7 @@ hardware lineage.
 
 ### Does the set's Opera know what that software needs?
 
-The owner's question, and it has a clean answer.
+Daniel's question, and it has a clean answer.
 
 **The clients themselves: no, and not one of the four.** PhereoRoll3D
 and PhotoRoll3D are compiled Qt/QML applications with an OpenGL
@@ -477,7 +537,7 @@ playback; if the native player switches, front B for photos is
 serve-SBS-and-the-set-does-it; if not, anaglyph front A carries
 photos the same way it carries everything.
 
-**The owner's device archives** (private, the hardware lineage this
+**Daniel's device archives** (private, the hardware lineage this
 lane serves): `/mnt/arquivos/Android/0 LG P920` — the Optimus 3D
 phone archive (KDZ firmwares, root guides, XBSAVR3D, 36 files) — and
 `/mnt/arquivos/Android/Gadmei T883-3D` — the glasses-free Gadmei
@@ -489,7 +549,7 @@ method applies to.
 ## The 3D catalog — the library has to know what it is serving
 
 Conversion is half the charter.
-The other half is the owner's, and it is the half everything else
+The other half is Daniel's, and it is the half everything else
 waits on: **the serving side has to know the contents.**
 
 The gap is narrower than it looks, because detection is not missing.
@@ -568,7 +628,7 @@ decorrelation test, which is a guess by construction and labelled one.
 
 ### `bravia_anaglyph.py` — the inverse, and the end file
 
-The owner's case for this is the whole point: **old anaglyph movies and
+Daniel's case for this is the whole point: **old anaglyph movies and
 photos that survive only in that format**. There is no stereo original to
 go back to, so either the anaglyph is converted or the content stays
 locked to red/cyan glasses forever.
@@ -668,7 +728,7 @@ The `LEIA-ME.txt` beside the files carries the test procedure in
 pt-BR, including which folders go over the network and which need the
 pendrive.
 
-### RESULT — owner-tested on the EX725, 2026-09-18 (DLNA photo path)
+### RESULT — tested by Daniel on the EX725, 2026-09-18 (DLNA photo path)
 
 The inherited open test is answered, and the answer is more precise
 than a yes or no.
@@ -720,7 +780,7 @@ carries the procedure and what to note.
 
 ### Can Serviio be made to "see" these formats? Yes — by renaming, not converting
 
-The owner's question, and his reasoning was the right one: *JPS is part
+Daniel's question, and his reasoning was the right one: *JPS is part
 of the JPEG standard.* Close enough to be decisive. A `.jps` **is** a
 valid JPEG whose stereo meaning rides in a standard `COM` marker (the
 convention is the community's, the container is the standard's), and an
@@ -768,7 +828,7 @@ the stick set is already staged for that.
 
 ### RESULT — the renamed MPO test, both sets: still flat
 
-Owner-tested on **both** the EX725 and the HX855: `05-renomeado` behaves
+Tested by Daniel on **both** the EX725 and the HX855: `05-renomeado` behaves
 exactly like the re-encoded folders. No 3D, and **no side-by-side entry
 in the 3D menu**. So delivering genuine MPO bytes, byte-exact and with
 `MPF` intact, under a `.jpg` name and a JPEG profile the set advertises,
@@ -794,14 +854,14 @@ has to be handed over as `.jpg` (and `.mpo`, which is what Sony's own
 
 ## Ordering and doctrine
 
-The owner's rule, same as every act of this campaign: **results on
+Daniel's rule, same as every act of this campaign: **results on
 our own stack first; upstream after, across the system where it
 belongs** — ffmpeg filter chains, player-side conversion profiles,
 DLNA transcode presets — once the conversion lane is measured and
 produces a demonstration no one can argue with. No premature upstream
 filings; bring the diagnosis + a working fix, in that order.
 
-**Status: charter (2026-09-18). Prepared, and held for the owner's
+**Status: charter (2026-09-18). Prepared, and held for Daniel's
 go. Nothing is built yet.**
 
 Nothing in this lane is measured beyond the facts above. First steps,
