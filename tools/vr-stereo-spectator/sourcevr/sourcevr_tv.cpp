@@ -42,6 +42,18 @@
 #include "materialsystem/imaterial.h"
 #include "materialsystem/imaterialvar.h"
 #include "cdll_int.h"
+#include "vgui/IInput.h"
+#include <dlfcn.h>
+
+// dlsym under its original symbol version, which every glibc still exports;
+// the default one (GLIBC_2.34) is newer than Steam's runtimes.
+#if defined(__x86_64__)
+__asm__(".symver dlsym,dlsym@GLIBC_2.2.5");
+__asm__(".symver dlopen,dlopen@GLIBC_2.2.5");
+#else
+__asm__(".symver dlsym,dlsym@GLIBC_2.0");
+__asm__(".symver dlopen,dlopen@GLIBC_2.1");
+#endif
 
 namespace {
 
@@ -62,6 +74,8 @@ struct Config {
 	int eyew, eyeh;   // eye render size (SVRTV_EYE=WxH); 0: its half of the frame
 	bool xhair;       // the module draws the crosshair on the 2D layer (client's off)
 	char onvr[512];   // console commands issued when VR starts
+	bool mouselog;    // diagnostics: log the system pointer next to the UI cursor
+	bool confine;     // keep the system pointer on the UI sheet while VR is on
 	FILE *log;
 };
 
@@ -199,6 +213,8 @@ void load_config()
 	if (g_cfg.hudband < 0 || g_cfg.hudband > 0.45)
 		g_cfg.hudband = 0;
 	g_cfg.dump = (int)env_double("SVRTV_DUMP", 0);
+	g_cfg.mouselog = env_double("SVRTV_MOUSELOG", 0) != 0;
+	g_cfg.confine = env_double("SVRTV_CONFINE", 1) != 0;
 	g_cfg.eyew = g_cfg.eyeh = 0;
 	const char *ov = setting("SVRTV_ONVR");
 	// A television has no head tracking: the view follows the game (mode 7,
@@ -282,6 +298,20 @@ public:
 		m_fovLogs = 0;
 		m_engine = NULL;
 		m_xhairReady = false;
+		m_input = NULL;
+		m_sdlLooked = false;
+		m_sdlLib = NULL;
+		m_getKeyFocus = NULL;
+		m_setMouseRect = NULL;
+		m_warp = NULL;
+		m_triedMouseRect = false;
+		m_confined = NULL;
+		m_getState = NULL;
+		m_getFocus = NULL;
+		m_getSize = NULL;
+		m_getRel = NULL;
+		m_mouseLogs = 0;
+		m_lastMouse[0] = m_lastMouse[1] = m_lastMouse[2] = m_lastMouse[3] = -2;
 	}
 
 	// IAppSystem
@@ -571,6 +601,116 @@ public:
 		ctx->DrawScreenSpaceRectangle(m, x0 + (w - cw) / 2, y0 + (h - ch) / 2, cw, ch, 0, 48, 23, 71, 128, 128);
 	}
 
+	// The game's SDL2, found in the running process (Steam's runtime loads
+	// libSDL2-2.0.so.0 for the launcher).
+	typedef unsigned int (*SdlGetMouseState)(int *, int *);
+	typedef void *(*SdlGetFocus)(void);
+	typedef void (*SdlGetWindowSize)(void *, int *, int *);
+	typedef int (*SdlGetRelative)(void);
+	void *sdl(const char *name)
+	{
+		// The launcher loads SDL privately, so look it up by name in the
+		// already-loaded library, never loading a second copy.
+		if (!m_sdlLib)
+			m_sdlLib = dlopen("libSDL2-2.0.so.0", RTLD_NOW | RTLD_NOLOAD);
+		void *f = m_sdlLib ? dlsym(m_sdlLib, name) : dlsym(RTLD_DEFAULT, name);
+		if (!f && m_mouseLogs < 400)
+			logf("SDL: %s not found\n", name);
+		return f;
+	}
+
+	// The game's UI cursor uses window pixels 1:1, but the UI sheet the eyes
+	// show is the window's top-left 640x480 (mouse log, 2026-09-24: the
+	// cursor started at the window centre and left the sheet down to y 819).
+	// Confine the system pointer to that rectangle while VR is on, so the
+	// cursor never leaves what both eyes see.
+	struct SdlRect { int x, y, w, h; };
+	typedef int (*SdlSetMouseRect)(void *, const SdlRect *);
+	typedef void (*SdlWarp)(void *, int, int);
+	void *sdl_window()
+	{
+		if (!m_getFocus)
+			m_getFocus = (SdlGetFocus)sdl("SDL_GetMouseFocus");
+		if (!m_getKeyFocus)
+			m_getKeyFocus = (SdlGetFocus)sdl("SDL_GetKeyboardFocus");
+		void *w = m_getFocus ? m_getFocus() : NULL;
+		if (!w && m_getKeyFocus)
+			w = m_getKeyFocus();
+		return w;
+	}
+	void confine_mouse(bool on)
+	{
+		if (!g_cfg.confine)
+			return;
+		if (!m_setMouseRect && !m_triedMouseRect) {
+			m_triedMouseRect = true;
+			m_setMouseRect = (SdlSetMouseRect)sdl("SDL_SetWindowMouseRect");
+			m_warp = (SdlWarp)sdl("SDL_WarpMouseInWindow");
+			if (!m_getState)
+				m_getState = (SdlGetMouseState)sdl("SDL_GetMouseState");
+			if (!m_getRel)
+				m_getRel = (SdlGetRelative)sdl("SDL_GetRelativeMouseMode");
+		}
+		void *win = sdl_window();
+		if (!win)
+			return;
+		if (m_setMouseRect) {
+			if (on && win == m_confined)
+				return;
+			SdlRect rc = { 0, 0, 640, 480 };
+			int rv = m_setMouseRect(win, on ? &rc : NULL);
+			m_confined = on ? win : NULL;
+			logf("mouse %s to 640x480 (SDL_SetWindowMouseRect: %d)\n", on ? "confined" : "released", rv);
+			return;
+		}
+		// Older SDL: pull the pointer back each frame while the cursor is
+		// free (menus); relative mode (play) needs nothing.
+		if (on && m_warp && m_getState && !(m_getRel && m_getRel())) {
+			int x, y;
+			m_getState(&x, &y);
+			if (x > 639 || y > 479)
+				m_warp(win, x > 639 ? 639 : x, y > 479 ? 479 : y);
+		}
+	}
+
+	// Diagnostics: the system pointer (SDL, window pixels) next to the game's
+	// UI cursor (VGUI, its 640x480 screen), when either moves.
+	void log_mouse()
+	{
+		if (m_mouseLogs >= 400)
+			return;
+		if (!m_sdlLooked) {
+			m_sdlLooked = true;
+			m_getState = (SdlGetMouseState)sdl("SDL_GetMouseState");
+			m_getFocus = (SdlGetFocus)sdl("SDL_GetMouseFocus");
+			m_getSize = (SdlGetWindowSize)sdl("SDL_GetWindowSize");
+			m_getRel = (SdlGetRelative)sdl("SDL_GetRelativeMouseMode");
+		}
+		SdlGetMouseState get_state = m_getState;
+		SdlGetFocus get_focus = m_getFocus;
+		SdlGetWindowSize get_size = m_getSize;
+		SdlGetRelative get_rel = m_getRel;
+		if (!m_input && m_factory) {
+			m_input = (vgui::IInput *)m_factory(VGUI_INPUT_INTERFACE_VERSION, NULL);
+			logf("VGUI input %s: %s\n", VGUI_INPUT_INTERFACE_VERSION, m_input ? "found" : "not found");
+		}
+		int sx = -1, sy = -1, ww = 0, wh = 0, ux = -1, uy = -1, rel = -1;
+		if (get_state)
+			get_state(&sx, &sy);
+		void *win = get_focus ? get_focus() : NULL;
+		if (win && get_size)
+			get_size(win, &ww, &wh);
+		if (get_rel)
+			rel = get_rel();
+		if (m_input)
+			m_input->GetCursorPos(ux, uy);
+		if (sx == m_lastMouse[0] && sy == m_lastMouse[1] && ux == m_lastMouse[2] && uy == m_lastMouse[3])
+			return;
+		m_lastMouse[0] = sx; m_lastMouse[1] = sy; m_lastMouse[2] = ux; m_lastMouse[3] = uy;
+		m_mouseLogs++;
+		logf("mouse frame %d: window %d,%d of %dx%d relative %d | ui %d,%d\n", m_frame, sx, sy, ww, wh, rel, ux, uy);
+	}
+
 	// Diagnostics: a render target (NULL: the frame) to a 32-bit TGA next to
 	// the module.
 	void dump(IMatRenderContext *ctx, ITexture *t, const char *name)
@@ -633,6 +773,10 @@ public:
 	{
 		// Called once per frame before the eyes render: a new frame.
 		m_frame++;
+		if (g_cfg.mouselog && (m_frame % 30) == 0)
+			log_mouse();
+		if (m_active)
+			confine_mouse(true);
 		m_shown[0] = m_shown[1] = false;
 		m_hudCopied = false;
 		if (playerGameFov > 1.0f && playerGameFov < 179.0f) {
@@ -806,6 +950,7 @@ public:
 	{
 		m_active = false;
 		logf("deactivated\n");
+		confine_mouse(false);
 		crosshair_restore();
 	}
 
@@ -847,6 +992,20 @@ private:
 	int m_fovLogs;
 	IVEngineClient *m_engine;
 	bool m_xhairReady;
+	vgui::IInput *m_input;
+	bool m_sdlLooked;
+	void *m_sdlLib;
+	SdlGetFocus m_getKeyFocus;
+	SdlSetMouseRect m_setMouseRect;
+	SdlWarp m_warp;
+	bool m_triedMouseRect;
+	void *m_confined;
+	SdlGetMouseState m_getState;
+	SdlGetFocus m_getFocus;
+	SdlGetWindowSize m_getSize;
+	SdlGetRelative m_getRel;
+	int m_mouseLogs;
+	int m_lastMouse[4];
 };
 
 CSourceVRTelevision g_television;

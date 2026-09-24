@@ -198,13 +198,23 @@ shader fixes); this module reaches only Source games that carry Valve's VR
 interface. A side-by-side run on the same machine is session C of the
 bench.
 
+
+**Mouse, same day (build `2942846f…`):** the game's UI cursor uses window
+pixels 1:1 (a logged trace: it started at the window centre, 960,540),
+while the sheet both eyes show is the window's top-left 640x480; at the
+left edge the cursor went down to y 819, off the sheet. While VR is on, the
+module confines the system pointer to that 640x480 rectangle through the
+game's own SDL2 (`SDL_SetWindowMouseRect`, found in the already-loaded
+`libSDL2-2.0.so.0`; older SDL: the pointer is pulled back each frame).
+Daniel: "perfect, mouse won't exit the menu screen". `SVRTV_CONFINE=0`
+turns it off; `SVRTV_MOUSELOG=1` logs the pointer next to the UI cursor.
+The module looks SDL up with `dlopen`/`dlsym` pinned to their original
+glibc versions; before glibc 2.34 those lived in `libdl`, so the module
+needs a glibc of 2.34 or newer in the game's container (Steam's runtime
+uses the host's glibc when it is newer).
+
 Open:
 
-- **Mouse:** the system pointer spans the whole window (both eyes) while
-  the game's UI is one 640x480 sheet shown in each eye; in menus the
-  cursor can still leave the menu area to the left and downward. Next:
-  confine the pointer to one eye and map it onto the sheet (the game's
-  SDL2 has `SDL_SetWindowGrab`, `SDL_WarpMouseInWindow`).
 - OpenGL in VR mode crashes after 20 s in the engine's render thread
   (materialsystem, studiorender, shaderapidx9), not in the module; every
   OpenGL 3D run did. Use `-vulkan` for 3D.

@@ -24,7 +24,7 @@ for bits in 32 64; do
 		-I/sdk/public -I/sdk/public/tier0 -I/sdk/public/tier1 -I/sdk/common \
 		-Wno-register -Wno-deprecated \
 		sourcevr_tv.cpp -o out/$bits/sourcevr.so \
-		-nodefaultlibs -Wl,--no-undefined -Wl,--as-needed -lm -lc -lgcc
+		-nodefaultlibs -Wl,--no-undefined -Wl,--as-needed -lm -ldl -lc -lgcc
 	echo "== $bits-bit"
 	readelf -h out/$bits/sourcevr.so | grep -E "Class|Machine" | tr -s " "
 	echo "exports:"; nm -D --defined-only out/$bits/sourcevr.so | awk "{print \$3}" | grep -v "^_" | tr "\n" " "; echo
