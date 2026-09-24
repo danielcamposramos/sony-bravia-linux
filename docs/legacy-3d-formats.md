@@ -81,24 +81,46 @@ that confused the display with the content, and it was wrong.
 
 Field-sequential material, the SD form of type 5 (odd field one eye,
 even field the other, as the CRT shutter-glass kits and field-sequential
-3D DVDs carried it), converts to side-by-side with stock ffmpeg:
+3D DVDs carried it), converts with stock ffmpeg. Top-and-bottom is the
+natural packing, because each field already is one eye at full width:
 
 ```
-ffmpeg -i in.mpg -vf "separatefields,stereo3d=al:sbs2l,scale=1920:1080,setsar=1" \
-       -c:v libx264 -x264-params frame-packing=3 out.mp4
+ffmpeg -i in.avi -vf "setfield=tff,separatefields,stereo3d=al:abl,scale=1920:1080,setsar=1" \
+       -c:v libx264 -x264-params frame-packing=4 -c:a copy out.mp4
 ```
 
 `separatefields` splits each frame into its two fields in the stream's
-own field order, `stereo3d=al` pairs them (left eye in the temporally
-first field; `ar` when it is the second), and x264 writes the
-frame-packing SEI these sets engage on. The cost is stated, not hidden:
-each eye keeps half the vertical lines (288 or 240), and a 50- or
-60-field source becomes 25 or 30 stereo pairs a second. Verified on
-synthetic 576i top-field-first and 480i bottom-field-first clips, every
-frame checked for the right view on each side and both views from the
-same instant: 0 failures, and the SEI reads back as side-by-side
-([tools/fieldseq-3d/verify-fieldseq-to-sbs.sh](../tools/fieldseq-3d/verify-fieldseq-to-sbs.sh),
-2026-09-24). Not yet run on a real field-sequential disc.
+field order (`setfield` states it when the file does not, as in XviD
+rips), `stereo3d=al` pairs them (left eye in the temporally first
+field; `ar` when it is the second) and stacks them, and x264 writes the
+frame-packing SEI these sets engage on. Side-by-side (`sbs2l`,
+`frame-packing=3`) also works, but squeezes each eye to half width on
+top of the half height it already has. The cost of either is stated,
+not hidden: each eye keeps half the vertical lines (288 or 240), and a
+50- or 60-field source becomes 25 or 30 stereo pairs a second.
+
+**Verified synthetically:** 576i top-field-first and 480i
+bottom-field-first clips, every frame checked for the right view on
+each side and both views from the same instant, 0 failures, SEI read
+back
+([tools/fieldseq-3d/verify-fieldseq-to-sbs.sh](../tools/fieldseq-3d/verify-fieldseq-to-sbs.sh)).
+
+**Verified on a real disc (2026-09-24, KDL-46EX725):** an XviD copy of
+the field-sequential 3D DVD of *Creeps* (720x480, 29.97 fps, no field
+order stored). Before converting, the file was checked for being
+field-sequential at all: the two fields of a frame differ far more than
+lines two apart (combing ratio 3.24; about 1 for a progressive or
+blended rip), the shift between them grows with depth (+5 px on the back
+wall to +27 px at the front of the scene) where a camera pan would be
+uniform, and still objects comb too, which only parallax explains. The
+eye order came from the same parallax: near objects sit further right
+in the top field, so the top field is the left eye. A 30-second clip in
+both packings, served by Serviio over DLNA, **switched the set into 3D
+by itself in both**, with the depth the right way round (Daniel: *"the
+man look clearly in front, and the girl on the backplane"*), and
+top-and-bottom looked better than side-by-side, as the arithmetic
+predicts. It also shows these sets engage top-and-bottom from the SEI
+over DLNA, not only side-by-side.
 
 ### Interlaced 3D: why we do not chase it
 
