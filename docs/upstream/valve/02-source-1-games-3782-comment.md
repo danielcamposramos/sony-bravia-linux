@@ -1,6 +1,6 @@
 # Draft 02: comment on ValveSoftware/Source-1-Games #3782 ("Is sourcevr supported on linux?", 2022, no reply)
 
-Status: DRAFT for Daniel. Post after draft 01, and its number, #8297, is filled in.
+Status: **POSTED 2026-09-24 as https://github.com/ValveSoftware/Source-1-Games/issues/3782#issuecomment-5822863780** (approved by Daniel, posted verbatim).
 Target: https://github.com/ValveSoftware/Source-1-Games/issues/3782
 
 ---
