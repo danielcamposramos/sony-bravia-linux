@@ -27,7 +27,7 @@ is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
 
 ## What's working today
 
-**The full media experience is live and owner-verified on both TVs (through
+**The full media experience is live and verified by Daniel on both TVs (through
 2026-09-18):**
 
 - Both sets browse the whole Serviio library on the LAN and play every audio
@@ -40,7 +40,7 @@ is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
   [era-key-vocabulary.md](docs/era-key-vocabulary.md),
   [era-media-element.md](docs/era-media-element.md).
 - The TV's start page (`rd1.sony.net`) is served from our own box, and the
-  withheld regional widgets are restored to the gallery from the owner's
+  withheld regional widgets are restored to the gallery from Daniel's
   signed bundles.
 - Everything runs as systemd services with a config file —
   **"VLC on a 2011 TV" is reached.**
@@ -51,7 +51,7 @@ is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
   track to 384k AC-3. What each set actually accepts, by path and read
   from its own EDID, is in
   [audio-capabilities.md](docs/audio-capabilities.md).
-- **The owner's own 3D library is repaired, not just diagnosed (2026-09-20).**
+- **Daniel's own 3D library is repaired, not just diagnosed (2026-09-20).**
   [tools/bravia_sei3d.py](tools/bravia_sei3d.py) injects the missing SEI into
   the existing H.264 stream without re-encoding, so the picture data stays
   byte-identical and the file grows by about 0.002%. **39 files fixed** across
@@ -86,14 +86,27 @@ repository. See
 The single partner entry point, kept current, is
 [docs/project-status.md](docs/project-status.md) — read it first.
 
-**Deep Color milestone (2026-09-22):** the same owner-controlled bench also
-found and repaired nouveau's missing HDMI Deep Color path. A GA106 RTX 3060
-now drives the HX855 at measured 12-bpc RGB: its OSD reports 12-bit and the
-test gradient is stable—**passed with full colors (pun intended)**. The
-reproducible log and paired nouveau/NVIDIA upstream state are recorded in
-[the dual-upstream handoff](docs/research/deep-color-dual-upstream-handoff-2026-09-22.md).
-This is a proven SDR transport result, not an HDR claim; 16-bpc and HDR are
-standards-backed follow-up candidates for hardware we do not own.
+**The display end (2026-09-20 to 09-23).** The same bench drives both sets
+from a GA106 RTX 3060 and an AMD card, so the PC side of the HDMI link was
+measured too. Stock nouveau turned out to be HDMI 3D-capable already, for
+programs that ask for it; what it lacked was Deep Color and YCbCr output.
+We wrote both, and the RTX 3060 drove the HX855 at 12-bit RGB in
+frame-packed 3D: **passed with full colors (pun intended)**
+([the handoff](docs/research/deep-color-dual-upstream-handoff-2026-09-22.md)).
+Lyude Paul, the nouveau maintainer, declined our series because Mohamed
+Ahmed is implementing the same features by hand, together with the display
+bandwidth allocation ours lacked. Daniel withdrew them and moved the work
+onto that branch. A two-line compliance fix to the HDMI General Control
+Packet (declaring 10-bit colour, as the specification requires) was
+measured on both sets (runs 30–32). Our colour-format work, ported to his
+branch as a proof of concept, passes all 22 steps on both sets (runs
+33–34): Broadcast RGB, YCbCr 4:4:4 and 4:2:2 at 12, 10 and 8 bits, 3D in
+four layouts, and the SD colour matrix
+([logs](tools/stereo-modeset/)). Both go to Mohamed as offers. The
+proprietary NVIDIA driver and amdgpu fronts are in
+[the campaign table](#the-3d-signalling-campaign). This is SDR transport,
+not an HDR claim; 16-bit and HDR are standards-backed follow-ups for
+hardware we do not own.
 
 ## Repository scope — what is and isn't here
 
@@ -102,9 +115,9 @@ captures from our own TVs, analysis, and tooling (the Serviio 3D fix, SEI
 injector, ffmpeg wrapper). **No Sony-distributed material is hosted here** —
 no firmware images, service manuals, widget packages, or Sony-server
 sweeps. Those resources were gathered for research and are kept offline by
-the owner; the right-to-repair plan for that material is in
+Daniel; the right-to-repair plan for that material is in
 [docs/right-to-repair.md](docs/right-to-repair.md). Some older research
-notes may still reference those filenames — they refer to the owner's
+notes may still reference those filenames — they refer to Daniel's
 offline archive, not to anything in this repository.
 
 **And it is bounded by generation, deliberately.** Everything here is the
@@ -176,7 +189,7 @@ short form linked in every upstream post is
 | mpv | **[PR #18490 merged](https://github.com/mpv-player/mpv/pull/18490)** (2026-09-23, by kasper93, closing [issue #18489](https://github.com/mpv-player/mpv/issues/18489)) — mpv reads the layout signalled in the stream (frame-packing SEI, MP4 `st3d`), and the bitstream wins over the container tag; kasper93 added three follow-ups of his own on top. Completes the pipeline end to end |
 | BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756) — answered, closed out, cross-brand confirmed (Samsung) |
 | MKVToolNix | **[!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) (AVC) merged 2026-09-21; [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) (HEVC) in final review**, from [#6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309). The HEVC branch was rebased over the merge, its sample set acknowledged by mbunkus, and all seven technical requests answered. Testing his review also found that `mkvmerge --stereo-mode 0:0` discarded an explicitly requested "mono"; the fix landed with the AVC work |
-| Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — DLNA profile mislabel (first version was wrong and corrected in place). **Owner-verified on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |
+| Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — DLNA profile mislabel (first version was wrong and corrected in place). **Verified by Daniel on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |
 | Jellyfin | [comment on PR #18060](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078) (layout-detection point) |
 | Universal Media Server | **[PR #6330 merged](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)** (2026-09-19) — the maintainer read the measurements on [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) and asked for code. Writes the frame-packing SEI on libx264 transcodes, and corrects the 2011–2012 Bravia profiles: the EX725 profile had **no MP4 line at all**, so every MP4 was transcoded on a set that plays it directly, and **E-AC3 is now declared** (decoded to 7.1, shown as *Dolby Digital Plus*) |
 | Gerbera | [issue #3937](https://github.com/gerbera/gerbera/issues/3937) filed — the no-remux SEI-injection step |
@@ -184,6 +197,9 @@ short form linked in every upstream post is
 | VLC | **Unfortunately the maintainers decided our patch was AI slop.** [MR !10366](https://code.videolan.org/videolan/vlc/-/merge_requests/10366) (opened 2026-09-22) derives the x264 frame packing from the input layout so transcoding no longer drops the SEI. Steve Lhomme reviewed the code and every point he raised was fixed the same day; the MR was then labelled `AI::Slop` and `MRStatus::NotCompliant` and the account blocked (2026-09-23); the label was later renamed project-wide to `AI::Generated`, and !10366 is the only MR that carries it. The patch lives on in [our VLC fork](https://github.com/danielcamposramos/vlc) (branches `3d-frame-packing-default` and `3d-frame-packing-opt-in`), with tested builds: [VLC 3.0.24-3d1](https://github.com/danielcamposramos/vlc/releases/tag/3.0.24-3d1) for Windows and Debian, and [VLC-HiFi and VLC-3D-HiFi 3.7.1-hifi.1](https://github.com/danielcamposramos/vlc-android/releases/tag/3.7.1-hifi.1) for Android; a conduct concern is with the VideoLAN board. Related request: [issue #29582](https://code.videolan.org/videolan/vlc/-/issues/29582) |
 | GStreamer · MPC-BE | **already correct — cited as prior art, not filed against.** GStreamer parses payload 45 in `h264parse`, publishes it on caps, and `x264enc` derives the write-side parameter automatically. That loop is the answer to "is this practical?" everywhere else |
 | Chromecast | **not contributable** — receiver and Cast SDK are closed, the public repos are sample apps, and the Cast media documentation never mentions 3D, stereo or frame packing. A cast cannot carry automatic 3D anyway: the device decodes the stream and outputs HDMI |
+| NVIDIA (open kernel modules) | HDMI 3D: [issue #1382](https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1382), the gap is mapped (the driver knows the set's 3D modes, but the mode structure handed to nvidia-drm has no stereo field) and a patch direction is proposed, awaiting the maintainer. Deep Color: **[PR #1386](https://github.com/NVIDIA/open-gpu-kernel-modules/pull/1386) open**, raising the default output colour depth for HDMI 1.4 Deep Color sinks, measured at 12 bits (run24) |
+| amdgpu | Tested-by on Adrian Betschart's HDMI 1.4 3D series v3, all three layouts measured as posted; a 7.0 backport pair offered ([tracker](docs/upstream/issue-tracker.md)) |
+| nouveau | stock nouveau engages 3D for programs that opt in (runs 3–5). Our Deep Color and colour-format series were withdrawn in favour of Mohamed Ahmed's branch; the GCP fix and the ported colour-format work pass on both sets (runs 30–34) and go to him as offers, once the freedesktop account is approved |
 | LTT forums | two audience posts: [3D-theater guide](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) + [Steam Frame cross-comment](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512) |
 
 No DRM or copy-protection mechanism is involved anywhere in the chain.
@@ -195,7 +211,7 @@ content ever made rather than only the well-signalled rest. Those
 packings never left the standard (`frame_packing_arrangement` types 0,
 1 and 2), so conversion to SBS+SEI is standard speaking to standard,
 and stock ffmpeg already carries both the conversion and Dubois
-anaglyph. Two additions the owner set in 2026-09-18:
+anaglyph. Two additions Daniel set on 2026-09-18:
 
 - **the library has to know what it is serving** — a 3D cataloger
   lifting the detection our live transcode wrapper already performs,
@@ -213,7 +229,7 @@ anaglyph. Two additions the owner set in 2026-09-18:
   images, so the honest reading is slow and lossy rather than dead
   ([docs/upstream/media-stack/jackdesbwa-exchange.md](docs/upstream/media-stack/jackdesbwa-exchange.md)).
 
-First results on the owner's own stack, before any upstream ask, as
+First results on our own stack, before any upstream ask, as
 in both earlier acts.
 **The wider subject has a curated list now**, started because none
 existed: [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy)
@@ -314,7 +330,7 @@ record while it lives only on someone else's server.
 | TabNews (pt-BR) — the Zig fork, and a closed door respected | [cgm-zig: o fork do Zig que nasceu no lixão](https://www.tabnews.com.br/danielramos/cgm-zig-o-fork-do-zig-que-nasceu-no-lixao-e-compila-o-que-o-original-nao-compilava) | saved 2026-09-17 |
 
 The wiki's [AI usage policy](https://consumerrights.wiki/w/Consumer_Rights_Wiki:AI_usage_policy)
-discussion page was opened by the owner on 2026-09-20, disclosing that these
+discussion page was opened by Daniel on 2026-09-20, disclosing that these
 edits were AI-assisted and arguing that a disclosure rule mostly reaches the
 people who were already careful. Its postscript makes the other half of the
 case with the Hacktoberfest 2020 numbers and four specimens of ordinary
@@ -326,7 +342,7 @@ Drafts and publication notes for these live in
 [docs/outreach/tabnews-post-slop.md](docs/outreach/tabnews-post-slop.md) and
 [docs/outreach/tabnews-post.md](docs/outreach/tabnews-post.md) (a neutral-register
 variant of the same case, written to be quotable by someone who is not
-the owner). The wiki update as posted (and its noticeboard follow-up)
+Daniel). The wiki update as posted (and its noticeboard follow-up)
 is in [docs/wiki/](docs/wiki/).
 
 ## Repository layout
@@ -357,14 +373,16 @@ is in [docs/wiki/](docs/wiki/).
   drafts (`docs/wiki/`)
 - `tools/` — extraction/analysis tooling and notes: the
   [tv-mediabrowser](tools/serviio/tv-mediabrowser/README.md) media app
-  (live on the owner's LAN), Serviio renderer profiles + 3D fix,
+  (live on Daniel's LAN), Serviio renderer profiles + 3D fix,
   the SEI 3D injector, the rd1 portal, the [upstream 3D-signalling
-  campaign](docs/upstream/media-stack/), and the [systemd
+  campaign](docs/upstream/media-stack/), the
+  [stereo-modeset](tools/stereo-modeset/README.md) HDMI bench (3D, Deep
+  Color and colour-format runs, each with its log), and the [systemd
   stack](tools/systemd/README.md) that runs it all
 - `certs/` — CA + leaf certificates for the era-TLS lanes
 
 Firmware images, service manuals, and Sony-distributed widget
-packages are **not hosted here** — they live in the owner's offline
+packages are **not hosted here** — they live in Daniel's offline
 private archive (see the scope note above and the private-material
 section of the partner guide).
 
@@ -372,6 +390,6 @@ section of the partner guide).
 
 This project studies devices the author owns. Sony-distributed material
 (firmware images, service manuals, widget packages) referenced by older
-research notes is kept in the owner's offline private archive — never in
+research notes is kept in Daniel's offline private archive — never in
 this repository. Nothing here bypasses or redistributes DRM-protected
 content.

@@ -11,6 +11,7 @@
 #   480p 4:2:2 [pass]; 576p auto [pass osd 12 bit]; 640x480 F [pass osd 12 bit]
 # Kernel: 0 warnings on every step (per-step count from the journal, below), and 0 WARNING lines in the
 #   whole test-boot kernel journal. run33's 8020 per-vblank 4:2:2 readback warnings are gone.
+# Scope: progressive modes only. Interlaced cannot be driven from this card (see README, run index).
 === mohamed-bench 2026-09-23T23:20:21-03:00 kernel=7.3.0-rc1-mohamed-imp ===
 network: r8169 loaded
 installed nouveau (with CD=5): /lib/modules/7.3.0-rc1-mohamed-imp/kernel/drivers/gpu/drm/nouveau/nouveau.ko.xz sha256 8a47b8e8389c51eafb553cca0a778832f504fa6c12186e420d41c94d8e0fc93b

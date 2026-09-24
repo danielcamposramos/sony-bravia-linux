@@ -184,3 +184,30 @@ plane-address path. The incremental source patch is
 `../../docs/upstream/amdgpu-dc-hdmi-frame-packing.patch`,
 [proven, hardware] by run 10. The AMD harness automatically selects it only
 for `fp`; `sbs` and `tab` keep using the preserved known-good module.
+
+## Run index (runs 12–34)
+
+Every run keeps its full log in this directory; the file name carries the
+verdict. Sinks are the KDL-46HX855 unless noted; the NVIDIA card is a GA106
+RTX 3060.
+
+| Runs | Driver | What was measured | Outcome |
+|---|---|---|---|
+| 12 | proprietary NVIDIA | stereo modes with the client cap | 0 stereo modes |
+| 13–17 | proprietary NVIDIA + injected HDMI 3D VSIF | SBS and TaB engagement by layout and rate | SBS passes; TaB fails to engage, or engages without a picture, until 1080p24, where it is a full pass (run17) |
+| 18–19 | proprietary NVIDIA, patched | `stereo_allowed` glue; VSDB 3D synthesis | no delta; 22 stereo modes (run19), [issue #1382](https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1382) |
+| 20–23 | nouveau + our Deep Color work | 12-bit RGB | "incompatible signal" until the GCP was sent correctly with audio preserved; pass (run23) |
+| 24 | proprietary NVIDIA, colour-depth parameter | 12-bit RGB | pass, the basis of [PR #1386](https://github.com/NVIDIA/open-gpu-kernel-modules/pull/1386) |
+| 25–26 | nouveau, Deep Color v2 | default-depth regression; 10-bit via the `max bpc` clamp | pass |
+| 27–28 | nouveau, colour-format series (Linux 7.0) | RGB range, YCbCr 4:4:4 and 4:2:2, 3D, SD | pass (16 + 9 steps) |
+| 30–31 | Mohamed Ahmed's nouveau branch (7.3-rc1) + our GCP fix | 12/10/8-bit and 3D, HX855 and EX725 (10 m cable) | pass |
+| 32 | same, A/B | 10-bit with and without the GCP fix, EX725 | both show 10-bit: the fix is compliance, not a visible change |
+| 33–34 | same branch + the colour-format series ported (`ycbcr-poc`) | the run27+28 matrix, 22 steps, EX725 then HX855 | all pass on both; run33's per-frame 4:2:2 readback warnings fixed before run34, which has none |
+
+Not covered anywhere above: interlaced modes. Both sets declare 1080i and
+480i/576i, but neither PC card offers them. nouveau disables interlace on
+Volta and later (upstream commit 8ba9249396be, 2022, after the display
+hardware rejected it), Mohamed's branch rejects it in mode validation, and
+neither the proprietary NVIDIA driver nor amdgpu listed an interlaced mode
+for these sets (checked 2026-09-23). The Android boxes are where 1080i can
+be measured.
