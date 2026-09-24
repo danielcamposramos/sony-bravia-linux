@@ -2,8 +2,8 @@
 
 The 3D-signalling campaign has two completed acts. **Act one: the
 signalling itself** — the H.264 frame-packing SEI was missing from the
-encode → remux → player chain, and now HandBrake writes it, mpv has a
-patch to read it, and the gap is mapped
+encode → remux → player chain, and now HandBrake writes it, MKVToolNix
+tags from it, mpv reads it, and the gap is mapped
 ([3d-signalling-explainer.md](3d-signalling-explainer.md),
 [3d-signalling-ecosystem.md](3d-signalling-ecosystem.md)). **Act two:
 the serving side** — the DLNA servers that strip the container tag got

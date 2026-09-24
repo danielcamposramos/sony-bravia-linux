@@ -144,15 +144,19 @@ perfectly good hardware. The diagnosis plus a working fix was taken
 upstream to every tool in the encode → remux → player pipeline, and then
 to the DLNA servers that serve the files.
 
-**Two merges so far, and a third front in active review: the encoder end
-and the server end are fixed upstream, and the remuxer is being reviewed
-now.** HandBrake now writes the SEI when it encodes
-([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100)), and
-Universal Media Server now writes it when it transcodes *and* stops
-transcoding what these sets already play
+**Four merges, and the chain is closed end to end: encode, remux, play
+and serve.** HandBrake writes the SEI when it encodes
+([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100), merged
+2026-09-16), MKVToolNix sets the Matroska stereo tag from it when it
+remuxes ([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311),
+merged 2026-09-21), mpv reads the layout from the stream when it plays
+([PR #18490](https://github.com/mpv-player/mpv/pull/18490), merged
+2026-09-23), and Universal Media Server writes it when it transcodes *and*
+stops transcoding what these sets already play
 ([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
 merged 2026-09-19). The UMS patch was written after its maintainer read
-the measurements and asked for code.
+the measurements and asked for code. In review: MKVToolNix's HEVC half and
+two FFmpeg PRs; VLC's fix ships in our own builds.
 
 Full drafts, per-target status,
 and links live in
@@ -177,7 +181,7 @@ short form linked in every upstream post is
 | Universal Media Server | **[PR #6330 merged](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)** (2026-09-19) — the maintainer read the measurements on [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) and asked for code. Writes the frame-packing SEI on libx264 transcodes, and corrects the 2011–2012 Bravia profiles: the EX725 profile had **no MP4 line at all**, so every MP4 was transcoded on a set that plays it directly, and **E-AC3 is now declared** (decoded to 7.1, shown as *Dolby Digital Plus*) |
 | Gerbera | [issue #3937](https://github.com/gerbera/gerbera/issues/3937) filed — the no-remux SEI-injection step |
 | Media3 / ExoPlayer | [issue #3419](https://github.com/androidx/media/issues/3419) filed 2026-09-19 — Android never parses this SEI at all. Revives [ExoPlayer #7869](https://github.com/google/ExoPlayer/issues/7869), whose 2020 answer was *"as you are the first one to ask for it, we will probably not look into it"*. **Triaged 2026-09-22: maintainer microkatz self-assigned**, the lane's first maintainer contact |
-| VLC | **Unfortunately the maintainers decided our patch was AI slop.** [MR !10366](https://code.videolan.org/videolan/vlc/-/merge_requests/10366) (opened 2026-09-22) derives the x264 frame packing from the input layout so transcoding no longer drops the SEI. Steve Lhomme reviewed the code and every point he raised was fixed the same day; the MR was then labelled `AI::Slop` and `MRStatus::NotCompliant` and the account blocked (2026-09-23). The patch lives on in [our VLC fork](https://github.com/danielcamposramos/vlc) (branches `3d-frame-packing-default` and `3d-frame-packing-opt-in`); a conduct concern is with the VideoLAN board. Related request: [issue #29582](https://code.videolan.org/videolan/vlc/-/issues/29582) |
+| VLC | **Unfortunately the maintainers decided our patch was AI slop.** [MR !10366](https://code.videolan.org/videolan/vlc/-/merge_requests/10366) (opened 2026-09-22) derives the x264 frame packing from the input layout so transcoding no longer drops the SEI. Steve Lhomme reviewed the code and every point he raised was fixed the same day; the MR was then labelled `AI::Slop` and `MRStatus::NotCompliant` and the account blocked (2026-09-23); the label was later renamed project-wide to `AI::Generated`, and !10366 is the only MR that carries it. The patch lives on in [our VLC fork](https://github.com/danielcamposramos/vlc) (branches `3d-frame-packing-default` and `3d-frame-packing-opt-in`), with tested builds: [VLC 3.0.24-3d1](https://github.com/danielcamposramos/vlc/releases/tag/3.0.24-3d1) for Windows and Debian, and [VLC-HiFi and VLC-3D-HiFi 3.7.1-hifi.1](https://github.com/danielcamposramos/vlc-android/releases/tag/3.7.1-hifi.1) for Android; a conduct concern is with the VideoLAN board. Related request: [issue #29582](https://code.videolan.org/videolan/vlc/-/issues/29582) |
 | GStreamer · MPC-BE | **already correct — cited as prior art, not filed against.** GStreamer parses payload 45 in `h264parse`, publishes it on caps, and `x264enc` derives the write-side parameter automatically. That loop is the answer to "is this practical?" everywhere else |
 | Chromecast | **not contributable** — receiver and Cast SDK are closed, the public repos are sample apps, and the Cast media documentation never mentions 3D, stereo or frame packing. A cast cannot carry automatic 3D anyway: the device decodes the stream and outputs HDMI |
 | LTT forums | two audience posts: [3D-theater guide](https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161) + [Steam Frame cross-comment](https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512) |
