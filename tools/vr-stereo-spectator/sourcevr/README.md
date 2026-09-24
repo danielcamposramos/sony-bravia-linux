@@ -82,7 +82,7 @@ VR mode, and the game runs in 2D exactly as with Valve's module.
 | `SVRTV_SEPARATION` | 2.5 | eye separation in game units (about 64 mm) |
 | `SVRTV_CONVERGENCE` | 120 | distance of the screen plane in game units |
 | `SVRTV_SWAP` | 0 | 1 packs the right eye first |
-| `SVRTV_LOG` | none | append a log to this file |
+| `SVRTV_LOG` | none | append a log to this file; relative to the module's folder, and falls back there when the path cannot be opened |
 
 ## In the game
 
@@ -95,10 +95,41 @@ accepts NULL outputs (`test_geometry.cpp` checks both).
 2026-09-24: installed as `bin/sourcevr.so` (Valve's kept as
 `bin/sourcevr.so.valve`; Steam's "Verify integrity of game files" restores
 it), the game loads it and runs in 2D with no crash, on both Sonys, through
-the bench suite's view steps (`tools/hl2-bench/`). The 3D steps are next.
+the bench suite's view steps (`tools/hl2-bench/`).
+
+**First full 3D playback, same day:** build `c3595682…` (32-bit) played the
+reference demo in side-by-side 3D on the EX725 with Vulkan (DXVK), 9857
+frames at 59.9 fps, no crash. Daniel watched with glasses: real depth, no
+ghosting, the default separation (2.5) and convergence (120) looked right,
+crosshair in 3D. In that build each eye renders straight into its half of
+the frame.
+
+What the log showed, and what is open:
+
+- The engine never calls `CreateRenderTargets`. The client asks for
+  `GetRenderTarget`, then calls `DoDistortionProcessing` and
+  `CompositeHud` for each eye.
+- No HUD: the client paints the HUD and menus into a 640x480 target named
+  `_rt_gui` and draws it into each eye; this game creates `_rt_gui` only
+  when VR was set up at start (console: `couldn't find
+  materials/_rt_gui.vtf`). For the same reason, the loading screen shows
+  as a 640x480 picture in the top-left corner.
+- OpenGL in VR mode crashed after 20 s, in the engine's render thread
+  (materialsystem, studiorender, shaderapidx9), not in the module.
+- After the window was refocused, the view stopped following the demo's
+  recorded angles: VR mode switches to raw mouse input.
+
+The source here goes one step further, untested yet: the module takes the
+material system from the factory the engine passes to `Connect()` and makes
+one target per eye on first use, inside the engine's render-target
+allocation bracket; `DoDistortionProcessing` copies each eye into its half
+and `CompositeHud` pastes `_rt_gui` with the client's own in-world HUD
+material. Making `_rt_gui` itself when it is missing is the next step.
 
 To try 3D by hand: Steam launch options
-`SVRTV_LAYOUT=sbs SVRTV_LOG=/K3D/temp/svrtv.log %command% -w 1920 -h 1080 -console`,
+`SVRTV_LAYOUT=sbs SVRTV_LOG=svrtv.log %command% -w 1920 -h 1080 -console`
+(a relative log path lands next to the module; Steam runs the game in a
+container that may not see other folders),
 television in side-by-side 3D mode. The module forces VR mode at start;
 `vr_activate` in the console does the same by hand.
 

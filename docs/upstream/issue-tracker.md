@@ -28,6 +28,10 @@ mails us; never necro closed issues. Sorted by activity, not importance.
 
 ## Standing notes
 
+- 2026-09-24 stereo gaming lane (VR Stereo Spectator, Half-Life 2): no upstream item
+  yet, so no row. The module and the bench are our own tools; state and open points
+  are in `docs/project-status.md` (research lanes). The first possible touch is wiz3D,
+  once session C has run.
 - 2026-09-21 negative sweep, for the record (so no future session re-runs it blind):
   NVIDIA/open-gpu-kernel-modules issues AND PRs, all states, queried via `gh search`
   with stereoscopic / stereo / 3D Vision / 3DTV / frame packing / VSIF /

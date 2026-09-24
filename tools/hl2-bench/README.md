@@ -18,6 +18,7 @@ and what each one collects.
 | `session-a-proprietary.conf` | proprietary NVIDIA driver: views, timed demos, demo frames, the HX855 cross-check, a last 3D watch step |
 | `session-b-open.conf` | the test kernel (nouveau + Mesa, NVK): the same steps without HL2 RTX |
 | `session-c-wiz3d.conf` | HL2's Windows build under Proton, plain and with wiz3D |
+| `session-w-watch.conf` | one 3D watch step (Vulkan, side by side) |
 | `game-wrap.sh` | Steam launch option for Half-Life 2 and HL2 RTX: `game-wrap.sh %command%`; adds the current step's arguments and environment, does nothing outside a suite run |
 | `wiz3d-setup.sh` | installs wiz3D for one step and removes it after |
 | `arm-session-b.sh`, `session-b-autostart.sh`, `hl2-bench-nouveau.service`, `hl2-bench-session-b.desktop` | the one-shot boot into the test kernel for session B, which runs by itself and reboots back |
@@ -46,6 +47,36 @@ television, the HX855 on the AMD port (`HDMI-A-1`) and the EX725 on the
 NVIDIA port (`HDMI-A-2`), and each saved its picture of the spawn view and
 closed by itself. The stereo module was installed and inert (no layout
 set); no crash.
+
+**First full 3D playback, 2026-09-24 15:40:** a watch step (Vulkan, side
+by side, `session-w-watch.conf`) played the whole reference demo on the
+EX725: 9857 frames in 164.7 s, 59.9 fps at real speed, no crash. Daniel
+watched with glasses: real depth, real colours, no ghosting, crosshair in
+3D, no HUD (see the module README).
+
+Session A, first pass (stopped after a09, rerun in progress), what it
+taught:
+
+| step | result |
+|---|---|
+| a05 HL2 RTX view | the level rendered, path traced; the window landed on the HX855 (the KWin rule matched only `hl2_linux`, not Proton's window) |
+| a06 OpenGL 2D | 224.5 fps focused; 161.6 fps in the run where the window lost focus |
+| a07 Vulkan 2D | 59.9 fps: locked to vsync; `mat_vsync 0` does not reach DXVK |
+| a08 OpenGL 3D | crashed after 20 s in the engine's render thread (materialsystem, studiorender, shaderapidx9), not in the module |
+| a09 Vulkan 3D | went side by side once the demo played |
+
+Fixes that came out of it:
+
+- The engine sleeps 50 ms per frame while its window is unfocused
+  (`engine_no_focus_sleep`, saved in `config.cfg`). A temporary
+  `hl2/cfg/autoexec.cfg` sets it to 0 during sessions; restore 50 after.
+- Benchmark steps on Vulkan get `DXVK_CONFIG="d3d9.presentInterval = 0"`.
+- This demo's first playback always stops after 2 frames, 2D included.
+  The summary keeps that row (about 0.2 fps); it is not a result. A watch step is therefore a timed demo
+  with 2 runs and vsync on, which at 60 Hz takes exactly the demo's real
+  length.
+- This build writes `hl2/sourcebench.csv` in lowercase.
+- 3D view pictures come out black: the first frame in VR mode is empty.
 
 What did not work, and why the view step is now one picture:
 

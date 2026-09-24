@@ -260,6 +260,9 @@ run_step() { # id app renderer vr runs frame kind [display]
 			echo "__GLX_VENDOR_LIBRARY_NAME=nvidia"
 			echo "__VK_LAYER_NV_optimus=NVIDIA_only"
 		fi
+		# DXVK (the -vulkan renderer) presents with its own interval; the
+		# engine's mat_vsync 0 does not reach it (a07: locked at 59.94 fps).
+		[ "$renderer" = vulkan ] && [ "$kind" != watch ] && echo 'DXVK_CONFIG="d3d9.presentInterval = 0"'
 		if command -v mangohud >/dev/null && [ "$kind" = timedemo ]; then
 			echo "MANGOHUD=1"
 			echo "MANGOHUD_DLSYM=1"
@@ -270,15 +273,17 @@ run_step() { # id app renderer vr runs frame kind [display]
 	{
 		echo "sv_allow_wait_command 1"
 		echo "con_logfile \"bench/$id.log\""
-		echo "mat_vsync 0"
-		echo "fps_max 0"
+		if [ "$kind" = watch ]; then echo "mat_vsync 1"; else echo "mat_vsync 0"; echo "fps_max 0"; fi
 		echo "demo_quitafterplayback 1"
 		case "$vr" in sbs|tab) [ "$kind" != view ] && echo "vr_activate" ;; esac
 		case "$kind" in
 			view) ;;   # the sequence goes in game.cfg, below
 			timedemo) echo "timedemo_runcount $runs"; echo "timedemo $DEMO" ;;
 			frame) echo "benchframe $DEMO $frame ${id}_frame$frame" ;;
-			watch) echo "playdemo $DEMO" ;;
+			# Real speed: a timed demo at vsync 60 Hz takes the demo's own length
+			# (a07, 164 s). This demo's first playback always stops after 2
+			# frames (every timed step), so the second run is the one to watch.
+			watch) echo "timedemo_runcount 2"; echo "timedemo $DEMO" ;;
 		esac
 	} >"$write/cfg/bench_step.cfg"
 	cp "$write/cfg/bench_step.cfg" "$out/"
@@ -302,7 +307,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 	[ "$kind" = watch ] && echo "    WATCH: television to 3D ${vr}; real-time playback, about 3 minutes"
 
 	local before=0 csv
-	for csv in "$write/SourceBench.csv" "$game/SourceBench.csv"; do [ -f "$csv" ] && before=$(wc -l <"$csv") && break; done
+	for csv in "$write/sourcebench.csv" "$write/SourceBench.csv" "$game/sourcebench.csv" "$game/SourceBench.csv"; do [ -f "$csv" ] && before=$(wc -l <"$csv") && break; done
 	touch "$out/.start"
 
 	# Nothing may still be running from an earlier step.
@@ -329,7 +334,9 @@ run_step() { # id app renderer vr runs frame kind [display]
 
 	# The game quits itself after timedemo and watch; frame and view steps
 	# are done as soon as their image exists.
-	case "$kind" in frame|view) limit=600 ;; *) limit=$(( (runs > 0 ? runs : 1) * 400 + 300 )) ;; esac
+	# A frame step reaches demo frame 3000 in well under a minute; a view
+	# step waits for the level (HL2 RTX took 53 s on its first launch).
+	case "$kind" in frame) limit=240 ;; view) limit=180 ;; *) limit=$(( (runs > 0 ? runs : 1) * 400 + 300 )) ;; esac
 	local result=exited
 	i=0
 	while kill -0 "$pid" 2>/dev/null && [ $i -lt $limit ]; do
@@ -346,7 +353,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 
 	# Collect.
 	cp "$write/bench/$id.log" "$out/console.log" 2>/dev/null
-	for csv in "$write/SourceBench.csv" "$game/SourceBench.csv"; do
+	for csv in "$write/sourcebench.csv" "$write/SourceBench.csv" "$game/sourcebench.csv" "$game/SourceBench.csv"; do
 		[ -f "$csv" ] || continue
 		{ head -1 "$csv"; tail -n +"$((before + 1))" "$csv" | grep -v '^demofile'; } >"$out/SourceBench-rows.csv"
 		break
