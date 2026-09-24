@@ -25,6 +25,7 @@ mails us; never necro closed issues. Sorted by activity, not importance.
 | 9 | Jellyfin stereoscopy comment | github.com/jellyfin | #18060 comment draft (`docs/upstream/media-stack/jellyfin-18060-comment-draft.md`) | draft staged | Daniel when he chooses | GitHub email notifications |
 | 10 | awesome main-index claim (awesome-stereoscopy → sindresorhus/awesome, + awesome-vr, awesome-ar back-claims) | github.com/sindresorhus/awesome (PR) | not yet filed | planned; list is public, entry-quality gates per `PROVENANCE.md` | Daniel (PR in his name) | PR thread on request |
 | 11 | Rossmann/FULU right-to-repair outreach | direct mail | `docs/outreach/rossmann-outreach.md` | outreach lane, owner-paced | Daniel | Daniel's inbox |
+| 17 | Valve: Half-Life 2 VR mode on 3D displays (stereo spectator), plus the SteamVR ask | github.com/ValveSoftware/Source-1-Games (new issue + comments on #3782, #1013), source-sdk-2013 #268 (comment), SteamVR-for-Linux (new issue) | drafts in `docs/upstream/valve/` (01-05, 2026-09-24) | DRAFTED, not posted; people of interest followed from Daniel's account (kisak-valve, misyltoad, charleslvalve, aaronleiby); an invitation to awesome-stereoscopy for misyltoad drafted privately | Daniel | GitHub email notifications |
 
 ## Standing notes
 
