@@ -44,7 +44,6 @@ A stereo spectator output turns every VR game into that content, for the display
 
 Notes for Daniel (not for posting):
 - The LTT quotes come from YouTube's auto-generated captions (your subtitle files in `sony-bravia-linux.private/docs/research/LTT videos/`); only short, clean phrases are quoted, each with its timestamp. Worth a listen at those three points before posting.
-- Check before posting: your subtitle file for the first look is titled "Our first 30 mins with the steam frame", while YouTube now titles `dU3ru09HTng` "Every Other VR Headset is Obsolete Now - Steam Frame First Look"; the 8:25 timestamp assumes they are the same video.
 - If you want to point at your own comments under both LTT threads, the forum links are: https://linustechtips.com/topic/1589907-i-built-a-3d-theater-in-my-basement/?do=findComment&comment=16936161 and https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16936512 (behind a Cloudflare check for scripts; they open in a browser).
 - kisak-valve's words on #337, for your reading, not for quoting back at him: "too far outside of the scope of SteamVR or Proton", and "If you dig into this and figure out how to wire it up, it most likely would need to go to a popular third party Proton build". The spectator ask is a feature of SteamVR's own mirror window; the player ask we build ourselves.
 - Disclosure, if you want it, goes once at the end.
