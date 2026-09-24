@@ -1,6 +1,6 @@
 # Draft 04: comment on ValveSoftware/source-sdk-2013 #268 ("VR Support / HUD Broken again?", 2014, open)
 
-Status: DRAFT for Daniel. Post after draft 01, and put its full link where it says NEW-LINK.
+Status: DRAFT for Daniel. Post after draft 01, and its link is filled in.
 Target: https://github.com/ValveSoftware/source-sdk-2013/issues/268
 
 ---
@@ -10,4 +10,4 @@ With the threaded material system, a material that is first used from the render
 In current Half-Life 2 I hit the same checkerbox in VR mode, and it stayed even with the texture swapped for the engine's own `_rt_FullFrameFB`.
 Holding a reference to the material and calling `CacheUsedMaterials()` once, before its first draw, fixed it (`IsPrecached()` went from 0 to 1).
 For the SDK's VR client that would probably mean precaching `vgui/inworldui` and `vgui/inworldui_opaque` when VR activates; I have not built that in the SDK yet.
-Details and the rest of the VR-on-a-3D-display work: NEW-LINK
+Details and the rest of the VR-on-a-3D-display work: ValveSoftware/Source-1-Games#8297

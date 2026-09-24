@@ -1,6 +1,6 @@
 # Draft 05: SteamVR on 3D displays (ValveSoftware/SteamVR-for-Linux, new issue)
 
-Status: DRAFT for Daniel. Not posted. Post after draft 01 and put its link where it says HL2-LINK.
+Status: DRAFT for Daniel. Not posted. Post after draft 01 and its link is filled in.
 Target: https://github.com/ValveSoftware/SteamVR-for-Linux/issues/new
 
 ---
@@ -15,7 +15,7 @@ This is the other way around: VR games shown in stereo on the 3D televisions, pr
 Every VR game already renders two eyes, so nothing has to be invented, only packed and sent to a different screen.
 
 **It works.**
-Half-Life 2's own VR interface drives a 3D TV on Linux through a replacement `sourcevr.so`, and a real playthrough ran clean: HL2-LINK
+Half-Life 2's own VR interface drives a 3D TV on Linux through a replacement `sourcevr.so`, and a real playthrough ran clean: ValveSoftware/Source-1-Games#8297
 What a VR engine needs to change for a display instead of a headset is written up here: https://github.com/danielcamposramos/sony-bravia-linux/blob/main/tools/vr-stereo-spectator/FORMULA.md
 
 **Two modes, two small asks.**

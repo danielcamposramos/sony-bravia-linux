@@ -1,6 +1,6 @@
 # Draft 01: Half-Life 2 VR mode on a 3D display (ValveSoftware/Source-1-Games, new issue)
 
-Status: DRAFT, raw material for Daniel. Not posted.
+Status: **POSTED 2026-09-24 21:53 UTC as https://github.com/ValveSoftware/Source-1-Games/issues/8297** (approved by Daniel; posted verbatim except `source-sdk-2013 #268` written as `ValveSoftware/source-sdk-2013#268` so GitHub links it).
 Target: https://github.com/ValveSoftware/Source-1-Games/issues/new
 Evidence: `tools/vr-stereo-spectator/sourcevr/README.md` and `FORMULA.md` in this repository; logs under `/K3D/temp/hl2-bench/` (local).
 Post this one first; drafts 02-04 link to it.
