@@ -6,6 +6,8 @@ platform well enough to run third-party software on it (e.g. VLC) and unlock
 more internet content than the stock firmware allows.
 *AI was leveraged as a partner in the development of this work — [more information here](PROVENANCE.md).*
 
+**Everything stereo, in one list: [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy).** The public map this project grew into, released under CC0: history, formats, standards, players, displays and headsets, and [where the stereo videos on YouTube are](https://github.com/danielcamposramos/awesome-stereoscopy/blob/main/stereo-video-on-youtube.md). Its sister lists: [awesome-vr](https://github.com/danielcamposramos/awesome-vr), [awesome-ar](https://github.com/danielcamposramos/awesome-ar), [awesome-linux-hdr](https://github.com/danielcamposramos/awesome-linux-hdr).
+
 **In your language** — the problem and the fix, for owners searching in their own words:
 [日本語 · ブラビア 3Dテレビで3D映像・3D写真をもう一度](docs/i18n/ja.md) ·
 [繁體中文 · BRAVIA 3D 電視重新播放 3D 影片與照片](docs/i18n/zh-TW.md) ·
