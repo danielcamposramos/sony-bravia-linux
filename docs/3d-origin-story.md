@@ -64,14 +64,9 @@ offer the fix, get taken seriously.**
 
 ## What happened to iZ3D
 
-iZ3D folded around 2012, with the rest of the consumer-3D wave. The
-driver is abandonware now; the monitors are collector's items. Vadim
-Asadov's honest answer was right — a small company could not outspend
-Samsung in anyone's market, and the "big ones" won the round. But the
-kid's hologram line turned out to be the long bet: stereoscopic 3D
-died twice (gaming, then TV), and the people who kept depth alive were
-the ones doing it for love, on secondhand hardware, with gift
-licenses.
+iZ3D folded around 2012, with the rest of the consumer-3D wave, and the monitors are collector's items now. The driver is **not** abandonware: Vadim and his team gave its source code to the community, and it is public under the MIT licence at [bo3b/iZ3D](https://github.com/bo3b/iZ3D) ("generously provided to us by Vadim and crew"), with the stated goal of replacing NVIDIA 3D Vision with an open, non-proprietary version. [wiz3D](https://github.com/effcol/wiz3D) carries it forward under the LGPL-2.1: side-by-side, top-and-bottom and anaglyph output, and stereo re-enabled in games that shipped AMD HD3D or 3D Vision support. It is actively developed.
+
+Vadim Asadov's honest answer was right: a small company could not outspend Samsung in anyone's market, and the "big ones" won the round. But the hologram line in that 2011 email turned out to be the long bet. Stereoscopic 3D died twice (gaming, then TV), and the people who kept depth alive were the ones doing it for love, on secondhand hardware, with gift licenses and, in the end, with the driver's own source.
 
 ## The other thread: Joe Penna's first 3D test (2011-era)
 
@@ -153,7 +148,7 @@ fifteen years of hands-on depth is now pointed.
   better tools.
 
 Vadim Asadov: if this page ever reaches you — the license worked. It
-took twenty years and a different display, but the kid you gifted
+took fifteen years and a different display, but the man you gifted
 "All Outputs" to spent 2026 teaching HandBrake how to write 3D
 signalling the way your driver once forced it into Max Payne. Consider
 this the citation you were owed.
