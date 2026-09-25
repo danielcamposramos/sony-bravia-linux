@@ -453,6 +453,27 @@ that table is satisfied by: read the policy, comply with it, disclose
 where asked and often where not, hand over something checkable, and let
 the owner send it in his own words.
 
+## Humans with AI (2026-09-24)
+
+Daniel agrees with the line most often quoted from Karim Lakhani, professor at Harvard Business School, in an August 2023 interview with Harvard Business Review's Adi Ignatius: **"AI won't replace humans, but humans with AI will replace humans without AI."**
+Lakhani's reasoning: the internet lowered the cost of moving information; AI lowers the cost of cognition.
+
+- [HBR: AI Won't Replace Humans — But Humans With AI Will Replace Humans Without AI](https://hbr.org/2023/08/ai-wont-replace-humans-but-humans-with-ai-will-replace-humans-without-ai) (Aug 2023)
+- [Harvard Kennedy School, M-RCBG summary](https://www.hks.harvard.edu/centers/mrcbg/programs/growthpolicy/ai-wont-replace-humans-humans-ai-will-replace-humans-without-ai)
+- [Lakhani's own LinkedIn post of the interview](https://www.linkedin.com/posts/professorkl_ai-wont-replace-humansbut-humans-with-ai-activity-7095822182806609920-BqCq)
+
+Daniel's words, the same day: "the end of the world premises would be true, only and only if I was not here to prove them wrong."
+
+The week behind that sentence, counted from the repositories (21 to 24 September 2026, imported trees excluded): 346 commits across 13 repositories, about 200,000 words of documentation and 6,000 lines of code, Half-Life 2 playable in stereoscopic 3D on a television, and five posts to Valve.
+The count includes rewrites and text repeated across the lists, so it measures the writing done, not the size of what is left.
+None of it happened without a human directing and checking it, and the volume could not have been written by hand.
+That is the leverage in Lakhani's line, and the same doctrine as the rest of this page: judge the work, not the tool that helped write it.
+
+And Daniel's own phrase for the partnership, which he has used since his early sessions with AI partners:
+
+> **"We're identical in our differences (Human and AI)."**
+> — Daniel Campos Ramos
+
 ## Related in-repo records
 
 - The episode itself: `docs/upstream/media-stack/README.md`,
