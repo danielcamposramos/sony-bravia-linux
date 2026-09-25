@@ -1,4 +1,4 @@
-# The 3D origin story — from a gifted iZ3D license to the SEI campaign
+# The 3D origin story: from a yt3d tip and a gifted iZ3D license to the SEI campaign
 
 The SEI signalling work in this repo ([3d-signalling-explainer.md](3d-signalling-explainer.md))
 and the upstream campaign behind it didn't come out of nowhere. This
@@ -6,11 +6,59 @@ page records where the author's 3D work actually started — mostly so
 that the person who made it possible gets cited by name. He is owed
 one.
 
-## The iZ3D era (2011)
+## It started on YouTube: Joe Penna's first 3D (late 2010)
 
-In February 2011 the author, who couldn't afford the hardware, was
-corresponding directly with **Vadim Asadov**, CEO of
-iZ3D, the San Diego company behind the 22" passive-polarized 3D
+In late 2010 the author was running the iZ3D demo driver, and he noticed that Joe Penna (MysteryGuitarMan), a Brazilian YouTuber famous for his editing, owned two identical cameras. Through YouTube's private messages he pitched him 3D, the basics of a two-camera rig and its sync problem, and the `yt3d` tags that switched on YouTube's 3D player. On the video that followed, Penna's first 3D test, where he asked his audience for ideas, the author left a suggestion, and YouTube marked it a **highlighted comment**, so the creator surfaced it. His words, posted bilingually as he wrote them:
+
+> That's what I'm talking about MGM!! You're THE guy to use your
+> imagination man. You should contact iZ3D people, they sell 3D
+> monitors and a driver to use with existing tecnologies.
+
+> É disso que eu tô falando MGM! Você com certeza é O CARA pra usar sua
+> imaginação. Você poderia entrar em contato com o pessoal da iZ3D,
+> eles vendem monitores 3D e um driver para utilizar com as tecnologias
+> já existentes.
+
+([the comment](https://www.youtube.com/watch?v=KE-KUPJzxwU&lc=UgzHS33vZM3ZO37UcqR4AaABAg),
+on the video that was Penna's first 3D test — **dated 30 December 2010**,
+captioned *"testing it out"*, 554,247 views. The later, more produced
+one is ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY).)
+
+**The date is the part worth keeping straight.** 30 December 2010 is
+roughly **five weeks before** Vadim Asadov gifted the author his iZ3D
+license (2011-02-02, order 368345, below). At the time of the comment
+he was **running the iZ3D demo version** — so the recommendation came
+from hands-on use, and what he did not yet have was the paid licence.
+
+That ordering matters for exactly one reason: he was not promoting
+something he had been given. He was a user recommending software he
+had actually run, to a creator who had asked for ideas. The full "All
+Outputs" licence arrived afterwards, as a gift, out of a separate
+correspondence of his own.
+
+Stated honestly, because provenance records are worth only as much as
+their weakest claim: what is fixed is the **video's** date. YouTube's
+permalink view does not surface the **comment's** own timestamp, so
+"on or after 30 December 2010" is what the artifact itself proves.
+Whether the comment preceded or followed the February license is the
+author's own recollection, not something this page can evidence.
+
+**Update, 25 September 2026: the tip is dated by the author's own email.** On 24 January 2011 he wrote to Joe Penna, opening: *"Sou o mesmo cara que te deu a dica do yt3d"* ("I'm the same guy who gave you the yt3d tip"). The tip itself went through YouTube's private messages, which no longer exist, but the email fixes it before 24 January 2011, so before ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY) and Joe's [guide to watching 3D on YouTube](https://www.youtube.com/watch?v=pNuKAaC337U), both published on 1 February 2011. "3D Test" already carries the `yt3d:enable=true` tag. The same email offered him help with 3D and some of the author's poems for a music video; no reply came. The email stays in the author's private records, because it carries Joe's address. The full 2010-2011 sequence is listed in awesome-stereoscopy's [Stereo video on YouTube](https://github.com/danielcamposramos/awesome-stereoscopy/blob/main/stereo-video-on-youtube.md).
+
+Joe Penna went on to direct features: *Arctic*, *Stowaway*. The suggestion pointed him at **the company whose CEO would gift the author a full iZ3D licence a few weeks later**, which is the detail worth keeping: in the same weeks, one person in Brazil was pointing a rising creator at iZ3D's hardware and pitching iZ3D itself a market strategy.
+
+**He was never cited for it, and this document does not ask him to
+be.** It is recorded here for the same reason everything else in this
+repo is recorded: because the record should exist and be checkable.
+The artifact is the author's own comment, still public, still
+highlighted. Nothing in this project's posting doctrine turns that into
+an approach to anyone — it stays a fact in a file, stated flat. See
+[legacy-3d-formats.md](legacy-3d-formats.md) for where the same
+fifteen years of hands-on depth is now pointed.
+
+## The iZ3D licence (February 2011)
+
+About a week after that email to Joe, and on the day "3D Maestro" went up, the author, who couldn't afford the hardware, was corresponding directly with **Vadim Asadov**, CEO of iZ3D, the San Diego company behind the 22" passive-polarized 3D
 monitor and the DirectX interceptor driver that forced stereoscopic 3D
 into games that never shipped with it.
 
@@ -55,77 +103,13 @@ Licenses activated: 1
 Program title:      iZ3D All Outputs
 ```
 
-That license is how Max Payne played in anaglyph stereo on an ordinary
-monitor, years before the author ever touched a 3D TV. It was a gift
-from a company founder to a kid who had offered them his country for
-the price of an email — and it is the earliest instance of the same
-pattern the upstream campaign ran on twenty years later: **diagnose,
-offer the fix, get taken seriously.**
+That license is how Max Payne played in anaglyph stereo on an ordinary monitor, years before the author ever touched a 3D TV. It was a gift from a company founder to a man who had offered them his country for the price of an email, and it is the earliest instance of the same pattern the upstream campaign ran on fifteen years later: **diagnose, offer the fix, get taken seriously.**
 
 ## What happened to iZ3D
 
 iZ3D folded around 2012, with the rest of the consumer-3D wave, and the monitors are collector's items now. The driver is **not** abandonware: Vadim and his team gave its source code to the community, and it is public under the MIT licence at [bo3b/iZ3D](https://github.com/bo3b/iZ3D) ("generously provided to us by Vadim and crew"), with the stated goal of replacing NVIDIA 3D Vision with an open, non-proprietary version. [wiz3D](https://github.com/effcol/wiz3D) carries it forward under the LGPL-2.1: side-by-side, top-and-bottom and anaglyph output, and stereo re-enabled in games that shipped AMD HD3D or 3D Vision support. It is actively developed.
 
-Vadim Asadov's honest answer was right: a small company could not outspend Samsung in anyone's market, and the "big ones" won the round. But the hologram line in that 2011 email turned out to be the long bet. Stereoscopic 3D died twice (gaming, then TV), and the people who kept depth alive were the ones doing it for love, on secondhand hardware, with gift licenses and, in the end, with the driver's own source.
-
-## The other thread: Joe Penna's first 3D test (2011-era)
-
-The iZ3D license was not the only place this ran. On a
-**MysteryGuitarMan** video where Joe Penna asked his audience for
-ideas, the author left a suggestion — and YouTube marked it a
-**highlighted comment**, so the creator surfaced it. His words, posted
-bilingually as he wrote them:
-
-> That's what I'm talking about MGM!! You're THE guy to use your
-> imagination man. You should contact iZ3D people, they sell 3D
-> monitors and a driver to use with existing tecnologies.
-
-> É disso que eu tô falando MGM! Você com certeza é O CARA pra usar sua
-> imaginação. Você poderia entrar em contato com o pessoal da iZ3D,
-> eles vendem monitores 3D e um driver para utilizar com as tecnologias
-> já existentes.
-
-([the comment](https://www.youtube.com/watch?v=KE-KUPJzxwU&lc=UgzHS33vZM3ZO37UcqR4AaABAg),
-on the video that was Penna's first 3D test — **dated 30 December 2010**,
-captioned *"testing it out"*, 554,247 views. The later, more produced
-one is ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY).)
-
-**The date is the part worth keeping straight.** 30 December 2010 is
-roughly **five weeks before** Vadim Asadov gifted the author his iZ3D
-license (2011-02-02, order 368345, above). At the time of the comment
-he was **running the iZ3D demo version** — so the recommendation came
-from hands-on use, and what he did not yet have was the paid licence.
-
-That ordering matters for exactly one reason: he was not promoting
-something he had been given. He was a user recommending software he
-had actually run, to a creator who had asked for ideas. The full "All
-Outputs" licence arrived afterwards, as a gift, out of a separate
-correspondence of his own.
-
-Stated honestly, because provenance records are worth only as much as
-their weakest claim: what is fixed is the **video's** date. YouTube's
-permalink view does not surface the **comment's** own timestamp, so
-"on or after 30 December 2010" is what the artifact itself proves.
-Whether the comment preceded or followed the February license is the
-author's own recollection, not something this page can evidence.
-
-**Update, 25 September 2026: the tip is dated by the author's own email.** On 24 January 2011 he wrote to Joe Penna, opening: *"Sou o mesmo cara que te deu a dica do yt3d"* ("I'm the same guy who gave you the yt3d tip"). The tip itself went through YouTube's private messages, which no longer exist, but the email fixes it before 24 January 2011, so before ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY) and Joe's [guide to watching 3D on YouTube](https://www.youtube.com/watch?v=pNuKAaC337U), both published on 1 February 2011. "3D Test" already carries the `yt3d:enable=true` tag. The same email offered him help with 3D and some of the author's poems for a music video; no reply came. The email stays in the author's private records, because it carries Joe's address. The full 2010-2011 sequence is listed in awesome-stereoscopy's [Stereo video on YouTube](https://github.com/danielcamposramos/awesome-stereoscopy/blob/main/stereo-video-on-youtube.md).
-
-Joe Penna went on to direct features — *Arctic*, *Stowaway*. The
-suggestion pointed him at **the same company whose CEO had gifted the
-author the iZ3D license**, which is the detail worth keeping: one
-person in Brazil with a gifted 3D license was, in the same period,
-pitching iZ3D a market strategy and pointing a rising creator at their
-hardware.
-
-**He was never cited for it, and this document does not ask him to
-be.** It is recorded here for the same reason everything else in this
-repo is recorded: because the record should exist and be checkable.
-The artifact is the author's own comment, still public, still
-highlighted. Nothing in this project's posting doctrine turns that into
-an approach to anyone — it stays a fact in a file, stated flat. See
-[legacy-3d-formats.md](legacy-3d-formats.md) for where the same
-fifteen years of hands-on depth is now pointed.
+Vadim Asadov's honest answer was right: a small company could not outspend Samsung in anyone's market, and the "big ones" won the round. But the hologram line in that 2011 email to Vadim turned out to be the long bet. Stereoscopic 3D died twice (gaming, then TV), and the people who kept depth alive were the ones doing it for love, on secondhand hardware, with gift licenses and, in the end, with the driver's own source.
 
 ## The arc, stated plainly
 
