@@ -308,7 +308,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 		# mat_vsync 0 on Linux, and once that reached the display the demo
 		# raced at 364 fps (2026-09-24).
 		if [ "$renderer" = vulkan ]; then
-			if [ "$kind" = watch ] || [ "$kind" = play ]; then echo 'DXVK_CONFIG="d3d9.presentInterval = 1"'
+			if [ "$kind" = watch ] || [ "$kind" = play ]; then echo "DXVK_CONFIG=\"d3d9.presentInterval = 1${DXVK_EXTRA:+;$DXVK_EXTRA}\""
 			else echo 'DXVK_CONFIG="d3d9.presentInterval = 0"'; fi
 		fi
 		if command -v mangohud >/dev/null && [ "$kind" = timedemo ]; then

@@ -72,6 +72,8 @@ struct Config {
 	double hudband;   // HUD bottom band moved to the top (fraction of the sheet; 0 = off)
 	int dump;         // diagnostics: write the HUD sheet and the frame to files at this frame
 	int eyew, eyeh;   // eye render size (SVRTV_EYE=WxH); 0: its half of the frame
+	bool latecopy;    // both eyes into the frame together at the end of the frame
+	int dumpevery;    // diagnostics: after SVRTV_DUMP, a frame every n frames
 	bool xhair;       // the module draws the crosshair on the 2D layer (client's off)
 	char onvr[512];   // console commands issued when VR starts
 	bool mouselog;    // diagnostics: log the system pointer next to the UI cursor
@@ -214,6 +216,8 @@ void load_config()
 		g_cfg.hudband = 0;
 	g_cfg.dump = (int)env_double("SVRTV_DUMP", 0);
 	g_cfg.mouselog = env_double("SVRTV_MOUSELOG", 0) != 0;
+	g_cfg.latecopy = env_double("SVRTV_LATECOPY", 0) != 0;
+	g_cfg.dumpevery = (int)env_double("SVRTV_DUMPEVERY", 0);
 	g_cfg.confine = env_double("SVRTV_CONFINE", 1) != 0;
 	g_cfg.eyew = g_cfg.eyeh = 0;
 	const char *ov = setting("SVRTV_ONVR");
@@ -296,6 +300,7 @@ public:
 		m_matReady = false;
 		m_frame = 0;
 		m_fovLogs = 0;
+		m_dumps = 0;
 		m_engine = NULL;
 		m_xhairReady = false;
 		m_input = NULL;
@@ -401,7 +406,8 @@ public:
 	bool DoDistortionProcessing(VREye eye)
 	{
 		trace(0, "DoDistortionProcessing");
-		show(eye);
+		if (!g_cfg.latecopy)
+			show(eye);
 		return true;
 	}
 
@@ -409,9 +415,25 @@ public:
 	// (640x480); the client works out where that sheet sits in each eye's
 	// view (normalised device coordinates) and asks the module to paste it.
 	// The client's own in-world HUD materials do the blending.
-	bool CompositeHud(VREye eye, float ndc[4], bool, bool, bool translucent)
+	// Late copy (SVRTV_LATECOPY=1): both eyes go into the frame together at
+	// the end of the frame, left then right, instead of each right after its
+	// render. Under gamescope, anaglyph showed static geometry swimming in
+	// depth during camera turns only, as if the two halves came from
+	// different frames (2026-09-24); writing them together narrows that.
+	bool CompositeHud(VREye eye, float ndc[4], bool blackout, bool undistort, bool translucent)
 	{
 		trace(1, "CompositeHud");
+		if (!g_cfg.latecopy)
+			return composite_eye(eye, ndc, translucent);
+		if (eye == VREye_Left)
+			return true;
+		m_shown[0] = m_shown[1] = false;
+		composite_eye(VREye_Left, ndc, translucent);
+		return composite_eye(VREye_Right, ndc, translucent);
+	}
+
+	bool composite_eye(VREye eye, float ndc[4], bool translucent)
+	{
 		show(eye);
 		if (!m_ms)
 			return false;
@@ -527,6 +549,15 @@ public:
 				dump(ctx, sheet, "svrtv-hud.tga");
 			else
 				dump(ctx, NULL, "svrtv-frame.tga");
+		}
+		// A series of frames (SVRTV_DUMPEVERY=n, from SVRTV_DUMP on, 12 at
+		// most), to compare the two eyes of the same frame in motion.
+		if (g_cfg.dumpevery > 0 && g_cfg.dump && eye == VREye_Right && m_frame > g_cfg.dump &&
+		    (m_frame - g_cfg.dump) % g_cfg.dumpevery == 0 && m_dumps < 12) {
+			char name[64];
+			snprintf(name, sizeof(name), "svrtv-frame-%06d.tga", m_frame);
+			dump(ctx, NULL, name);
+			m_dumps++;
 		}
 		return true;
 	}
@@ -990,6 +1021,7 @@ private:
 	bool m_matReady;
 	int m_frame;
 	int m_fovLogs;
+	int m_dumps;
 	IVEngineClient *m_engine;
 	bool m_xhairReady;
 	vgui::IInput *m_input;
