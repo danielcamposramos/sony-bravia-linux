@@ -8,8 +8,8 @@ one.
 
 ## The iZ3D era (2011)
 
-In February 2011 the author — then a teenager who couldn't afford the
-hardware — was corresponding directly with **Vadim Asadov**, CEO of
+In February 2011 the author, who couldn't afford the hardware, was
+corresponding directly with **Vadim Asadov**, CEO of
 iZ3D, the San Diego company behind the 22" passive-polarized 3D
 monitor and the DirectX interceptor driver that forced stereoscopic 3D
 into games that never shipped with it.
@@ -114,10 +114,12 @@ permalink view does not surface the **comment's** own timestamp, so
 Whether the comment preceded or followed the February license is the
 author's own recollection, not something this page can evidence.
 
+**Update, 25 September 2026: the tip is dated by the author's own email.** On 24 January 2011 he wrote to Joe Penna, opening: *"Sou o mesmo cara que te deu a dica do yt3d"* ("I'm the same guy who gave you the yt3d tip"). The tip itself went through YouTube's private messages, which no longer exist, but the email fixes it before 24 January 2011, so before ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY) and Joe's [guide to watching 3D on YouTube](https://www.youtube.com/watch?v=pNuKAaC337U), both published on 1 February 2011. "3D Test" already carries the `yt3d:enable=true` tag. The same email offered him help with 3D and some of the author's poems for a music video; no reply came. The email stays in the author's private records, because it carries Joe's address. The full 2010-2011 sequence is listed in awesome-stereoscopy's [Stereo video on YouTube](https://github.com/danielcamposramos/awesome-stereoscopy/blob/main/stereo-video-on-youtube.md).
+
 Joe Penna went on to direct features — *Arctic*, *Stowaway*. The
 suggestion pointed him at **the same company whose CEO had gifted the
 author the iZ3D license**, which is the detail worth keeping: one
-teenager in Brazil with a gifted 3D license was, in the same period,
+person in Brazil with a gifted 3D license was, in the same period,
 pitching iZ3D a market strategy and pointing a rising creator at their
 hardware.
 
