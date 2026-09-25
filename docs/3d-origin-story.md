@@ -129,9 +129,11 @@ fifteen years of hands-on depth is now pointed.
 
 ## The arc, stated plainly
 
-- **2011:** anaglyph Max Payne through the gifted iZ3D driver — 3D
-  development, contributed-to rather than bought.
-- **2026:** two dead 2011/2012 Sony 3D TVs, on the owner's own LAN,
+- **Late 2010:** running the iZ3D demo driver, Daniel pitches 3D and the `yt3d` tags to Joe Penna (MysteryGuitarMan) through YouTube's private messages. Joe's "3D Test" goes up on 30 December 2010, already tagged `yt3d:enable=true`, and Daniel's highlighted comment on it points him at iZ3D.
+- **24 January 2011:** Daniel's email to Joe opens "Sou o mesmo cara que te deu a dica do yt3d", the dated proof of the tip.
+- **1 February 2011:** Joe publishes ["3D Maestro"](https://www.youtube.com/watch?v=uMTvaNomlWY) and his [guide to watching 3D on YouTube](https://www.youtube.com/watch?v=pNuKAaC337U), twelve minutes apart.
+- **2 February 2011:** after their correspondence, Vadim Asadov gifts Daniel the iZ3D "All Outputs" licence. Anaglyph Max Payne through the driver follows: 3D development, contributed-to rather than bought.
+- **2026:** two dead 2011/2012 Sony 3D TVs, on Daniel's own LAN,
   made to auto-engage 3D again by reverse-engineering the signalling
   ([the explainer](3d-signalling-explainer.md)).
 - **2026:** the diagnosis goes upstream — HandBrake merges [PR
@@ -141,9 +143,10 @@ fifteen years of hands-on depth is now pointed.
   and the whole ecosystem's oldest unanswered question — *why do my
   3D rips play flat?* — finally has a published, hardware-proven
   answer.
+- **24 September 2026:** Half-Life 2 playable in stereoscopic 3D on the same Sony TVs, through the [VR Stereo Spectator](../tools/vr-stereo-spectator/): a VR engine's two eyes sent to a 3D display.
 - **Next:** [Knowledge3D](https://github.com/danielcamposramos/Knowledge3D)
   — knowledge as a place you walk through instead of a window you
-  look through. The 2011 email already described it: "multiple stereo
+  look through. The 2011 email to Vadim already described it: "multiple stereo
   rendering or capturing to achieve an real hologram." Same dream,
   better tools.
 
