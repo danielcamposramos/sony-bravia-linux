@@ -212,6 +212,16 @@ Inside gamescope the same fence pinned the pointer to the sheet's
 bottom-right corner, in play and in the menus (2026-09-25), so the module
 leaves it off when `GAMESCOPE_WAYLAND_DISPLAY` is set (gamescope sets it for
 the games it starts); `SVRTV_CONFINE=1` forces it on.
+
+**Motion blur off while 3D is on (2026-09-26, build `fcdb6730…`):** Source
+keeps the blur's previous view in statics shared by both eyes
+(`viewpostprocess.cpp`), so in stereo each eye blurs differently during a
+turn. Run p20 (blur on, through gamescope, pacing otherwise clean: frame time
+p95 5.5 ms): Daniel, "blur wrecked the mouse movement". The module issues
+`mat_motion_blur_enabled 0` when VR starts, keeps the player's own value (the
+video settings' `"MotionBlur"`) in `bin/svrtv-blur-restore`, and puts it back
+when VR stops, or at the next start if the game quit in VR.
+`SVRTV_BLUROFF=0` leaves blur alone.
 The module looks SDL up with `dlopen`/`dlsym` pinned to their original
 glibc versions; before glibc 2.34 those lived in `libdl`, so the module
 needs a glibc of 2.34 or newer in the game's container (Steam's runtime

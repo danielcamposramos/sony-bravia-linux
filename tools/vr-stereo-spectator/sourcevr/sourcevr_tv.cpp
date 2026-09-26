@@ -79,6 +79,7 @@ struct Config {
 	bool latecopy;    // both eyes into the frame together at the end of the frame
 	int dumpevery;    // diagnostics: after SVRTV_DUMP, a frame every n frames
 	bool xhair;       // the module draws the crosshair on the 2D layer (client's off)
+	bool bluroff;     // motion blur off while VR is on, the player's setting restored after
 	char onvr[512];   // console commands issued when VR starts
 	bool mouselog;    // diagnostics: log the system pointer next to the UI cursor
 	bool anglelog;    // diagnostics: view angles and time of every frame
@@ -300,6 +301,10 @@ void load_config()
 	// draws HL2's crosshair on the 2D layer, once per eye. With 640x480 eyes
 	// (SVRTV_EYE=640x480) the client's own crosshair is centred and is kept.
 	g_cfg.xhair = env_double("SVRTV_CROSSHAIR", g_cfg.eyew == 0 ? 1 : 0) != 0;
+	// Source keeps motion blur's previous view in statics shared by both eyes
+	// (viewpostprocess.cpp), so in stereo each eye blurs differently during a
+	// turn; with it on, the mouse felt wrecked (Daniel, run p20, 2026-09-26).
+	g_cfg.bluroff = env_double("SVRTV_BLUROFF", 1) != 0;
 	const char *hm = setting("SVRTV_HUDMAT");
 	snprintf(g_cfg.hudmat, sizeof(g_cfg.hudmat), "%s", (hm && *hm) ? hm : "vgui/icon_con_grey");
 	const char *ht = setting("SVRTV_HUDTEX");
@@ -682,6 +687,59 @@ public:
 		remove(p);
 	}
 
+	// Motion blur follows the same pattern: the player's own value (the
+	// video settings' "MotionBlur") is kept in a marker next to the module and
+	// put back when VR stops, or at the next start if the game quit in VR.
+	void blur_marker(char *out, size_t n) { snprintf(out, n, "%ssvrtv-blur-restore", g_dir); }
+	void blur_off()
+	{
+		char p[1200];
+		blur_marker(p, sizeof(p));
+		FILE *f = fopen(p, "r");
+		if (f) {
+			fclose(f);   // already off, the player's value already kept
+		} else {
+			int was = 1;
+			char vc[1200], line[256];
+			snprintf(vc, sizeof(vc), "%s../hl2/videoconfig_linux.cfg", g_dir);
+			FILE *v = fopen(vc, "r");
+			if (v) {
+				while (fgets(line, sizeof(line), v)) {
+					const char *k = strstr(line, "\"MotionBlur\"");
+					if (!k)
+						continue;
+					const char *q = strchr(k + 12, '"');
+					if (q)
+						was = atoi(q + 1) != 0;
+				}
+				fclose(v);
+			}
+			f = fopen(p, "w");
+			if (f) {
+				fprintf(f, "%d\n", was);
+				fclose(f);
+			}
+			logf("motion blur was %d\n", was);
+		}
+		command("mat_motion_blur_enabled 0");
+	}
+	void blur_restore()
+	{
+		char p[1200];
+		blur_marker(p, sizeof(p));
+		FILE *f = fopen(p, "r");
+		if (!f)
+			return;
+		int was = 1;
+		if (fscanf(f, "%d", &was) != 1)
+			was = 1;
+		fclose(f);
+		char cmd[64];
+		snprintf(cmd, sizeof(cmd), "mat_motion_blur_enabled %d", was ? 1 : 0);
+		command(cmd);
+		remove(p);
+	}
+
 	// HL2's classic crosshair (hud_textures.txt "crosshair_default":
 	// sprites/crosshairs, x 0 y 48, 24x24 of the 128x128 sheet), drawn with
 	// sprites/crosshairs_tluc, which blends by the texture's alpha. The
@@ -1051,6 +1109,8 @@ public:
 		command(g_cfg.onvr);
 		if (g_cfg.xhair)
 			crosshair_off();
+		if (g_cfg.bluroff)
+			blur_off();
 		return true;
 	}
 	void Deactivate()
@@ -1059,6 +1119,7 @@ public:
 		logf("deactivated\n");
 		confine_mouse(false);
 		crosshair_restore();
+		blur_restore();
 	}
 
 	// "VR because Steam said so": skips the client's headset-adapter checks.
@@ -1068,6 +1129,8 @@ public:
 	{
 		if (!g_cfg.enabled || !g_cfg.xhair)
 			crosshair_restore();
+		if (!g_cfg.enabled || !g_cfg.bluroff)
+			blur_restore();
 		return g_cfg.enabled;
 	}
 	void SetShouldForceVRMode() {}
