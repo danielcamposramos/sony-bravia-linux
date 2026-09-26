@@ -254,6 +254,10 @@ run_step() { # id app renderer vr runs frame kind [display]
 		# with mouse look only (2026-09-25).
 		sbs-gamescope-grab) layout=sbs; usegs=1; gsgrab=1 ;;
 		anaglyph-modern-grab) layout=sbs; gsfx=1; usegs=1; gsgrab=1 ;;
+		# stereo3d: the module with no preset layout, so the game's own
+		# switches turn 3D on: -stereo3d on the launch line (HL2BENCH_ARGS) or
+		# vr_display_3d from the video options (the in-game 3D offer, 2026-09-26).
+		stereo3d) layout="" ;;
 	esac
 	if [ -n "$gsfx" ]; then
 		mkdir -p "$HOME/.local/share/gamescope/reshade/Shaders"
@@ -264,7 +268,8 @@ run_step() { # id app renderer vr runs frame kind [display]
 	if [ "$app" = 220 ]; then
 		if [ "$vr" = off ] || [ "$vr" = wiz ]; then rm -f "$game/bin/svrtv.ini"
 		else
-			printf 'SVRTV_LAYOUT=%s\nSVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$layout" "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"
+			printf 'SVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"
+			[ -n "$layout" ] && printf 'SVRTV_LAYOUT=%s\n' "$layout" >>"$game/bin/svrtv.ini"
 			# Extra module settings for a test run, e.g. SVRTV_EXTRA="SVRTV_HUDCOPY=1".
 			[ -n "${SVRTV_EXTRA:-}" ] && printf '%s\n' $SVRTV_EXTRA >>"$game/bin/svrtv.ini"
 		fi

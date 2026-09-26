@@ -1,6 +1,6 @@
 # Draft 07: gamescope pull request, the nested output's present mode
 
-Status: **POSTED 2026-09-26 as https://github.com/ValveSoftware/gamescope/pull/2438** (approved by Daniel; posted verbatim except `#8297 in Source-1-Games` written as `ValveSoftware/Source-1-Games#8297`, so GitHub links the right repository).
+Status: **POSTED 2026-09-26 as https://github.com/ValveSoftware/gamescope/pull/2438** (approved by Daniel; posted verbatim except `#8297 in Source-1-Games` written as `ValveSoftware/Source-1-Games#8297`, so GitHub links the right repository). Disclosure line ("AI partners were leveraged in the production of this work.") appended to the body on 2026-09-26 at Daniel's request, per `docs/ai-contribution-policies.md` (gamescope: disclosure note in the body).
 Target: https://github.com/ValveSoftware/gamescope/compare (from a fork of ValveSoftware/gamescope, branch `nested-present-mode`)
 Commit: `a552e8e` in `/K3D/GitHub/gamescope`, on upstream master `ad2763d`; the same change runs here as `gamescope-3dtv` (3.16.24, `tools/vr-stereo-spectator/gamescope/`).
 Post this before draft 06, which links to it.
