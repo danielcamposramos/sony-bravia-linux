@@ -35,6 +35,11 @@ if [ -n "${SVRTV_GAMESCOPE:-}" ]; then
 	export SDL_VIDEODRIVER=x11
 	[ -n "${STEP_OUT:-}" ] && env | grep -E '^(DISPLAY|WAYLAND_DISPLAY|XDG_RUNTIME_DIR|XDG_SESSION_TYPE|SDL_VIDEODRIVER)=' >"$STEP_OUT/gamescope-env.txt"
 fi
-[ -n "${SVRTV_GAMESCOPE:-}" ] && exec gamescope $SVRTV_GAMESCOPE -- env -u WAYLAND_DISPLAY "$@" $STEP_ARGS
+# gamescope's log (and the game's stderr under it) goes to the step's folder,
+# so a run shows which present mode gamescope used.
+if [ -n "${SVRTV_GAMESCOPE:-}" ] && [ -n "${STEP_OUT:-}" ]; then
+	exec "${SVRTV_GAMESCOPE_BIN:-gamescope}" $SVRTV_GAMESCOPE -- env -u WAYLAND_DISPLAY "$@" $STEP_ARGS 2>"$STEP_OUT/gamescope.log"
+fi
+[ -n "${SVRTV_GAMESCOPE:-}" ] && exec "${SVRTV_GAMESCOPE_BIN:-gamescope}" $SVRTV_GAMESCOPE -- env -u WAYLAND_DISPLAY "$@" $STEP_ARGS
 # shellcheck disable=SC2086 # STEP_ARGS is a deliberate word list
 exec "$@" $STEP_ARGS

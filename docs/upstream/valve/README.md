@@ -10,5 +10,6 @@ Order: 01 first (the main Half-Life 2 issue); 02-04 are short comments on older 
 | [03](03-source-1-games-1013-comment.md) | Source-1-Games #1013 (posted) | the 2013 request for side-by-side 3D: it exists now |
 | [04](04-source-sdk-2013-268-comment.md) | source-sdk-2013 #268 (posted) | the 2014 HUD checkerboard: the cause (no precache) and the fix |
 | [05](05-steamvr-for-linux-stereo-spectator.md) | ValveSoftware/SteamVR-for-Linux **#961** (posted) | stereo spectator (side-by-side VR View mirror) and player (an OpenVR driver for a 3D display, openvr #706); pings @kisak-valve, cc @charleslvalve, @aaronleiby |
+| [06](06-source-1-games-8297-update-gamescope.md) | #8297, comment (draft 2026-09-25) | the three display modes and the gamescope pacing fix for the anaglyph swim |
 
 Rules applied: pings only in the two new issues; each comment carries only its own new content; disclosure once, at the end of each new issue, if Daniel wants it; every claim traced to a log, a measurement, a source file or a quoted source.

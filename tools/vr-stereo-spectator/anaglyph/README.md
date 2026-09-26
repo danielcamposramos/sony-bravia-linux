@@ -20,16 +20,26 @@ in linear light (the sampler decodes sRGB, the pass encodes it again).
 
 ## Running it
 
+Two things decide whether turns stay solid (2026-09-25, see "The gamescope frame race"
+below): the game must render freely inside gamescope, and gamescope's own
+output must not queue behind vsync. The second needs the 3D TV build of
+gamescope in `../gamescope/` (a one-line patch, built 64-bit from Debian's
+source; the system gamescope is untouched).
+
 ```sh
 mkdir -p ~/.local/share/gamescope/reshade/Shaders
 cp svrtv-anaglyph.fx ~/.local/share/gamescope/reshade/Shaders/
+# DXVK 2.0 (bundled with Half-Life 2) reads its settings from a file:
+printf 'd3d9.presentInterval = 0\n' > "$HOME/.local/share/svrtv-dxvk.conf"
 # Steam launch options of the game (Half-Life 2 with the module: SVRTV_LAYOUT=sbs in bin/svrtv.ini):
-SDL_VIDEODRIVER=x11 gamescope --backend sdl -g --prefer-vk-device 10de:2504 -f -W 1920 -H 1080 -w 1920 -h 1080 \
-    --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx 1 -- env -u WAYLAND_DISPLAY %command% -vulkan
+DXVK_CONFIG_FILE="$HOME/.local/share/svrtv-dxvk.conf" SDL_VIDEODRIVER=x11 gamescope-3dtv --backend sdl -g --prefer-vk-device 10de:2504 -f -W 1920 -H 1080 -w 1920 -h 1080 --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx 1 -- env -u WAYLAND_DISPLAY %command% -vulkan +mat_forceaniso 16
 ```
 
-The bench suite does this for `vr=anaglyph-crt` and `vr=anaglyph-modern`
-steps (`tools/hl2-bench/`).
+`--reshade-technique-idx 0` is the CRT matrix, `1` modern screens.
+`+mat_forceaniso 16` (anisotropic filtering 16x) keeps slanted surfaces sharp
+in both eyes. The bench suite does all of this for `vr=anaglyph-crt` and
+`vr=anaglyph-modern` steps (`tools/hl2-bench/`, `GAMESCOPE_BIN`,
+`PLAY_PRESENT_INTERVAL=0`, `HL2BENCH_ARGS`).
 
 ## What it took (gamescope 3.16.24, 2026-09-24)
 
@@ -59,15 +69,34 @@ steps (`tools/hl2-bench/`).
 Daniel, on the HX855 (no glasses to hand, a long-time anaglyph viewer): "both
 perfect results", CRT and modern screens.
 
-**Open: static geometry swims in depth while the camera turns.** In fast
-mouse pans the walls appear to move in depth; slow pans are clean. The same
-on the EX725 (NVIDIA port, no copy between GPUs) and on a cheap LED panel
-through a DisplayPort adapter. It is not the panels: once walking was
-possible, fast-moving objects (a swinging object, explosions) showed nothing;
-only camera movement does. Side by side with shutter glasses stayed solid in
-the same pans. Working hypothesis: the two eyes of a frame are rendered from
-slightly different view angles during a turn (input updating the view between
-the left and the right eye), a false depth offset that grows with turn speed;
-the television's 3D mode shows the eyes one after the other in time, which
-would hide it, while anaglyph shows both at once. Next: log the view angle at
-each eye's render during fast turns.
+## The gamescope frame race, found and fixed (2026-09-25)
+
+It showed first in anaglyph: static geometry swam in depth during fast mouse
+turns; slow pans, walking and moving objects were clean, and native side by
+side never showed it. It was never an anaglyph fault. It was a frame race in
+gamescope: side by side **through gamescope** on the 3D TV swam the same way
+(runs p08, p09), and anaglyph only made it easy to see.
+A per-frame log of the engine's view angles (`SVRTV_ANGLELOG=1`) measured it:
+
+| run | path | frame time p5 / p95 | frames over 1.5x median |
+|---|---|---|---|
+| p13 | native side by side | 15.6 / 17.7 ms | 0.2% |
+| p14 | gamescope, game on vsync | **4.0 / 33.7 ms** | 16% |
+| p16a | gamescope, game free-running | 2.6 / 15.8 ms | 28% |
+| p16c | gamescope-3dtv (output IMMEDIATE), free-running | 2.6 / 5.7 ms | 8% |
+| p18 | same, anaglyph (modern screens) | 2.5 / 4.5 ms | 2% |
+| p19 | same, anaglyph (CRT) | 2.5 / 5.6 ms | 8% |
+
+Two queues in a row: the game's vsync, then gamescope's nested output, which
+gamescope 3.16 hard-codes to FIFO (`src/rendervulkan.cpp`). Frames reached
+the screen in 4 ms / 33 ms pairs; the view froze, then jumped, and during a
+turn that reads as depth. Letting the game run free removed the swim (p15,
+p16; Daniel: "not to the point of artifacting, now it's more akin to mouse
+lag"); the output on IMMEDIATE removed the lag (p16c: "just like the original
+sbs", no tearing, since KWin still composites the window). NVIDIA offers no
+MAILBOX for that window (p16b fell back to FIFO). Daniel, anaglyph p18:
+"PERFECTION!"; p19 (CRT): "also a perfect run".
+
+Ruled out on the way: the colour matrices, the Pulfrich effect, the ReShade
+pass itself (an identity pass swam too), `--force-grab-cursor`, `m_filter`,
+the GPU copy, the eyes' timing inside the frame.

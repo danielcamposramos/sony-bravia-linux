@@ -6,7 +6,10 @@
 // Techniques (--reshade-technique-idx):
 //   0  CRT             the matrix computed for a CRT's phosphors
 //   1  modern screens  the matrix computed for an LCD panel
-// Both are least-squares channel mixes (Eric Dubois's method, 2001) for red/
+//   2  Identity        diagnostic: passes the side-by-side frame through
+//                      unchanged, so the ReShade path runs with no colour
+//                      filtering (SBS through gamescope on a 3D TV)
+// Techniques 0 and 1 are least-squares channel mixes (Eric Dubois's method, 2001) for red/
 // cyan glasses No. 7003 from REEL3D: CRT as given by Sanders and McAllister
 // (the one StereoPhoto Maker uses), modern screens as given by Zhang and
 // McAllister; coefficients as collected at
@@ -65,4 +68,15 @@ technique CRT
 technique ModernScreens
 {
 	pass { VertexShader = PostProcessVS; PixelShader = PS_ModernScreens; SRGBWriteEnable = true; }
+}
+
+// Diagnostic: the whole frame, unchanged (matched sRGB decode and encode).
+float4 PS_Identity(float4 pos : SV_Position, float2 uv : TEXCOORD) : SV_Target
+{
+	return float4(tex2D(BackBuffer, uv).rgb, 1.0);
+}
+
+technique Identity
+{
+	pass { VertexShader = PostProcessVS; PixelShader = PS_Identity; SRGBWriteEnable = true; }
 }

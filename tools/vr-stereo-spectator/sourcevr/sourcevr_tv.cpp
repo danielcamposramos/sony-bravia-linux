@@ -26,6 +26,9 @@
 //   SVRTV_CONVERGENCE  distance of the screen plane in game units (default 120)
 //   SVRTV_SWAP         1 swaps the eyes
 //   SVRTV_LOG          path of a log file (default: stderr only)
+//   SVRTV_ANGLELOG     1 records the engine's view angles and a timestamp for
+//                      every frame, in memory, written to svrtv-angles.tsv next
+//                      to this module when the game exits (diagnostics)
 //
 // Builds for 32-bit (today's native HL2) and 64-bit Source games alike.
 
@@ -44,6 +47,7 @@
 #include "cdll_int.h"
 #include "vgui/IInput.h"
 #include <dlfcn.h>
+#include <sys/time.h>
 
 // dlsym under its original symbol version, which every glibc still exports;
 // the default one (GLIBC_2.34) is newer than Steam's runtimes.
@@ -77,6 +81,7 @@ struct Config {
 	bool xhair;       // the module draws the crosshair on the 2D layer (client's off)
 	char onvr[512];   // console commands issued when VR starts
 	bool mouselog;    // diagnostics: log the system pointer next to the UI cursor
+	bool anglelog;    // diagnostics: view angles and time of every frame
 	bool confine;     // keep the system pointer on the UI sheet while VR is on
 	FILE *log;
 };
@@ -194,6 +199,51 @@ void logf(const char *fmt, ...)
 	}
 }
 
+// Angle log (SVRTV_ANGLELOG=1): one row per frame, taken where the engine
+// starts a frame (SampleTrackingState, before either eye renders). Kept in
+// memory so the measurement does not disturb the timing it measures; written
+// when the game exits, or when the buffer fills. Built to compare mouse-turn
+// smoothness natively and through gamescope (2026-09-25).
+struct AngleRow { double t; float yaw, pitch; int frame; };
+enum { ANGLE_MAX = 262144 };
+static AngleRow g_ang[ANGLE_MAX];
+static int g_nang;
+static int g_angleWrites;
+
+static void write_angles()
+{
+	if (g_nang <= 0)
+		return;
+	char path[1200];
+	snprintf(path, sizeof(path), "%ssvrtv-angles.tsv", g_dir);
+	FILE *f = fopen(path, g_angleWrites ? "a" : "w");
+	if (!f)
+		return;
+	if (!g_angleWrites)
+		fputs("frame\tt_ms\tdt_ms\tyaw\tpitch\tdyaw\tdyaw_per_s\n", f);
+	for (int i = 0; i < g_nang; i++) {
+		const AngleRow &r = g_ang[i];
+		double dt = 0, dyaw = 0;
+		if (i > 0) {
+			dt = (r.t - g_ang[i - 1].t) * 1000.0;
+			dyaw = r.yaw - g_ang[i - 1].yaw;
+			while (dyaw > 180.0) dyaw -= 360.0;
+			while (dyaw < -180.0) dyaw += 360.0;
+		}
+		fprintf(f, "%d\t%.3f\t%.3f\t%.4f\t%.4f\t%.4f\t%.2f\n", r.frame, (r.t - g_ang[0].t) * 1000.0,
+		        dt, r.yaw, r.pitch, dyaw, dt > 0 ? dyaw / (dt / 1000.0) : 0.0);
+	}
+	fclose(f);
+	logf("angle log: %d frames written to %s\n", g_nang, path);
+	g_angleWrites++;
+	g_nang = 0;
+}
+
+__attribute__((destructor)) static void write_angles_at_exit()
+{
+	write_angles();
+}
+
 void load_config()
 {
 	load_ini();
@@ -216,9 +266,14 @@ void load_config()
 		g_cfg.hudband = 0;
 	g_cfg.dump = (int)env_double("SVRTV_DUMP", 0);
 	g_cfg.mouselog = env_double("SVRTV_MOUSELOG", 0) != 0;
+	g_cfg.anglelog = env_double("SVRTV_ANGLELOG", 0) != 0;
 	g_cfg.latecopy = env_double("SVRTV_LATECOPY", 0) != 0;
 	g_cfg.dumpevery = (int)env_double("SVRTV_DUMPEVERY", 0);
-	g_cfg.confine = env_double("SVRTV_CONFINE", 1) != 0;
+	// Inside gamescope the fence pins the pointer to the sheet's bottom-right
+	// corner, in play and in the menus (Daniel, 2026-09-25, runs p15/p16), so
+	// it is on by default only outside gamescope, which sets
+	// GAMESCOPE_WAYLAND_DISPLAY for the games it starts.
+	g_cfg.confine = env_double("SVRTV_CONFINE", getenv("GAMESCOPE_WAYLAND_DISPLAY") ? 0 : 1) != 0;
 	g_cfg.eyew = g_cfg.eyeh = 0;
 	const char *ov = setting("SVRTV_ONVR");
 	// A television has no head tracking: the view follows the game (mode 7,
@@ -266,9 +321,9 @@ void load_config()
 	}
 	if (g_cfg.convergence <= 0)
 		g_cfg.convergence = 120.0;
-	logf("config (%d lines from svrtv.ini): enabled=%d layout=%s %dx%d aspect=%.4f separation=%.3f convergence=%.1f swap=%d\n",
+	logf("config (%d lines from svrtv.ini): enabled=%d layout=%s %dx%d aspect=%.4f separation=%.3f convergence=%.1f swap=%d confine=%d\n",
 	     g_nini, (int)g_cfg.enabled, g_cfg.tab ? "tab" : "sbs", g_cfg.width, g_cfg.height, g_cfg.aspect,
-	     g_cfg.separation, g_cfg.convergence, (int)g_cfg.swap);
+	     g_cfg.separation, g_cfg.convergence, (int)g_cfg.swap, (int)g_cfg.confine);
 }
 
 // +1 for the left eye, -1 for the right eye. The cameras never swap;
@@ -564,6 +619,25 @@ public:
 
 	// The engine's client interface, from the factory passed to Connect()
 	// (VEngineClient013: the same slots in the 2013 and 2025 SDK headers).
+	// One angle-log row for this frame (SVRTV_ANGLELOG).
+	void record_angles()
+	{
+		IVEngineClient *e = engine();
+		if (!e)
+			return;
+		if (g_nang >= ANGLE_MAX)
+			write_angles();
+		QAngle a;
+		e->GetViewAngles(a);
+		struct timeval tv;
+		gettimeofday(&tv, NULL);
+		AngleRow &r = g_ang[g_nang++];
+		r.t = tv.tv_sec + tv.tv_usec / 1e6;
+		r.yaw = a[YAW];
+		r.pitch = a[PITCH];
+		r.frame = m_frame;
+	}
+
 	IVEngineClient *engine()
 	{
 		if (!m_engine && m_factory)
@@ -806,6 +880,8 @@ public:
 		m_frame++;
 		if (g_cfg.mouselog && (m_frame % 30) == 0)
 			log_mouse();
+		if (g_cfg.anglelog)
+			record_angles();
 		if (m_active)
 			confine_mouse(true);
 		m_shown[0] = m_shown[1] = false;

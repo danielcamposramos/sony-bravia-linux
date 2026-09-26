@@ -208,6 +208,10 @@ game's own SDL2 (`SDL_SetWindowMouseRect`, found in the already-loaded
 `libSDL2-2.0.so.0`; older SDL: the pointer is pulled back each frame).
 Daniel: "perfect, mouse won't exit the menu screen". `SVRTV_CONFINE=0`
 turns it off; `SVRTV_MOUSELOG=1` logs the pointer next to the UI cursor.
+Inside gamescope the same fence pinned the pointer to the sheet's
+bottom-right corner, in play and in the menus (2026-09-25), so the module
+leaves it off when `GAMESCOPE_WAYLAND_DISPLAY` is set (gamescope sets it for
+the games it starts); `SVRTV_CONFINE=1` forces it on.
 The module looks SDL up with `dlopen`/`dlsym` pinned to their original
 glibc versions; before glibc 2.34 those lived in `libdl`, so the module
 needs a glibc of 2.34 or newer in the game's container (Steam's runtime

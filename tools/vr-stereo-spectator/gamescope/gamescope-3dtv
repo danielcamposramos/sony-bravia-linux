@@ -1,0 +1,8 @@
+#!/bin/sh
+# gamescope 3.16.24 (Debian source) with nested-present-mode.patch, for a 3D TV:
+# the nested output presents with IMMEDIATE (no queue; NVIDIA offers no MAILBOX
+# for this window; KWin still composites it, so no tearing: p16c, 2026-09-25)
+# instead of FIFO. Built by /K3D/temp/gamescope-3dtv/build.sh. The system gamescope is
+# untouched; its gamescopereaper (same version) is used from PATH.
+export GAMESCOPE_NESTED_PRESENT_MODE="${GAMESCOPE_NESTED_PRESENT_MODE:-immediate}"
+exec "$HOME/.local/opt/gamescope-3dtv/gamescope" "$@"

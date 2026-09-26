@@ -239,10 +239,21 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# wayland backend hands frames to KWin as NVIDIA buffers, which KWin on the
 	# AMD iGPU cannot import (the same dmabuf error, then an abort).
 	local GS_VK_DEVICE=${GS_VK_DEVICE:-10de:2504}
-	local layout=$vr gsfx=""
+	# sbs-gamescope and sbs-gamescope-identity: side by side for the 3D TV,
+	# through gamescope with no effect or with the Identity pass (technique 2),
+	# to separate gamescope's path from the anaglyph colour filtering
+	# (the swim investigation, 2026-09-25).
+	local layout=$vr gsfx="" usegs="" gsgrab=""
 	case "$vr" in
-		anaglyph-crt) layout=sbs; gsfx=0 ;;
-		anaglyph-modern) layout=sbs; gsfx=1 ;;
+		anaglyph-crt) layout=sbs; gsfx=0; usegs=1 ;;
+		anaglyph-modern) layout=sbs; gsfx=1; usegs=1 ;;
+		sbs-gamescope) layout=sbs; usegs=1 ;;
+		sbs-gamescope-identity) layout=sbs; gsfx=2; usegs=1 ;;
+		# the same with gamescope in relative mouse mode throughout
+		# (--force-grab-cursor): p08/p09 showed the swim is gamescope's path
+		# with mouse look only (2026-09-25).
+		sbs-gamescope-grab) layout=sbs; usegs=1; gsgrab=1 ;;
+		anaglyph-modern-grab) layout=sbs; gsfx=1; usegs=1; gsgrab=1 ;;
 	esac
 	if [ -n "$gsfx" ]; then
 		mkdir -p "$HOME/.local/share/gamescope/reshade/Shaders"
@@ -266,6 +277,9 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# only when bench_step runs), to game-dir/console.log.
 	rm -f "$write/console.log"
 	args="-condebug -novid -console -w $RES_W -h $RES_H -fullscreen -timedemo_comment $id +sv_allow_wait_command 1"
+	# Extra launch options for a test run, as a player would put them in Steam's
+	# launch options (e.g. HL2BENCH_ARGS="+mat_forceaniso 16").
+	[ -n "${HL2BENCH_ARGS:-}" ] && args="$args $HL2BENCH_ARGS"
 	[ "$kind" = view ] && args="$args +sv_cheats 1 +map d1_town_01"
 	# play: Daniel plays; the frame column names the map to start on.
 	[ "$kind" = play ] && args="$args +map $frame"
@@ -280,14 +294,18 @@ run_step() { # id app renderer vr runs frame kind [display]
 			return
 		fi
 		# Inside gamescope the game sees one display; gamescope picks the TV.
-		[ -z "$gsfx" ] && args="-displayindex $didx $args"
+		[ -z "$usegs" ] && args="-displayindex $didx $args"
 		echo "    display $disp = index $didx, KWin rule at $(kwin_rule_set "$disp")"
 	fi
 
 	{
 		echo "STEP_OUT=$out"
 		echo "STEP_ARGS=\"$args\""
-		[ -n "$gsfx" ] && echo "SVRTV_GAMESCOPE=\"--backend ${GS_BACKEND:-sdl} -g --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $RES_W -h $RES_H ${didx:+--display-index $didx} --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx\""
+		# GAMESCOPE_BIN picks another gamescope, e.g. the 3D TV build with its
+		# nested output on MAILBOX (~/.local/bin/gamescope-3dtv, 2026-09-25).
+		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE_BIN=\"${GAMESCOPE_BIN:-gamescope}\""
+		[ -n "$usegs" ] && [ -n "${GAMESCOPE_NESTED_PRESENT_MODE:-}" ] && echo "export GAMESCOPE_NESTED_PRESENT_MODE=$GAMESCOPE_NESTED_PRESENT_MODE"
+		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE=\"--backend ${GS_BACKEND:-sdl} -g --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $RES_W -h $RES_H ${didx:+--display-index $didx}${gsgrab:+ --force-grab-cursor}${gsfx:+ --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx}\""
 		# Render on the RTX 3060 (the desktop runs on the AMD iGPU), through
 		# the driver family the steps file names in its "# gpu:" line.
 		if [ "$GPU" = mesa ]; then
@@ -308,7 +326,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 		# mat_vsync 0 on Linux, and once that reached the display the demo
 		# raced at 364 fps (2026-09-24).
 		if [ "$renderer" = vulkan ]; then
-			if [ "$kind" = watch ] || [ "$kind" = play ]; then echo "DXVK_CONFIG=\"d3d9.presentInterval = 1${DXVK_EXTRA:+;$DXVK_EXTRA}\""
+			if [ "$kind" = watch ] || [ "$kind" = play ]; then echo "DXVK_CONFIG=\"d3d9.presentInterval = ${PLAY_PRESENT_INTERVAL:-1}${DXVK_EXTRA:+;$DXVK_EXTRA}\""
 			else echo 'DXVK_CONFIG="d3d9.presentInterval = 0"'; fi
 		fi
 		if command -v mangohud >/dev/null && [ "$kind" = timedemo ]; then
@@ -323,7 +341,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 		echo "con_logfile \"bench/$id.log\""
 		case "$kind" in watch|play) echo "mat_vsync 1" ;; *) echo "mat_vsync 0"; echo "fps_max 0" ;; esac
 		echo "demo_quitafterplayback 1"
-		case "$vr" in sbs|tab|anaglyph-*) [ "$kind" != view ] && echo "vr_activate" ;; esac
+		case "$vr" in sbs|sbs-gamescope*|tab|anaglyph-*) [ "$kind" != view ] && echo "vr_activate" ;; esac
 		# Extra console commands for a test run, separated by ";"
 		# (e.g. HL2BENCH_CMDS="sv_cheats 1;viewmodel_fov 75").
 		[ -n "${HL2BENCH_CMDS:-}" ] && printf '%s\n' "$HL2BENCH_CMDS" | tr ';' '\n'
@@ -408,6 +426,9 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# Collect.
 	cp "$write/bench/$id.log" "$out/console.log" 2>/dev/null
 	cp "$write/console.log" "$out/condebug.log" 2>/dev/null
+	# The module's per-frame angle log (SVRTV_ANGLELOG=1), moved so the next
+	# step starts clean.
+	[ -f "$game/bin/svrtv-angles.tsv" ] && mv "$game/bin/svrtv-angles.tsv" "$out/svrtv-angles.tsv"
 	for csv in "$write/sourcebench.csv" "$write/SourceBench.csv" "$game/sourcebench.csv" "$game/SourceBench.csv"; do
 		[ -f "$csv" ] || continue
 		{ head -1 "$csv"; tail -n +"$((before + 1))" "$csv" | grep -v '^demofile'; } >"$out/SourceBench-rows.csv"
