@@ -14,6 +14,29 @@ follow below.
 License: the Source 1 SDK License, the license of the SDK it is built on
 (`LICENSE`, `LICENSE-SOURCE-1-SDK`); provenance in [../PROVENANCE.md](../PROVENANCE.md).
 
+## The in-game version (work in progress, 2026-09-26)
+
+This folder's `sourcevr_tv.cpp` is the first, standalone module, set up
+through `SVRTV_*` variables or `svrtv.ini`; its records below stay as the
+history. The current version lives in Daniel's fork of Valve's SDK, being
+prepared as a pull request to Valve:
+[source-sdk-2013, branch `stereo3d-sbs-native`](https://github.com/danielcamposramos/source-sdk-2013/tree/stereo3d-sbs-native/src/sourcevr_display).
+It adds the 3D section to the game's own options (Stereo 3D, 3D format,
+3D output, Swap eyes, one reload on Apply), half top and bottom and half
+side by side natively, and anaglyph, row-interleaved and checkerboard
+through gamescope. Its README says how to build, install and launch it
+with what is published here (the gamescope-3dtv build, the anaglyph
+effect, `tools/hl2-bench/play.env.example`), and lists where it fails:
+
+- the full-resolution formats inside gamescope do not work yet; the fix is
+  being chased on the branch `stereo3d-full-res-wip`, which today has its
+  own regression (the mouse pinned to the screen centre inside gamescope);
+- frame packing needs HDMI 3D modes the proprietary NVIDIA driver does not
+  offer;
+- native rows and checkerboard, and the spectator mode with a real
+  headset, are not built;
+- the OpenGL renderer crashes in VR mode; use Vulkan.
+
 ## How it fits the engine
 
 Read from the Source SDK 2013 client (`src/game/client/view.cpp`,
@@ -36,6 +59,35 @@ Half-Life 2's native Linux build (checked 2026-09-24, build 19307283) is
 client still has the whole VR path (`vr_activate`, `vr_stereo_swap_eyes`,
 the HUD and projection settings). The shipped module contains no headset
 SDK code.
+
+## Established solutions (check before every change)
+
+Each of these was found by testing on the TV and kept on purpose. No change
+removes or narrows one without Daniel's say; a change that touches one says so
+and keeps its purpose. (Written 2026-09-26, after changes that "simplified"
+some of them away and brought the old problems back.)
+
+1. **The UI is laid out at the 2D size** and shown in each eye at zero
+   parallax: the HUD and menus sit on the screen plane.
+2. **The pointer is confined to the UI's area (one eye's resolution)
+   whenever the window is bigger than that area.** First found with the
+   640x480 sheet (the cursor walked off what the eyes show); the same holds
+   for the full formats and a gamescope screen bigger than the game.
+3. **Menus keep the game's layout** (the menu-in-the-corner fix; no HUD band
+   moves while a menu is open, or buttons land away from the cursor).
+4. **Every switch goes through one full reload on Apply** (read all
+   settings, deactivate, activate), never piecemeal.
+5. **Settings the module changes are restored** when 3D stops and at the next
+   start if the game quit in 3D (crosshair, motion blur, anisotropic, video
+   mode).
+6. **No silent fallbacks.** Each format and output is the player's choice and
+   is built for exactly that; a failure shows as it is (logged).
+7. **Where each format lives.** Native: the game straight to the 3D TV, the
+   formats the TV unpacks (half top and bottom, half side by side); frame
+   packing and other modes come when the kernel's HDMI 3D switch lets the game
+   list the EDID's standard modes. gamescope: the composition side (anaglyph,
+   rows, checkerboard) and the widest set of formats.
+8. **The game starts in the saved state** (3D if 3D was saved).
 
 ## Geometry
 
@@ -229,6 +281,27 @@ The module looks SDL up with `dlopen`/`dlsym` pinned to their original
 glibc versions; before glibc 2.34 those lived in `libdl`, so the module
 needs a glibc of 2.34 or newer in the game's container (Steam's runtime
 uses the host's glibc when it is newer).
+
+**Frame-size formats inside gamescope (2026-09-26, runs q17, q18 and the q17
+confirmation run):** the full formats and frame packing need a video mode of
+the frame's size (3840x1080, 1920x2160, 1920x2205, 1280x1470). Inside
+gamescope the game's screen is gamescope's nested one, fixed at start
+(1920x1080), and the mode is never granted: every DXVK swapchain stayed
+1920x1080 (q18 log). Asking for it as a window instead left the window past
+the screen's edges, with the menu and Quit out of reach (reverted). What each
+format showed in the 1920x1080 buffer, for when the kernel and driver work
+lets a native session set these modes (Daniel's observations):
+
+- frame packing 1080p: looked the same as top and bottom;
+- frame packing 720p: a black bar on the left;
+- full top and bottom: a single eye, with the aim displaced (VR aim);
+- full side by side with anaglyph: all red (the right eye outside the
+  buffer, so the cyan half had nothing);
+- the half formats, and Swap eyes: clean.
+
+So the gamescope menu offers only the half formats; the full formats and
+frame packing stay in the native menu, where they depend on the display (and,
+for frame packing, on the HDMI 3D signal from the driver).
 
 Open:
 

@@ -258,6 +258,9 @@ run_step() { # id app renderer vr runs frame kind [display]
 		# switches turn 3D on: -stereo3d on the launch line (HL2BENCH_ARGS) or
 		# vr_display_3d from the video options (the in-game 3D offer, 2026-09-26).
 		stereo3d) layout="" ;;
+		# the same inside gamescope, where the menu's "3D output" switches
+		# gamescope's anaglyph effect at run time (no effect on its command line)
+		stereo3d-gamescope) layout=""; usegs=1 ;;
 	esac
 	if [ -n "$gsfx" ]; then
 		mkdir -p "$HOME/.local/share/gamescope/reshade/Shaders"
@@ -270,6 +273,8 @@ run_step() { # id app renderer vr runs frame kind [display]
 		else
 			printf 'SVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"
 			[ -n "$layout" ] && printf 'SVRTV_LAYOUT=%s\n' "$layout" >>"$game/bin/svrtv.ini"
+			# The module installs the anaglyph effect for gamescope from its folder.
+			cp "$HERE/../vr-stereo-spectator/anaglyph/svrtv-anaglyph.fx" "$game/bin/"
 			# Extra module settings for a test run, e.g. SVRTV_EXTRA="SVRTV_HUDCOPY=1".
 			[ -n "${SVRTV_EXTRA:-}" ] && printf '%s\n' $SVRTV_EXTRA >>"$game/bin/svrtv.ini"
 		fi
@@ -310,7 +315,12 @@ run_step() { # id app renderer vr runs frame kind [display]
 		# nested output on MAILBOX (~/.local/bin/gamescope-3dtv, 2026-09-25).
 		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE_BIN=\"${GAMESCOPE_BIN:-gamescope}\""
 		[ -n "$usegs" ] && [ -n "${GAMESCOPE_NESTED_PRESENT_MODE:-}" ] && echo "export GAMESCOPE_NESTED_PRESENT_MODE=$GAMESCOPE_NESTED_PRESENT_MODE"
-		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE=\"--backend ${GS_BACKEND:-sdl} -g --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $RES_W -h $RES_H ${didx:+--display-index $didx}${gsgrab:+ --force-grab-cursor}${gsfx:+ --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx}\""
+		# gamescope's nested screen: the 2D size, or GS_NESTED=WxH. No -S stretch:
+		# runs q20 and q21 (with it) had the mouse pinned; the q17 confirmation
+		# (without it) was fine.
+		local nested_w=$RES_W nested_h=$RES_H
+		if [ -n "${GS_NESTED:-}" ]; then nested_w=${GS_NESTED%x*}; nested_h=${GS_NESTED#*x}; fi
+		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE=\"--backend ${GS_BACKEND:-sdl} -g --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $nested_w -h $nested_h ${didx:+--display-index $didx}${gsgrab:+ --force-grab-cursor}${gsfx:+ --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx}\""
 		# Render on the RTX 3060 (the desktop runs on the AMD iGPU), through
 		# the driver family the steps file names in its "# gpu:" line.
 		if [ "$GPU" = mesa ]; then

@@ -2,16 +2,21 @@
 # Steam launch wrapper for the HL2 bench suite. Set a game's launch options
 # once to:
 #     /K3D/GitHub/sony-bravia-linux/tools/hl2-bench/game-wrap.sh %command%
-# Outside a suite run it simply starts the game. During a run, hl2-suite.sh
-# writes the step's settings to /K3D/temp/hl2-bench/current.env: environment
-# (GPU selection, metrics) and STEP_ARGS, the game arguments for that step.
+# Outside a suite run it starts the game as is, or with play.env (below).
+# During a run, hl2-suite.sh writes the step's settings to
+# /K3D/temp/hl2-bench/current.env: environment (GPU selection, metrics) and
+# STEP_ARGS, the game arguments for that step.
+# Outside a run, play.env (same format) holds Daniel's play launch, when set:
+# Steam's Play button then starts the game the way that file says.
 ENVFILE=/K3D/temp/hl2-bench/current.env
+[ -f "$ENVFILE" ] || ENVFILE=/K3D/temp/hl2-bench/play.env
 STEP_ARGS=""
 if [ -f "$ENVFILE" ]; then
 	set -a
 	# shellcheck disable=SC1090
 	. "$ENVFILE"
 	set +a
+	[ -n "${STEP_OUT:-}" ] && mkdir -p "$STEP_OUT"
 	# The game's DXVK is v2.0, which reads a config file but not the
 	# DXVK_CONFIG variable (2.1+). Write the suite's settings next to the
 	# game, where Steam's runtime container sees it.

@@ -18,6 +18,11 @@ http://chrisjones.id.au/Dubois/Dubois.html and checked against its raw page
 (2026-09-24); the CRT one matches `tools/bravia_anaglyph.py`. The mix is done
 in linear light (the sampler decodes sRGB, the pass encodes it again).
 
+The effect also carries the techniques the in-game version switches to
+from its menu (2 to 11, listed in the file's header). Techniques 9 to 11
+serve the full-resolution formats, which do not work inside gamescope yet
+(being chased; see `../sourcevr/README.md`).
+
 ## Running it
 
 Two things decide whether turns stay solid (2026-09-25, see "The gamescope frame race"
