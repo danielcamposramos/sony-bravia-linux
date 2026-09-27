@@ -22,3 +22,25 @@
 Honest note: I own no HDR display, so none of the HDR above is my measurement; the 12-bit link is deep colour on an SDR set, not HDR. The list says which claims are measured, by whom and on what.
 awesome-linux-hdr: https://github.com/danielcamposramos/awesome-linux-hdr
 The 3D side: https://github.com/danielcamposramos/sony-bravia-linux and https://github.com/danielcamposramos/awesome-stereoscopy
+
+## Follow-ups, 2026-09-27
+
+vonKordke asked "is there at least a human behind this ai generated response?" and ItTakes2ToMango answered "....Sigh". Nobody disputed a fact in the reply. Daniel answered in his own words ("What do you mean?", "?", then a link to his LinkedIn profile, saying he does not need to prove he is human and that he had crafted an answer for each member).
+
+Then Daniel answered vonKordke's earlier "old man rambling" post to Mark Kaine with measurements (findComment-16939040,
+https://linustechtips.com/topic/1639121-cachyos-updates-proton-with-hdr-autodetection/?do=findComment&comment=16939040):
+
+```
+Glad it works on yours, and that is exactly the point Mark and ItTakes2ToMango made: it works when every layer of your stack handles it, and on Linux that still depends on who made your GPU and which driver you run.
+
+I measured it on one TV, which is SDR, so this is deep colour, the link HDR rides on, not HDR itself. Same TV, read on its own on-screen info:
+amdgpu trains the HDMI link at 12 bits.
+NVIDIA's proprietary driver on Linux caps it at 10 bits by default, while the same card on Windows drives 12.
+Stock nouveau stays at 8 bits on HDMI.
+
+On nouveau, Mohamed Ahmed is doing the real work: his branch brings 12-bit HDMI with proper bandwidth validation, and the nouveau maintainer chose it over my own series, which lacked that part. So I moved my work onto his branch: a small HDMI compliance fix, tested on two Sony sets, and a YCbCr output port, which HDR10 needs and which stock nouveau does not have yet. Both are offered to him in a merge request.
+
+So Mark's point stands: it is not the panels, it is the support, and it is uneven across makers, kernels and drivers. Where each one stands, with the evidence: https://github.com/danielcamposramos/awesome-linux-hdr
+```
+
+Sources: the 12/10/8 readings, `docs/research/liverecon/nv-vs-amd-deepcolor-osd-2026-09-22.md` (TV OSD on both inputs, 2026-09-22; Windows 12-bit proven from Daniel's own use) and the stock-nouveau and Mohamed-branch runs in `docs/upstream/issue-tracker.md` (runs 30-34, mohamexiety/nouveau!1).
