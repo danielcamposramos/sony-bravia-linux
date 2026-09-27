@@ -1,7 +1,10 @@
 <!-- POSTED 2026-09-26 by Daniel, as a follow-up to his own comment
      16936512 on the Steam Frame review thread:
      https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/
-     Comment link: to record (the forum answers automated fetches with 403).
+     Comment: findComment-16938900
+     https://linustechtips.com/topic/1642726-the-steam-frame-changes-everything-full-review/?do=findComment&comment=16938900
+     Same day, Daniel sent Luke a short forum DM pointing at this comment
+     (the DM's text stays private).
      Mentions Luke (forum handle Slick, picked from the forum's autocomplete).
      Timing: posted once, now, while the thread was still alive (quiet since
      2026-09-21); the source-sdk-2013 pull request goes to Valve's own
