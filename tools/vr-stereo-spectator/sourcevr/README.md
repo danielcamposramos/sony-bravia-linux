@@ -7,7 +7,10 @@ module the engine itself renders both eyes, with real stereo geometry, into
 one side-by-side or top-and-bottom frame the television unpacks. No lens
 distortion, no head tracking, no per-game shader fixes.
 
-**Status (2026-09-24): built and geometry-verified, not yet run in a game.**
+**Status (2026-09-26): played in 3D.** Half-Life 2 on the KDL-46HX855
+since 2026-09-24: Vulkan, side by side, native and through gamescope (which
+also gives red/cyan anaglyph for any colour screen). The dated records
+follow below.
 License: the Source 1 SDK License, the license of the SDK it is built on
 (`LICENSE`, `LICENSE-SOURCE-1-SDK`); provenance in [../PROVENANCE.md](../PROVENANCE.md).
 
