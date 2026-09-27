@@ -7,7 +7,7 @@ live simultaneously as extended-desktop outputs, KDL-46HX855 the sink for the AM
 head and a second HDMI input of the same set for the NVIDIA head.
 
 Bench identification (owner-provided, 2026-09-22): the AMD head is the iGPU of a
-Ryzen 5 5500G (Cezanne, Vega) on an ASUS TUF GAMING X570-PLUS/BR board; the
+Ryzen 5 5600G (Cezanne, Vega) on an ASUS TUF GAMING X570-PLUS/BR board; the
 NVIDIA head is a GALAX GeForce RTX 3060 (GA106, 12 Gb VRAM) in the same machine.
 This is also the bench behind #1384's machine line.
 

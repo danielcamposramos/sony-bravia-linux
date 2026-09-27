@@ -37,7 +37,7 @@ owner-verified on the EX725.
 
 **The measurement workstation behind the HDMI/KMS lanes** (2026-09-22,
 recorded once so the A/B docs stop saying "the same card"): ASUS TUF
-GAMING X570-PLUS/BR board, Ryzen 5 5500G (Cezanne — its Vega iGPU is the
+GAMING X570-PLUS/BR board, Ryzen 5 5600G (Cezanne — its Vega iGPU is the
 AMD control head in every A/B) plus a GALAX GeForce RTX 3060 (GA106,
 12 Gb VRAM); NVIDIA driver 615.71.09 on kernel 7.0.10+deb14.
 

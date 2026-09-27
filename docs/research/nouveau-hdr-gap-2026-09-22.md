@@ -205,7 +205,7 @@ path in nouveau.
 One sink and one EDID already produce three different, measured non-HDR
 surfaces on the same workstation:
 
-- **amdgpu** (Ryzen 5 5500G control head): full mode list and 12-bit link
+- **amdgpu** (Ryzen 5 5600G control head): full mode list and 12-bit link
   training reported by the TV OSD;
 - **nouveau** (GA106): full mode list and the tested HDMI 1.4 3D modes, but no
   HDR/Colorspace/max-bpc KMS properties;

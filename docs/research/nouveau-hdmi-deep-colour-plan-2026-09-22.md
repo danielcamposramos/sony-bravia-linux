@@ -16,7 +16,7 @@ necessary part of both native HDR and high-precision HDR-to-SDR output.
 ## Fixed bench and controls
 
 - motherboard: ASUS TUF GAMING X570-PLUS/BR;
-- CPU/control GPU: Ryzen 5 5500G (Cezanne amdgpu);
+- CPU/control GPU: Ryzen 5 5600G (Cezanne amdgpu);
 - GPU under test: GALAX RTX 3060, GA106, 12 GB;
 - sink: Sony KDL-46HX855;
 - HX855 EDID identity on the AMD-connected TV input (HDMI source physical
