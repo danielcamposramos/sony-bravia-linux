@@ -68,7 +68,10 @@ and keeps its purpose. (Written 2026-09-26, after changes that "simplified"
 some of them away and brought the old problems back.)
 
 1. **The UI is laid out at the 2D size** and shown in each eye at zero
-   parallax: the HUD and menus sit on the screen plane.
+   parallax: the HUD and menus sit on the screen plane. Text anywhere else
+   makes the eyes refocus to read it, which Linus Tech Tips met with
+   Killzone's subtitles on the PlayStation 3D Display
+   ([2022, 8:52](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=532s)).
 2. **The pointer is confined to the UI's area (one eye's resolution)
    whenever the window is bigger than that area.** First found with the
    640x480 sheet (the cursor walked off what the eyes show); the same holds
@@ -299,9 +302,19 @@ lets a native session set these modes (Daniel's observations):
   buffer, so the cyan half had nothing);
 - the half formats, and Swap eyes: clean.
 
-So the gamescope menu offers only the half formats; the full formats and
-frame packing stay in the native menu, where they depend on the display (and,
-for frame packing, on the HDMI 3D signal from the driver).
+The menu follows Daniel's design (2026-09-26): natively, what the TV
+unpacks, half top and bottom (recommended) and half side by side; through
+gamescope, the composition side, the half formats plus full top and bottom
+and full side by side. The full formats inside gamescope are the work in
+progress (not granted yet, as above). Frame packing comes when the kernel's
+HDMI 3D switch lets the game list the display's own 3D modes.
+
+Why the full formats are worth the chase: a half format gives each eye half
+the lines or half the columns, so a 1080p set can end up at 540 lines per
+eye ([Linus Tech Tips, *Was 3D TV actually poo?*, 2022, 17:28](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=1048s)).
+A 4K passive set such as LG's 2016 OLED Signature G6 has the rows to give
+each eye all 1080 from a full-resolution source ([14:10](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=850s)), and
+for a game, full top and bottom (1920x2160) is that source.
 
 Open:
 

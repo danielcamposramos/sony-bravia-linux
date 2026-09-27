@@ -9,6 +9,11 @@ Half-Life 2 (2026-09-24, `sourcevr/`), whose own VR interface
 (`ISourceVirtualReality`) made it a good teacher: the structure below is what
 most VR games share.
 
+Why games at all: "games and animated films use virtual rather than physical
+cameras and are therefore much easier to convert to 3D" (Linus Tech Tips,
+[*Was 3D TV actually poo?*, 2022, 19:02](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=1142s)). An engine holds the
+scene as geometry, so the second eye is a second camera, not a guess.
+
 wiz3D solves a different problem, stereo for games that never had a VR mode
 (a DirectX proxy that renders each draw twice). This formula is for games
 that already have one.
@@ -51,6 +56,9 @@ that already have one.
 
 ## 4. The 2D layer: HUD and menus on the screen plane
 
+- Text off the screen plane costs the viewer a refocus every time they read
+  it: Killzone's subtitles on the PlayStation 3D Display, as Linus Tech Tips
+  found ([2022, 8:52](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=532s)). Keep all 2D at zero parallax.
 - A VR mode paints the HUD into a small sheet (640x480 in Half-Life 2) and
   shows it as a panel floating in the world, sized for a headset. On a
   display, paste that sheet across the whole screen, **identical in both

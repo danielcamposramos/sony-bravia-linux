@@ -296,6 +296,13 @@ Reddit thread to remux them into a working 3D file format by hand
 exists, the discs exist, the hardware reads it, and the last mile,
 getting the flag into the file, is left to hand-tooling.
 
+It was not the first time. Two years earlier, testing LG's 2016 OLED
+Signature G6 for *Was 3D TV actually poo?* (2022), the same team asked to
+play their 3D films from a USB stick on the television (~12:40) and then
+"gave up on trying to play 3D files" (~12:49), going back to a Blu-ray
+player. The video does not say why the files failed, so this is the
+symptom on record, not a diagnosis; it is the same last mile.
+
 The modern "answer" underlines it rather than closing it. In the Steam
 Frame review ([LTT](https://www.youtube.com/watch?v=3PGKMwgjla0)) the 3D
 question is met with "I'm as much of a 3D guy as I think anyone is these
@@ -329,6 +336,14 @@ is one 16-byte message, and this repo maps every place it needs to go.
     [0:53 "no new hardware supports 3D anymore"](https://www.youtube.com/watch?v=_4Sz6J49jho&t=53s) ·
     [10:20 "more tinkering than anything else we've done so far"](https://www.youtube.com/watch?v=_4Sz6J49jho&t=620s) ·
     [10:34 ripping and hand-remuxing to a 3D file format](https://www.youtube.com/watch?v=_4Sz6J49jho&t=634s).
+  - *Was 3D TV actually poo?* (2022),
+    [full video](https://www.youtube.com/watch?v=Dbjb2spwQVg). Timed moments:
+    [12:40 asking to play the 3D films from a USB stick](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=760s) ·
+    [12:49 "We gave up on trying to play 3D files"](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=769s) ·
+    [17:28 half-resolution packing, 540 lines per eye](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=1048s) ·
+    [19:29 "4K Blu-ray doesn't support 3D at all"](https://www.youtube.com/watch?v=Dbjb2spwQVg&t=1169s).
+    Companion LTT forum thread:
+    [The Demise of 3DTV - The Hype Machine's Biggest Mistake, topic 1431094](https://linustechtips.com/topic/1431094-the-demise-of-3dtv-the-hype-machines-biggest-mistake/).
   - *Steam Frame Review - This Changes Everything*,
     [full video](https://www.youtube.com/watch?v=3PGKMwgjla0). Timed moment:
     [21:10 "so little content available for it"](https://www.youtube.com/watch?v=3PGKMwgjla0&t=1270s).
