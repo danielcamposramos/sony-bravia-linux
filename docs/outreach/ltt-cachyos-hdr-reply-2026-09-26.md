@@ -45,4 +45,4 @@ So Mark's point stands: it is not the panels, it is the support, and it is uneve
 
 Sources: the 12/10/8 readings, `docs/research/liverecon/nv-vs-amd-deepcolor-osd-2026-09-22.md` (TV OSD on both inputs, 2026-09-22; Windows 12-bit proven from Daniel's own use) and the stock-nouveau and Mohamed-branch runs in `docs/upstream/issue-tracker.md` (runs 30-34, mohamexiety/nouveau!1).
 
-Moderation, 2026-09-27: moderator SansVarnic cleaned Daniel's reply that linked his LinkedIn profile ("-= Cleaned =-"). The substantive replies stand: the answer to each member and the measured reply (16939040).
+Moderation, 2026-09-27: moderator SansVarnic cleaned the whole personal exchange ("-= Cleaned =-"), on both sides: the "is there a human" and "Sigh" posts and Daniel's reply with his LinkedIn profile. The substantive replies stand: the answer to each member and the measured reply (16939040).
