@@ -88,16 +88,22 @@ some of them away and brought the old problems back.)
 6. **No silent fallbacks.** Each format and output is the player's choice and
    is built for exactly that; a failure shows as it is (logged).
 7. **Where each format lives.** Native: the game straight to the 3D TV, the
-   formats the TV unpacks (half top and bottom, half side by side); frame
-   packing and other modes come when the kernel's HDMI 3D switch lets the game
-   list the EDID's standard modes. gamescope: the composition side (anaglyph,
-   rows, checkerboard) and the widest set of formats.
+   frames the TV unpacks (top and bottom, side by side), with full-size eyes
+   (the full formats, 2026-09-28) or region-sized ones (the half formats);
+   frame packing and other modes come when the kernel's HDMI 3D switch lets
+   the game list the EDID's standard modes. gamescope: the composition side
+   (anaglyph, rows, checkerboard) and the same formats.
 8. **The game starts in the saved state** (3D if 3D was saved).
 9. **No X connection at module start inside gamescope.** The module opens
    its X connection only when a gamescope output or a full format needs it.
    Opening it at start, only to log gamescope's screen size, pinned the mouse
    to the centre (run q21); leaving it out freed it (run q22: "mouse is
    fixed", the pointer log across the whole window). The audit checks it.
+10. **Nothing is resized for a format.** The frame is always the screen the
+   game already has: the full formats render each eye at the whole 2D size
+   and shrink it into its half, supersampled (run q24: sharper, the mouse
+   free). Resizing gamescope's screen needed `-S stretch`, which breaks the
+   relative mouse (run q23).
 
 ## Geometry
 
