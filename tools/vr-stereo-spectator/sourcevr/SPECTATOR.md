@@ -22,9 +22,21 @@ Bed: Half-Life 2: Deathmatch built from the fork (client, server and `sourcevr.s
 | r06 | the same demo with 3D turned on (from the console, then replayed) | The SourceTV demo plays in 3D (Daniel: "it works"); it stops at the same point as in 2D. |
 | r07 | a new SourceTV recording in plain 2D, no `-vr` (the module not loaded), played back in 2D | The same: `Could not find table "modelprecache"` (and every other string table) at the start, then the same Host_Error. Not the stereo. |
 
-## The SourceTV demo bug (for its own pull request, Daniel's call)
+## The SourceTV demo bug: director-only SourceTV writes broken demos
 
-Every playback of a SourceTV demo recorded on this listen server starts with `Could not find table` for all of the demo's string tables (`downloadables`, `modelprecache`, `genericprecache`, `soundprecache`, `decalprecache`, `instancebaseline`, `lightstyles`, `userinfo`, ...) and stops at the same point with `Host_Error: CL_PreserveExistingEntity: missing client entity 77`, in 2D and 3D alike, and with no VR module loaded at all (r07). The demo header is complete (demo protocol 3, network protocol 24, 183.1 s, 12,205 ticks, sign-on 222,345 bytes). Daniel's lead: precache, the tables the demo should carry; an entity whose model is not in them can fail to be created, and a later update for it gives exactly this error. The error class is long known in Source demos (e.g. [Source-1-Games#3112](https://github.com/ValveSoftware/Source-1-Games/issues/3112)). Not yet tried: a dedicated server's recording (the usual SourceTV setup; Source SDK Base 2013 Dedicated Server is not installed here).
+Every playback of the SourceTV demos recorded in r04 and r07 stopped at the same point with `Host_Error: CL_PreserveExistingEntity: missing client entity 77`, in 2D and 3D alike and with no VR module loaded at all (r07). Traced with a demo parser ([../sourcetv/](../sourcetv/)), then isolated in r08/r09 (2026-09-28, the same listen server, plain 2D, no module):
+
+| recording | `tv_delay` | `tv_transmitall` | size | entities other than the player |
+|---|---|---|---|---|
+| r07 | 0 | 0 (default) | 104 MB for 283 s | written as entering in every frame |
+| r08 A | 0 | 0 (default) | 64 MB for 172 s | written as entering in every frame |
+| r08 C | 5 | 0 (default) | 30 MB for 82 s | written as entering in every frame |
+| r08 B | 0 | 1 | 0.5 MB for 76 s | enter once, then updated |
+| r08 D | 5 | 1 | 0.5 MB for 87 s | enter once, then updated |
+
+With the default `tv_transmitall 0` (SourceTV culls to the director's view), every entity except the recording's own player (a door, a weapon, each prop: 2,865 times in 2,865 frames of A) is written as entering the client's view in every frame, as if the frame each packet is patched from held only the player: 60 times the data, and playback dies when an entity index is reused by another class (77: a `CBaseAnimating`, later a `CBaseGrenade`). With `tv_transmitall 1` the demo is normal, and r09 played D end to end in the engine, first person included (Daniel). The delay makes no difference. The game's server code (`CServerGameEnts::CheckTransmit`) hands SourceTV every entity; the culling and the demo writing are the engine's (closed), so this is a report to Valve with the workaround, `tv_transmitall 1`. The `Could not find table` lines at the start of every playback appear in the good demos too: harmless (the demo carries all its string tables, `modelprecache` with 313 entries). Not tried: a dedicated server's recording (Source SDK Base 2013 Dedicated Server is not installed here).
+
+Seen on the way: the first `+command` on this launcher's command line gets its argument with a leading space (`+playdemo x` looked for ` x.dem`, `+exec x` for ` x`); harmless when that first argument is a number. The SDK's Linux launcher only moves `-game` to the end, so this is the engine's command-line parsing.
 
 ## Not tried yet
 
