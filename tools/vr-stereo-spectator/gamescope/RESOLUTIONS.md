@@ -10,7 +10,7 @@ Read from gamescope's source on 2026-09-27 (upstream `master` at `ad2763d`, 2026
 
 ## 2. Resizing the nested screen at run time
 
-- The root-window property `GAMESCOPE_XWAYLAND_MODE_CONTROL` takes four values: server, width, height, allowSuperRes (`steamcompmgr.cpp` 7225-7260). Without allowSuperRes the size is capped at the output; with it, any size ("super resolution", larger than the output and scaled down). gamescope deletes the property once the root has the new size. Our q21 build uses it; that branch has an open regression (the mouse pinned inside gamescope), to be isolated against q17 first.
+- The root-window property `GAMESCOPE_XWAYLAND_MODE_CONTROL` takes four values: server, width, height, allowSuperRes (`steamcompmgr.cpp` 7225-7260). Without allowSuperRes the size is capped at the output; with it, any size ("super resolution", larger than the output and scaled down). gamescope deletes the property once the root has the new size. Our q21 build used it (its mouse pin turned out to be another cause, the module's startup X connection, fixed in run q22); the module no longer resizes anything (section 7, run q24), and that code is gone (`ebcd4cc`).
 - After a resize every window's placement is re-armed ("Screen-sized is relative to the screen", `steamcompmgr.cpp` 6150-6163).
 
 ## 3. From the game's image to the output

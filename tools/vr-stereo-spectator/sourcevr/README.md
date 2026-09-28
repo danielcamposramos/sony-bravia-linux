@@ -95,7 +95,7 @@ some of them away and brought the old problems back.)
    (anaglyph, rows, checkerboard) and the same formats.
 8. **The game starts in the saved state** (3D if 3D was saved).
 9. **No X connection at module start inside gamescope.** The module opens
-   its X connection only when a gamescope output or a full format needs it.
+   its X connection only when a gamescope output (the effect) needs it.
    Opening it at start, only to log gamescope's screen size, pinned the mouse
    to the centre (run q21); leaving it out freed it (run q22: "mouse is
    fixed", the pointer log across the whole window). The audit checks it.
@@ -103,7 +103,14 @@ some of them away and brought the old problems back.)
    game already has: the full formats render each eye at the whole 2D size
    and shrink it into its half, supersampled (run q24: sharper, the mouse
    free). Resizing gamescope's screen needed `-S stretch`, which breaks the
-   relative mouse (run q23).
+   relative mouse (run q23); the resize code is gone (`ebcd4cc`) and the audit
+   fails if it comes back. The full formats use the half ones' effect
+   techniques (run q27: anaglyph from both full formats, "complete success").
+11. **One menu entry per setting.** Two entries bound to the same convar (a
+   native one and a gamescope one, one hidden by `depends_on`) each write
+   their value on Apply, and the hidden one wrote the old value back: the
+   native format never switched (run q25). One entry for the format, shown in
+   both places, fixed it (run q26: every format switched, "perfection").
 
 ## Geometry
 
