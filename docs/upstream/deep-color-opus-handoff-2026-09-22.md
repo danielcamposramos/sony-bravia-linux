@@ -15,6 +15,11 @@ Read first, in this order:
 
 ## Where everything is
 
+- **Preservation inventory:**
+  `docs/upstream/evidence-preservation/README.md` records the staged bundles
+  and patch series, their SHA-256 digests, verification state, limitations,
+  and the adversarial review gate for any later release or upstream post.
+
 - **v2 series (benched, unsent):** `/K3D/temp/nouveau-deep-color-series-v2-fixed/`
   (`v2-0000-cover-letter.patch` FILLED — subject, blurb with Changes-in-v2,
   citation round, bench paragraph updated to post-bench truth — plus

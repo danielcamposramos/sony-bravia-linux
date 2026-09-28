@@ -81,9 +81,13 @@ perfect results", CRT and modern screens.
 
 It showed first in anaglyph: static geometry swam in depth during fast mouse
 turns; slow pans, walking and moving objects were clean, and native side by
-side never showed it. It was never an anaglyph fault. It was a frame race in
-gamescope: side by side **through gamescope** on the 3D TV swam the same way
-(runs p08, p09), and anaglyph only made it easy to see.
+side never showed it. Daniel physically confirmed both the failure and its
+medicine. It was never an anaglyph fault: side by side **through gamescope**
+on the 3D TV swam the same way (runs p08, p09), and anaglyph only made it easy
+to see. The controlled runs then removed the swim by letting the game render
+freely (p15, p16) and removed the remaining lag with gamescope's nested output
+on IMMEDIATE (p16c); both anaglyph matrices passed the same corrected path
+(p18, p19).
 A per-frame log of the engine's view angles (`SVRTV_ANGLELOG=1`) measured it:
 
 | run | path | frame time p5 / p95 | frames over 1.5x median |
@@ -95,15 +99,20 @@ A per-frame log of the engine's view angles (`SVRTV_ANGLELOG=1`) measured it:
 | p18 | same, anaglyph (modern screens) | 2.5 / 4.5 ms | 2% |
 | p19 | same, anaglyph (CRT) | 2.5 / 5.6 ms | 8% |
 
-Two queues in a row: the game's vsync, then gamescope's nested output, which
-gamescope 3.16 hard-codes to FIFO (`src/rendervulkan.cpp`). Frames reached
-the screen in 4 ms / 33 ms pairs; the view froze, then jumped, and during a
-turn that reads as depth. Letting the game run free removed the swim (p15,
-p16; Daniel: "not to the point of artifacting, now it's more akin to mouse
-lag"); the output on IMMEDIATE removed the lag (p16c: "just like the original
-sbs", no tearing, since KWin still composites the window). NVIDIA offers no
-MAILBOX for that window (p16b fell back to FIFO). Daniel, anaglyph p18:
-"PERFECTION!"; p19 (CRT): "also a perfect run".
+The source-backed diagnosis was two queues in a row: the game's vsync, then
+gamescope's nested output, which gamescope 3.16 hard-codes to FIFO
+(`src/rendervulkan.cpp`). Frames reached the screen in 4 ms / 33 ms pairs; the
+view froze, then jumped, and during a turn that reads as depth. Letting the
+game run free removed the swim (p15, p16; Daniel: "not to the point of
+artifacting, now it's more akin to mouse lag"); the output on IMMEDIATE
+removed the lag (p16c: "just like the original sbs", no tearing, since KWin
+still composites the window). NVIDIA offers no MAILBOX for that window (p16b
+fell back to FIFO). Daniel, anaglyph p18: "PERFECTION!"; p19 (CRT): "also a
+perfect run". Those A/B observations establish the failure and the effective
+correction. They do not directly trace the precise lower-level instant at
+which gamescope or the outer compositor selected each frame, so that narrower
+synchronisation mechanism remains an explanation rather than a measured wire
+event.
 
 Ruled out on the way: the colour matrices, the Pulfrich effect, the ReShade
 pass itself (an identity pass swam too), `--force-grab-cursor`, `m_filter`,

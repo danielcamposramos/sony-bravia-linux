@@ -203,7 +203,10 @@ do not invent code authorship or sign-offs for either AI partner.
   mirrored to `/K3D/temp/dual-upstream-preserve-2026-09-22/`: series-v2
   patches + cover letter, a `73ef663c..nouveau-hdmi-deep-color` git bundle,
   the NVIDIA branch bundle (`61dcc937..fix-hdmi-deep-color-default`), the
-  pre-commit diff and base notes.
+  pre-commit diff and base notes. The committed inventory, verification
+  status, and digests are in
+  `docs/upstream/evidence-preservation/README.md`; they preserve identity,
+  not the externally staged bytes.
 - **Cover letter written.** The `0000` skeleton's placeholders are filled:
   subject "drm/nouveau: HDMI Deep Color link depth (30/36/48 bpp)", run-5
   evidence, the audio-clobber mechanism, and explicit scope paragraphs —

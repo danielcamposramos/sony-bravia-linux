@@ -6,7 +6,10 @@ Fill the single bracketed [GPU model] before posting.
 POSTED 2026-09-22 as https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1384
 (via gh as danielcamposramos, explicit per-act approval; GPU fill-in: RTX 3060 GA106, GALAX, 12 Gb VRAM)
 Cross-link comment from #1382: issuecomment-5771657559.
-Kept here as the verbatim record of what was filed.
+The body preserves the filed report except for the explicitly scoped
+2026-09-28 evidence-boundary correction in the Deep Color/HDR paragraphs:
+the later RGB pass is now recorded and the old one-format HDR shorthand is
+replaced rather than repeated as current technical guidance.
 Suggested title:
 
 615.71.09 narrows what the EDID declares across independent axes: HDMI 1.4 3D absent, deep colour trained at 10-bit, mode list pruned (siblings #1348, #1369, #1184)
@@ -24,7 +27,7 @@ This is not one bug but one behaviour showing up on independent axes. I can meas
 
 **2. HDMI 1.4 3D modes never surface.** The TV declares its stereo layouts in the HDMI VSDB (structure-all bitmask, 3D mask, per-VIC detail entries, byte-verified by me against my set's own EDID dump). NVKMS parses none of it, so no DRM_MODE_FLAG_3D mode can ever exist, and the stereo_allowed gate has nothing to admit. With my community patch that mirrors the DRM core's do_hdmi_vsdb_modes() in the open glue, the same sink goes from 17 modes / 0 stereo to **39 modes / 22 stereo** (7 frame-packing, 8 top-and-bottom, 7 side-by-side-half). Patch, design document and measured A/B are posted on #1382: https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1382#issuecomment-5771464134
 
-**3. Deep colour trained down.** The EDID declares DC_36bit. The driver reports max bpc 16 upward to DRM, and debugfs shows output_bpc Maximum: 12. The TV still receives **10-bit**. The AMD card in the same machine drives the same model of TV at **12-bit**, with both links live at the same time, and I read both depths on the TV's own OSD. Windows on this same NVIDIA card drives 12-bit as well. So the narrowing is Linux driver policy, not the card, not the cable, not the sink.
+**3. Deep colour trained down by the default policy.** The EDID declares DC_36bit. The driver reports max bpc 16 upward to DRM, and debugfs shows output_bpc Maximum: 12. At the filed driver's default, the TV receives **10-bit**. The AMD card in the same machine drives the same model of TV at **12-bit**, with both links live at the same time, and I read both depths on the TV's own OSD. Windows on this same NVIDIA card drives 12-bit as well. A later controlled run on this Linux stack, changing only `max_output_color_depth=12`, made the same NVIDIA output train at **12-bit RGB** on the TV's OSD; that result is recorded with the companion fix in PR #1386. This isolates the tested RGB mode's narrowing to Linux driver policy, not the card, cable or sink. YCbCr output and HDR were not measured in that run.
 
 **Same shape, reported by others on their own hardware.**
 
@@ -44,9 +47,9 @@ HDMI 2.0a (HDMI Forum, April 2015) added HDR transport to the link layer by refe
 
 CTA-861.3-A defines HDR signalling in the EDID (HDR Static Metadata Data Block) and on the wire (Dynamic Range and Mastering InfoFrame): https://shop.cta.tech/products/cta-861-3
 
-The classic HDR10 wire format is 10-bit PQ samples carried in a **12-bit YCbCr 4:2:2 container**. So a driver that clips wire depth to 10 bits, and that mis-parses EDID capability blocks, sits directly under both my deep-colour finding and the HDR activation failures above.
+HDR10 image precision and HDMI wire packing are separate facts. HDR10 material uses 10-bit PQ with BT.2020 colour signalling and static HDR metadata; an HDMI link may carry that image as RGB or YCbCr 4:4:4, 4:2:2 or 4:2:0 according to the applicable profile, mode, sink and bandwidth. YCbCr 4:2:2 is a special HDMI transport that can carry up to 12-bit components in 24-bit-per-pixel packing without the ordinary GCP Deep Color declaration. It is one transport path, not the definition of HDR10. A driver that narrows EDID, colour-format, depth or HDR-metadata state therefore sits beneath both this deep-colour finding and the HDR activation failures above, but a 12-bpc RGB pass alone does not prove YCbCr or HDR operation.
 
-One honest scope note: I do not own an HDR display, so the HDR connection is argued from the specifications and from the sibling reports on this tracker, not measured on my bench. The deep-colour finding itself is measured, on the TV's own OSD, with two other stacks as controls.
+One honest scope note: I do not own an HDR display, so the HDR connection is argued from the specifications, NVIDIA's existing source paths and the sibling reports on this tracker, not measured on my bench. The deep-colour finding itself is measured in RGB, on the TV's own OSD, with two other stacks as controls. Applicability to NVIDIA's YCbCr modes is source-supported but unmeasured here.
 
 **What I would like from NVIDIA.**
 
