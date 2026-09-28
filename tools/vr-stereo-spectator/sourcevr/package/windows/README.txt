@@ -96,6 +96,7 @@ In multiplayer, the engine warns that an unsigned VR module blocks secure (VAC) 
 
 WHAT IS NOT IN THIS BUILD
 
+- Loading screens in 3D: they show in one eye. The game draws them straight to the screen while no 3D view is rendered, outside the path that puts the menus and HUD in both eyes; the fix is in Valve's engine, and our pull request asks for it.
 - Red/cyan anaglyph, row-interleaved and checkerboard outputs: Linux only for now (they run through gamescope).
 - Frame packing (the HDMI 3D signal that switches a TV to 3D by itself): it needs the graphics driver to offer HDMI 3D modes; not in the menu yet.
 - Spectating from a VR headset (someone plays in the headset while the PC screen shows both eyes in 3D): next.
