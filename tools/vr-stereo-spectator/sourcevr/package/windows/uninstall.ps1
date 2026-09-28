@@ -9,7 +9,7 @@ if (-not $GameDir) {
     if (Test-Path $vdf) { foreach ($m in [regex]::Matches((Get-Content $vdf -Raw), '"path"\s+"([^"]+)"')) { $libs += $m.Groups[1].Value -replace '\\\\', '\' } }
     foreach ($l in $libs) { $d = Join-Path $l "steamapps/common/Half-Life 2"; if (Test-Path (Join-Path $d "hl2.exe")) { $GameDir = $d; break } }
 }
-if (-not $GameDir) { Write-Host "Half-Life 2 not found. Drag its folder onto uninstall.bat."; exit 1 }
+if (-not $GameDir -or -not (Test-Path (Join-Path $GameDir "bin"))) { Write-Host "Game folder not found. Drag it onto uninstall.bat."; exit 1 }
 # While these markers exist the module still holds your own crosshair,
 # motion blur, anisotropic filtering or video mode, to put back at the next
 # start (the game quit with 3D on). Valve's module would not put them back.
@@ -23,7 +23,7 @@ foreach ($sub in @("bin", "bin/x64", "bin/win64")) {
 if ($pending.Count -gt 0) {
     Write-Host "The game last quit with 3D on, so your own settings are still waiting to be restored:"
     $pending | Sort-Object -Unique | ForEach-Object { Write-Host "  $_" }
-    Write-Host "Start Half-Life 2, set Options > Video > Stereo 3D to off, Apply, quit, then run uninstall.bat again."
+    Write-Host "Start the game, set Stereo 3D to off (Options > Video, or vr_display_3d 0 and vr_display_apply), quit, then run uninstall.bat again."
     exit 1
 }
 foreach ($sub in @("bin", "bin/x64", "bin/win64")) {

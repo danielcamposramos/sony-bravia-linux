@@ -1,5 +1,5 @@
-STEREO 3D FOR HALF-LIFE 2 (LINUX)
-VR Stereo Spectator, build of 2026-09-28
+STEREO 3D FOR HALF-LIFE 2 AND SOURCE GAMES (LINUX)
+VR Stereo Spectator, build of 2026-09-28: play and spectate
 
 Half-Life 2 in real stereo 3D on a 3D TV, projector or monitor.
 The game already carries Valve's VR render path from 2013: this module presents your 3D display to the engine as its headset, so the engine itself renders both eyes with real stereo geometry, and your display unpacks them.
@@ -61,6 +61,26 @@ Do not use gamescope's -S stretch: it breaks the mouse.
 The full recipe, measured: https://github.com/danielcamposramos/sony-bravia-linux/tree/main/tools/vr-stereo-spectator/anaglyph
 
 
+SPECTATING IN 3D (SOURCETV AND THE OBSERVER CAMERAS)
+
+Stereo here is the 2D game with a second camera, so every view the game already has gets its second eye, with no map or game changes: your own view, a spectator's in-eye, chase and free cameras, the cameras mappers place in levels, SourceTV's director, and demos.
+SourceTV sends the game's state, not video: each viewer's game renders the picture, so one broadcast serves 2D and 3D viewers alike, each in the format they choose.
+Half-Life 2 has no spectator mode; its demos (record, playdemo) play in 3D. The multiplayer Source games have the spectator cameras and SourceTV (see the next section).
+Tested 2026-09-28 on Half-Life 2: Deathmatch built from our source, 64-bit, on a 3D TV: the spectator's free camera and a SourceTV demo, in 3D.
+Known, and not the 3D: a SourceTV demo recorded on a listen server stopped at the same point in 2D and in 3D, also with no module loaded at all, with Source's own "Host_Error: CL_PreserveExistingEntity: missing client entity"; we are reporting it to Valve separately.
+
+
+OTHER SOURCE GAMES (64-BIT)
+
+The package also carries the module for the 64-bit Source engine (Half-Life 2: Deathmatch, Source SDK Base 2013 Multiplayer and its mods).
+Give the game's folder to the installer: ./install.sh "/path/to/steamapps/common/<game folder>"
+Launch options: -vulkan -vr -stereo3d
+In our tests the 64-bit engine loaded the module only with -vr. The 3D menu is Half-Life 2's; there, 3D comes from -stereo3d, or vr_display_3d 1 and vr_display_apply in the console (vr_display_layout picks the format, as in the menu: 2 top and bottom full, 3 side by side full, 1 top and bottom, 0 side by side).
+With Valve's current game code the module draws its own crosshair in every view, the spectator's chase and free cameras included; our source's client code places the game's own crosshair by the game's rules (first person and in-eye only), which is part of our pull request to Valve.
+Tested with Half-Life 2: Deathmatch built from our source on Source SDK Base 2013 Multiplayer; Valve's own Half-Life 2: Deathmatch from Steam is not tried yet.
+Online: the engine refuses secure (VAC) servers while an unsigned VR module is loaded. Use it offline, on LAN, and for demos.
+
+
 THE MUZZLE FLASH, CHEATS AND ACHIEVEMENTS
 
 In Half-Life 2's VR view the muzzle flash is drawn beside the gun, not on it.
@@ -85,8 +105,7 @@ In multiplayer, the engine warns that an unsigned VR module blocks secure (VAC) 
 WHAT IS NOT IN THIS BUILD
 
 - Frame packing (the HDMI 3D signal that switches a TV to 3D by itself): it needs the graphics driver to offer HDMI 3D modes; not in the menu yet.
-- Spectator mode (someone plays in a VR headset while the PC screen shows both eyes in 3D): next.
-- 64-bit Source games: this package carries the module for today's Half-Life 2, whose Linux engine is 32-bit.
+- Spectating from a VR headset (someone plays in the headset while the PC screen shows both eyes in 3D): next.
 
 
 UNINSTALL

@@ -111,6 +111,13 @@ some of them away and brought the old problems back.)
    their value on Apply, and the hidden one wrote the old value back: the
    native format never switched (run q25). One entry for the format, shown in
    both places, fixed it (run q26: every format switched, "perfection").
+12. **The game's own rules decide the crosshair.** Stereo is the 2D game with a
+   second camera (Daniel, 2026-09-28): on a display the client places its
+   crosshair as in 2D, and the module hands the crosshair back to any client
+   that asks for its display interface; it draws its own only for clients
+   that never ask (today's Half-Life 2). So the spectator's chase and fixed
+   cameras show none, first person and in-eye show it (runs r04-r06,
+   [SPECTATOR.md](SPECTATOR.md)).
 
 ## Geometry
 

@@ -1,6 +1,7 @@
 #!/bin/bash
-# Stereo 3D for Half-Life 2: puts Valve's sourcevr.so back and removes the
-# 3D menu. Usage: ./uninstall.sh [path to the "Half-Life 2" folder]
+# Stereo 3D for Source games: puts Valve's sourcevr.so back in every engine
+# folder and removes Half-Life 2's 3D menu.
+# Usage: ./uninstall.sh [path to the game folder] (default: Half-Life 2)
 set -e
 G=${1:-}
 if [ -z "$G" ]; then
@@ -11,20 +12,29 @@ if [ -z "$G" ]; then
 		done < <(echo "$root"; sed -n 's/^[[:space:]]*"path"[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' "$root/steamapps/libraryfolders.vdf" 2>/dev/null)
 	done
 fi
-[ -n "$G" ] && [ -d "$G/bin" ] || { echo "Half-Life 2 not found. Run: ./uninstall.sh \"/path/to/Half-Life 2\""; exit 1; }
-bin="$G/bin"
+[ -n "$G" ] && [ -d "$G/bin" ] || { echo "Game folder not found. Run: ./uninstall.sh \"/path/to/<game folder>\""; exit 1; }
 # While these markers exist the module still holds your own crosshair,
 # motion blur, anisotropic filtering or video mode, to put back at the next
 # start (the game quit with 3D on). Valve's module would not put them back.
-pending=$(cd "$bin" && ls svrtv-crosshair-off svrtv-blur-restore svrtv-restore-* 2>/dev/null || true)
+pending=""
+for sub in bin bin/linux64; do
+	[ -d "$G/$sub" ] || continue
+	p=$(cd "$G/$sub" && ls svrtv-crosshair-off svrtv-blur-restore svrtv-restore-* 2>/dev/null | sed "s|^|$G/$sub/|" || true)
+	[ -n "$p" ] && pending="$pending$p"$'\n'
+done
 if [ -n "$pending" ]; then
 	echo "The game last quit with 3D on, so your own settings are still waiting to be restored:"
-	echo "$pending" | sed "s|^|  $bin/|"
-	echo "Start Half-Life 2, set Options > Video > Stereo 3D to off, Apply, quit, then run uninstall.sh again."
+	printf '%s' "$pending" | sed 's|^|  |'
+	echo "Start the game, set Stereo 3D to off (Options > Video, or vr_display_3d 0 and vr_display_apply), quit, then run uninstall.sh again."
 	exit 1
 fi
-if [ -f "$bin/sourcevr.so.valve" ]; then mv -f "$bin/sourcevr.so.valve" "$bin/sourcevr.so"; echo "  bin: Valve's sourcevr.so back"
-elif [ -f "$bin/svrtv-installed.txt" ]; then rm -f "$bin/sourcevr.so"; echo "  bin: our sourcevr.so removed (Valve had none here)"; fi
-rm -f "$bin/svrtv.ini" "$bin/svrtv-launch-3d" "$bin/svrtv-installed.txt" "$bin/svrtv-anaglyph.fx"
-rm -rf "$G/hl2/custom/svrtv-3d-menu" && echo "  3D menu removed"
-echo "Done. The log ($bin/svrtv.log), if any, is left for you to keep or delete."
+for sub in bin bin/linux64; do
+	bin="$G/$sub"
+	[ -d "$bin" ] || continue
+	if [ -f "$bin/sourcevr.so.valve" ]; then mv -f "$bin/sourcevr.so.valve" "$bin/sourcevr.so"; echo "  $sub: Valve's sourcevr.so back"
+	elif [ -f "$bin/svrtv-installed.txt" ]; then rm -f "$bin/sourcevr.so"; echo "  $sub: our sourcevr.so removed (Valve had none here)"; fi
+	[ -f "$bin/svrtv-installed.txt" ] && rm -f "$bin/svrtv-anaglyph.fx"
+	rm -f "$bin/svrtv.ini" "$bin/svrtv-launch-3d" "$bin/svrtv-installed.txt"
+done
+[ -d "$G/hl2/custom/svrtv-3d-menu" ] && rm -rf "$G/hl2/custom/svrtv-3d-menu" && echo "  3D menu removed"
+echo "Done. The logs (svrtv.log next to each module), if any, are left for you to keep or delete."
