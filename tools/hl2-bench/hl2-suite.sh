@@ -316,11 +316,11 @@ run_step() { # id app renderer vr runs frame kind [display]
 		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE_BIN=\"${GAMESCOPE_BIN:-gamescope}\""
 		[ -n "$usegs" ] && [ -n "${GAMESCOPE_NESTED_PRESENT_MODE:-}" ] && echo "export GAMESCOPE_NESTED_PRESENT_MODE=$GAMESCOPE_NESTED_PRESENT_MODE"
 		# gamescope's nested screen: the 2D size, or GS_NESTED=WxH. No -S stretch
-		# by default: runs q20 and q21 had the mouse pinned with it, but run q22
-		# traced q21's pin to the module's startup X connection, so stretch is
-		# only a suspect. The full formats need it (gamescope keeps its startup
-		# nested size in the scale math, gamescope/RESOLUTIONS.md): GS_SCALER=
-		# stretch passes it, for the run that tests it with the fixed module.
+		# by default: it breaks the relative mouse by itself, even at 1:1 (run q23:
+		# aim inverted and snapping back; q22, identical but without it, was free;
+		# upstream gamescope #2042, #1605). q21's own pin was a different cause,
+		# the module's startup X connection (q22). GS_SCALER passes a scaler for
+		# tests.
 		local nested_w=$RES_W nested_h=$RES_H
 		if [ -n "${GS_NESTED:-}" ]; then nested_w=${GS_NESTED%x*}; nested_h=${GS_NESTED#*x}; fi
 		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE=\"--backend ${GS_BACKEND:-sdl} -g --prefer-vk-device $GS_VK_DEVICE -f -W $RES_W -H $RES_H -w $nested_w -h $nested_h${GS_SCALER:+ -S $GS_SCALER} ${didx:+--display-index $didx}${gsgrab:+ --force-grab-cursor}${gsfx:+ --reshade-effect svrtv-anaglyph.fx --reshade-technique-idx $gsfx}\""
