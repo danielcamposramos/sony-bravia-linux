@@ -1,7 +1,11 @@
 // Loads the built module and checks the stereo geometry numerically:
 // zero parallax at the convergence distance, uncrossed (behind-screen)
 // parallax far away, crossed (in-front) parallax near, and the viewports.
+#ifdef _WIN32
+#include <windows.h>
+#else
 #include <dlfcn.h>
+#endif
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -22,10 +26,17 @@ static double ndc_x(ISourceVirtualReality *vr, ISourceVirtualReality::VREye e, d
 }
 int main(int argc, char **argv)
 {
+#ifdef _WIN32
+	HMODULE h = LoadLibraryA(argv[1]);
+	if (!h) { printf("LoadLibrary: error %lu\n", GetLastError()); return 1; }
+	Factory create = (Factory)GetProcAddress(h, "CreateInterface");
+#else
 	void *h = dlopen(argv[1], RTLD_NOW);
 	if (!h) { printf("dlopen: %s\n", dlerror()); return 1; }
+	Factory create = (Factory)dlsym(h, "CreateInterface");
+#endif
 	int rc = -1;
-	ISourceVirtualReality *vr = (ISourceVirtualReality *)((Factory)dlsym(h, "CreateInterface"))(SOURCE_VIRTUAL_REALITY_INTERFACE_VERSION, &rc);
+	ISourceVirtualReality *vr = (ISourceVirtualReality *)create(SOURCE_VIRTUAL_REALITY_INTERFACE_VERSION, &rc);
 	// The client's Activate() asks only for the size: NULL x and y must be fine.
 	{ int w = -1, h = -1; vr->GetViewportBounds(ISourceVirtualReality::VREye_Left, NULL, NULL, &w, &h);
 	  printf("NULL outputs accepted: size %dx%d\n", w, h); }

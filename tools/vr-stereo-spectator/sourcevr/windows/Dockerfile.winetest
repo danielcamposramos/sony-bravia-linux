@@ -1,0 +1,4 @@
+# The cross-build image plus Wine (64-bit and 32-bit), to load the built
+# DLLs outside the game.
+FROM svrtv-wincross
+RUN dpkg --add-architecture i386 && apt-get update && apt-get install -y --no-install-recommends wine wine64 wine32:i386 && rm -rf /var/lib/apt/lists/*

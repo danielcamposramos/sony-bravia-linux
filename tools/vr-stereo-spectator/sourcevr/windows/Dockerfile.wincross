@@ -1,0 +1,4 @@
+# Throwaway Windows cross-build image: clang-cl + lld-link + llvm-lib/dlltool.
+# Microsoft's CRT and Windows SDK come from xwin (splat), mounted at /msvc.
+FROM debian:trixie
+RUN apt-get update && apt-get install -y --no-install-recommends clang lld llvm && rm -rf /var/lib/apt/lists/*
