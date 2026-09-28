@@ -75,7 +75,9 @@ some of them away and brought the old problems back.)
 2. **The pointer is confined to the UI's area (one eye's resolution)
    whenever the window is bigger than that area.** First found with the
    640x480 sheet (the cursor walked off what the eyes show); the same holds
-   for the full formats and a gamescope screen bigger than the game.
+   for the full formats. Never inside gamescope: there the fence pins the
+   pointer (runs q15, q16, q20), so mapping the pointer across a frame
+   bigger than the UI is gamescope's job (part 2 of the full formats).
 3. **Menus keep the game's layout** (the menu-in-the-corner fix; no HUD band
    moves while a menu is open, or buttons land away from the cursor).
 4. **Every switch goes through one full reload on Apply** (read all
@@ -91,6 +93,11 @@ some of them away and brought the old problems back.)
    list the EDID's standard modes. gamescope: the composition side (anaglyph,
    rows, checkerboard) and the widest set of formats.
 8. **The game starts in the saved state** (3D if 3D was saved).
+9. **No X connection at module start inside gamescope.** The module opens
+   its X connection only when a gamescope output or a full format needs it.
+   Opening it at start, only to log gamescope's screen size, pinned the mouse
+   to the centre (run q21); leaving it out freed it (run q22: "mouse is
+   fixed", the pointer log across the whole window). The audit checks it.
 
 ## Geometry
 
