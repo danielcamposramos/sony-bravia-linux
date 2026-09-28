@@ -1,6 +1,8 @@
-# DRAFT (not posted): SourceTV with tv_transmitall 0 writes demos that re-create every entity each frame
+# KEPT, NOT POSTED: SourceTV with tv_transmitall 0 writes demos that re-create every entity each frame
 
-Target: ValveSoftware/Source-1-Games (a new issue). Raw material for Daniel to post in his own words; not posted.
+Kept as our record, not posted (Daniel's decision, 2026-09-28): the fix is in Valve's closed engine, so nothing is solvable from our side; the community that relies on demos already records with `tv_transmitall 1` (ETF2L's config since 2009); and the closest report, Source-1-Games #3112, has had no Valve reply since 2020 (#6279 was closed as its duplicate, not fixed). "So we know we know." If it ever matters again, the text below is ready for Daniel to post in his own words.
+
+Target, if posted: ValveSoftware/Source-1-Games (a new issue).
 
 ---
 
