@@ -10,6 +10,7 @@
 #     GS_ARGS  its arguments (default: the HL2 bench's: RTX 3060, 1920x1080,
 #              full screen on display 0, the HX855)
 #     GS_OFF=1 no gamescope: SteamVR's window straight on the desktop's X11
+#     GS_PASS=1 nothing changed: SteamVR as Steam launches it
 # Everything it runs, and gamescope's errors, go to
 # ~/.local/state/steamvr-3dtv.log.
 LOG=${STEAMVR_3DTV_LOG:-$HOME/.local/state/steamvr-3dtv.log}
@@ -33,6 +34,12 @@ export SDL_VIDEODRIVER=x11
 	echo "== $(date '+%F %T') steamvr-3dtv"
 	env | grep -E '^(DISPLAY|WAYLAND_DISPLAY|XDG_RUNTIME_DIR|XDG_SESSION_TYPE|SDL_VIDEODRIVER|LD_LIBRARY_PATH|LD_PRELOAD)='
 } >>"$LOG"
+# GS_PASS=1: SteamVR exactly as Steam launches it (a driver that presents
+# the picture itself, such as VRto3D, needs the session untouched).
+if [ -n "${GS_PASS:-}" ]; then
+	echo "exec $*" >>"$LOG"
+	exec "$@" 2>>"$LOG"
+fi
 # SteamVR's compositor picks Wayland whenever WAYLAND_DISPLAY is set, and
 # the desktop's Wayland socket is not reachable from its container.
 if [ -n "${GS_OFF:-}" ]; then

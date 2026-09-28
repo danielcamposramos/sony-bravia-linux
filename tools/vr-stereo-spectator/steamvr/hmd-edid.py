@@ -15,7 +15,10 @@ mode and the HDMI 3D information stay as the display declares them.
 Load it at run time through the kernel's EDID override (root):
     cat OUT > /sys/kernel/debug/dri/<card>/<connector>/edid_override
     echo detect > /sys/class/drm/<cardN-connector>/status
-and undo it with "reset" instead of the file. Nothing is written to disk
+and undo it by writing exactly the five bytes "reset", with no newline
+(printf reset > .../edid_override; the kernel reads "reset\n" from echo as
+an EDID and refuses it with an I/O error), then echo off and detect to the
+connector's status so the desktop takes the display back. Nothing is written to disk
 outside OUT; a reboot clears the override too.
 
 Usage: hmd-edid.py card1-HDMI-A-2 OUT.bin
