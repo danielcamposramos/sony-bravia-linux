@@ -45,7 +45,7 @@ So the count is **one**.
 | **fixes** | #18489 | the issue it was filed against |
 | **enables** | #17632 | supplies *which arrangement*; frame geometry supplies full vs half; the OSD compensation itself is still unwritten |
 | **enables** | #18348 | supplies detection, but the complaint is the removed full-width `sbsl`/`abl` vocabulary, and the patch restores no modes |
-| **untouched** | #18380 | decoding a second view, blocked in libavcodec — a different layer |
+| **untouched** | #18380 | decoding a second view, blocked in libavcodec — a different layer. 2026-09-28: cubicibo pointed at the unblocker, FFmpeg [PR #24303](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24303) (popcornmix, H.264 MVC decoding, open, disclosed as AI-assisted); Daniel [commented](https://github.com/mpv-player/mpv/issues/18380#issuecomment-5879862961) with the frame-compatible route that works today (SEI-writing converters + #18490) and offered MVC testing on the TVs if needed |
 | **untouched** | #15225 | encode-side; follow-up #2 would be the relevant change and is unverified |
 
 The distinction between *fixes* and *enables* is the whole point of
