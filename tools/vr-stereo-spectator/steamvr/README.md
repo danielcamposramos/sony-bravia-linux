@@ -18,4 +18,11 @@ Settings (`stereodisplay/resources/settings/default.vrsettings`, section `stereo
 
 ## Status
 
-Built 2026-09-28; not yet run. Open questions for the first run: whether SteamVR on Linux shows a desktop-window headset (its Linux use has been direct-mode headsets), and how the dashboard is driven without VR controllers (a gamepad, or the sample controller driver).
+**2026-09-28, first runs (SteamVR 2.17.10, Linux, KWin 6.7.4 on Wayland):**
+
+- **The driver works.** SteamVR loads it, reads its settings and takes it as the headset (`Loaded server driver stereodisplay`; `ActualTrackingSystemName: stereodisplay`). It has to be installed where SteamVR's Steam Runtime container can see it: `~/.local/share/steamvr-drivers/stereodisplay` (a path under `/K3D` is "not a directory" from inside).
+- **SteamVR on Linux draws no windowed headset.** Its compositor switched to the desktop-window mode the sample asks for (`Forcing debug mode for stereodisplay driver`), then refused: "CHmdWindowSDL: VR requires direct mode". On Linux the compositor drives the headset's display itself, leased from the desktop compositor (DRM lease, `wp_drm_lease_device_v1`): "Tried to find direct display through Wayland: (nil)", `VRInitError_Compositor_CannotDRMLeaseDisplay`.
+- **What a lease needs:** KWin offers an output for leasing only when the kernel marks its connector non-desktop (`KWin::DrmConnector::isNonDesktop`), and the kernel sets that from the display's EDID (known headsets, or a DisplayID extension declaring a head-mounted display). The next step is the direct-mode driver: the display reported as real, identified by the 3D display's EDID, and the 3D display marked non-desktop while SteamVR runs.
+- **Along the way:** SteamVR's compositor picks Wayland whenever `WAYLAND_DISPLAY` is set (it ignores `SDL_VIDEODRIVER`); a Steam started from an environment without the session's runtime folder breaks every socket its games need (`steamvr-3dtv.sh` repairs that); under KWin, gamescope's X11 window opens under the mouse, not on `--display-index` (a KWin rule places it, as the HL2 bench does). The compositor lists `VK_NV_display_stereo` among NVIDIA's Vulkan instance extensions: stereo on a display the application drives directly, the NVIDIA route to HDMI 3D to look into.
+
+`steamvr-3dtv.sh`: SteamVR inside gamescope for the display (launch options `sh ~/.local/bin/steamvr-3dtv %command%`), logging to `~/.local/state/steamvr-3dtv.log`, settings in `~/.config/steamvr-3dtv.env`.
