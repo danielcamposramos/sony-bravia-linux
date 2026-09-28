@@ -81,7 +81,7 @@ The "3D SBS/TAB file plays flat" problem is documented for years across
 every major DLNA/media solution, each thread describing the same
 behaviour without naming the root cause:
 
-- Plex: [Some 3D SBS and up-under MKV files not recognised](https://web.archive.org/web/20210519172339/https://forums.plex.tv/t/some-3d-sbs-and-up-under-mkv-files-not-recognised/51445) (archived 2021; the thread is gone)
+- Plex: [3D SBS and file naming conventions](https://forums.plex.tv/t/3d-sbs-and-file-naming-conventions/814401) (2022: SBS files shown as two pictures side by side, the projector switched to 3D by hand) and [Plex on FireTV stick doesn't switch the TV into 3D mode](https://forums.plex.tv/t/plex-on-firetv-stick-doesnt-switch-the-tv-into-3d-mode/769696) (2022: the same H-SBS file engages 3D through Samsung's built-in Plex app, not through the Fire TV one). The thread first cited here, "Some 3D SBS and up-under MKV files not recognised", has been removed from Plex's forum.
 - Jellyfin: [3D Full SBS video detection and playback](https://forum.jellyfin.org/t-3d-full-sbs-video-detection-and-playback)
 - Serviio: multiple threads on MKV recognition and 3D delivery on the
   [serviio.org forum](https://www.serviio.org/forum/).
