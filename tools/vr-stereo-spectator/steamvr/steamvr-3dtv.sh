@@ -18,6 +18,11 @@ mkdir -p "$(dirname "$LOG")"
 ENV_FILE=${STEAMVR_3DTV_ENV:-$HOME/.config/steamvr-3dtv.env}
 [ -f "$ENV_FILE" ] && . "$ENV_FILE"
 GS_BIN=${GS_BIN:-$HOME/.local/bin/gamescope-3dtv}
+# SteamVR's setup check runs getcap, which Debian keeps in /usr/sbin, outside
+# a desktop user's PATH: without it every start shows "SteamVR setup is
+# incomplete" although vrcompositor-launcher already has cap_sys_nice
+# (vrsetup.sh: "getcap is required to complete the SteamVR setup").
+case ":$PATH:" in *:/usr/sbin:*) ;; *) PATH="$PATH:/usr/sbin:/sbin"; export PATH ;; esac
 GS_ARGS=${GS_ARGS:---backend sdl -g --prefer-vk-device 10de:2504 -f -W 1920 -H 1080 -w 1920 -h 1080 --display-index 0}
 # A Steam started from an environment without the session's runtime folder
 # (seen 2026-09-28: XDG_RUNTIME_DIR=/tmp/runtime-root) hands that to
