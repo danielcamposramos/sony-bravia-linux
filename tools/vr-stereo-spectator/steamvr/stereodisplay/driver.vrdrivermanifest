@@ -1,6 +1,6 @@
 {
 	"alwaysActivate": true,
-	"name" : "simplehmd",
+	"name" : "stereodisplay",
 	"directory" : "",
 	"resourceOnly" : false,
 	"hmd_presence" :

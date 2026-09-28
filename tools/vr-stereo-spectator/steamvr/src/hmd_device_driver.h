@@ -26,6 +26,15 @@ struct MyHMDDisplayDriverConfiguration
 
 	int32_t render_width;
 	int32_t render_height;
+
+	// A 3D display, not a headset (FORMULA.md, section 1): each eye shown in
+	// half of the window, side by side (left eye left) or top and bottom
+	// (left eye on top), as HDMI 1.4 packs them; parallel eyes whose views
+	// are shifted to meet at the screen, which sits at screen_distance.
+	bool top_and_bottom;
+	float tan_half_fov_h;
+	float screen_distance;
+	float ipd;
 };
 
 class MyHMDDisplayComponent : public vr::IVRDisplayComponent
@@ -78,6 +87,8 @@ private:
 
 	std::array< vr::VRInputComponentHandle_t, MyComponent_MAX > my_input_handles_{};
 	std::atomic< int > frame_number_;
+	float head_height_;         // metres: where the viewer's eyes sit
+	float display_frequency_;   // the display's refresh rate
 	std::atomic< bool > is_active_;
 	std::atomic< uint32_t > device_index_;
 

@@ -1,6 +1,6 @@
 {
   "jsonid": "input_profile",
-  "controller_type": "simplehmd",
+  "controller_type": "stereodisplay",
   "input_bindingui_mode": "hmd",
   "input_source": {
     "/input/system": {

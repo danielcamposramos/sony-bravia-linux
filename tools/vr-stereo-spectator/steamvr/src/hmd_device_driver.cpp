@@ -1,16 +1,20 @@
 //============ Copyright (c) Valve Corporation, All rights reserved. ============
+// Changes for 3D displays (sony-bravia-linux, 2026-09-28): the driver's name,
+// the display's layout (side by side or top and bottom), the eyes' shifted
+// views meeting at the screen plane, a fixed head, the display's refresh rate.
 #include "hmd_device_driver.h"
 
 #include "driverlog.h"
 #include "vrmath.h"
+#include <math.h>
 #include <string.h>
 
 // Let's create some variables for strings used in getting settings.
 // This is the section where all of the settings we want are stored. A section name can be anything,
 // but if you want to store driver specific settings, it's best to namespace the section with the driver identifier
 // ie "<my_driver>_<section>" to avoid collisions
-static const char *my_hmd_main_settings_section = "driver_simplehmd";
-static const char *my_hmd_display_settings_section = "simplehmd_display";
+static const char *my_hmd_main_settings_section = "driver_stereodisplay";
+static const char *my_hmd_display_settings_section = "stereodisplay_display";
 
 MyHMDControllerDeviceDriver::MyHMDControllerDeviceDriver()
 {
@@ -45,6 +49,34 @@ MyHMDControllerDeviceDriver::MyHMDControllerDeviceDriver()
 
 	display_configuration.render_width = vr::VRSettings()->GetInt32( my_hmd_display_settings_section, "render_width" );
 	display_configuration.render_height = vr::VRSettings()->GetInt32( my_hmd_display_settings_section, "render_height" );
+
+	// The 3D display: its packing, the field of view across one eye's
+	// picture, and how far away the screen plane (zero parallax) sits.
+	char layout[ 16 ] = "sbs";
+	vr::VRSettings()->GetString( my_hmd_display_settings_section, "layout", layout, sizeof( layout ) );
+	display_configuration.top_and_bottom = strcmp( layout, "tab" ) == 0;
+	float fov_h = vr::VRSettings()->GetFloat( my_hmd_display_settings_section, "fov_horizontal_degrees" );
+	if ( fov_h <= 10.f || fov_h >= 170.f )
+		fov_h = 90.f;
+	display_configuration.tan_half_fov_h = tanf( fov_h * 3.14159265f / 360.f );
+	display_configuration.screen_distance = vr::VRSettings()->GetFloat( my_hmd_display_settings_section, "screen_distance_meters" );
+	if ( display_configuration.screen_distance <= 0.1f )
+		display_configuration.screen_distance = 2.f;
+	display_configuration.ipd = vr::VRSettings()->GetFloat( vr::k_pch_SteamVR_Section, vr::k_pch_SteamVR_IPD_Float );
+	if ( display_configuration.ipd <= 0.f )
+		display_configuration.ipd = 0.064f;
+	head_height_ = vr::VRSettings()->GetFloat( my_hmd_display_settings_section, "head_height_meters" );
+	if ( head_height_ <= 0.f )
+		head_height_ = 1.6f;
+	display_frequency_ = vr::VRSettings()->GetFloat( my_hmd_display_settings_section, "display_frequency" );
+	if ( display_frequency_ <= 0.f )
+		display_frequency_ = 60.f;
+	DriverLog( "3D display: %s, %dx%d window at %d,%d, eyes rendered %dx%d, %.0f degrees across, screen plane at %.2f m, ipd %.3f m, %.0f Hz",
+		display_configuration.top_and_bottom ? "top and bottom" : "side by side",
+		display_configuration.window_width, display_configuration.window_height,
+		display_configuration.window_x, display_configuration.window_y,
+		display_configuration.render_width, display_configuration.render_height,
+		fov_h, display_configuration.screen_distance, display_configuration.ipd, display_frequency_ );
 
 	// Instantiate our display component
 	my_display_component_ = std::make_unique< MyHMDDisplayComponent >( display_configuration );
@@ -83,7 +115,7 @@ vr::EVRInitError MyHMDControllerDeviceDriver::Activate( uint32_t unObjectId )
 	vr::VRProperties()->SetFloatProperty( container, vr::Prop_UserIpdMeters_Float, ipd );
 
 	// For HMDs, it's required that a refresh rate is set otherwise VRCompositor will fail to start.
-	vr::VRProperties()->SetFloatProperty( container, vr::Prop_DisplayFrequency_Float, 0.f );
+	vr::VRProperties()->SetFloatProperty( container, vr::Prop_DisplayFrequency_Float, display_frequency_ );
 
 	// The distance from the user's eyes to the display in meters. This is used for reprojection.
 	vr::VRProperties()->SetFloatProperty( container, vr::Prop_UserHeadToEyeDepthMeters_Float, 0.f );
@@ -101,7 +133,7 @@ vr::EVRInitError MyHMDControllerDeviceDriver::Activate( uint32_t unObjectId )
 	// As well as what default bindings should be for legacy apps.
 	// Note, we can use the wildcard {<driver_name>} to match the root folder location
 	// of our driver.
-	vr::VRProperties()->SetStringProperty( container, vr::Prop_InputProfilePath_String, "{simplehmd}/input/mysimplehmd_profile.json" );
+	vr::VRProperties()->SetStringProperty( container, vr::Prop_InputProfilePath_String, "{stereodisplay}/input/stereodisplay_profile.json" );
 
 	// Let's set up handles for all of our components.
 	// Even though these are also defined in our input profile,
@@ -157,8 +189,10 @@ vr::DriverPose_t MyHMDControllerDeviceDriver::GetPose()
 
 	pose.qRotation.w = 1.f;
 
+	// A display does not move with the head: the head stays where the
+	// viewer sits, at a set height.
 	pose.vecPosition[ 0 ] = 0.0f;
-	pose.vecPosition[ 1 ] = sin( frame_number_ * 0.01 ) * 0.1f + 1.0f; // slowly move the hmd up and down.
+	pose.vecPosition[ 1 ] = head_height_;
 	pose.vecPosition[ 2 ] = 0.0f;
 
 	// The pose we provided is valid.
@@ -176,7 +210,8 @@ vr::DriverPose_t MyHMDControllerDeviceDriver::GetPose()
 	pose.result = vr::TrackingResult_Running_OK;
 
 	// For HMDs we want to apply rotation/motion prediction
-	pose.shouldApplyHeadModel = true;
+	// No neck model: the eyes are fixed in front of the screen.
+	pose.shouldApplyHeadModel = false;
 
 	return pose;
 }
@@ -292,23 +327,23 @@ void MyHMDDisplayComponent::GetRecommendedRenderTargetSize( uint32_t *pnWidth, u
 //-----------------------------------------------------------------------------
 void MyHMDDisplayComponent::GetEyeOutputViewport( vr::EVREye eEye, uint32_t *pnX, uint32_t *pnY, uint32_t *pnWidth, uint32_t *pnHeight )
 {
-	*pnY = 0;
-
-	// Each eye will have half the window
-	*pnWidth = config_.window_width / 2;
-
-	// Each eye will have the full height
-	*pnHeight = config_.window_height;
-
-	if ( eEye == vr::Eye_Left )
+	// Each eye in half of the window, the left eye first: left in side by
+	// side, on top in top and bottom, as HDMI 1.4 packs them. The display
+	// stretches each half back to the whole screen.
+	bool first = eEye == vr::Eye_Left;
+	if ( config_.top_and_bottom )
 	{
-		// Left eye viewport on the left half of the window
 		*pnX = 0;
+		*pnWidth = config_.window_width;
+		*pnHeight = config_.window_height / 2;
+		*pnY = first ? 0 : config_.window_height / 2;
 	}
 	else
 	{
-		// Right eye viewport on the right half of the window
-		*pnX = config_.window_width / 2;
+		*pnY = 0;
+		*pnHeight = config_.window_height;
+		*pnWidth = config_.window_width / 2;
+		*pnX = first ? 0 : config_.window_width / 2;
 	}
 }
 
@@ -317,10 +352,21 @@ void MyHMDDisplayComponent::GetEyeOutputViewport( vr::EVREye eEye, uint32_t *pnX
 //-----------------------------------------------------------------------------
 void MyHMDDisplayComponent::GetProjectionRaw( vr::EVREye eEye, float *pfLeft, float *pfRight, float *pfTop, float *pfBottom )
 {
-	*pfLeft = -1.0;
-	*pfRight = 1.0;
-	*pfTop = -1.0;
-	*pfBottom = 1.0;
+	// A window, not a headset (FORMULA.md, section 1): the eyes look straight
+	// ahead, half the ipd to each side, and each eye's view is shifted
+	// sideways so both frame the same screen at screen_distance, which is
+	// where depth is zero. A headset's views are centred on its lenses
+	// instead. Each eye's picture fills the whole screen once the display
+	// unpacks it, so its height follows the window's shape.
+	float t = config_.tan_half_fov_h;
+	float v = t * (float)config_.window_height / (float)config_.window_width;
+	float shift = ( config_.ipd / 2.f ) / config_.screen_distance;
+	if ( eEye == vr::Eye_Left )
+		shift = -shift;   // the left eye's view moves toward the centre: to its right
+	*pfLeft = -t - shift;
+	*pfRight = t - shift;
+	*pfTop = -v;
+	*pfBottom = v;
 }
 
 //-----------------------------------------------------------------------------

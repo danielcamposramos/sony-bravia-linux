@@ -1,7 +1,7 @@
 [
   {
     "language_tag": "en_US",
-    "simplehmd": "My Simple HMD Driver",
+    "stereodisplay": "Stereoscopic 3D display",
 
     "/input/system": "System Button"
   }
