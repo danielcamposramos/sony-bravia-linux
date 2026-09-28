@@ -48,12 +48,20 @@ SEI_NAL = {  # x264-verbatim frame_packing_arrangement SEI (4-byte start code)
     "tb":  bytes.fromhex("0000000106" "2d" "07" "82010000030001" "2080"),
     "row": bytes.fromhex("0000000106" "2d" "07" "81010000030001" "2080"),
 }
-STEREO_MAP = {  # ffprobe stereo_mode -> (mode, Matroska StereoMode number)
-    "left_right": ("sbs", 1), "right_left": ("sbs", 2),
-    "top_bottom": ("tb", 4), "bottom_top": ("tb", 3),
-    "row_lr": ("row", 7),
+# ffprobe stereo_mode -> (mode, Matroska StereoMode number). The numbers are
+# Matroska's (FFmpeg's libavformat/matroska.h): 1 left_right, 2 bottom_top,
+# 3 top_bottom, 4 checkerboard_rl, 7 row_interleaved_lr, 11 right_left. Until
+# 2026-09-28 top_bottom was written as 4 (checkerboard, right eye first) and
+# bottom_top as 3; the SEI, which the TVs read, was right all along.
+STEREO_MAP = {
+    "left_right": ("sbs", 1),
+    "top_bottom": ("tb", 3),
+    "row_interleaved_lr": ("row", 7),
 }
-MODE_TO_MKV = {"sbs": 1, "tb": 4, "row": 7}
+# Right eye first: the SEI written here always says left eye first, so these
+# are reported and left alone rather than signalled with the eyes swapped.
+RIGHT_FIRST = {"right_left", "bottom_top", "row_interleaved_rl", "checkerboard_rl", "col_interleaved_rl"}
+MODE_TO_MKV = {"sbs": 1, "tb": 3, "row": 7}
 MKV_EXTRACT_EXTS = {".mkv", ".mk3d", ".webm"}
 MP4_EXTS = {".mp4", ".m4v"}
 FFMPEG_EXTS = {".mp4", ".m4v", ".mov", ".avi", ".flv", ".ts", ".m2ts", ".mpg"}
@@ -160,6 +168,8 @@ def detect_mode(path, tag, w, h, default_sbs_ok):
     """Detection cascade. Returns (mode, reason) or (None, reason)."""
     if tag in STEREO_MAP:
         return STEREO_MAP[tag][0], f"tag:{tag}"
+    if tag in RIGHT_FIRST:
+        return None, f"tag:{tag} (right eye first; this tool writes left-eye-first SEI only)"
     for rx, mode in NAME_TOKENS:
         if rx.search(path.name):
             return mode, "filename"
