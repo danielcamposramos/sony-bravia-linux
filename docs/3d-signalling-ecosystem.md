@@ -81,7 +81,7 @@ The "3D SBS/TAB file plays flat" problem is documented for years across
 every major DLNA/media solution, each thread describing the same
 behaviour without naming the root cause:
 
-- Plex: [Some 3D SBS and up-under MKV files not recognised](https://forums.plex.tv/t/some-3d-sbs-and-up-under-mkv-files-not-recognised/51445)
+- Plex: [Some 3D SBS and up-under MKV files not recognised](https://web.archive.org/web/20210519172339/https://forums.plex.tv/t/some-3d-sbs-and-up-under-mkv-files-not-recognised/51445) (archived 2021; the thread is gone)
 - Jellyfin: [3D Full SBS video detection and playback](https://forum.jellyfin.org/t-3d-full-sbs-video-detection-and-playback)
 - Serviio: multiple threads on MKV recognition and 3D delivery on the
   [serviio.org forum](https://www.serviio.org/forum/).

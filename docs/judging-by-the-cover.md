@@ -209,7 +209,7 @@ the gift — is mostly oral gossip, rarely cited):
   sold them to the white slavers" (Charlie Rose, aired Dec 25,
   2015), and the apology within days:
   [Deadline (with video)](https://deadline.com/2015/12/george-lucas-white-slavers-disney-charlie-rose-interview-1201674262/),
-  [CBS News — the apology](https://www.cbsnews.com/news/george-lucas-apologizes-clarifies-comments-new-star-wars/).
+  [CBS News — the apology](https://www.cbsnews.com/news/george-lucas-apologizes-clarifies-comments-about-new-star-wars/).
 - Coppola vs. the franchise era — "Martin was kind when he said
   it's not cinema. He didn't say it's despicable, which I just say
   it is" (Prix Lumière, Lyon, Oct 2019):

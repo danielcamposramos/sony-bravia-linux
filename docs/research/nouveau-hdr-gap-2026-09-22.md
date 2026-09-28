@@ -76,8 +76,8 @@ The implementation target is not inferred from one vendor's behaviour:
 - [HDMI Forum's HDMI 2.0a announcement](https://hdmiforum.org/hdmi-forum-inc-release-2-0a-specification/)
   records the addition of HDR formats by reference to CEA-861.3.
 - [CTA-861.3-A](https://shop.cta.tech/products/cta-861-3) defines the HDR
-  Static Metadata Data Block and Dynamic Range and Mastering InfoFrame; CTA
-  hosts a [free preview of the 2015 edition](https://standards.cta.tech/kwspub/published_docs/CEA-861.3-Preview.pdf).
+  Static Metadata Data Block and Dynamic Range and Mastering InfoFrame (sold;
+  the free preview of the 2015 edition CTA once hosted is gone).
 - [ITU-R BT.2100-3](https://www.itu.int/rec/R-REC-BT.2100-3-202502-I/en)
   defines the current HDR television image parameters.
 - Linux exposes the cross-driver userspace contract through
