@@ -19,9 +19,12 @@ http://chrisjones.id.au/Dubois/Dubois.html and checked against its raw page
 in linear light (the sampler decodes sRGB, the pass encodes it again).
 
 The effect also carries the techniques the in-game version switches to
-from its menu (2 to 11, listed in the file's header). Techniques 9 to 11
-serve the full-resolution formats, which do not work inside gamescope yet
-(being chased; see `../sourcevr/README.md`).
+from its menu (2 to 10, listed in the file's header). Since 2026-09-28
+(run q33) every technique knows the module's frame mark, its two
+bottom-right pixels: a frame without it is flat 2D the engine drew by
+itself (a loading screen), which 9 and 10 (the 3D display, top and bottom
+and side by side) put whole into both halves, spinner and progress bar
+included, and 0 to 8 show flat as it is; the mark itself is painted over.
 
 ## Running it
 

@@ -118,6 +118,14 @@ some of them away and brought the old problems back.)
    that never ask (today's Half-Life 2). So the spectator's chase and fixed
    cameras show none, first person and in-eye show it (runs r04-r06,
    [SPECTATOR.md](SPECTATOR.md)).
+13. **Loading screens inside gamescope: mark our frames, duplicate the
+   rest.** The engine draws a loading screen straight to the screen while no
+   view renders (run q28), so natively each eye gets half of one flat image.
+   Inside gamescope the module marks every frame it builds (two bottom-right
+   pixels) and the effect puts any unmarked frame whole into both halves,
+   spinner and progress bar included, Valve's files untouched (run q33, "IT
+   WORKS!"). Overriding Valve's names mid-session does not take (GameUI
+   reads its chapter list and pictures once, at start-up: runs q30-q32).
 
 ## Geometry
 
