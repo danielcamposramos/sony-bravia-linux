@@ -35,6 +35,12 @@ struct MyHMDDisplayDriverConfiguration
 	float tan_half_fov_h;
 	float screen_distance;
 	float ipd;
+
+	// Direct mode (SteamVR on Linux has no other: "VR requires direct mode"):
+	// SteamVR's compositor drives the display itself, leased from the desktop
+	// compositor, which offers it once the kernel marks it non-desktop; it
+	// finds the display by its EDID ids.
+	bool direct_mode;
 };
 
 class MyHMDDisplayComponent : public vr::IVRDisplayComponent
@@ -89,6 +95,9 @@ private:
 	std::atomic< int > frame_number_;
 	float head_height_;         // metres: where the viewer's eyes sit
 	float display_frequency_;   // the display's refresh rate
+	int32_t edid_vendor_id_;    // the 3D display's EDID manufacturer id (bytes 8-9)
+	int32_t edid_product_id_;   // and product code (bytes 10-11)
+	bool direct_mode_;
 	std::atomic< bool > is_active_;
 	std::atomic< uint32_t > device_index_;
 

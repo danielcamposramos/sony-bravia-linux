@@ -18,7 +18,11 @@ Settings (`stereodisplay/resources/settings/default.vrsettings`, section `stereo
 
 ## Status
 
-**2026-09-28, first runs (SteamVR 2.17.10, Linux, KWin 6.7.4 on Wayland):**
+**2026-09-28, 18:56: SteamVR on a 3D TV, side by side, in direct mode.** The KDL-46EX725 on the RTX 3060 (`card1-HDMI-A-2`), marked as a head-mounted display with `hmd-edid.py` (its own EDID plus a DisplayID 2.0 block, primary use "head-mounted VR"; loaded through the kernel's `edid_override` and a forced reconnect, after which the connector reported `non-desktop = 1` and KWin gave the display up). SteamVR's compositor leased it ("Tried to find direct display through Wayland: 0x…", "Acquired drm display!", "Headset is using direct mode") and drew SteamVR's environment side by side on the TV (Daniel: "it opened though!!! sbs on the 725!"). Open: input (SteamVR expects VR controllers; the driver has only a system button), the repeated "WaitForPendingPresent: failed to wait for present", and the 60 Hz mode (SteamVR asked for 90 Hz and took the TV's mode 0).
+
+This is the proof, not the product (Daniel): SteamVR is closed, and the right home for a 3D-display target is SteamVR itself, offering any chosen display as a direct-mode 3D display with no EDID mark.
+
+**Earlier runs the same day (SteamVR 2.17.10, Linux, KWin 6.7.4 on Wayland):**
 
 - **The driver works.** SteamVR loads it, reads its settings and takes it as the headset (`Loaded server driver stereodisplay`; `ActualTrackingSystemName: stereodisplay`). It has to be installed where SteamVR's Steam Runtime container can see it: `~/.local/share/steamvr-drivers/stereodisplay` (a path under `/K3D` is "not a directory" from inside).
 - **SteamVR on Linux draws no windowed headset.** Its compositor switched to the desktop-window mode the sample asks for (`Forcing debug mode for stereodisplay driver`), then refused: "CHmdWindowSDL: VR requires direct mode". On Linux the compositor drives the headset's display itself, leased from the desktop compositor (DRM lease, `wp_drm_lease_device_v1`): "Tried to find direct display through Wayland: (nil)", `VRInitError_Compositor_CannotDRMLeaseDisplay`.

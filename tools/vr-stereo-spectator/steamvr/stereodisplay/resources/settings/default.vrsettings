@@ -16,6 +16,9 @@
 		"screen_distance_meters": 2.0,
 		"head_height_meters": 1.6,
 		"vsync_to_photons": 0.011,
-		"display_frequency": 60
+		"display_frequency": 60,
+		"direct_mode": true,
+		"edid_vendor_id": 19929,
+		"edid_product_id": 11266
 	}
 }

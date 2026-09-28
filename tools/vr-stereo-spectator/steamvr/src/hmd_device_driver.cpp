@@ -68,6 +68,10 @@ MyHMDControllerDeviceDriver::MyHMDControllerDeviceDriver()
 	head_height_ = vr::VRSettings()->GetFloat( my_hmd_display_settings_section, "head_height_meters" );
 	if ( head_height_ <= 0.f )
 		head_height_ = 1.6f;
+	display_configuration.direct_mode = vr::VRSettings()->GetBool( my_hmd_display_settings_section, "direct_mode" );
+	direct_mode_ = display_configuration.direct_mode;
+	edid_vendor_id_ = vr::VRSettings()->GetInt32( my_hmd_display_settings_section, "edid_vendor_id" );
+	edid_product_id_ = vr::VRSettings()->GetInt32( my_hmd_display_settings_section, "edid_product_id" );
 	display_frequency_ = vr::VRSettings()->GetFloat( my_hmd_display_settings_section, "display_frequency" );
 	if ( display_frequency_ <= 0.f )
 		display_frequency_ = 60.f;
@@ -77,6 +81,9 @@ MyHMDControllerDeviceDriver::MyHMDControllerDeviceDriver()
 		display_configuration.window_x, display_configuration.window_y,
 		display_configuration.render_width, display_configuration.render_height,
 		fov_h, display_configuration.screen_distance, display_configuration.ipd, display_frequency_ );
+	DriverLog( "3D display: %s, EDID vendor 0x%04x product 0x%04x",
+		direct_mode_ ? "direct mode (the display leased to SteamVR)" : "a window on the desktop",
+		edid_vendor_id_, edid_product_id_ );
 
 	// Instantiate our display component
 	my_display_component_ = std::make_unique< MyHMDDisplayComponent >( display_configuration );
@@ -126,7 +133,14 @@ vr::EVRInitError MyHMDControllerDeviceDriver::Activate( uint32_t unObjectId )
 	// avoid "not fullscreen" warnings from vrmonitor
 	vr::VRProperties()->SetBoolProperty( container, vr::Prop_IsOnDesktop_Bool, false );
 
-	vr::VRProperties()->SetBoolProperty(container, vr::Prop_DisplayDebugMode_Bool, true);
+	if ( direct_mode_ )
+	{
+		// The display SteamVR drives, found by its EDID ids.
+		vr::VRProperties()->SetInt32Property( container, vr::Prop_EdidVendorID_Int32, edid_vendor_id_ );
+		vr::VRProperties()->SetInt32Property( container, vr::Prop_EdidProductID_Int32, edid_product_id_ );
+	}
+	else
+		vr::VRProperties()->SetBoolProperty( container, vr::Prop_DisplayDebugMode_Bool, true );
 
 	// Now let's set up our inputs
 	// This tells the UI what to show the user for bindings for this controller,
@@ -302,7 +316,7 @@ MyHMDDisplayComponent::MyHMDDisplayComponent( const MyHMDDisplayDriverConfigurat
 //-----------------------------------------------------------------------------
 bool MyHMDDisplayComponent::IsDisplayOnDesktop()
 {
-	return true;
+	return !config_.direct_mode;
 }
 
 //-----------------------------------------------------------------------------
@@ -310,7 +324,7 @@ bool MyHMDDisplayComponent::IsDisplayOnDesktop()
 //-----------------------------------------------------------------------------
 bool MyHMDDisplayComponent::IsDisplayRealDisplay()
 {
-	return false;
+	return config_.direct_mode;
 }
 
 //-----------------------------------------------------------------------------
