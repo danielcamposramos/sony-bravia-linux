@@ -29,19 +29,26 @@
 # the module force VR mode at start; demo steps also send vr_activate.
 #
 # Usage: hl2-suite.sh STEPS_FILE [--force] [--only id1,id2] [--reboot-after]
+#        hl2-suite.sh --recover-state   # after a crash/power loss
 # Results: /K3D/temp/hl2-bench/suite-<time>-<name>/<step>/ and summary.tsv
 set -u
 HERE=$(cd "$(dirname "$0")" && pwd)
-LIB=/mnt/games/SteamLibrary/steamapps
+LIB=${HL2_BENCH_STEAMAPPS:-/mnt/games/SteamLibrary/steamapps}
 # Steam's per-user settings (launch options); the most recently written one.
 LOCALCONFIG=${STEAM_LOCALCONFIG:-$(ls -t "$HOME"/.steam/*/userdata/*/config/localconfig.vdf "$HOME"/.local/share/Steam/userdata/*/config/localconfig.vdf 2>/dev/null | head -1)}
-ROOT=/K3D/temp/hl2-bench
+ROOT=${HL2_BENCH_ROOT:-/K3D/temp/hl2-bench}
 ENVFILE=$ROOT/current.env
+ACTIVE=$ROOT/active-state
 DEMO=ref_ravenholm
 RES_W=1920 RES_H=1080
 
-STEPS=${1:?usage: hl2-suite.sh STEPS_FILE [--force] [--only ids]}
-shift
+RECOVER=0
+if [ "${1:-}" = --recover-state ]; then
+	RECOVER=1; STEPS=""; shift
+else
+	STEPS=${1:?usage: hl2-suite.sh STEPS_FILE [--force] [--only ids] [--reboot-after] | hl2-suite.sh --recover-state}
+	shift
+fi
 FORCE=0 ONLY="" REBOOT=0
 while [ $# -gt 0 ]; do
 	case "$1" in
@@ -92,14 +99,64 @@ close_game() { # app
 # which a plain match missed on 2026-09-24); the user's own rules file is
 # backed up and restored after every step.
 export DBUS_SESSION_BUS_ADDRESS=${DBUS_SESSION_BUS_ADDRESS:-unix:path=/run/user/$(id -u)/bus}
-KWINRULES=$HOME/.config/kwinrulesrc
+KWINRULES=${HL2_BENCH_KWINRULES:-$HOME/.config/kwinrulesrc}
+GS_SHADER=$HOME/.local/share/gamescope/reshade/Shaders/svrtv-anaglyph.fx
 kwin_reload() { qdbus6 org.kde.KWin /KWin reconfigure >/dev/null 2>&1 || qdbus org.kde.KWin /KWin reconfigure >/dev/null 2>&1; }
+
+fingerprint() { # file
+	if [ -e "$1" ]; then sha256sum "$1" | cut -d' ' -f1; else echo absent; fi
+}
+capture_file() { # key file
+	local key=$1 file=$2
+	if [ -e "$file" ]; then
+		echo present >"$ACTIVE/$key.presence"
+		cp -p "$file" "$ACTIVE/$key.original" || return 1
+	else
+		echo absent >"$ACTIVE/$key.presence"
+	fi
+	fingerprint "$file" >"$ACTIVE/$key.expected"
+}
+expect_file() { fingerprint "$2" >"$ACTIVE/$1.expected"; }
+restore_file() { # key file -- refuses to overwrite anything not last written by this run
+	local key=$1 file=$2 expected current presence
+	expected=$(cat "$ACTIVE/$key.expected" 2>/dev/null || true)
+	current=$(fingerprint "$file")
+	if [ -z "$expected" ] || [ "$current" != "$expected" ]; then
+		echo "state recovery refused for $file: expected $expected, found $current" >&2
+		return 1
+	fi
+	presence=$(cat "$ACTIVE/$key.presence" 2>/dev/null || true)
+	case "$presence" in
+		present) cp -p "$ACTIVE/$key.original" "$file" || return 1 ;;
+		absent) rm -f "$file" || return 1 ;;
+		*) echo "state recovery refused for $file: missing original-presence record" >&2; return 1 ;;
+	esac
+	expect_file "$key" "$file"
+}
+dxvk_file() { echo "$(app_game "$1")/hl2-bench-dxvk-$(cat "$ACTIVE/session")-${1}.conf"; }
+clear_dxvk() { # app
+	local app=$1 file expected current
+	[ -f "$ACTIVE/dxvk-$app.sha256" ] || return 0
+	file=$(dxvk_file "$app")
+	expected=$(cat "$ACTIVE/dxvk-$app.sha256")
+	current=$(fingerprint "$file")
+	if [ "$current" != "$expected" ]; then
+		echo "state recovery refused for $file: expected $expected, found $current" >&2
+		return 1
+	fi
+	rm -f "$file" "$ACTIVE/dxvk-$app.sha256"
+}
 kwin_rule_set() { # output-name
-	local geo x y
+	local geo x y expected current
 	geo=$(timeout 10 xrandr --listmonitors 2>/dev/null | awk -v n="$1" 'NR > 1 && $NF == n {print $3}')
 	[ -n "$geo" ] || return 1
 	x=$(echo "$geo" | cut -d+ -f2); y=$(echo "$geo" | cut -d+ -f3)
-	[ -f "$KWINRULES.hl2bench-backup" ] || cp -p "$KWINRULES" "$KWINRULES.hl2bench-backup" 2>/dev/null || : >"$KWINRULES.hl2bench-backup"
+	expected=$(cat "$ACTIVE/kwin.expected" 2>/dev/null || true)
+	current=$(fingerprint "$KWINRULES")
+	if [ -z "$expected" ] || [ "$current" != "$expected" ]; then
+		echo "refusing to overwrite KWin rules changed outside this bench: expected $expected, found $current" >&2
+		return 1
+	fi
 	cat >"$KWINRULES" <<EOR
 [General]
 count=1
@@ -118,14 +175,49 @@ acceptfocusrule=2
 fsplevel=0
 fsplevelrule=2
 EOR
+	expect_file kwin "$KWINRULES"
 	kwin_reload
 	echo "$x,$y"
 }
 kwin_rule_clear() {
-	[ -f "$KWINRULES.hl2bench-backup" ] || return 0
-	mv "$KWINRULES.hl2bench-backup" "$KWINRULES"
+	[ -d "$ACTIVE" ] || return 0
+	restore_file kwin "$KWINRULES" || return 1
 	kwin_reload
 }
+
+recover_state() {
+	local failed=0
+	[ -d "$ACTIVE" ] || { echo "no interrupted HL2 bench state"; return 0; }
+	restore_file svrtv "$(app_game 220)/bin/svrtv.ini" || failed=1
+	restore_file gamefx "$(app_game 220)/bin/svrtv-anaglyph.fx" || failed=1
+	restore_file gsshader "$GS_SHADER" || failed=1
+	for app in 220 2477290; do
+		restore_file "gamecfg-$app" "$(app_write "$app")/cfg/game.cfg" || failed=1
+		restore_file "benchcfg-$app" "$(app_write "$app")/cfg/bench_step.cfg" || failed=1
+	done
+	kwin_rule_clear || failed=1
+	clear_dxvk 220 || failed=1
+	clear_dxvk 2477290 || failed=1
+	if [ "$failed" = 0 ]; then
+		rm -rf "$ACTIVE"
+		echo "interrupted HL2 bench state restored"
+	else
+		echo "recovery stopped cleanly; evidence remains in $ACTIVE" >&2
+		return 1
+	fi
+}
+
+if [ "$RECOVER" = 1 ]; then recover_state; exit $?; fi
+if [ -d "$ACTIVE" ]; then
+	echo "an interrupted bench owns desktop/game state in $ACTIVE" >&2
+	echo "refusing to guess; inspect it, then run: $0 --recover-state" >&2
+	exit 1
+fi
+if [ -e "$KWINRULES.hl2bench-backup" ]; then
+	echo "legacy KWin backup exists at $KWINRULES.hl2bench-backup" >&2
+	echo "refusing to treat an unowned backup as current desktop state" >&2
+	exit 1
+fi
 
 launch_options() {
 	python3 - "$LOCALCONFIG" "$1" <<'EOF'
@@ -189,6 +281,22 @@ display_index() { # name
 SUITE="$ROOT/suite-$(date +%Y%m%d-%H%M%S)-$(basename "$STEPS" .conf)"
 mkdir -p "$SUITE"
 cp "$STEPS" "$SUITE/"
+mkdir -m 700 "$ACTIVE" || { echo "another bench claimed $ACTIVE" >&2; exit 1; }
+basename "$SUITE" >"$ACTIVE/session"
+capture_file svrtv "$(app_game 220)/bin/svrtv.ini" || { echo "cannot preserve svrtv.ini" >&2; rm -rf "$ACTIVE"; exit 1; }
+capture_file gamefx "$(app_game 220)/bin/svrtv-anaglyph.fx" || { echo "cannot preserve game shader" >&2; rm -rf "$ACTIVE"; exit 1; }
+capture_file gsshader "$GS_SHADER" || { echo "cannot preserve gamescope shader" >&2; rm -rf "$ACTIVE"; exit 1; }
+capture_file kwin "$KWINRULES" || { echo "cannot preserve KWin rules" >&2; rm -rf "$ACTIVE"; exit 1; }
+for app in 220 2477290; do
+	capture_file "gamecfg-$app" "$(app_write "$app")/cfg/game.cfg" || { echo "cannot preserve app $app game.cfg" >&2; rm -rf "$ACTIVE"; exit 1; }
+	capture_file "benchcfg-$app" "$(app_write "$app")/cfg/bench_step.cfg" || { echo "cannot preserve app $app bench_step.cfg" >&2; rm -rf "$ACTIVE"; exit 1; }
+	file=$(dxvk_file "$app")
+	if [ -e "$file" ]; then
+		echo "refusing to overwrite unowned DXVK config: $file" >&2
+		rm -rf "$ACTIVE"
+		exit 1
+	fi
+done
 {
 	echo "suite: $SUITE"
 	echo "kernel: $(uname -r)"
@@ -205,11 +313,24 @@ cp "$STEPS" "$SUITE/"
 printf 'step\tkind\tapp\trenderer\tvr\tstate\tfps\tvariability\tframes\tseconds\tvendor\tdevice\tresult\n' >"$SUITE/summary.tsv"
 
 cleanup() {
-	rm -f "$ENVFILE" "$(app_game 220)/bin/svrtv.ini" "$(app_write 220)/cfg/game.cfg" "$(app_write 2477290)/cfg/game.cfg"
-	kwin_rule_clear
+	local failed=0
+	rm -f "$ENVFILE"
+	restore_file svrtv "$(app_game 220)/bin/svrtv.ini" || failed=1
+	restore_file gamefx "$(app_game 220)/bin/svrtv-anaglyph.fx" || failed=1
+	restore_file gsshader "$GS_SHADER" || failed=1
+	for app in 220 2477290; do
+		restore_file "gamecfg-$app" "$(app_write "$app")/cfg/game.cfg" || failed=1
+		restore_file "benchcfg-$app" "$(app_write "$app")/cfg/bench_step.cfg" || failed=1
+	done
+	kwin_rule_clear || failed=1
+	clear_dxvk 220 || failed=1
+	clear_dxvk 2477290 || failed=1
 	"$HERE/wiz3d-setup.sh" remove >/dev/null 2>&1 || true
+	if [ "$failed" = 0 ]; then rm -rf "$ACTIVE"
+	else echo "bench cleanup stopped cleanly; inspect $ACTIVE and run: $0 --recover-state" >&2
+	fi
 	sync
-	[ "$REBOOT" = 1 ] && { echo "rebooting (--reboot-after)"; systemctl reboot; }
+	[ "$failed" = 0 ] && [ "$REBOOT" = 1 ] && { echo "rebooting (--reboot-after)"; systemctl reboot; }
 }
 trap cleanup EXIT
 
@@ -265,18 +386,23 @@ run_step() { # id app renderer vr runs frame kind [display]
 	if [ -n "$gsfx" ]; then
 		mkdir -p "$HOME/.local/share/gamescope/reshade/Shaders"
 		cp "$HERE/../vr-stereo-spectator/anaglyph/svrtv-anaglyph.fx" "$HOME/.local/share/gamescope/reshade/Shaders/"
+		expect_file gsshader "$GS_SHADER"
 	fi
 
 	# Stereo module settings (native HL2 only).
 	if [ "$app" = 220 ]; then
-		if [ "$vr" = off ] || [ "$vr" = wiz ]; then rm -f "$game/bin/svrtv.ini"
+		if [ "$vr" = off ] || [ "$vr" = wiz ]; then
+			rm -f "$game/bin/svrtv.ini"
+			expect_file svrtv "$game/bin/svrtv.ini"
 		else
 			printf 'SVRTV_WIDTH=%s\nSVRTV_HEIGHT=%s\nSVRTV_LOG=%s\n' "$RES_W" "$RES_H" "$out/svrtv.log" >"$game/bin/svrtv.ini"
 			[ -n "$layout" ] && printf 'SVRTV_LAYOUT=%s\n' "$layout" >>"$game/bin/svrtv.ini"
 			# The module installs the anaglyph effect for gamescope from its folder.
 			cp "$HERE/../vr-stereo-spectator/anaglyph/svrtv-anaglyph.fx" "$game/bin/"
+			expect_file gamefx "$game/bin/svrtv-anaglyph.fx"
 			# Extra module settings for a test run, e.g. SVRTV_EXTRA="SVRTV_HUDCOPY=1".
 			[ -n "${SVRTV_EXTRA:-}" ] && printf '%s\n' $SVRTV_EXTRA >>"$game/bin/svrtv.ini"
+			expect_file svrtv "$game/bin/svrtv.ini"
 		fi
 	fi
 
@@ -294,6 +420,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 	# play: Daniel plays; the frame column names the map to start on.
 	[ "$kind" = play ] && args="$args +map $frame"
 	rm -f "$write/bench/$id.log" "$write/cfg/game.cfg"
+	expect_file "gamecfg-$app" "$write/cfg/game.cfg"
 	args="$args +exec bench_step"
 	case "$renderer" in opengl) args="-opengl $args" ;; vulkan) args="-vulkan $args" ;; esac
 	if [ -n "$disp" ]; then
@@ -311,6 +438,9 @@ run_step() { # id app renderer vr runs frame kind [display]
 	{
 		echo "STEP_OUT=$out"
 		echo "STEP_ARGS=\"$args\""
+		echo "HL2BENCH_RUN_ID=\"$(cat "$ACTIVE/session")\""
+		echo "HL2BENCH_DXVK_TAG=$app"
+		echo "HL2BENCH_STATE_DIR=\"$ACTIVE\""
 		# GAMESCOPE_BIN picks another gamescope, e.g. the 3D TV build with its
 		# nested output on MAILBOX (~/.local/bin/gamescope-3dtv, 2026-09-25).
 		[ -n "$usegs" ] && echo "SVRTV_GAMESCOPE_BIN=\"${GAMESCOPE_BIN:-gamescope}\""
@@ -376,6 +506,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 			play) ;;
 		esac
 	} >"$write/cfg/bench_step.cfg"
+	expect_file "benchcfg-$app" "$write/cfg/bench_step.cfg"
 	cp "$write/cfg/bench_step.cfg" "$out/"
 	# View steps: the server runs "exec game.cfg" in GameInit() on every map
 	# load, single-player included (SDK gameinterface.cpp); listenserver.cfg
@@ -392,6 +523,7 @@ run_step() { # id app renderer vr runs frame kind [display]
 			echo "con_logfile \"bench/$id.log\""
 			echo "screenshot"
 		} >"$write/cfg/game.cfg"
+		expect_file "gamecfg-$app" "$write/cfg/game.cfg"
 		cp "$write/cfg/game.cfg" "$out/"
 	fi
 	[ "$kind" = watch ] && echo "    WATCH: television to 3D ${vr}; real-time playback, about 3 minutes"
@@ -469,6 +601,7 @@ EOF
 	grep -h -E 'frames .* seconds .* fps|Demo playback finished' "$out/console.log" 2>/dev/null | sed 's/^/    /'
 	if [ "$vr" = wiz ]; then "$HERE/wiz3d-setup.sh" remove | sed 's/^/    /'; fi
 	rm -f "$write/cfg/game.cfg"
+	expect_file "gamecfg-$app" "$write/cfg/game.cfg"
 	kwin_rule_clear
 	sleep 5
 }

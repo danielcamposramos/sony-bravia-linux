@@ -8,8 +8,8 @@
 # STEP_ARGS, the game arguments for that step.
 # Outside a run, play.env (same format) holds Daniel's play launch, when set:
 # Steam's Play button then starts the game the way that file says.
-ENVFILE=/K3D/temp/hl2-bench/current.env
-[ -f "$ENVFILE" ] || ENVFILE=/K3D/temp/hl2-bench/play.env
+ENVFILE=${HL2_BENCH_ENVFILE:-/K3D/temp/hl2-bench/current.env}
+[ -f "$ENVFILE" ] || ENVFILE=${HL2_BENCH_PLAY_ENVFILE:-/K3D/temp/hl2-bench/play.env}
 STEP_ARGS=""
 if [ -f "$ENVFILE" ]; then
 	set -a
@@ -23,8 +23,37 @@ if [ -f "$ENVFILE" ]; then
 	if [ -n "${DXVK_CONFIG:-}" ]; then
 		for a in "$@"; do case $a in */hl2.sh) gd=${a%/hl2.sh} ;; esac; done
 		if [ -n "${gd:-}" ]; then
-			printf '%s\n' "$DXVK_CONFIG" | tr ';' '\n' >"$gd/hl2-bench-dxvk.conf"
-			export DXVK_CONFIG_FILE="$gd/hl2-bench-dxvk.conf"
+			# play.env owns a persistent, separately named config. Suite runs
+			# supply their unique run ID, app tag and recovery directory.
+			if [ -z "${HL2BENCH_RUN_ID:-}" ]; then
+				HL2BENCH_RUN_ID=play
+				HL2BENCH_DXVK_TAG=play
+				HL2BENCH_STATE_DIR=$(dirname "$ENVFILE")
+				mkdir -p "$HL2BENCH_STATE_DIR"
+			fi
+			case ${HL2BENCH_RUN_ID:-} in *[!A-Za-z0-9._-]*|'')
+				echo "refusing DXVK bench config without a safe HL2BENCH_RUN_ID" >&2
+				exit 1
+			;; esac
+			case ${HL2BENCH_DXVK_TAG:-} in 220|2477290|play) ;; *)
+				echo "refusing DXVK bench config without a known app tag" >&2
+				exit 1
+			;; esac
+			[ -d "${HL2BENCH_STATE_DIR:-}" ] || {
+				echo "refusing DXVK bench config without an active state directory" >&2; exit 1;
+			}
+			cfg="$gd/hl2-bench-dxvk-$HL2BENCH_RUN_ID-$HL2BENCH_DXVK_TAG.conf"
+			sha="$HL2BENCH_STATE_DIR/dxvk-$HL2BENCH_DXVK_TAG.sha256"
+			if [ -e "$cfg" ]; then
+				[ -f "$sha" ] && [ "$(sha256sum "$cfg" | cut -d' ' -f1)" = "$(cat "$sha")" ] || {
+					echo "refusing to overwrite unowned DXVK config: $cfg" >&2; exit 1;
+				}
+			fi
+			tmp="$cfg.tmp.$$"
+			printf '%s\n' "$DXVK_CONFIG" | tr ';' '\n' >"$tmp"
+			mv "$tmp" "$cfg"
+			sha256sum "$cfg" | cut -d' ' -f1 >"$sha"
+			export DXVK_CONFIG_FILE="$cfg"
 		fi
 	fi
 	[ -n "${STEP_OUT:-}" ] && printf '%s\n' "$@" $STEP_ARGS >"$STEP_OUT/launch-args.txt"
