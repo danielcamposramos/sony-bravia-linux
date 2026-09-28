@@ -1,5 +1,5 @@
 STEREO 3D FOR HALF-LIFE 2 AND SOURCE GAMES (WINDOWS)
-VR Stereo Spectator, test build of 2026-09-28: play and spectate
+VR Stereo Spectator, test build of 2026-09-28: play, spectate, stereo loading screens
 
 Half-Life 2 in real stereo 3D on a 3D TV, projector or monitor.
 The game already carries Valve's VR render path from 2013: this module presents your 3D display to the engine as its headset, so the engine itself renders both eyes with real stereo geometry, and your display unpacks them.
@@ -73,6 +73,14 @@ Tested with Half-Life 2: Deathmatch built from our source on Source SDK Base 201
 Online: the engine refuses secure (VAC) servers while an unsigned VR module is loaded. Use it offline, on LAN, and for demos.
 
 
+LOADING SCREENS
+
+The game draws its loading screens as one flat image across the whole screen, outside the 3D path, so they need their own treatment.
+In Windows: the chapter picture is stereo art, once per eye with the Half-Life 2 lambda popped in front of the screen. The module makes it during your first 3D session in a format, and uses it from the next start in 3D (the game reads its loading screens once, at start-up); after switching 3D or the format, the loading screens follow at the next start. The spinner and the progress bar are still drawn once across the screen: the spinner in one eye's corner, the bar crossing from one eye into the other, without ghosting.
+This is new in Windows and not yet tried there.
+Valve's files are never changed; the art lives in the 3D menu's folder, and uninstalling removes it.
+
+
 THE MUZZLE FLASH, CHEATS AND ACHIEVEMENTS
 
 In Half-Life 2's VR view the muzzle flash is drawn beside the gun, not on it.
@@ -96,7 +104,6 @@ In multiplayer, the engine warns that an unsigned VR module blocks secure (VAC) 
 
 WHAT IS NOT IN THIS BUILD
 
-- Loading screens in 3D: they show in one eye. The game draws them straight to the screen while no 3D view is rendered, outside the path that puts the menus and HUD in both eyes; the fix is in Valve's engine, and our pull request asks for it.
 - Red/cyan anaglyph, row-interleaved and checkerboard outputs: Linux only for now (they run through gamescope).
 - Frame packing (the HDMI 3D signal that switches a TV to 3D by itself): it needs the graphics driver to offer HDMI 3D modes; not in the menu yet.
 - Spectating from a VR headset (someone plays in the headset while the PC screen shows both eyes in 3D): next.

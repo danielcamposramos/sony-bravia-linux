@@ -124,8 +124,12 @@ some of them away and brought the old problems back.)
    Inside gamescope the module marks every frame it builds (two bottom-right
    pixels) and the effect puts any unmarked frame whole into both halves,
    spinner and progress bar included, Valve's files untouched (run q33, "IT
-   WORKS!"). Overriding Valve's names mid-session does not take (GameUI
-   reads its chapter list and pictures once, at start-up: runs q30-q32).
+   WORKS!"). Natively the chapter picture becomes stereo art: the module
+   saves a stereo copy of each picture beside Valve's during a 3D session
+   (once per eye, the lambda popped), and at the next start in 3D a chapter
+   list in the 3D menu's folder points at them, since GameUI reads it once,
+   at start-up (runs q30-q32, q34). Overriding Valve's own names does not
+   take; the spinner and bar stay drawn once natively (no ghost, accepted).
 
 ## Geometry
 
