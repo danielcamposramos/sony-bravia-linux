@@ -17,4 +17,3 @@ The generated consumer view is deterministic. `SUPPORTED` and deliberately
 `UNTESTED` claims are both valid pointer targets when declared exactly;
 corrected or superseded targets fail unless a historical consumer explicitly
 opts into them.
-
