@@ -1,0 +1,105 @@
+From b8299fc51d98a6a5987f60158292558a7afa396e Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 18:46:38 -0300
+Subject: [PATCH 0/6] drm/nouveau: HDMI output colour format and quantization range
+
+Nouveau only ever outputs full-range RGB on HDMI.  This series adds the
+standard "Broadcast RGB" and "color format" connector properties on
+Turing to Ada heads and selects the pixel encoding together with the
+link depth: limited or full range RGB, and YCbCr 4:4:4, 4:2:2 and 4:2:0.
+It applies on top of the HDMI Deep Color series v2 (base and
+prerequisite ids below).
+
+The hardware stage was already there.  On NVC57D-class heads the final
+colour conversion is HEAD_SET_PROCAMP plus the OCSC1 matrix and the
+output clamp ranges; nouveau only wrote PROCAMP, hardcoded to RGB/VESA
+under a TODO.  The programming follows NVIDIA's open NVKMS on the same
+classes (EvoSetProcAmpC5, EvoSetOCsc1C5, the YUV420PACKER head control).
+The OCSC1 matrices are the ITU-R BT.601, BT.709 and BT.2020 coefficients
+at limited-range scale; re-derived independently, they match NVIDIA's
+register values to within 4 in the last place, and the patch uses
+NVIDIA's values so the output is bit-identical to the proprietary driver
+on the same hardware.
+
+Selection policy follows drm_hdmi_state_helper.c, with amdgpu as the
+reference consumer of the "color format" property: sink rules per
+format (RGB/4:4:4 Deep Color bits, 4:2:2 up to 12 bpc in the 24-bit
+container, 4:2:0 through its own bits), TMDS character rates from
+drm_hdmi_compute_mode_clock(), "Automatic" picking RGB and falling back
+to 4:2:0, explicit requests honoured or refused.  YCbCr is limited range
+with the CTA-861 default colorimetry (BT.709 above 576 lines, BT.601
+below), declared in the AVI InfoFrame together with the pixel encoding.
+
+One default changes: "Broadcast RGB" Automatic selects limited range for
+CE video formats, as i915 and the HDMI helpers do.  Today nouveau sends
+full-range pixels there and can only declare that to sinks with a Video
+Capability Data Block, so sinks without one apply their default limited
+range to full-range data.  "Full" restores the previous output.
+
+  1: NVC57D output CSC and clamp methods (class header)
+  2: program PROCAMP/OCSC1/clamps from head state (no functional change)
+  3: Broadcast RGB
+  4: color format with YCbCr 4:4:4 and 4:2:2
+  5: YCbCr 4:2:0 on GA102+, gated per head on the capability notifier
+  6: the same properties on DVI connectors, which carry HDMI to HDMI
+     sinks through passive adapters (reported by the automated review
+     of the Deep Color series v1)
+
+Tested on a GA106 (RTX 3060) driving a Sony KDL-46HX855 (HDMI 1.4,
+YCbCr 4:4:4 and 4:2:2, DC_30/DC_36/DC_Y444, 225 MHz, no VCDB), 25
+configurations in two runs: RGB full, limited and automatic at 8/10/12
+bpc; YCbCr 4:4:4 and 4:2:2 at 8/10/12 bpc; BT.601 at 576p/480p and
+BT.709 from 720p; 640x480 held at 8 bpc; and side-by-side, top-and-
+bottom and frame-packed 3D at 12 bpc with YCbCr 4:4:4, limited RGB and
+YCbCr 4:2:2.  Every frame carried colour bars over near-black and
+near-white steps; the sink accepted each signal and displayed correct
+colours and levels, and the driver's selection was logged per step.
+
+Not tested here: 4:2:0 (the sink declares none) and DVI (the board has
+no DVI port); both reuse the paths exercised above.  Volta keeps its
+current behaviour (NVKMS has no Volta display code to compare against)
+and Blackwell (NVCA7D, same methods at a different stride) is left for
+a follow-up.  The class header additions are verbatim subsets of
+NVIDIA's headers and carry their usual checkpatch style findings.
+
+Normative chain: HDMI 1.4b section 6.5 (pixel encodings, General Control
+Packet), HDMI 2.0 section 7.1 (YCbCr 4:2:0), CTA-861 (AVI InfoFrame
+Y/C/Q/YQ fields, default colorimetry, the QS rule), ITU-R BT.601,
+BT.709 and BT.2020.  Bench harness and logs:
+https://github.com/danielcamposramos/sony-bravia-linux (tools/stereo-modeset,
+run27 and run28); curated public indexes:
+https://github.com/danielcamposramos/awesome-linux-hdr and
+https://github.com/danielcamposramos/awesome-stereoscopy.
+
+AI partners were leveraged in the production of this work.
+
+Daniel Campos Ramos (6):
+  drm/nouveau: add NVC57D output CSC and clamp range methods
+  drm/nouveau: program head output conversion for limited range and
+    YCbCr
+  drm/nouveau: add the Broadcast RGB property for HDMI
+  drm/nouveau: add HDMI YCbCr 4:4:4 and 4:2:2 output
+  drm/nouveau: add HDMI YCbCr 4:2:0 output on GA102 and later
+  drm/nouveau: expose HDMI output properties on DVI connectors
+
+ drivers/gpu/drm/nouveau/dispnv50/atom.h       |  11 +
+ drivers/gpu/drm/nouveau/dispnv50/disp.c       | 305 +++++++++++++++---
+ drivers/gpu/drm/nouveau/dispnv50/head.c       |  19 ++
+ drivers/gpu/drm/nouveau/dispnv50/head.h       |   3 +
+ drivers/gpu/drm/nouveau/dispnv50/headc57d.c   | 112 +++++--
+ .../drm/nouveau/include/nvhw/class/clc57d.h   |  34 ++
+ .../drm/nouveau/include/nvhw/class/clc673.h   |  17 +
+ .../drm/nouveau/include/nvhw/class/clc67d.h   |  16 +
+ drivers/gpu/drm/nouveau/nouveau_connector.c   |  48 ++-
+ 9 files changed, 488 insertions(+), 77 deletions(-)
+ create mode 100644 drivers/gpu/drm/nouveau/include/nvhw/class/clc673.h
+ create mode 100644 drivers/gpu/drm/nouveau/include/nvhw/class/clc67d.h
+
+
+base-commit: 73ef663c75688168e31dbe9c585b939be410a945
+prerequisite-patch-id: 6bd193908862475dd809b40037984747467236d6
+prerequisite-patch-id: bf3b51b5393ef1c612930f4c474e6852372ca7db
+prerequisite-patch-id: 22c3f84b6576853e9d3053d4e5a15a4bd37e6dcd
+-- 
+2.53.0
+

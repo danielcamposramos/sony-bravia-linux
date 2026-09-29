@@ -1,0 +1,175 @@
+From 04f1af9a1a7a8ff853a981181e5c081ad54bac48 Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 17:56:21 -0300
+Subject: [PATCH 2/6] drm/nouveau: program head output conversion for limited
+ range and YCbCr
+
+On Turing and later display classes the final head colour stage is
+programmed through HEAD_SET_PROCAMP, the OCSC1 matrix and the output
+clamp ranges.  Nouveau only wrote PROCAMP, hardcoded to full-range RGB,
+and left OCSC1 and the clamps untouched, so the head could only ever
+emit full-range RGB.
+
+Carry an output colour space and a limited-range flag in the head atom
+and program all three from it in headc57d_procamp(): full-range RGB
+disables OCSC1 and opens the clamps, limited-range RGB and YCbCr load the
+matching BT.601/BT.709/BT.2020 limited-range matrix and clamp to 16-235
+(16-240 for chroma).  The matrices are the ITU-R coefficients scaled to
+limited range, with the register values NVIDIA's open NVKMS uses on the
+same classes.
+
+Re-send procamp whenever the output conversion changes on an active head,
+and reset it to full-range RGB when the encoder state is recomputed.
+Nothing selects anything else yet, so there is no functional change.
+
+Signed-off-by: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+---
+ drivers/gpu/drm/nouveau/dispnv50/atom.h     |  2 +
+ drivers/gpu/drm/nouveau/dispnv50/disp.c     |  5 +-
+ drivers/gpu/drm/nouveau/dispnv50/head.c     |  3 +
+ drivers/gpu/drm/nouveau/dispnv50/headc57d.c | 74 +++++++++++++++++++--
+ 4 files changed, 79 insertions(+), 5 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/atom.h b/drivers/gpu/drm/nouveau/dispnv50/atom.h
+index c34a42ea9ac4..64be784be335 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/atom.h
++++ b/drivers/gpu/drm/nouveau/dispnv50/atom.h
+@@ -112,6 +112,8 @@ struct nv50_head_atom {
+ 			u16 cos:12;
+ 			u16 sin:12;
+ 		} sat;
++		u8 colorspace:2;	/* HEAD_SET_PROCAMP_COLOR_SPACE */
++		bool limited:1;		/* limited quantization range */
+ 	} procamp;
+ 
+ 	struct {
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index b183e1865bf5..b216db61330c 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -463,8 +463,11 @@ nv50_outp_atomic_check(struct drm_encoder *encoder,
+ 	if (ret)
+ 		return ret;
+ 
+-	if (crtc_state->mode_changed || crtc_state->connectors_changed)
++	if (crtc_state->mode_changed || crtc_state->connectors_changed) {
+ 		asyh->or.bpc = connector->display_info.bpc;
++		asyh->procamp.colorspace = 0; /* RGB */
++		asyh->procamp.limited = false;
++	}
+ 
+ 	/* We might have to reduce the bpc */
+ 	nv50_outp_atomic_fix_depth(encoder, crtc_state, conn_state);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
+index 6a3a93de0cbf..7b94c881e8bb 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/head.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
+@@ -370,6 +370,9 @@ nv50_head_atomic_check(struct drm_crtc *crtc, struct drm_atomic_commit *state)
+ 				if (armh->base.depth != asyh->base.depth)
+ 					asyc->set.dither = true;
+ 			}
++			if (armh->procamp.colorspace != asyh->procamp.colorspace ||
++			    armh->procamp.limited != asyh->procamp.limited)
++				asyh->set.procamp = true;
+ 		} else {
+ 			if (asyc)
+ 				asyc->set.mask = ~0;
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+index f1e9f02d177c..9b5c02c86fc9 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+@@ -81,21 +81,87 @@ headc57d_or(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	return 0;
+ }
+ 
++/* OCSC1 coefficients converting the head's RGB output to limited range,
++ * indexed by HEAD_SET_PROCAMP_COLOR_SPACE.  The three rows produce the
++ * red/Cr, green/Y and blue/Cb channels, the last column is the offset,
++ * and values are two's complement with 16 fractional bits.
++ *
++ * These are the ITU-R BT.601, BT.709 and BT.2020 RGB to Y'CbCr matrices
++ * (identity for RGB) scaled by 219/256 for Y' and R'G'B' and by 224/256
++ * for CbCr, with 16/256 and 128/256 offsets.  The register values are the
++ * ones NVIDIA's open NVKMS programs on the same display classes, which
++ * differ from a direct derivation by at most 4 in the last place.
++ */
++static const u32
++headc57d_ocsc1_limited[4][12] = {
++	[NVC57D_HEAD_SET_PROCAMP_COLOR_SPACE_RGB] = {
++		0x00db04, 0x000000, 0x000000, 0x001000,
++		0x000000, 0x00db04, 0x000000, 0x001000,
++		0x000000, 0x000000, 0x00db04, 0x001000,
++	},
++	[NVC57D_HEAD_SET_PROCAMP_COLOR_SPACE_YUV_601] = {
++		0x007000, 0x1fa234, 0x1fedc8, 0x008000,
++		0x00417c, 0x008090, 0x0018f8, 0x001000,
++		0x1fda34, 0x1fb5cc, 0x007000, 0x008000,
++	},
++	[NVC57D_HEAD_SET_PROCAMP_COLOR_SPACE_YUV_709] = {
++		0x007000, 0x1f9a44, 0x1ff5bc, 0x008000,
++		0x002e90, 0x009ca4, 0x000fd0, 0x001000,
++		0x1fe654, 0x1fa9a8, 0x007000, 0x008000,
++	},
++	[NVC57D_HEAD_SET_PROCAMP_COLOR_SPACE_YUV_2020] = {
++		0x007000, 0x1f9900, 0x1ff700, 0x008000,
++		0x003988, 0x00947c, 0x000cfc, 0x001000,
++		0x1fe0b8, 0x1faf44, 0x007000, 0x008000,
++	},
++};
++
+ static int
+ headc57d_procamp(struct nv50_head *head, struct nv50_head_atom *asyh)
+ {
+ 	struct nvif_push *push = &nv50_disp(head->base.base.dev)->core->chan.push;
++	const u8 colorspace = asyh->procamp.colorspace;
++	const bool limited = asyh->procamp.limited;
+ 	const int i = head->base.index;
++	u32 lo = 0x000, y_hi = 0xfff, c_hi = 0xfff;
+ 	int ret;
+ 
+-	if ((ret = PUSH_WAIT(push, 2)))
++	/* 12-bit clamp codes: 16..235 for Y' and R'G'B', 16..240 for CbCr. */
++	if (limited) {
++		lo = 0x100;
++		y_hi = 0xeb0;
++		c_hi = colorspace == NVC57D_HEAD_SET_PROCAMP_COLOR_SPACE_RGB ? 0xeb0 : 0xf00;
++	}
++
++	ret = PUSH_WAIT(push, 20);
++	if (ret)
+ 		return ret;
+ 
+-	//TODO:
+ 	PUSH_MTHD(push, NVC57D, HEAD_SET_PROCAMP(i),
+-		  NVDEF(NVC57D, HEAD_SET_PROCAMP, COLOR_SPACE, RGB) |
++		  NVVAL(NVC57D, HEAD_SET_PROCAMP, COLOR_SPACE, colorspace) |
+ 		  NVDEF(NVC57D, HEAD_SET_PROCAMP, CHROMA_LPF, DISABLE) |
+-		  NVDEF(NVC57D, HEAD_SET_PROCAMP, DYNAMIC_RANGE, VESA));
++		  NVVAL(NVC57D, HEAD_SET_PROCAMP, DYNAMIC_RANGE,
++			limited ? NVC57D_HEAD_SET_PROCAMP_DYNAMIC_RANGE_CEA :
++				  NVC57D_HEAD_SET_PROCAMP_DYNAMIC_RANGE_VESA));
++
++	PUSH_MTHD(push, NVC57D, HEAD_SET_CLAMP_RANGE_GREEN(i),
++		  NVVAL(NVC57D, HEAD_SET_CLAMP_RANGE_GREEN, LOW, lo) |
++		  NVVAL(NVC57D, HEAD_SET_CLAMP_RANGE_GREEN, HIGH, y_hi),
++
++				HEAD_SET_CLAMP_RANGE_RED_BLUE(i),
++		  NVVAL(NVC57D, HEAD_SET_CLAMP_RANGE_RED_BLUE, LOW, lo) |
++		  NVVAL(NVC57D, HEAD_SET_CLAMP_RANGE_RED_BLUE, HIGH, c_hi));
++
++	if (!limited) {
++		PUSH_MTHD(push, NVC57D, HEAD_SET_OCSC1CONTROL(i),
++			  NVDEF(NVC57D, HEAD_SET_OCSC1CONTROL, ENABLE, DISABLE));
++		return 0;
++	}
++
++	PUSH_MTHD(push, NVC57D, HEAD_SET_OCSC1CONTROL(i),
++		  NVDEF(NVC57D, HEAD_SET_OCSC1CONTROL, ENABLE, ENABLE));
++	PUSH_MTHD(push, NVC57D, HEAD_SET_OCSC1COEFFICIENT_C00(i),
++		  headc57d_ocsc1_limited[colorspace], 12);
+ 	return 0;
+ }
+ 
+-- 
+2.53.0
+

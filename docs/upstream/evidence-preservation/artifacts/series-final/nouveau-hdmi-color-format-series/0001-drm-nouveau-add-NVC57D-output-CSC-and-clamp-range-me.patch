@@ -1,0 +1,74 @@
+From 129dbaee308190da9b6c8def74f018502aba61f9 Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 17:54:05 -0300
+Subject: [PATCH 1/6] drm/nouveau: add NVC57D output CSC and clamp range
+ methods
+
+Import the HEAD_SET_CLAMP_RANGE_{GREEN,RED_BLUE} and HEAD_SET_OCSC1*
+method definitions from NVIDIA's open-gpu-kernel-modules clc57d.h.
+
+These program the head's final colour conversion stage on Turing and
+later display classes: OCSC1 converts the RGB pipeline output into
+limited-range RGB or YCbCr, and the clamp ranges bound the resulting
+codes.  They are needed to output anything other than full-range RGB.
+
+No functional change.
+
+Signed-off-by: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+---
+ .../drm/nouveau/include/nvhw/class/clc57d.h   | 34 +++++++++++++++++++
+ 1 file changed, 34 insertions(+)
+
+diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/clc57d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/clc57d.h
+index d4bad2da3e56..ed9de61c5655 100644
+--- a/drivers/gpu/drm/nouveau/include/nvhw/class/clc57d.h
++++ b/drivers/gpu/drm/nouveau/include/nvhw/class/clc57d.h
+@@ -334,6 +334,12 @@
+ #define NVC57D_HEAD_SET_CRC_CONTROL_CRC_DURING_SNOOZE                           9:9
+ #define NVC57D_HEAD_SET_CRC_CONTROL_CRC_DURING_SNOOZE_DISABLE                   (0x00000000)
+ #define NVC57D_HEAD_SET_CRC_CONTROL_CRC_DURING_SNOOZE_ENABLE                    (0x00000001)
++#define NVC57D_HEAD_SET_CLAMP_RANGE_GREEN(a)                                    (0x00002238 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_CLAMP_RANGE_GREEN_LOW                                   11:0
++#define NVC57D_HEAD_SET_CLAMP_RANGE_GREEN_HIGH                                  27:16
++#define NVC57D_HEAD_SET_CLAMP_RANGE_RED_BLUE(a)                                 (0x0000223C + (a)*0x00000400)
++#define NVC57D_HEAD_SET_CLAMP_RANGE_RED_BLUE_LOW                                11:0
++#define NVC57D_HEAD_SET_CLAMP_RANGE_RED_BLUE_HIGH                               27:16
+ #define NVC57D_HEAD_SET_OLUT_CONTROL(a)                                         (0x00002280 + (a)*0x00000400)
+ #define NVC57D_HEAD_SET_OLUT_CONTROL_INTERPOLATE                                0:0
+ #define NVC57D_HEAD_SET_OLUT_CONTROL_INTERPOLATE_DISABLE                        (0x00000000)
+@@ -352,4 +358,32 @@
+ #define NVC57D_HEAD_SET_CONTEXT_DMA_OLUT_HANDLE                                 31:0
+ #define NVC57D_HEAD_SET_OFFSET_OLUT(a)                                          (0x0000228C + (a)*0x00000400)
+ #define NVC57D_HEAD_SET_OFFSET_OLUT_ORIGIN                                      31:0
++#define NVC57D_HEAD_SET_OCSC1CONTROL(a)                                         (0x0000229C + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1CONTROL_ENABLE                                     0:0
++#define NVC57D_HEAD_SET_OCSC1CONTROL_ENABLE_DISABLE                             (0x00000000)
++#define NVC57D_HEAD_SET_OCSC1CONTROL_ENABLE_ENABLE                              (0x00000001)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C00(a)                                 (0x000022A0 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C00_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C01(a)                                 (0x000022A4 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C01_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C02(a)                                 (0x000022A8 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C02_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C03(a)                                 (0x000022AC + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C03_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C10(a)                                 (0x000022B0 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C10_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C11(a)                                 (0x000022B4 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C11_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C12(a)                                 (0x000022B8 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C12_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C13(a)                                 (0x000022BC + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C13_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C20(a)                                 (0x000022C0 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C20_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C21(a)                                 (0x000022C4 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C21_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C22(a)                                 (0x000022C8 + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C22_VALUE                              20:0
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C23(a)                                 (0x000022CC + (a)*0x00000400)
++#define NVC57D_HEAD_SET_OCSC1COEFFICIENT_C23_VALUE                              20:0
+ #endif // _clC57d_h
+-- 
+2.53.0
+

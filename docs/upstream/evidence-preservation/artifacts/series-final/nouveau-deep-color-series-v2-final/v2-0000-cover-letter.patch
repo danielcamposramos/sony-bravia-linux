@@ -1,0 +1,132 @@
+From c3dddeb0983ceea7698f0bf3fccfff8dc016afd6 Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 18:45:07 -0300
+Subject: [PATCH v2 0/3] drm/nouveau: HDMI Deep Color link depth (30/36/48 bpp)
+
+This series wires up HDMI Deep Color on nouveau.  The connector gains the
+"max bpc" property, the atomic check selects a link depth that both the
+sink EDID (HDMI VSDB DC_30/36/48) and the TMDS character-rate budget
+admit, the head is programmed for 30/36/48 bpp RGB, and the TMDS General
+Control Packet carries the matching CD/PP fields.
+
+Patch 3 is what makes the link physically work on GSP boards.  The
+GV100-class GCP writers emitted a depth-less packet, and on GSP systems
+the HDMI audio enable runs after the display commit and emits it again,
+erasing the deep-color declaration (sor->disp->func->gsp.hdmi_gcp).  The
+proprietary NVIDIA stack performs the same audio operation and then
+rebuilds the GCP from the committed head depth.  Threading CD/PP through
+the OUTP HDMI ctrl method (patch 2), caching them on the ior, and writing
+them with a 0x00ffffff mask gives nouveau the same ordering; the mask also
+keeps generation-specific bits sharing the register intact (GB20x
+SB1_CTRL).
+
+Tested on a GA106 (RTX 3060) driving a Sony KDL-46HX855 (HDMI 1.4 sink,
+EDID DC_30/DC_36, 225 MHz TMDS ceiling): 1920x1080p60 RGB at 36 bpp,
+i.e. a 222.75 MHz character rate.  Without the series the sink rejects
+the modeset with an incompatible-signal OSD; with it the set accepts the
+signal, reports a 12-bit input, and renders correctly.  The v2 30-bpp
+additions follow the same wire construction (CD/PP encodings per HDMI
+1.4b section 6.5.3, with CD=5 verified against the Synopsys dw-hdmi
+packetizer).  The new 30-bpp arm is bench-exercised too: with "max bpc"
+clamped to 10 the same sink links at 30 bpp and renders correctly, a
+regression run at the default depth confirms the 36-bpp 12-bit result is
+unchanged, and 1080p24 frame packing at 12 bpc (a 222.75 MHz link) and
+side-by-side/top-and-bottom 3D at 12 bpc all display correctly with the
+sink in 3D.  All runs are logged in the bench repository.
+
+Changes in v2 (credit to the automated review mails on v1 for the first
+two):
+
+- patch 2: encode GCP CD/PP for 30 bpp as well (CD=5, PP from the
+  four-pixel packing group, wire 0 = phase 4 per NVIDIA's phase constant
+  numbering).  v1's description already promised 30/36/48 bpp, but the
+  enable path only encoded the 36 and 48-bpp arms; 10 bpc was reachable
+  there and would have declared the default 24 bpp on a 30-bpp wire.
+- patch 2: gate SCDC scrambling and the 1:40 TMDS bit clock ratio on the
+  TMDS character rate (pixel clock scaled by depth), not the raw pixel
+  clock, per the HDMI 2.0 340 MHz character-rate rule.  The OUTP HDMI
+  ctrl khz argument stays the pixel clock on purpose: measured on the
+  bench, the 36-bpp link trained at the correct 222.75 MHz character
+  rate, so the sequencer derives the scaling itself.
+- patches 1 and 2: rate frame-packed 3D modes at the link clock, twice
+  the mode clock, in the depth selection and the SCDC gate, as
+  nouveau_connector_mode_valid() already does.  v1 used the per-eye
+  clock, which could pick a depth the link cannot carry; found reading
+  the bench logs, harmless on the test sink.
+- patch 1 (no code change): the "max bpc" property stays attached to
+  HDMI-A connectors only, matching i915.  Extending it to DVI
+  connectors that feed HDMI sinks through passive adapters belongs with
+  the follow-on series below, which does it; DP++ adapters stay open.
+
+Scope and non-goals, so nobody has to guess:
+
+- Only RGB is selected.  YCbCr output additionally needs a connector
+  color-format selection path that nouveau does not have today, plus AVI
+  InfoFrame colorspace/range handling and format-aware bandwidth and
+  packing.  That is a follow-on series built on this one, using the DRM
+  "color format" and "Broadcast RGB" properties (limited/full RGB, YCbCr
+  4:4:4, 4:2:2 and 4:2:0), sent separately.
+- 48 bpp (16 bpc) is implemented from DC_48, BPP_48_444 and GCP CD=7 but
+  is untested: the bench has no DC_48 sink.  It might enable professional
+  16-bit displays; the mechanism is the same, but we do not own the
+  hardware to test or claim it.
+- HDR might benefit: HDR10's baseline transport is 10-bpc YCbCr 4:2:2
+  carried in a 12-bpc container, and link-depth failures feature in HDR
+  reports.  The transport mechanism is the same, but we do not have
+  hardware to test or claim native HDR here (static metadata and
+  colorspace are separate pieces nouveau does not yet emit for HDMI).
+
+For context: on this same bench the installed proprietary NVIDIA driver
+(615.71.09, hdmi_deepcolor=Y, max_output_color_depth=10) caps this sink
+at 10 bpc by default policy, while Windows on the same card reports
+12 bpc; with the parameter lifted to 12 the stock Linux driver drives
+this sink at 12 bpc too.  A companion one-line default-cap change for
+the open NVIDIA kernel modules is in that repository as the
+closed-source counterpart of this series.
+
+Related items from the same diagnosis, for maintainers who want the full
+EDID-surface picture on the proprietary stack: NVIDIA's repository tracks
+three measured symptoms of the same narrowing at
+https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1384 (plus the
+HDMI 1.4 3D VSDB sibling at .../issues/1382), with the one-line
+default-cap companion PR at .../pull/1386.  Nothing there blocks this
+series; it is the same disease seen from the other driver.
+
+Normative chain this series is built and measured against: HDMI 1.4b
+section 6.5.3 (General Control Packet CD/PP encodings), HDMI 2.0a
+(340 MHz character-rate scrambling and clock-ratio rule), CTA-861-G
+(EDID VSDB Deep Color capability bits), NVIDIA's public nvtiming.h and
+display-class headers, and the in-tree Synopsys dw-hdmi packetizer, which
+implements the same CD table with the same section citation.  The
+reproducible bench harness, EDID dumps and test logs live at
+https://github.com/danielcamposramos/sony-bravia-linux (tools/stereo-modeset);
+the curated public evidence indexes are
+https://github.com/danielcamposramos/awesome-stereoscopy and
+https://github.com/danielcamposramos/awesome-linux-hdr.
+
+AI partners were leveraged in the production of this work.
+
+Daniel Campos Ramos (3):
+  drm/nouveau: select HDMI deep-color link depth
+  drm/nouveau: pass HDMI GCP deep-color state through NVIF
+  drm/nouveau: program HDMI deep-color GCP fields
+
+ drivers/gpu/drm/nouveau/dispnv50/disp.c       | 110 ++++++++++++++++--
+ drivers/gpu/drm/nouveau/dispnv50/headc37d.c   |   6 +
+ drivers/gpu/drm/nouveau/dispnv50/headc57d.c   |   6 +
+ drivers/gpu/drm/nouveau/dispnv50/headca7d.c   |   6 +
+ drivers/gpu/drm/nouveau/include/nvif/if0012.h |   3 +
+ drivers/gpu/drm/nouveau/include/nvif/outp.h   |   2 +-
+ drivers/gpu/drm/nouveau/nouveau_connector.c   |   9 +-
+ drivers/gpu/drm/nouveau/nouveau_connector.h   |   1 +
+ drivers/gpu/drm/nouveau/nvif/outp.c           |   7 +-
+ .../gpu/drm/nouveau/nvkm/engine/disp/gb202.c  |  12 +-
+ .../gpu/drm/nouveau/nvkm/engine/disp/gv100.c  |   4 +-
+ .../gpu/drm/nouveau/nvkm/engine/disp/ior.h    |   2 +
+ .../gpu/drm/nouveau/nvkm/engine/disp/tu102.c  |   4 +-
+ .../gpu/drm/nouveau/nvkm/engine/disp/uoutp.c  |   6 +
+ 14 files changed, 157 insertions(+), 21 deletions(-)
+
+-- 
+2.53.0
+

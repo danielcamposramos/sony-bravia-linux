@@ -1,0 +1,145 @@
+From 21ea713874e7a103b8c764c793b8363a6dd9b056 Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 17:57:47 -0300
+Subject: [PATCH 3/6] drm/nouveau: add the Broadcast RGB property for HDMI
+
+Nouveau always scans out full-range RGB, and asks the AVI InfoFrame to
+declare full range.  drm_hdmi_avi_infoframe_quant_range() may only send
+a non-default Q when the sink sets QS in its Video Capability Data
+Block, so a sink without one is told nothing and, for CE video formats
+such as 1920x1080p60, applies its default limited range to full-range
+pixels: black levels are crushed and highlights clipped.
+
+Attach the standard "Broadcast RGB" property to HDMI connectors on heads
+with an output CSC (Turing to Ada), and select limited range the same
+way drm_hdmi_state_helper.c does: "Full" and "Limited 16:235" are
+honoured, and "Automatic" follows drm_default_rgb_quant_range(), i.e.
+limited for CE video formats and full otherwise.  The head's output CSC
+performs the compression and the AVI InfoFrame declares the range that
+is actually sent.  A change of the property forces a modeset, as the
+range is selected in the encoder's atomic check.
+
+This changes the default for CE video formats on those heads from
+full-range pixels to limited range, matching i915 and the HDMI state
+helpers.  "Full" restores the previous output.
+
+Signed-off-by: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+---
+ drivers/gpu/drm/nouveau/dispnv50/disp.c     | 24 +++++++++++++++++++--
+ drivers/gpu/drm/nouveau/nouveau_connector.c | 24 ++++++++++++++++++++-
+ 2 files changed, 45 insertions(+), 3 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index b216db61330c..54ed903644bf 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -387,6 +387,14 @@ nv50_outp_link_clock(const struct drm_display_mode *mode)
+ 	return mode->clock;
+ }
+ 
++static bool
++nv50_outp_has_output_csc(struct drm_encoder *encoder)
++{
++	const s32 oclass = nv50_disp(encoder->dev)->disp->object.oclass;
++
++	return oclass >= TU102_DISP && oclass < GB202_DISP;
++}
++
+ static void
+ nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *crtc_state,
+ 			   struct drm_connector_state *conn_state)
+@@ -442,6 +450,15 @@ nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *c
+ 		}
+ 
+ 		conn_state->max_bpc = asyh->or.bpc;
++
++		/* Broadcast RGB, as in drm_hdmi_state_helper.c: automatic
++		 * selects limited range for CE video formats.
++		 */
++		if (nv50_outp_has_output_csc(encoder) &&
++		    (conn_state->hdmi.broadcast_rgb == DRM_HDMI_BROADCAST_RGB_LIMITED ||
++		     (conn_state->hdmi.broadcast_rgb == DRM_HDMI_BROADCAST_RGB_AUTO &&
++		      drm_default_rgb_quant_range(mode) == HDMI_QUANTIZATION_RANGE_LIMITED)))
++			asyh->procamp.limited = true;
+ 		break;
+ 	default:
+ 		break;
+@@ -825,8 +842,9 @@ nv50_audio_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ static void
+ nv50_hdmi_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ 		 struct nouveau_connector *nv_connector, struct drm_atomic_commit *state,
+-		 struct drm_display_mode *mode, bool hda, u8 bpc)
++		 struct drm_display_mode *mode, bool hda, struct nv50_head_atom *asyh)
+ {
++	const u8 bpc = asyh->or.bpc;
+ 	struct nouveau_drm *drm = nouveau_drm(encoder->dev);
+ 	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
+ 	struct drm_hdmi_info *hdmi = &nv_connector->base.display_info.hdmi;
+@@ -905,6 +923,8 @@ nv50_hdmi_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ 
+ 	if (!drm_hdmi_avi_infoframe_from_display_mode(&infoframe.avi, &nv_connector->base, mode)) {
+ 		drm_hdmi_avi_infoframe_quant_range(&infoframe.avi, &nv_connector->base, mode,
++						   asyh->procamp.limited ?
++						   HDMI_QUANTIZATION_RANGE_LIMITED :
+ 						   HDMI_QUANTIZATION_RANGE_FULL);
+ 
+ 		size = hdmi_infoframe_pack(&infoframe, args->data, data_len);
+@@ -1877,7 +1897,7 @@ nv50_sor_atomic_enable(struct drm_encoder *encoder, struct drm_atomic_commit *st
+ 		if (disp->disp->object.oclass != NV50_DISP &&
+ 		    nv_connector->base.display_info.is_hdmi)
+ 			nv50_hdmi_enable(encoder, nv_crtc, nv_connector, state, mode, hda,
+-					 asyh->or.bpc);
++					 asyh);
+ 
+ 		if (nv_encoder->outp.or.link & 1) {
+ 			proto = NV507D_SOR_SET_CONTROL_PROTOCOL_SINGLE_TMDS_A;
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index b452e73f03f1..748c2f29d5d1 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -298,9 +298,15 @@ nouveau_conn_attach_properties(struct drm_connector *connector)
+ 		drm_object_attach_property(&connector->base, dev->mode_config.
+ 					   dvi_i_subconnector_property, 0);
+ 
+-	if (connector->connector_type == DRM_MODE_CONNECTOR_HDMIA)
++	if (connector->connector_type == DRM_MODE_CONNECTOR_HDMIA) {
+ 		drm_connector_attach_max_bpc_property(connector, 8, 16);
+ 
++		/* Only heads with an output CSC can emit limited range. */
++		if (disp->disp.object.oclass >= TU102_DISP &&
++		    disp->disp.object.oclass < GB202_DISP)
++			drm_connector_attach_broadcast_rgb_property(connector);
++	}
++
+ 	/* Add overscan compensation options to digital outputs. */
+ 	if (disp->underscan_property &&
+ 	    (connector->connector_type == DRM_MODE_CONNECTOR_DVID ||
+@@ -1213,9 +1219,25 @@ static int
+ nouveau_connector_atomic_check(struct drm_connector *connector, struct drm_atomic_commit *state)
+ {
+ 	struct nouveau_connector *nv_conn = nouveau_connector(connector);
++	struct drm_connector_state *old_conn_state =
++		drm_atomic_get_old_connector_state(state, connector);
+ 	struct drm_connector_state *conn_state =
+ 		drm_atomic_get_new_connector_state(state, connector);
+ 
++	/* The quantization range is selected during the encoder's atomic
++	 * check, which only runs on a modeset.
++	 */
++	if (conn_state->crtc &&
++	    old_conn_state->hdmi.broadcast_rgb != conn_state->hdmi.broadcast_rgb) {
++		struct drm_crtc_state *crtc_state;
++
++		crtc_state = drm_atomic_get_crtc_state(state, conn_state->crtc);
++		if (IS_ERR(crtc_state))
++			return PTR_ERR(crtc_state);
++
++		crtc_state->mode_changed = true;
++	}
++
+ 	if (!nv_conn->dp_encoder || !nv_conn->dp_encoder->dp.mstm)
+ 		return 0;
+ 
+-- 
+2.53.0
+

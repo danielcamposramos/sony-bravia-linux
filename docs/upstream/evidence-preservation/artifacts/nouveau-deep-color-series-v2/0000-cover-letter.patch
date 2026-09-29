@@ -1,0 +1,79 @@
+From a7315e2430f8380767f2e15e7e3efba67bb0785d Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 15:03:39 -0300
+Subject: [PATCH 0/3] drm/nouveau: HDMI Deep Color link depth (30/36/48 bpp)
+
+This series wires up HDMI Deep Color on nouveau.  The connector gains the
+"max bpc" property, the atomic check selects a link depth that both the
+sink EDID (HDMI VSDB DC_30/36/48) and the TMDS character-rate budget
+admit, the head is programmed for 30/36/48 bpp RGB, and the TMDS General
+Control Packet carries the matching CD/PP fields.
+
+Patch 3 is what makes the link physically work on GSP boards.  The
+GV100-class GCP writers emitted a depth-less packet, and on GSP systems
+the HDMI audio enable runs after the display commit and emits it again,
+erasing the deep-color declaration (sor->disp->func->gsp.hdmi_gcp).  The
+proprietary NVIDIA stack performs the same audio operation and then
+rebuilds the GCP from the committed head depth.  Threading CD/PP through
+the OUTP HDMI ctrl method (patch 2), caching them on the ior, and writing
+them with a 0x00ffffff mask gives nouveau the same ordering; the mask also
+keeps generation-specific bits sharing the register intact (GB20x
+SB1_CTRL).
+
+Tested on a GA106 (RTX 3060) driving a Sony KDL-46HX855 (HDMI 1.4 sink,
+EDID DC_30/DC_36, 225 MHz TMDS ceiling): 1920x1080p60 RGB at 36 bpp,
+i.e. a 222.75 MHz character rate.  Without the series the sink rejects
+the modeset with an incompatible-signal OSD; with it the set accepts the
+signal, reports a 12-bit input, and renders correctly.  30 bpp follows
+the same code paths.
+
+Scope and non-goals, so nobody has to guess:
+
+- Only RGB is selected.  YCbCr output additionally needs a connector
+  color-format selection path that nouveau does not have today, plus AVI
+  InfoFrame colorspace/range handling and format-aware bandwidth and
+  packing.  That is the next series, building on the DRM connector
+  color-format property work.
+- 48 bpp (16 bpc) is implemented from DC_48, BPP_48_444 and GCP CD=7 but
+  is untested: the bench has no DC_48 sink.  It might enable professional
+  16-bit displays; the mechanism is the same, but we do not own the
+  hardware to test or claim it.
+- HDR might benefit: HDR10's baseline transport is 10-bpc YCbCr 4:2:2
+  carried in a 12-bpc container, and link-depth failures feature in HDR
+  reports.  The transport mechanism is the same, but we do not have
+  hardware to test or claim native HDR here (static metadata and
+  colorspace are separate pieces nouveau does not yet emit for HDMI).
+
+For context: on this same bench the installed proprietary NVIDIA driver
+(615.71.09, hdmi_deepcolor=Y, max_output_color_depth=10) caps this sink
+at 10 bpc by default policy, while Windows on the same card reports
+12 bpc.  A companion one-line default-cap change for the open NVIDIA
+kernel modules is being submitted to its own repository as the
+closed-source counterpart of this series.
+
+AI partners were leveraged in the production of this work.
+
+Daniel Campos Ramos (3):
+  drm/nouveau: select HDMI deep-color link depth
+  drm/nouveau: pass HDMI GCP deep-color state through NVIF
+  drm/nouveau: program HDMI deep-color GCP fields
+
+ drivers/gpu/drm/nouveau/dispnv50/disp.c       | 80 +++++++++++++++++--
+ drivers/gpu/drm/nouveau/dispnv50/headc37d.c   |  6 ++
+ drivers/gpu/drm/nouveau/dispnv50/headc57d.c   |  6 ++
+ drivers/gpu/drm/nouveau/dispnv50/headca7d.c   |  6 ++
+ drivers/gpu/drm/nouveau/include/nvif/if0012.h |  3 +
+ drivers/gpu/drm/nouveau/include/nvif/outp.h   |  2 +-
+ drivers/gpu/drm/nouveau/nouveau_connector.c   |  9 ++-
+ drivers/gpu/drm/nouveau/nouveau_connector.h   |  1 +
+ drivers/gpu/drm/nouveau/nvif/outp.c           |  7 +-
+ .../gpu/drm/nouveau/nvkm/engine/disp/gb202.c  | 12 +--
+ .../gpu/drm/nouveau/nvkm/engine/disp/gv100.c  |  4 +-
+ .../gpu/drm/nouveau/nvkm/engine/disp/ior.h    |  2 +
+ .../gpu/drm/nouveau/nvkm/engine/disp/tu102.c  |  4 +-
+ .../gpu/drm/nouveau/nvkm/engine/disp/uoutp.c  |  6 ++
+ 14 files changed, 128 insertions(+), 20 deletions(-)
+
+-- 
+2.53.0
+

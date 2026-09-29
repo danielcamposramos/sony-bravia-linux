@@ -1,19 +1,22 @@
 # Deep Color evidence preservation inventory
 
-Snapshot audited: 2026-09-28. Source location:
-`/K3D/temp/dual-upstream-preserve-2026-09-22/`.
+Snapshot audited 2026-09-28, re-verified and committed 2026-09-29. Canonical
+recoverable bytes:
+`docs/upstream/evidence-preservation/artifacts/`.
 
-This directory commits an inventory and digests, **not the artifact bytes**.
-`/K3D/temp` is an expendable local staging area: it is neither immutable nor
-publicly available. The artifacts should later be copied, without changing the
-bytes, to a public immutable archive and the archive URL added here. Until then,
-the committed SHA-256 values can detect change or loss but cannot recover the
-files.
+The same bytes remain in the expendable working mirror
+`/K3D/temp/dual-upstream-preserve-2026-09-22/`, but that path is not canonical.
+The repository now carries the artifacts, inventory, and digests together, so
+a fresh clone can recover and verify the evidence. A future public release or
+archive may provide a more convenient stable download URL; it is an additional
+mirror, not a prerequisite for recovery.
 
 ## Origin and series map
 
 The 2026-09-22 dual-upstream handoff records that Kimi K3 mirrored the working
-trees from boot-volatile `/tmp` into the source location above. It identifies
+trees from boot-volatile `/tmp` into the temporary working mirror above. The
+byte-identical copy committed here completes that emergency preservation. It
+identifies
 drm-misc-next `73ef663c75688168e31dbe9c585b939be410a945` as the nouveau
 prerequisite and NVIDIA 615.71.09
 `61dcc93722ecb418bb5f2e00923f05b4b8051dd1` as the proprietary-open base.
@@ -33,8 +36,7 @@ prerequisite and NVIDIA 615.71.09
 | `nouveau-drm-misc.status.txt` (0 B) | Empty status capture | Digest is the SHA-256 of an empty file; it carries no status evidence |
 
 Exact per-file sizes and SHA-256 values follow. `SHA256SUMS` uses paths
-relative to the source location and is directly usable there with
-`sha256sum -c`.
+relative to `artifacts/` and is directly usable there with `sha256sum -c`.
 
 | Relative file | Bytes | SHA-256 |
 |---|---:|---|
@@ -67,10 +69,11 @@ relative to the source location and is directly usable there with
 
 ## Re-verification
 
-From the preserve root:
+From this directory in a repository checkout:
 
 ```sh
-sha256sum -c /path/to/repo/docs/upstream/evidence-preservation/SHA256SUMS
+cd artifacts
+sha256sum -c ../SHA256SUMS
 ```
 
 `git bundle verify` must run in a repository containing the stated
@@ -81,3 +84,18 @@ correctly reports a missing prerequisite; that is not bundle corruption.
 
 Before any release or upstream post, also run the adjacent
 [adversarial review gate](REVIEW-GATE.md).
+
+## Publication and privacy audit
+
+The committed copy was compared byte-for-byte with the temporary mirror and
+all 26 entries passed `sha256sum -c`. The four Git bundles passed
+`git bundle verify` from repositories containing their documented
+prerequisites. Their commit metadata, paths, and decompressed patch histories
+were inspected in addition to the standalone text and patch files.
+
+The 2026-09-29 publication scan found no passwords, authentication tokens,
+private keys, credential-bearing URLs, private-network addresses, or local
+filesystem paths. The artifacts do contain the public contribution identities
+already present in the upstream Git and mailing-list records, plus public
+project and lore URLs. No material was redacted, so the committed artifacts
+remain byte-identical to the audited snapshot and to `SHA256SUMS`.

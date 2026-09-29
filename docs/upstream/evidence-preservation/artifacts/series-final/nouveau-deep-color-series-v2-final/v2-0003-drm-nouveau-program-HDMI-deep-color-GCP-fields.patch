@@ -1,0 +1,97 @@
+From c3dddeb0983ceea7698f0bf3fccfff8dc016afd6 Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 14:35:44 -0300
+Subject: [PATCH v2 3/3] drm/nouveau: program HDMI deep-color GCP fields
+
+The GV100-class GCP writers always program a depth-less packet.  On GSP
+systems the HDMI audio setup runs after the display commit and writes that
+packet again, replacing any earlier deep-color declaration.
+
+Program cached CD and PP in the direct and GSP GCP paths.  Update only
+SB0..SB2 so generation-specific bits sharing the register remain intact,
+including GB20x SB1_CTRL.
+
+On a GA106 driving a Sony KDL-46HX855, the depth-less packet produced an
+incompatible-signal OSD at 1920x1080p60.  Restoring CD=6 and PP=2 after
+audio setup made the same sink accept the image and report 12-bit input.
+
+Signed-off-by: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+---
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/gb202.c | 12 ++++++------
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c |  4 +++-
+ drivers/gpu/drm/nouveau/nvkm/engine/disp/tu102.c |  4 +++-
+ 3 files changed, 12 insertions(+), 8 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gb202.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gb202.c
+index d0360610f9fa..517a51caed2a 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gb202.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gb202.c
+@@ -66,20 +66,20 @@ gb202_sor_hdmi_infoframe_vsi(struct nvkm_ior *ior, int head, void *data, u32 siz
+ }
+ 
+ /* General Control Packet AVMute bracket. The GCP unit moved to slot 1 on
+- * NVD5.0. Only SB0 (the AVMute bit) is ours to write so we must not do a
+- * full write here: SB1 carries the deep-color CD/PP fields, and SB1_CTRL
+- * (bit 24, new with clc871.h) controls where their generation happens (HW
+- * or driver) on these chips, with the default being HW.
++ * NVD5.0. SB0 carries AVMute, SB1 carries the deep-color CD/PP fields, and
++ * SB1_CTRL (bit 24, new with clc871.h) controls where their generation
++ * happens (HW or driver). Preserve SB1_CTRL while updating SB0..SB2.
+  */
+ static void
+ gb202_sor_hdmi_gcp(struct nvkm_ior *sor, int head, bool enable)
+ {
+ 	struct nvkm_device *device = sor->disp->engine.subdev.device;
+ 	const u32 hdmi = head * 0x400;
++	const u32 gcp = (!enable ? 0x00000001 : 0x00000010) |
++			 sor->tmds.gcp_cd << 8 | sor->tmds.gcp_pp << 12;
+ 
+ 	nvkm_mask(device, 0x6f0040 + hdmi, 0x00000001, 0x00000000);
+-	nvkm_mask(device, 0x6f004c + hdmi, 0x000000ff, !enable ? 0x00000001 :
+-								 0x00000010);
++	nvkm_mask(device, 0x6f004c + hdmi, 0x00ffffff, gcp);
+ 	nvkm_mask(device, 0x6f0040 + hdmi, 0x00000001, 0x00000001);
+ }
+ 
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c
+index 0608266188d3..d1e4b38b90a5 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/gv100.c
+@@ -149,6 +149,8 @@ gv100_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packe
+ 	const u32 ctrl = 0x40000000 * enable |
+ 			 max_ac_packet << 16 |
+ 			 rekey;
++	const u32 gcp = 0x00000010 | ior->tmds.gcp_cd << 8 |
++					   ior->tmds.gcp_pp << 12;
+ 	const u32 hoff = head * 0x800;
+ 	const u32 hdmi = head * 0x400;
+ 
+@@ -162,7 +164,7 @@ gv100_sor_hdmi_ctrl(struct nvkm_ior *ior, int head, bool enable, u8 max_ac_packe
+ 
+ 	/* General Control (GCP). */
+ 	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000000);
+-	nvkm_wr32(device, 0x6f00cc + hdmi, 0x00000010);
++	nvkm_mask(device, 0x6f00cc + hdmi, 0x00ffffff, gcp);
+ 	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000001);
+ 
+ 	/* Audio Clock Regeneration (ACR). */
+diff --git a/drivers/gpu/drm/nouveau/nvkm/engine/disp/tu102.c b/drivers/gpu/drm/nouveau/nvkm/engine/disp/tu102.c
+index f6c163072ff6..49c84927583e 100644
+--- a/drivers/gpu/drm/nouveau/nvkm/engine/disp/tu102.c
++++ b/drivers/gpu/drm/nouveau/nvkm/engine/disp/tu102.c
+@@ -39,9 +39,11 @@ tu102_sor_hdmi_gcp(struct nvkm_ior *sor, int head, bool enable)
+ {
+ 	struct nvkm_device *device = sor->disp->engine.subdev.device;
+ 	const u32 hdmi = head * 0x400;
++	const u32 gcp = (!enable ? 0x00000001 : 0x00000010) |
++			 sor->tmds.gcp_cd << 8 | sor->tmds.gcp_pp << 12;
+ 
+ 	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000000);
+-	nvkm_wr32(device, 0x6f00cc + hdmi, !enable ? 0x00000001 : 0x00000010);
++	nvkm_mask(device, 0x6f00cc + hdmi, 0x00ffffff, gcp);
+ 	nvkm_mask(device, 0x6f00c0 + hdmi, 0x00000001, 0x00000001);
+ }
+ 
+-- 
+2.53.0
+

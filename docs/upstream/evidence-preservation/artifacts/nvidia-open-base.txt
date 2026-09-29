@@ -1,0 +1,2 @@
+61dcc93 615.71.09
+fix-hdmi-deep-color-default

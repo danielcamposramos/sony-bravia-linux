@@ -1,0 +1,67 @@
+From b8299fc51d98a6a5987f60158292558a7afa396e Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 18:44:31 -0300
+Subject: [PATCH 6/6] drm/nouveau: expose HDMI output properties on DVI
+ connectors
+
+DVI and HDMI share the TMDS link, and a DVI connector drives an HDMI
+sink through a passive adapter.  Nouveau already decides HDMI operation
+from the sink's EDID rather than the connector type, so InfoFrames, 3D
+and the Deep Color GCP reach HDMI sinks on DVI connectors, but "max bpc",
+"Broadcast RGB" and "color format" were only attached to HDMI-A
+connectors, leaving those sinks at 8-bpc full-range RGB.
+
+Attach the same properties to DVI-D and DVI-I connectors.  The selection
+is unchanged: it still follows the sink's EDID, a DVI sink stays at
+8-bpc RGB, and an explicit YCbCr request for a DVI sink is rejected, as
+in drm_hdmi_state_helper.c.
+
+Reported-by: Sashiko <sashiko-bot@kernel.org>
+Closes: https://lore.kernel.org/all/20260922193903.DE3BB1F000FF@smtp.kernel.org/
+
+Signed-off-by: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+---
+ drivers/gpu/drm/nouveau/dispnv50/disp.c     | 7 ++++++-
+ drivers/gpu/drm/nouveau/nouveau_connector.c | 7 ++++++-
+ 2 files changed, 12 insertions(+), 2 deletions(-)
+
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index c52629eaf786..1ec33bb6ad50 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -530,8 +530,13 @@ nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *c
+ 		enum drm_output_color_format fmt = DRM_OUTPUT_COLOR_FORMAT_RGB444;
+ 		unsigned int bpc;
+ 
+-		if (!info->is_hdmi)
++		if (!info->is_hdmi) {
++			/* DVI sinks take RGB only. */
++			if (drm_connector_get_color_format(conn_state) >
++			    DRM_CONNECTOR_COLOR_FORMAT_RGB444)
++				return -EINVAL;
+ 			break;
++		}
+ 
+ 		switch (drm_connector_get_color_format(conn_state)) {
+ 		case DRM_CONNECTOR_COLOR_FORMAT_YCBCR444:
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index e274251adbb2..fe4248dd39e3 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -298,7 +298,12 @@ nouveau_conn_attach_properties(struct drm_connector *connector)
+ 		drm_object_attach_property(&connector->base, dev->mode_config.
+ 					   dvi_i_subconnector_property, 0);
+ 
+-	if (connector->connector_type == DRM_MODE_CONNECTOR_HDMIA) {
++	/* DVI connectors carry HDMI to HDMI sinks through passive adapters;
++	 * the output is selected from the sink's EDID, not the connector.
++	 */
++	if (connector->connector_type == DRM_MODE_CONNECTOR_HDMIA ||
++	    connector->connector_type == DRM_MODE_CONNECTOR_DVID ||
++	    connector->connector_type == DRM_MODE_CONNECTOR_DVII) {
+ 		drm_connector_attach_max_bpc_property(connector, 8, 16);
+ 
+ 		/* Only heads with an output CSC can emit limited range
+-- 
+2.53.0
+

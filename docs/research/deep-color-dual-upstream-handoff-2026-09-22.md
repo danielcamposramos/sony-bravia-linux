@@ -205,8 +205,9 @@ do not invent code authorship or sign-offs for either AI partner.
   the NVIDIA branch bundle (`61dcc937..fix-hdmi-deep-color-default`), the
   pre-commit diff and base notes. The committed inventory, verification
   status, and digests are in
-  `docs/upstream/evidence-preservation/README.md`; they preserve identity,
-  not the externally staged bytes.
+  `docs/upstream/evidence-preservation/README.md`; its adjacent `artifacts/`
+  tree preserves the verified bytes themselves, while `/K3D/temp` remains a
+  disposable working mirror.
 - **Cover letter written.** The `0000` skeleton's placeholders are filled:
   subject "drm/nouveau: HDMI Deep Color link depth (30/36/48 bpp)", run-5
   evidence, the audio-clobber mechanism, and explicit scope paragraphs —

@@ -1,0 +1,364 @@
+From 83a7aa347c65b6114fa7aad6632e7af5d9dfff5e Mon Sep 17 00:00:00 2001
+From: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+Date: Tue, 22 Sep 2026 18:43:58 -0300
+Subject: [PATCH 5/6] drm/nouveau: add HDMI YCbCr 4:2:0 output on GA102 and
+ later
+
+GA102 and later heads can pack YCbCr 4:2:0 in hardware when the
+capability notifier reports the horizontal chroma low-pass and vertical
+filters (POSTCOMP_HEAD_HDR_CAPA HCLPF/VFILTER), which is how NVIDIA's
+open NVKMS enables it.  Read that per head, and on such heads offer
+YCbCr 4:2:0 through the "color format" property and allow 4:2:0 modes.
+
+4:2:0 enables the head's YUV420PACKER, CHROMA_LPF and CHROMA_DOWN_V,
+reuses the 4:4:4 pixel depths and GCP encodings, is BT.709 limited
+range, and is declared in the AVI InfoFrame.  The sink rules follow
+drm_hdmi_state_helper.c: the mode must support 4:2:0 and deep colour
+uses the 4:2:0 Deep Color bits; the TMDS character rate is half the
+pixel clock.  "Automatic" falls back to 4:2:0 when RGB cannot carry the
+mode, a 4:2:0-only mode is rejected on a head that cannot pack it, and
+mode validation accounts for the halved rate as
+drm_hdmi_connector_mode_valid() does.
+
+The class definitions are subsets of NVIDIA's open-gpu-kernel-modules
+clc67d.h and clc673.h.
+
+Not tested on hardware: the only sink available here declares no 4:2:0
+support.  The head programming, pixel depths and packets are the ones
+exercised by the 4:4:4 and 4:2:2 paths, which were.
+
+Signed-off-by: Daniel Campos Ramos <Capitain_Jack@yahoo.com>
+---
+ drivers/gpu/drm/nouveau/dispnv50/disp.c       | 83 +++++++++++++++----
+ drivers/gpu/drm/nouveau/dispnv50/head.c       | 18 +++-
+ drivers/gpu/drm/nouveau/dispnv50/head.h       |  3 +
+ drivers/gpu/drm/nouveau/dispnv50/headc57d.c   | 13 ++-
+ .../drm/nouveau/include/nvhw/class/clc673.h   | 17 ++++
+ .../drm/nouveau/include/nvhw/class/clc67d.h   | 16 ++++
+ drivers/gpu/drm/nouveau/nouveau_connector.c   | 12 ++-
+ 7 files changed, 142 insertions(+), 20 deletions(-)
+ create mode 100644 drivers/gpu/drm/nouveau/include/nvhw/class/clc673.h
+ create mode 100644 drivers/gpu/drm/nouveau/include/nvhw/class/clc67d.h
+
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/disp.c b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+index ad8952dfcd71..c52629eaf786 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/disp.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/disp.c
+@@ -423,6 +423,22 @@ nv50_hdmi_sink_supports(const struct drm_display_info *info,
+ 		 * which carries up to 12 bpc in the 24-bit container.
+ 		 */
+ 		return (info->color_formats & BIT(fmt)) && bpc <= 12;
++	case DRM_OUTPUT_COLOR_FORMAT_YCBCR420:
++		/* 4:2:0 has its own Deep Color bits (HF-VSDB / Y420CMDB). */
++		if (!drm_mode_is_420(info, mode))
++			return false;
++		switch (bpc) {
++		case 8:
++			return true;
++		case 10:
++			return info->hdmi.y420_dc_modes & DRM_EDID_YCBCR420_DC_30;
++		case 12:
++			return info->hdmi.y420_dc_modes & DRM_EDID_YCBCR420_DC_36;
++		case 16:
++			return info->hdmi.y420_dc_modes & DRM_EDID_YCBCR420_DC_48;
++		default:
++			return false;
++		}
+ 	default:
+ 		return false;
+ 	}
+@@ -456,10 +472,37 @@ nv50_hdmi_char_rate(const struct drm_display_mode *mode, unsigned int bpc,
+ 	return rate;
+ }
+ 
++/* Deepest depth the sink declares for the format, the user allows and the
++ * TMDS link carries, or 0.
++ */
++static unsigned int
++nv50_hdmi_pick_bpc(const struct drm_connector_state *conn_state,
++		   const struct drm_display_mode *mode,
++		   enum drm_output_color_format fmt, unsigned int max_rate)
++{
++	const struct drm_display_info *info = &conn_state->connector->display_info;
++	unsigned int bpc;
++
++	for (bpc = 16; bpc >= 8; bpc -= 2) {
++		unsigned long long rate;
++
++		if (bpc > conn_state->max_requested_bpc ||
++		    !nv50_hdmi_sink_supports(info, mode, fmt, bpc))
++			continue;
++
++		rate = nv50_hdmi_char_rate(mode, bpc, fmt);
++		if (rate && rate <= max_rate * 1000ULL)
++			return bpc;
++	}
++
++	return 0;
++}
++
+ static int
+ nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *crtc_state,
+ 			   struct drm_connector_state *conn_state)
+ {
++	struct nv50_head *head = nv50_head(crtc_state->crtc);
+ 	struct nv50_head_atom *asyh = nv50_head_atom(crtc_state);
+ 	struct nouveau_encoder *nv_encoder = nouveau_encoder(encoder);
+ 	struct drm_connector *connector = conn_state->connector;
+@@ -497,29 +540,34 @@ nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *c
+ 		case DRM_CONNECTOR_COLOR_FORMAT_YCBCR422:
+ 			fmt = DRM_OUTPUT_COLOR_FORMAT_YCBCR422;
+ 			break;
++		case DRM_CONNECTOR_COLOR_FORMAT_YCBCR420:
++			if (!head->yuv420)
++				return -EINVAL;
++			fmt = DRM_OUTPUT_COLOR_FORMAT_YCBCR420;
++			break;
+ 		default:
+ 			break;
+ 		}
+ 
+-		/* Deepest depth the sink declares for the format, the user
+-		 * allows and the TMDS link carries.
+-		 */
+ 		max_rate = nouveau_connector_get_tmds_link_bandwidth(connector);
+-		for (bpc = 16; bpc >= 8; bpc -= 2) {
+-			unsigned long long rate;
+-
+-			if (bpc > conn_state->max_requested_bpc ||
+-			    !nv50_hdmi_sink_supports(info, mode, fmt, bpc))
+-				continue;
++		bpc = nv50_hdmi_pick_bpc(conn_state, mode, fmt, max_rate);
+ 
+-			rate = nv50_hdmi_char_rate(mode, bpc, fmt);
+-			if (rate && rate <= max_rate * 1000ULL)
+-				break;
++		/* "Automatic" falls back to 4:2:0 when RGB cannot carry the
++		 * mode, as in drm_hdmi_state_helper.c.
++		 */
++		if (bpc < 8 && fmt == DRM_OUTPUT_COLOR_FORMAT_RGB444 &&
++		    drm_connector_get_color_format(conn_state) == DRM_CONNECTOR_COLOR_FORMAT_AUTO &&
++		    head->yuv420 && drm_mode_is_420(info, mode)) {
++			fmt = DRM_OUTPUT_COLOR_FORMAT_YCBCR420;
++			bpc = nv50_hdmi_pick_bpc(conn_state, mode, fmt, max_rate);
+ 		}
+ 
+ 		if (bpc < 8) {
+-			/* An explicit format request is honoured or refused. */
+-			if (fmt != DRM_OUTPUT_COLOR_FORMAT_RGB444)
++			/* An explicit format request is honoured or refused,
++			 * and a 4:2:0-only mode cannot fall back to RGB.
++			 */
++			if (fmt != DRM_OUTPUT_COLOR_FORMAT_RGB444 ||
++			    drm_mode_is_420_only(info, mode))
+ 				return -EINVAL;
+ 			bpc = 8;
+ 		}
+@@ -532,7 +580,8 @@ nv50_outp_atomic_fix_depth(struct drm_encoder *encoder, struct drm_crtc_state *c
+ 			/* YCbCr is limited range; CTA-861 colorimetry
+ 			 * defaults to BT.709 above 576 lines, BT.601 below.
+ 			 */
+-			asyh->procamp.colorspace = mode->vdisplay > 576 ?
++			asyh->procamp.colorspace = mode->vdisplay > 576 ||
++						   fmt == DRM_OUTPUT_COLOR_FORMAT_YCBCR420 ?
+ 						   NV50_HEAD_COLORSPACE_YUV_709 :
+ 						   NV50_HEAD_COLORSPACE_YUV_601;
+ 			asyh->procamp.limited = true;
+@@ -1027,7 +1076,9 @@ nv50_hdmi_enable(struct drm_encoder *encoder, struct nouveau_crtc *nv_crtc,
+ 							   HDMI_QUANTIZATION_RANGE_FULL);
+ 		} else {
+ 			/* Declare the matrix the head's output CSC applies. */
+-			avi->colorspace = fmt == DRM_OUTPUT_COLOR_FORMAT_YCBCR422 ?
++			avi->colorspace = fmt == DRM_OUTPUT_COLOR_FORMAT_YCBCR420 ?
++					  HDMI_COLORSPACE_YUV420 :
++					  fmt == DRM_OUTPUT_COLOR_FORMAT_YCBCR422 ?
+ 					  HDMI_COLORSPACE_YUV422 : HDMI_COLORSPACE_YUV444;
+ 			avi->colorimetry = asyh->procamp.colorspace ==
+ 					   NV50_HEAD_COLORSPACE_YUV_709 ?
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.c b/drivers/gpu/drm/nouveau/dispnv50/head.c
+index 7b94c881e8bb..ca48bedbdbe2 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/head.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/head.c
+@@ -30,6 +30,8 @@
+ #include <nvif/event.h>
+ #include <nvif/cl0046.h>
+ 
++#include <nvhw/class/clc673.h>
++
+ #include <drm/drm_atomic.h>
+ #include <drm/drm_atomic_helper.h>
+ #include <drm/drm_edid.h>
+@@ -371,7 +373,8 @@ nv50_head_atomic_check(struct drm_crtc *crtc, struct drm_atomic_commit *state)
+ 					asyc->set.dither = true;
+ 			}
+ 			if (armh->procamp.colorspace != asyh->procamp.colorspace ||
+-			    armh->procamp.limited != asyh->procamp.limited)
++			    armh->procamp.limited != asyh->procamp.limited ||
++			    armh->or.format != asyh->or.format)
+ 				asyh->set.procamp = true;
+ 		} else {
+ 			if (asyc)
+@@ -586,6 +589,19 @@ nv50_head_create(struct drm_device *dev, int index)
+ 	head->disp = disp;
+ 	head->base.index = index;
+ 
++	/* GA102 and later heads pack YCbCr 4:2:0 in hardware when they have
++	 * the horizontal chroma low-pass and vertical filters.
++	 */
++	if (disp->disp->object.oclass >= GA102_DISP &&
++	    disp->disp->object.oclass < GB202_DISP) {
++		const u32 capa = nvif_rd32(&disp->caps,
++					   NVC673_POSTCOMP_HEAD_HDR_CAPA(index));
++
++		head->yuv420 =
++			NVDEF_TEST(capa, NVC673, POSTCOMP_HEAD_HDR_CAPA, HCLPF_PRESENT, ==, TRUE) &&
++			NVDEF_TEST(capa, NVC673, POSTCOMP_HEAD_HDR_CAPA, VFILTER_PRESENT, ==, TRUE);
++	}
++
+ 	if (disp->disp->object.oclass < GF110_DISP)
+ 		funcs = &nv50_head_func;
+ 	else
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/head.h b/drivers/gpu/drm/nouveau/dispnv50/head.h
+index 8bd2fcb1eff5..db4a50a85e79 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/head.h
++++ b/drivers/gpu/drm/nouveau/dispnv50/head.h
+@@ -19,6 +19,9 @@ struct nv50_head {
+ 	struct nv50_crc crc;
+ 	struct nv50_lut olut;
+ 	struct nv50_msto *msto;
++
++	/* The head can pack YCbCr 4:2:0 in hardware. */
++	bool yuv420;
+ };
+ 
+ struct nv50_head *nv50_head_create(struct drm_device *, int index);
+diff --git a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+index 937f71f264db..9e152daefc58 100644
+--- a/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
++++ b/drivers/gpu/drm/nouveau/dispnv50/headc57d.c
+@@ -26,6 +26,7 @@
+ #include <nvif/pushc37b.h>
+ 
+ #include <nvhw/class/clc57d.h>
++#include <nvhw/class/clc67d.h>
+ 
+ static int
+ headc57d_display_id(struct nv50_head *head, u32 display_id)
+@@ -111,6 +112,7 @@ headc57d_procamp(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	struct nvif_push *push = &nv50_disp(head->base.base.dev)->core->chan.push;
+ 	const u8 colorspace = asyh->procamp.colorspace;
+ 	const bool limited = asyh->procamp.limited;
++	const bool yuv420 = asyh->or.format == DRM_OUTPUT_COLOR_FORMAT_YCBCR420;
+ 	const int i = head->base.index;
+ 	u32 lo = 0x000, y_hi = 0xfff, c_hi = 0xfff;
+ 	int ret;
+@@ -126,9 +128,14 @@ headc57d_procamp(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 	if (ret)
+ 		return ret;
+ 
++	/* 4:2:0 filters chroma horizontally and vertically.  CHROMA_DOWN_V
++	 * is an NVC67D field and an unused bit on NVC57D; 4:2:0 is only
++	 * selected on GA102 and later heads.
++	 */
+ 	PUSH_MTHD(push, NVC57D, HEAD_SET_PROCAMP(i),
+ 		  NVVAL(NVC57D, HEAD_SET_PROCAMP, COLOR_SPACE, colorspace) |
+-		  NVDEF(NVC57D, HEAD_SET_PROCAMP, CHROMA_LPF, DISABLE) |
++		  NVVAL(NVC57D, HEAD_SET_PROCAMP, CHROMA_LPF, yuv420) |
++		  NVVAL(NVC67D, HEAD_SET_PROCAMP, CHROMA_DOWN_V, yuv420) |
+ 		  NVVAL(NVC57D, HEAD_SET_PROCAMP, DYNAMIC_RANGE,
+ 			limited ? NVC57D_HEAD_SET_PROCAMP_DYNAMIC_RANGE_CEA :
+ 				  NVC57D_HEAD_SET_PROCAMP_DYNAMIC_RANGE_VESA));
+@@ -288,7 +295,9 @@ headc57d_mode(struct nv50_head *head, struct nv50_head_atom *asyh)
+ 
+ 	//XXX:
+ 	PUSH_NVSQ(push, NVC57D, 0x2074 + (i * 0x400), m->v.blank2e << 16 | m->v.blank2s);
+-	PUSH_NVSQ(push, NVC57D, 0x2008 + (i * 0x400), m->interlace);
++	PUSH_NVSQ(push, NVC57D, 0x2008 + (i * 0x400), m->interlace |
++		  NVVAL(NVC67D, HEAD_SET_CONTROL, YUV420PACKER,
++			asyh->or.format == DRM_OUTPUT_COLOR_FORMAT_YCBCR420));
+ 
+ 	PUSH_MTHD(push, NVC57D, HEAD_SET_PIXEL_CLOCK_FREQUENCY(i),
+ 		  NVVAL(NVC57D, HEAD_SET_PIXEL_CLOCK_FREQUENCY, HERTZ, m->clock * 1000));
+diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/clc673.h b/drivers/gpu/drm/nouveau/include/nvhw/class/clc673.h
+new file mode 100644
+index 000000000000..ba901cf7ac28
+--- /dev/null
++++ b/drivers/gpu/drm/nouveau/include/nvhw/class/clc673.h
+@@ -0,0 +1,17 @@
++/* SPDX-License-Identifier: MIT
++ *
++ * Copyright (c) 2003-2021, NVIDIA CORPORATION. All rights reserved.
++ */
++#ifndef _clc673_h_
++#define _clc673_h_
++
++/* Subset: the per-head post-composition capabilities used by nouveau. */
++#define NVC673_POSTCOMP_HEAD_HDR_CAPA(i)                                      (0x680+(i)*32) /* RW-4A */
++#define NVC673_POSTCOMP_HEAD_HDR_CAPA_HCLPF_PRESENT                                         19:19 /* RWIVF */
++#define NVC673_POSTCOMP_HEAD_HDR_CAPA_HCLPF_PRESENT_TRUE                               0x00000001 /* RW--V */
++#define NVC673_POSTCOMP_HEAD_HDR_CAPA_HCLPF_PRESENT_FALSE                              0x00000000 /* RW--V */
++#define NVC673_POSTCOMP_HEAD_HDR_CAPA_VFILTER_PRESENT                                       23:23 /* RWIVF */
++#define NVC673_POSTCOMP_HEAD_HDR_CAPA_VFILTER_PRESENT_TRUE                             0x00000001 /* RW--V */
++#define NVC673_POSTCOMP_HEAD_HDR_CAPA_VFILTER_PRESENT_FALSE                            0x00000000 /* RW--V */
++
++#endif // _clc673_h_
+diff --git a/drivers/gpu/drm/nouveau/include/nvhw/class/clc67d.h b/drivers/gpu/drm/nouveau/include/nvhw/class/clc67d.h
+new file mode 100644
+index 000000000000..a659f1f2121c
+--- /dev/null
++++ b/drivers/gpu/drm/nouveau/include/nvhw/class/clc67d.h
+@@ -0,0 +1,16 @@
++/* SPDX-License-Identifier: MIT
++ *
++ * Copyright (c) 2020, NVIDIA CORPORATION. All rights reserved.
++ */
++#ifndef _clC67d_h_
++#define _clC67d_h_
++
++/* Subset: the NVC67D additions to NVC57D head methods used by nouveau. */
++#define NVC67D_HEAD_SET_PROCAMP_CHROMA_DOWN_V                                   4:4
++#define NVC67D_HEAD_SET_PROCAMP_CHROMA_DOWN_V_DISABLE                           (0x00000000)
++#define NVC67D_HEAD_SET_PROCAMP_CHROMA_DOWN_V_ENABLE                            (0x00000001)
++#define NVC67D_HEAD_SET_CONTROL_YUV420PACKER                                    3:3
++#define NVC67D_HEAD_SET_CONTROL_YUV420PACKER_DISABLE                            (0x00000000)
++#define NVC67D_HEAD_SET_CONTROL_YUV420PACKER_ENABLE                             (0x00000001)
++
++#endif // _clC67d_h_
+diff --git a/drivers/gpu/drm/nouveau/nouveau_connector.c b/drivers/gpu/drm/nouveau/nouveau_connector.c
+index 2a9782d6c382..e274251adbb2 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_connector.c
++++ b/drivers/gpu/drm/nouveau/nouveau_connector.c
+@@ -306,12 +306,17 @@ nouveau_conn_attach_properties(struct drm_connector *connector)
+ 		 */
+ 		if (disp->disp.object.oclass >= TU102_DISP &&
+ 		    disp->disp.object.oclass < GB202_DISP) {
+-			const unsigned long formats =
++			unsigned long formats =
+ 				BIT(DRM_OUTPUT_COLOR_FORMAT_RGB444) |
+ 				BIT(DRM_OUTPUT_COLOR_FORMAT_YCBCR444) |
+ 				BIT(DRM_OUTPUT_COLOR_FORMAT_YCBCR422);
+ 
+ 			drm_connector_attach_broadcast_rgb_property(connector);
++			if (disp->disp.object.oclass >= GA102_DISP) {
++				/* 4:2:0 is further gated on each head's filters. */
++				formats |= BIT(DRM_OUTPUT_COLOR_FORMAT_YCBCR420);
++				connector->ycbcr_420_allowed = true;
++			}
+ 			drm_connector_attach_color_format_property(connector, formats);
+ 		}
+ 	}
+@@ -1205,6 +1210,11 @@ nouveau_connector_mode_valid(struct drm_connector *connector,
+ 	if ((mode->flags & DRM_MODE_FLAG_3D_MASK) == DRM_MODE_FLAG_3D_FRAME_PACKING)
+ 		clock *= 2;
+ 
++	/* YCbCr 4:2:0 halves the TMDS character rate. */
++	if (clock > max_clock && connector->ycbcr_420_allowed &&
++	    drm_mode_is_420(&connector->display_info, mode))
++		clock /= 2;
++
+ 	if (clock < min_clock)
+ 		return MODE_CLOCK_LOW;
+ 	if (clock > max_clock)
+-- 
+2.53.0
+
