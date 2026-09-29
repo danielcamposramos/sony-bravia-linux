@@ -1,0 +1,14 @@
+name: Verify Signal Ledger pointers
+description: Verify immutable cross-repository claim pointers against their canonical upstream ledgers
+inputs:
+  pointer-manifest:
+    description: Repository-relative federation manifest path
+    required: false
+    default: data/evidence-ledger/federation.toml
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        POINTER_MANIFEST: ${{ inputs.pointer-manifest }}
+      run: python3 "$GITHUB_ACTION_PATH/../../../tools/evidence-ledger/federation.py" check --root "$GITHUB_WORKSPACE" --manifest "$POINTER_MANIFEST"

@@ -7,6 +7,8 @@ generates its human-readable diagnostic view.
   partners edit.
 - `ledger.py` is the generated machine-runtime projection.
 - `ledger.py.md` is the human-readable contract.
+- `federation.py.source` and its projections verify immutable pointers from
+  consumer repositories without copying claim bodies.
 - `tests/` contains the adversarial gates, including the visible-sink poison
   pill that must be rejected when presented as an instrument measurement.
 
