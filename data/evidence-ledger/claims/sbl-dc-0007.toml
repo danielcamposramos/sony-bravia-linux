@@ -1,0 +1,15 @@
+schema = 1
+id = "SBL-DC-0007"
+title = "Sixteen-bpc output remains untested on this bench"
+assertion = "This project has not tested physical 16-bpc output."
+epistemic = "untested"
+basis = "scope-record"
+domain = "scope"
+date = "2026-09-22"
+scope = "Local hardware coverage only; the statement must not be generalized to all NVIDIA hardware or professional displays."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+missing_precondition = "No owned display or analyzer advertises and verifies HDMI DC_48 / 16-bpc input."
+not_claimed = "This entry does not claim that 16-bpc output works, fails, or is supported by every relevant GPU generation."
+premises = []
+corrects = []
+supersedes = []

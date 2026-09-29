@@ -1,0 +1,14 @@
+schema = 1
+id = "SBL-DC-0002"
+title = "nouveau run 23 retained 12-bpc GCP state after the audio path"
+assertion = "On the GA106 run-23 test window, nouveau requested 12 bpc and the logged active HDMI-audio-path GCP state after enable was subpack=0x01002610; a later enable=0 line records teardown."
+epistemic = "supported"
+basis = "instrument-measurement"
+domain = "driver"
+date = "2026-09-22"
+scope = "GALAX RTX 3060 GA106, nouveau experimental v4, Sony KDL-46HX855, 1920x1080p60 SDR RGB."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+premises = []
+corrects = []
+supersedes = []
+artifacts = [{ path = "tools/stereo-modeset/run23-nouveau-deep12-gcp-audio-preserve-pass-2026-09-22.log", sha256 = "412fb1cc1f9fada127506e5693aecea107104f2d46d233331f8732c2bb400d7e", role = "run-23 kernel and harness record" }]

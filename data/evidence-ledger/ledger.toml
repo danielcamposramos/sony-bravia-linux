@@ -1,0 +1,35 @@
+schema = 1
+ledger = "sony-bravia-linux"
+view = "docs/reference/evidence-ledger/claims.md"
+
+[[claims]]
+path = "claims/sbl-dc-0001.toml"
+sha256 = "f9623140c60d9eb72a4f8640e50dd8e557d298f15e4600e6f943e5a024dc0c10"
+
+[[claims]]
+path = "claims/sbl-dc-0002.toml"
+sha256 = "0f8092d0715a203dfc19aa3d138f6ce21c2b7f104e208c1144e342704cb44c3a"
+
+[[claims]]
+path = "claims/sbl-dc-0003.toml"
+sha256 = "d9097d9b440bddb718e55266f49dac207cf71092942ea8095110182d6b7ecaa5"
+
+[[claims]]
+path = "claims/sbl-dc-0004.toml"
+sha256 = "49ce77fa9748c2e3e582dd183348fec13f4863f9381b290b8d14b4bf23fbc077"
+
+[[claims]]
+path = "claims/sbl-dc-0005.toml"
+sha256 = "33f4d873f7e16a8ac0e7ccddd1e8463b6ec14ac9723722dcfe3914f4f93a47a1"
+
+[[claims]]
+path = "claims/sbl-dc-0006.toml"
+sha256 = "7fe314935e7b9782145669b0d012d982fd9fbe5f329c931647cea134d96e7367"
+
+[[claims]]
+path = "claims/sbl-dc-0007.toml"
+sha256 = "1881aa2fcc59c9a4ec61e049bc87b980ab09c0ed33e1eefd1ccb887745bc16d7"
+
+[[claims]]
+path = "claims/sbl-dc-0008.toml"
+sha256 = "76770e3f4176766d23992a77c30ca40e7882835206901ceb4abfe08e93a8543d"

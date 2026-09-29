@@ -1,0 +1,15 @@
+schema = 1
+id = "SBL-DC-0005"
+title = "The HX855 visibly accepted NVIDIA 12-bpc output"
+assertion = "Daniel observed the HX855 OSD report 12-bit during the stable NVIDIA run-24 session after the output-depth cap was set to 12."
+epistemic = "supported"
+basis = "human-observation"
+domain = "visible-sink"
+date = "2026-09-22"
+scope = "The visible result on Daniel's Sony KDL-46HX855 during NVIDIA run 24; it is SDR RGB and not a native-HDR claim."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+observer = "Daniel Campos"
+premises = ["SBL-DC-0004"]
+corrects = []
+supersedes = []
+artifacts = [{ path = "tools/stereo-modeset/run24-nvidia-deepcolor-param12-pass-2026-09-22.log", sha256 = "d3eba2ed94969fd59dad9770b364e60fd8a8519cff078850ca60c696ad19da10", role = "contemporaneous owner-observation record" }]

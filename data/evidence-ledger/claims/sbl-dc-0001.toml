@@ -1,0 +1,14 @@
+schema = 1
+id = "SBL-DC-0001"
+title = "HDMI Deep Color is declared through GCP color-depth fields"
+assertion = "For HDMI Deep Color, the General Control Packet carries the color-depth and pixel-packing-phase fields used to declare the transmitted pixel encoding depth."
+epistemic = "supported"
+basis = "normative-citation"
+domain = "standard"
+date = "2026-09-22"
+scope = "HDMI Deep Color signalling; this claim does not reproduce licensed specification text."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+premises = []
+corrects = []
+supersedes = []
+standards = [{ name = "High-Definition Multimedia Interface Specification", edition = "1.4b", section = "6.5.3" }]

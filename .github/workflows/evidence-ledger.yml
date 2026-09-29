@@ -1,0 +1,28 @@
+name: Evidence Ledger
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Validate claims and generated view
+        run: python3 tools/evidence-ledger/ledger.py check
+      - name: Run adversarial tests
+        run: python3 -m unittest discover -s tools/evidence-ledger/tests -p 'test_*.py'
+      - name: Enforce append-only published claims
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: python3 tools/evidence-ledger/ledger.py append-only "$BASE_SHA"

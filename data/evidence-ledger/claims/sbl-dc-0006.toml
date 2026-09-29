@@ -1,0 +1,13 @@
+schema = 1
+id = "SBL-DC-0006"
+title = "The active run-23 GCP value encodes a 12-bpc declaration"
+assertion = "Under the HDMI 1.4b GCP field mapping, the active software-visible run-23 payload 0x002610 encodes the 12-bpc color-depth and packing-phase state; this does not prove packet emission on the cable by itself."
+epistemic = "inferred"
+basis = "analysis"
+domain = "driver"
+date = "2026-09-22"
+scope = "Interpretation of the nouveau run-23 software-visible GCP slot; physical sink acceptance is recorded separately in SBL-DC-0003."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+premises = ["SBL-DC-0001", "SBL-DC-0002"]
+corrects = []
+supersedes = []

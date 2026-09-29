@@ -1,0 +1,15 @@
+schema = 1
+id = "SBL-DC-0003"
+title = "The HX855 visibly accepted nouveau 12-bpc output"
+assertion = "Daniel observed the HX855 OSD report 12-bit and a stable green-to-purple gradient over black and white squares, with no incompatible-signal OSD — passed with full colors (pun intended)."
+epistemic = "supported"
+basis = "human-observation"
+domain = "visible-sink"
+date = "2026-09-22"
+scope = "The visible result on Daniel's Sony KDL-46HX855 during nouveau run 23; it is not a native-HDR claim."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+observer = "Daniel Campos"
+premises = ["SBL-DC-0002"]
+corrects = []
+supersedes = []
+artifacts = [{ path = "tools/stereo-modeset/run23-nouveau-deep12-gcp-audio-preserve-pass-2026-09-22.log", sha256 = "412fb1cc1f9fada127506e5693aecea107104f2d46d233331f8732c2bb400d7e", role = "contemporaneous owner-observation record" }]

@@ -1,0 +1,14 @@
+schema = 1
+id = "SBL-DC-0004"
+title = "NVIDIA run 24 loaded a 12-bpc output-depth cap"
+assertion = "During the run-24 verification session, NVIDIA 615.71.09 reported max_output_color_depth=12 and hdmi_deepcolor=Y after reload."
+epistemic = "supported"
+basis = "instrument-measurement"
+domain = "driver"
+date = "2026-09-22"
+scope = "GALAX RTX 3060 GA106, NVIDIA open kernel modules 615.71.09, Sony KDL-46HX855, 1920x1080p60 SDR RGB."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+premises = []
+corrects = []
+supersedes = []
+artifacts = [{ path = "tools/stereo-modeset/run24-nvidia-deepcolor-param12-pass-2026-09-22.log", sha256 = "d3eba2ed94969fd59dad9770b364e60fd8a8519cff078850ca60c696ad19da10", role = "run-24 module-state and harness record" }]

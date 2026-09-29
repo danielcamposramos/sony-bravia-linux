@@ -1,0 +1,559 @@
+#!/usr/bin/env python3
+# Canonical SOURCE projection for the Signal Ledger validator and view generator.
+
+from __future__ import annotations
+
+import argparse
+import hashlib
+import io
+import json
+import math
+import re
+import subprocess
+import sys
+import tokenize
+import tomllib
+import unicodedata
+from pathlib import Path
+
+
+SCHEMA = 1
+DEFAULT_VIEW = "docs/reference/evidence-ledger/claims.md"
+EPISTEMIC = {"supported", "inferred", "untested"}
+BASES = {
+    "human-observation",
+    "instrument-measurement",
+    "normative-citation",
+    "source-inspection",
+    "third-party-report",
+    "analysis",
+    "scope-record",
+}
+DOMAINS = {
+    "bitstream",
+    "decoder",
+    "player",
+    "compositor",
+    "drm-kms",
+    "driver",
+    "hdmi-link",
+    "visible-sink",
+    "standard",
+    "scope",
+}
+SET_ARRAYS = {"premises", "corrects", "supersedes"}
+RELATIONS = ("premises", "corrects", "supersedes")
+CLAIM_ID = re.compile(r"^[A-Z0-9]+(?:-[A-Z0-9]+)+$")
+
+
+class LedgerError(Exception):
+    pass
+
+
+class DomainViolationError(LedgerError):
+    pass
+
+
+def fail(message: str) -> None:
+    raise LedgerError(message)
+
+
+def read_toml(path: Path) -> dict:
+    try:
+        with path.open("rb") as handle:
+            return tomllib.load(handle)
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        raise LedgerError(f"{path}: {exc}") from exc
+
+
+def normalize(value, key: str = ""):
+    if isinstance(value, dict):
+        normalized = {}
+        for raw_key, raw_value in sorted(value.items()):
+            clean_key = unicodedata.normalize("NFC", str(raw_key))
+            if clean_key in normalized:
+                fail(f"Unicode normalization creates duplicate key {clean_key!r}")
+            normalized[clean_key] = normalize(raw_value, clean_key)
+        return normalized
+    if isinstance(value, list):
+        values = [normalize(item) for item in value]
+        if key in SET_ARRAYS:
+            if not all(isinstance(item, str) for item in values):
+                fail(f"{key} must contain only strings")
+            values.sort()
+        return values
+    if isinstance(value, str):
+        return unicodedata.normalize("NFC", value)
+    if isinstance(value, float) and not math.isfinite(value):
+        fail("non-finite numbers are not canonical")
+    if value is None or isinstance(value, (bool, int, float)):
+        return value
+    fail(f"unsupported TOML type {type(value).__name__}; quote dates as strings")
+
+
+def canonical_bytes(entry: dict) -> bytes:
+    return json.dumps(
+        normalize(entry),
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+
+
+def entry_hash(entry: dict) -> str:
+    return hashlib.sha256(canonical_bytes(entry)).hexdigest()
+
+
+def file_hash(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def repo_path(root: Path, value: str, label: str) -> Path:
+    if not isinstance(value, str) or not value:
+        fail(f"{label}: path must be a non-empty string")
+    raw = Path(value)
+    if raw.is_absolute():
+        fail(f"{label}: path must be repository-relative: {value}")
+    resolved = (root / raw).resolve()
+    try:
+        resolved.relative_to(root.resolve())
+    except ValueError as exc:
+        raise LedgerError(f"{label}: path escapes repository: {value}") from exc
+    return resolved
+
+
+def require(entry: dict, field: str, expected=None):
+    value = entry.get(field)
+    if value in (None, "", []):
+        fail(f"{entry.get('id', '<unknown>')}: missing {field}")
+    if expected is not None and not isinstance(value, expected):
+        fail(f"{entry.get('id', '<unknown>')}: {field} has wrong type")
+    return value
+
+
+def validate_artifacts(root: Path, entry: dict) -> None:
+    artifacts = entry.get("artifacts", [])
+    if not isinstance(artifacts, list):
+        fail(f"{entry['id']}: artifacts must be an array")
+    for index, artifact in enumerate(artifacts):
+        if not isinstance(artifact, dict):
+            fail(f"{entry['id']}: artifact {index} must be a table")
+        path_value = artifact.get("path", "")
+        expected = artifact.get("sha256", "")
+        if len(expected) != 64:
+            fail(f"{entry['id']}: artifact {index} needs a SHA-256")
+        path = repo_path(root, path_value, entry["id"])
+        if not path.is_file():
+            fail(f"{entry['id']}: artifact is missing: {path_value}")
+        actual = file_hash(path)
+        if actual != expected:
+            fail(f"{entry['id']}: artifact hash mismatch for {path_value}")
+
+
+def validate_entry(root: Path, entry: dict) -> None:
+    claim_id = require(entry, "id", str)
+    if not CLAIM_ID.fullmatch(claim_id):
+        fail(f"{claim_id}: claim ID must use uppercase ASCII letters, digits and hyphens")
+    if entry.get("schema") != SCHEMA:
+        fail(f"{claim_id}: schema must be {SCHEMA}")
+    require(entry, "title", str)
+    require(entry, "assertion", str)
+    require(entry, "date", str)
+    require(entry, "scope", str)
+    authors = require(entry, "authors", list)
+    if not all(isinstance(author, str) and author for author in authors):
+        fail(f"{claim_id}: authors must be non-empty strings")
+
+    epistemic = require(entry, "epistemic", str)
+    basis = require(entry, "basis", str)
+    domain = require(entry, "domain", str)
+    if epistemic not in EPISTEMIC:
+        fail(f"{claim_id}: unknown epistemic state {epistemic}")
+    if basis not in BASES:
+        fail(f"{claim_id}: unknown basis {basis}")
+    if domain not in DOMAINS:
+        fail(f"{claim_id}: unknown domain {domain}")
+
+    for relation in RELATIONS:
+        refs = entry.get(relation, [])
+        if not isinstance(refs, list) or not all(isinstance(ref, str) for ref in refs):
+            fail(f"{claim_id}: {relation} must be an array of claim IDs")
+        if not all(CLAIM_ID.fullmatch(ref) for ref in refs):
+            fail(f"{claim_id}: {relation} contains a non-canonical claim ID")
+        if len(refs) != len(set(refs)):
+            fail(f"{claim_id}: duplicate {relation} reference")
+        if claim_id in refs:
+            fail(f"{claim_id}: cannot reference itself through {relation}")
+    if (entry.get("corrects") or entry.get("supersedes")) and epistemic != "supported":
+        fail(f"{claim_id}: correction and supersession edges require supported claims")
+
+    if epistemic == "inferred":
+        if basis != "analysis" or not entry.get("premises"):
+            fail(f"{claim_id}: inferred claims require analysis basis and premises")
+    elif basis == "analysis":
+        fail(f"{claim_id}: analysis basis requires inferred epistemic state")
+
+    if epistemic == "untested":
+        if basis != "scope-record" or domain != "scope":
+            fail(f"{claim_id}: untested claims require scope-record basis and scope domain")
+        require(entry, "missing_precondition", str)
+        require(entry, "not_claimed", str)
+    elif basis == "scope-record":
+        fail(f"{claim_id}: scope-record basis requires untested epistemic state")
+
+    if domain == "visible-sink":
+        if basis != "human-observation" or epistemic != "supported":
+            raise DomainViolationError(
+                f"{claim_id}: visible-sink behavior requires supported human observation"
+            )
+    if basis == "human-observation":
+        require(entry, "observer", str)
+        if not entry.get("artifacts"):
+            fail(f"{claim_id}: observation requires a durable record artifact")
+    if basis == "instrument-measurement" and not entry.get("artifacts"):
+        fail(f"{claim_id}: measurement requires a hashed artifact")
+    if basis == "normative-citation":
+        standards = require(entry, "standards", list)
+        for standard in standards:
+            if not isinstance(standard, dict):
+                fail(f"{claim_id}: standard citation must be a table")
+            for field in ("name", "edition", "section"):
+                if not standard.get(field):
+                    fail(f"{claim_id}: standard citation needs {field}")
+    if basis == "source-inspection" and not entry.get("citations"):
+        fail(f"{claim_id}: source inspection requires citations")
+    if basis == "third-party-report":
+        report = require(entry, "report", dict)
+        for field in ("reported_by", "url", "accessed"):
+            if not report.get(field):
+                fail(f"{claim_id}: report needs {field}")
+        if not report.get("archive_url") and not report.get("snapshot_sha256"):
+            fail(f"{claim_id}: report needs an archive URL or snapshot SHA-256")
+
+    validate_artifacts(root, entry)
+
+
+def validate_graph(entries: dict[str, dict]) -> None:
+    for claim_id, entry in entries.items():
+        for relation in RELATIONS:
+            for target in entry.get(relation, []):
+                if target not in entries:
+                    fail(f"{claim_id}: unknown {relation} target {target}")
+        if entry.get("epistemic") == "inferred":
+            domains = {
+                entries[target]["domain"]
+                for target in entry["premises"]
+                if entries[target]["domain"] != "standard"
+            }
+            if domains != {entry["domain"]}:
+                raise DomainViolationError(
+                    f"{claim_id}: inference cannot cross domains {sorted(domains)}"
+                )
+
+    visiting: set[str] = set()
+    visited: set[str] = set()
+
+    def visit(claim_id: str) -> None:
+        if claim_id in visiting:
+            fail(f"claim graph contains a cycle at {claim_id}")
+        if claim_id in visited:
+            return
+        visiting.add(claim_id)
+        for relation in RELATIONS:
+            for target in entries[claim_id].get(relation, []):
+                visit(target)
+        visiting.remove(claim_id)
+        visited.add(claim_id)
+
+    for claim_id in sorted(entries):
+        visit(claim_id)
+
+
+def derive_statuses(entries: dict[str, dict]) -> dict[str, tuple[str, str, list[str]]]:
+    corrected_by = {claim_id: [] for claim_id in entries}
+    superseded_by = {claim_id: [] for claim_id in entries}
+    for source, entry in entries.items():
+        for target in entry.get("corrects", []):
+            corrected_by[target].append(source)
+        for target in entry.get("supersedes", []):
+            superseded_by[target].append(source)
+
+    memo: dict[str, tuple[str, str, list[str]]] = {}
+    resolving: set[str] = set()
+
+    def status(claim_id: str) -> tuple[str, str, list[str]]:
+        if claim_id in memo:
+            return memo[claim_id]
+        if claim_id in resolving:
+            fail(f"authority derivation contains a cycle at {claim_id}")
+        resolving.add(claim_id)
+        entry = entries[claim_id]
+        active_corrections = [
+            source for source in corrected_by[claim_id] if status(source)[0] == "supported"
+        ]
+        active_supersessions = [
+            source for source in superseded_by[claim_id] if status(source)[0] == "supported"
+        ]
+        if active_corrections:
+            result = ("refuted", "CORRECTED", sorted(active_corrections))
+        elif active_supersessions:
+            result = ("undetermined", "SUPERSEDED", sorted(active_supersessions))
+        elif entry["epistemic"] == "untested":
+            result = ("undetermined", "UNTESTED", [])
+        elif entry["epistemic"] == "inferred":
+            stale = [ref for ref in entry["premises"] if status(ref)[0] != "supported"]
+            result = ("undetermined", "STALE", stale) if stale else ("supported", "SUPPORTED", [])
+        else:
+            result = ("supported", "SUPPORTED", [])
+        resolving.remove(claim_id)
+        memo[claim_id] = result
+        return result
+
+    for claim_id in sorted(entries):
+        status(claim_id)
+    return memo
+
+
+def load_ledger(root: Path, verify_manifest: bool = True):
+    manifest_path = root / "data/evidence-ledger/ledger.toml"
+    manifest = read_toml(manifest_path)
+    if manifest.get("schema") != SCHEMA:
+        fail(f"{manifest_path}: schema must be {SCHEMA}")
+    rows = manifest.get("claims")
+    if not isinstance(rows, list) or not rows:
+        fail(f"{manifest_path}: claims must be a non-empty array")
+
+    entries: dict[str, dict] = {}
+    paths: dict[str, Path] = {}
+    hashes: dict[str, str] = {}
+    seen_paths: set[str] = set()
+    base = manifest_path.parent
+    for row in rows:
+        path_value = row.get("path", "")
+        if path_value in seen_paths:
+            fail(f"duplicate manifest path: {path_value}")
+        seen_paths.add(path_value)
+        path = manifest_claim_path(base, path_value)
+        if not path.is_file():
+            fail(f"manifest claim is missing: {path_value}")
+        entry = read_toml(path)
+        validate_entry(root, entry)
+        claim_id = entry["id"]
+        if claim_id in entries:
+            fail(f"duplicate claim ID: {claim_id}")
+        actual = entry_hash(entry)
+        if verify_manifest and row.get("sha256") != actual:
+            fail(f"manifest hash mismatch for {claim_id}")
+        entries[claim_id] = entry
+        paths[claim_id] = path
+        hashes[claim_id] = actual
+
+    listed = {path.resolve() for path in paths.values()}
+    present = {path.resolve() for path in (base / "claims").glob("*.toml")}
+    unlisted = sorted(path.name for path in present - listed)
+    if unlisted:
+        fail("claim files missing from manifest: " + ", ".join(unlisted))
+
+    validate_graph(entries)
+    statuses = derive_statuses(entries)
+    return manifest, entries, paths, hashes, statuses
+
+
+def ledger_hash(hashes: dict[str, str]) -> str:
+    payload = [{"id": claim_id, "sha256": hashes[claim_id]} for claim_id in sorted(hashes)]
+    return hashlib.sha256(
+        json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    ).hexdigest()
+
+
+def render_manifest(manifest: dict, paths: dict[str, Path], hashes: dict[str, str], root: Path) -> str:
+    base = root / "data/evidence-ledger"
+    lines = [
+        f"schema = {SCHEMA}",
+        f'ledger = {json.dumps(manifest.get("ledger", "sony-bravia-linux"))}',
+        f'view = {json.dumps(manifest.get("view", DEFAULT_VIEW))}',
+        "",
+    ]
+    for claim_id in sorted(paths):
+        relative = paths[claim_id].relative_to(base).as_posix()
+        lines.extend(
+            [
+                "[[claims]]",
+                f'path = {json.dumps(relative)}',
+                f'sha256 = "{hashes[claim_id]}"',
+                "",
+            ]
+        )
+    return "\n".join(lines)
+
+
+def md_escape(value: str) -> str:
+    return value.replace("|", "\\|").replace("\n", " ")
+
+
+def manifest_claim_path(base: Path, value: str) -> Path:
+    path = repo_path(base, value, "manifest claim")
+    try:
+        path.relative_to((base / "claims").resolve())
+    except ValueError as exc:
+        raise LedgerError(
+            f"manifest claim must be under data/evidence-ledger/claims: {value}"
+        ) from exc
+    return path
+
+
+def manifest_view_path(root: Path, manifest: dict) -> Path:
+    value = manifest.get("view", DEFAULT_VIEW)
+    path = repo_path(root, value, "manifest view")
+    allowed = (root / "docs/reference/evidence-ledger").resolve()
+    try:
+        path.relative_to(allowed)
+    except ValueError as exc:
+        raise LedgerError(
+            f"manifest view must be under docs/reference/evidence-ledger: {value}"
+        ) from exc
+    return path
+
+
+def render_view(entries: dict[str, dict], hashes: dict[str, str], statuses) -> str:
+    digest = ledger_hash(hashes)
+    lines = [
+        "# Signal Ledger — Deep Color pilot",
+        "",
+        "Generated from the canonical TOML entries. Do not edit this view.",
+        f"Ledger digest: `{digest}`.",
+        "",
+        "| Claim | Status | Basis | Domain | Assertion |",
+        "|---|---|---|---|---|",
+    ]
+    for claim_id in sorted(entries):
+        entry = entries[claim_id]
+        authority, reason, related = statuses[claim_id]
+        label = authority if reason == "SUPPORTED" else f"{authority}: {reason.lower()}"
+        if related:
+            label += " via " + ", ".join(related)
+        lines.append(
+            f"| `{claim_id}` | {md_escape(label)} | `{entry['basis']}` | "
+            f"`{entry['domain']}` | {md_escape(entry['assertion'])} |"
+        )
+
+    lines.extend(["", "## Claim records", ""])
+    for claim_id in sorted(entries):
+        entry = entries[claim_id]
+        authority, reason, related = statuses[claim_id]
+        lines.extend(
+            [
+                f"### {claim_id} — {entry['title']}",
+                "",
+                f"- Authority: **{authority}** (`{reason}`)",
+                f"- Basis / domain: `{entry['basis']}` / `{entry['domain']}`",
+                f"- Scope: {entry['scope']}",
+                f"- Entry hash: `{hashes[claim_id]}`",
+            ]
+        )
+        if related:
+            lines.append(f"- Related authority edge: {', '.join(f'`{item}`' for item in related)}")
+        if entry.get("observer"):
+            lines.append(f"- Observer: {entry['observer']}")
+        if entry.get("premises"):
+            label = "Authority premises" if entry["epistemic"] == "inferred" else "Context links"
+            lines.append(f"- {label}: {', '.join(f'`{item}`' for item in entry['premises'])}")
+        if entry.get("missing_precondition"):
+            lines.append(f"- Missing precondition: {entry['missing_precondition']}")
+            lines.append(f"- Not claimed: {entry['not_claimed']}")
+        for artifact in entry.get("artifacts", []):
+            target = "../../../" + artifact["path"]
+            lines.append(
+                f"- Artifact: [{artifact.get('role', artifact['path'])}]({target}) "
+                f"— `{artifact['sha256']}`"
+            )
+        for standard in entry.get("standards", []):
+            lines.append(
+                f"- Normative citation: {standard['name']} {standard['edition']}, "
+                f"section {standard['section']}"
+            )
+        lines.extend(["", entry["assertion"], ""])
+    return "\n".join(lines).rstrip() + "\n"
+
+
+def strip_source_comments(text: str) -> str:
+    tokens = []
+    for token in tokenize.generate_tokens(io.StringIO(text).readline):
+        if token.type == tokenize.COMMENT:
+            token = tokenize.TokenInfo(token.type, "", token.start, token.end, token.line)
+        tokens.append(token)
+    return tokenize.untokenize(tokens)
+
+
+def source_projection(check: bool) -> None:
+    runtime = Path(__file__).resolve()
+    source = runtime if runtime.suffix == ".source" else runtime.with_suffix(runtime.suffix + ".source")
+    target = source.with_suffix("")
+    rendered = strip_source_comments(source.read_text(encoding="utf-8"))
+    if check:
+        if not target.is_file() or target.read_text(encoding="utf-8") != rendered:
+            fail(f"runtime projection is stale: {target}")
+    else:
+        target.write_text(rendered, encoding="utf-8")
+
+
+def append_only(root: Path, base: str) -> None:
+    if not base or set(base) == {"0"}:
+        return
+    command = [
+        "git", "diff", "--name-status", f"{base}...HEAD", "--",
+        "data/evidence-ledger/claims",
+    ]
+    result = subprocess.run(command, cwd=root, text=True, capture_output=True, check=True)
+    violations = [line for line in result.stdout.splitlines() if not line.startswith("A\t")]
+    if violations:
+        fail("claim entries are append-only:\n" + "\n".join(violations))
+
+
+def sync(root: Path) -> None:
+    manifest, entries, paths, hashes, statuses = load_ledger(root, verify_manifest=False)
+    manifest_path = root / "data/evidence-ledger/ledger.toml"
+    view_path = manifest_view_path(root, manifest)
+    manifest_path.write_text(render_manifest(manifest, paths, hashes, root), encoding="utf-8")
+    view_path.write_text(render_view(entries, hashes, statuses), encoding="utf-8")
+
+
+def check(root: Path) -> None:
+    manifest, entries, _, hashes, statuses = load_ledger(root)
+    view_path = manifest_view_path(root, manifest)
+    expected = render_view(entries, hashes, statuses)
+    if not view_path.is_file() or view_path.read_text(encoding="utf-8") != expected:
+        fail(f"generated view is stale: {view_path}")
+    source_projection(check=True)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description="Validate and render the Signal Ledger")
+    parser.add_argument("command", choices=("check", "sync", "compile", "source-check", "append-only"))
+    parser.add_argument("base", nargs="?")
+    args = parser.parse_args()
+    root = Path(__file__).resolve().parents[2]
+    try:
+        if args.command == "check":
+            check(root)
+        elif args.command == "sync":
+            sync(root)
+        elif args.command == "compile":
+            source_projection(check=False)
+        elif args.command == "source-check":
+            source_projection(check=True)
+        else:
+            append_only(root, args.base or "")
+    except (LedgerError, subprocess.CalledProcessError) as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -88,6 +88,12 @@ repository. See
 The single partner entry point, kept current, is
 [docs/project-status.md](docs/project-status.md) — read it first.
 
+Claims with hardware consequences also have a machine-checked
+[Signal Ledger](docs/reference/evidence-ledger/claims.md): measurements,
+Daniel's physical observations, standards citations, inferences and untested
+scope remain separate, artifact hashes are verified, and corrections are
+append-only rather than silently rewriting history.
+
 **The display end (2026-09-20 to 09-23).** The same bench drives both sets
 from a GA106 RTX 3060 and an AMD card, so the PC side of the HDMI link was
 measured too. Stock nouveau turned out to be HDMI 3D-capable already, for

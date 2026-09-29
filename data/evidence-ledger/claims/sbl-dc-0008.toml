@@ -1,0 +1,15 @@
+schema = 1
+id = "SBL-DC-0008"
+title = "Native HDR output remains untested on this bench"
+assertion = "This project has not physically verified native HDR output."
+epistemic = "untested"
+basis = "scope-record"
+domain = "scope"
+date = "2026-09-22"
+scope = "Local hardware coverage only; the HX855 is an SDR display even though it can report and accept 12-bit Deep Color."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+missing_precondition = "Daniel does not own an HDR display or HDMI analyzer that can verify HDR metadata and rendered HDR behavior."
+not_claimed = "This entry does not claim that HDR output works or fails on nouveau, NVIDIA proprietary drivers, or other systems."
+premises = []
+corrects = []
+supersedes = []
