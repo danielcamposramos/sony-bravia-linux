@@ -7,6 +7,8 @@ untested scope separate.
 
 - `ledger.toml` is the deterministic manifest and per-entry hash index.
 - `claims/` contains one immutable TOML file per claim.
+- `photos/` preserves original owner-captured visual evidence plus its
+  content hashes and test-window correlation record.
 - Corrections and replacements are new claims with `corrects` or `supersedes`
   edges; an existing claim file is never rewritten after publication.
 - The generated human view lives at

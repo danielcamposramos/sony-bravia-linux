@@ -1,0 +1,14 @@
+schema = 1
+id = "SBL-3D-0001"
+title = "Run 34 exercised the complete accepted 22-step matrix without kernel warnings"
+assertion = "The run-34 harness record contains 22 completed progressive test steps spanning RGB, YUV 4:4:4, YUV 4:2:2, 8/10/12-bpc requests, 12-bpc SBS/TaB/frame-packing 3D combinations, and SD/HD timings, with zero kernel warnings recorded for every step."
+epistemic = "supported"
+basis = "instrument-measurement"
+domain = "drm-kms"
+date = "2026-09-23"
+scope = "GALAX RTX 3060 GA106, Mohamed Ahmed's nouveau-imp-upstr-v120 branch plus the local CD=5 and colour-format proof-of-concept, Sony KDL-46HX855 on HDMI-A-2; progressive modes accepted by this TV only. This claim records requested/completed KMS states and kernel warnings, not the visible sink result."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+premises = []
+corrects = []
+supersedes = []
+artifacts = [{ path = "tools/stereo-modeset/run34-mohamed-branch-ycbcr-poc-hx855-2026-09-23.log", sha256 = "60a204731237caceaa511b4b51f779b08282c26c9d7c6814c4084a7f382ca124", role = "run-34 harness, requested-state, owner-result and warning record" }]

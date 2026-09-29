@@ -3,6 +3,14 @@ ledger = "sony-bravia-linux"
 view = "docs/reference/evidence-ledger/claims.md"
 
 [[claims]]
+path = "claims/sbl-3d-0001.toml"
+sha256 = "696fb2d66f1bb7347a3af49586d0cc6e0a45ed6454b69ac2f4b74fa7df1c2706"
+
+[[claims]]
+path = "claims/sbl-3d-0002.toml"
+sha256 = "b44b1d12e4b9cbcd66671de450cf8cd2c45f86afd6802d6bb6bb4050b3c947d7"
+
+[[claims]]
 path = "claims/sbl-dc-0001.toml"
 sha256 = "f9623140c60d9eb72a4f8640e50dd8e557d298f15e4600e6f943e5a024dc0c10"
 

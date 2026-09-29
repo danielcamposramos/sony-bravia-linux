@@ -423,7 +423,7 @@ def manifest_view_path(root: Path, manifest: dict) -> Path:
 def render_view(entries: dict[str, dict], hashes: dict[str, str], statuses) -> str:
     digest = ledger_hash(hashes)
     lines = [
-        "# Signal Ledger — Deep Color pilot",
+        "# Signal Ledger — display-pipeline evidence",
         "",
         "Generated from the canonical TOML entries. Do not edit this view.",
         f"Ledger digest: `{digest}`.",

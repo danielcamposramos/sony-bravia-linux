@@ -23,6 +23,7 @@ human observation are context links: they connect the driver state to the test
 window, but a later correction to that driver interpretation cannot erase what
 the observer physically saw.
 
-Federation is deliberately deferred until this Bravia pilot has survived real
-use. Sister repositories will eventually pin individual entry hashes rather
-than a whole-ledger hash, avoiding churn when unrelated claims are appended.
+Federation pins individual semantic entry hashes rather than a whole-ledger
+hash, avoiding churn when unrelated claims are appended. Sister repositories
+store only verified pointers and generated views; this Bravia ledger remains
+the canonical claim authority.

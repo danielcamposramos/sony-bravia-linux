@@ -1,0 +1,20 @@
+schema = 1
+id = "SBL-3D-0002"
+title = "The HX855 displayed every accepted run-34 mode, including 3D at 12 bpc"
+assertion = "Daniel observed every one of the 22 attempted run-34 modes display properly on the Sony KDL-46HX855, including SBS, top-and-bottom and frame-packing 3D at a requested 12 bpc; a contemporaneous photograph visibly records the BRAVIA OSD reporting both 12bit and 3D."
+epistemic = "supported"
+basis = "human-observation"
+domain = "visible-sink"
+date = "2026-09-23"
+scope = "The progressive run-34 matrix on Daniel's KDL-46HX855. Modes the TV does not accept, and interlaced modes the card could not drive, were outside the attempted success set. Only representative harder-core states were photographed. This is an SDR Deep Color and stereoscopic-output result, not a native-HDR claim."
+authors = ["Daniel Campos", "Kimi K3", "OpenAI Codex"]
+observer = "Daniel Campos"
+premises = ["SBL-3D-0001"]
+corrects = []
+supersedes = []
+artifacts = [
+  { path = "tools/stereo-modeset/run34-mohamed-branch-ycbcr-poc-hx855-2026-09-23.log", sha256 = "60a204731237caceaa511b4b51f779b08282c26c9d7c6814c4084a7f382ca124", role = "contemporaneous owner-observation and test-window record" },
+  { path = "data/evidence-ledger/photos/IMG-20260923-WA0030.jpeg", sha256 = "26e2959a324a10049ed68aea842f469014825287dc68194d8e513c8cd768def6", role = "original photograph of the RGB LIMITED 12-BIT test frame" },
+  { path = "data/evidence-ledger/photos/IMG-20260923-WA0033.jpeg", sha256 = "40c8c26058cd8f2307210340eeb4e7a85e2695b7eadceaf28ae1fe64d46dabe5", role = "original photograph of the BRAVIA 12bit OSD" },
+  { path = "data/evidence-ledger/photos/IMG-20260923-WA0037.jpeg", sha256 = "4d416db6004c384887b8f898a2428cfd9504b7c7a3a8cbcdd101e648dd0205f2", role = "original photograph of the BRAVIA 12bit and 3D OSD" },
+]
