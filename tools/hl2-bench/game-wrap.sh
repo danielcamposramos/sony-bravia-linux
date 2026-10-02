@@ -17,6 +17,29 @@ if [ -f "$ENVFILE" ]; then
 	. "$ENVFILE"
 	set +a
 	[ -n "${STEP_OUT:-}" ] && mkdir -p "$STEP_OUT"
+	# The system output (version B): the game's screen holds two eyes of the
+	# render resolution saved in the game's settings (vr_display_render, the
+	# menu's "Render resolution per eye"), side by side; the game's and
+	# gamescope's sizes are set from it here, at start.
+	if [ "${SVRTV_OUTPUT:-}" = system ]; then
+		gdir="" mod=""
+		prev=""
+		for a in "$@"; do
+			case $a in */hl2.sh) gdir=${a%/hl2.sh} ;; esac
+			[ "$prev" = -game ] && mod=$a
+			prev=$a
+		done
+		idx=$(sed -n 's/^vr_display_render "\([0-9]\)".*/\1/p' "$gdir/${mod:-hl2}/cfg/config.cfg" 2>/dev/null)
+		case ${idx:-2} in
+		0) ew=1280 eh=720 ;;
+		1) ew=1600 eh=900 ;;
+		*) ew=1920 eh=1080 ;;
+		esac
+		fw=$((ew * 2))
+		export SVRTV_WIDTH=$ew SVRTV_HEIGHT=$eh
+		STEP_ARGS=$(printf '%s' "$STEP_ARGS" | sed "s/-w [0-9]* -h [0-9]*/-w $fw -h $eh/")
+		SVRTV_GAMESCOPE=$(printf '%s' "${SVRTV_GAMESCOPE:-}" | sed "s/-W [0-9]* -H [0-9]* -w [0-9]* -h [0-9]*/-W $fw -H $eh -w $fw -h $eh/")
+	fi
 	# The game's DXVK is v2.0, which reads a config file but not the
 	# DXVK_CONFIG variable (2.1+). Write the suite's settings next to the
 	# game, where Steam's runtime container sees it.
