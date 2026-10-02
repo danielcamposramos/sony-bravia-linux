@@ -33,6 +33,9 @@ if [ -f "$ENVFILE" ]; then
 		case ${idx:-2} in
 		0) ew=1280 eh=720 ;;
 		1) ew=1600 eh=900 ;;
+		3) ew=2560 eh=1440 ;;
+		4) ew=3200 eh=1800 ;;
+		5) ew=3840 eh=2160 ;;
 		*) ew=1920 eh=1080 ;;
 		esac
 		fw=$((ew * 2))
