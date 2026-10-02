@@ -39,9 +39,15 @@ if [ -f "$ENVFILE" ]; then
 		*) ew=1920 eh=1080 ;;
 		esac
 		fw=$((ew * 2))
+		# gamescope's window on the desktop stays at most two 1920x1080 eyes:
+		# above that it scales the game's frame down (the supersampling), so
+		# the window fits the desktop's X screen (the pointer reaches all of
+		# it) and is placed on the 3D display like the 1080 one (2026-10-02)
+		ww=$fw wh=$eh
+		[ "$eh" -gt 1080 ] && ww=3840 wh=1080
 		export SVRTV_WIDTH=$ew SVRTV_HEIGHT=$eh
 		STEP_ARGS=$(printf '%s' "$STEP_ARGS" | sed "s/-w [0-9]* -h [0-9]*/-w $fw -h $eh/")
-		SVRTV_GAMESCOPE=$(printf '%s' "${SVRTV_GAMESCOPE:-}" | sed "s/-W [0-9]* -H [0-9]* -w [0-9]* -h [0-9]*/-W $fw -H $eh -w $fw -h $eh/")
+		SVRTV_GAMESCOPE=$(printf '%s' "${SVRTV_GAMESCOPE:-}" | sed "s/-W [0-9]* -H [0-9]* -w [0-9]* -h [0-9]*/-W $ww -H $wh -w $fw -h $eh/")
 	fi
 	# The game's DXVK is v2.0, which reads a config file but not the
 	# DXVK_CONFIG variable (2.1+). Write the suite's settings next to the
