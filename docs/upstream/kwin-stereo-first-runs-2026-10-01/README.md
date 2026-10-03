@@ -1,4 +1,4 @@
-# KWin stereo 3D: the first runs on real TVs, 2026-10-01 and 10-02
+# KWin stereo 3D: the first runs on real TVs, 2026-10-01 to 10-03
 
 Evidence for the KWin stereo work under review in [plasma/kwin #324](https://invent.kde.org/plasma/kwin/-/work_items/324). The design in one page: [STEREO3D.md](https://invent.kde.org/danielcamposramos/kwin/-/blob/stereo3d/STEREO3D.md). Code: the `stereo3d` branch of [invent.kde.org/danielcamposramos/kwin](https://invent.kde.org/danielcamposramos/kwin/-/tree/stereo3d).
 
@@ -31,5 +31,12 @@ KWin at [4714c8e](https://invent.kde.org/danielcamposramos/kwin/-/commit/4714c8e
 
 - [2026-10-02-hl2-version-b-frame-3840x1080.png](photos/2026-10-02-hl2-version-b-frame-3840x1080.png): Half-Life 2 rendering two full 1920x1080 eyes side by side in one 3840x1080 window, declared to KWin as full side by side; KWin showed it in 2D, side by side (half), top and bottom (half) and frame packing 720p60 on the HX855, rendered on the RTX 3060.
 - [2026-10-02-hl2-version-b-menu-sheet-1920x1080.png](photos/2026-10-02-hl2-version-b-menu-sheet-1920x1080.png): the game's 2D menu sheet at its ordinary size, drawn into both eyes at screen depth.
+
+## One window across a 3D TV and a 2D monitor (2026-10-03, 20:51)
+
+KWin package 4:6.7.4-2+stereo3d11, the same LEFT/RIGHT clip in mpv under the same window rule ([scripts/rule.sh](scripts/rule.sh), [scripts/play-clip.sh](scripts/play-clip.sh)). The HX855 (HDMI-A-1) in frame packing 1080p30, "30.00 Hz (3D frame packing)" in the display settings, with the AOC LE26W154 (DP-1), a 2D monitor, to its right; both on the AMD iGPU.
+
+- [IMG_20261003_205141.jpg](photos/IMG_20261003_205141.jpg): the mpv window on the 2D monitor shows the left view only (LEFT). That is the design: two eyes reach a screen only when a 3D mode is active, and a 2D output takes the left view. The display settings on the HX855 show its frame packing mode.
+- [IMG_20261003_205154.jpg](photos/IMG_20261003_205154.jpg): the same window dragged across both monitors. The part on the HX855 is in 3D (the phone caught the TV's right-eye frame: "RIG"), and the part on the 2D monitor shows the left view ("EFT"). One window, two outputs, each output taking from the same two eyes what it can show: the output is the last step, per monitor.
 
 Done by Daniel Ramos, with an AI assistant doing the legwork under his direction; the TV readings are his.
