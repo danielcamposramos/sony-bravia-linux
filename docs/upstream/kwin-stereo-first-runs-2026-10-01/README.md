@@ -6,7 +6,7 @@ Hardware: a Sony KDL-46HX855 (AMD iGPU, amdgpu) and a Sony KDL-46EX725 (RTX 3060
 
 ## The display's 3D modes in KDE's display settings (2026-10-01, 03:11 to 03:14)
 
-Both TVs, each in frame packing and in half side by side and top and bottom, every mode chosen in KDE's own display settings: the output mode changer (KScreen) lists the 3D modes beside the 2D ones and KWin switches the TV into 3D (Daniel, the same night).
+Both TVs, each in frame packing and in half side by side and top and bottom, every mode chosen in KDE's own display settings: the output mode changer (KScreen) lists the 3D modes beside the 2D ones and KWin switches the TV into 3D (Daniel, the same night). How to read the photos: the mouse pointer rests on the active mode in the list, and the TV's own on-screen display (the banner: resolution, 12bit, 3D, "3D: Sim") shows what the set is receiving, so each photo pairs the mode chosen with the display's readout.
 
 KWin branch at [92dfde1](https://invent.kde.org/danielcamposramos/kwin/-/commit/92dfde1) (`drm: side by side (full), and 3D layouts for displays without 3D detection`), with [0672162](https://invent.kde.org/danielcamposramos/kwin/-/commit/0672162) (`drm: list a display's HDMI 3D modes with its other modes`) and [57b02a2](https://invent.kde.org/danielcamposramos/kwin/-/commit/57b02a2) (frame packing modes) below it.
 
