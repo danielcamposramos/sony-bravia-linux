@@ -33,3 +33,5 @@ A first pass renamed only the GSP firmware link: nouveau then used its own Amper
 The folder restored: `gsp: RM version: 570.144`, no oops over the session ([dmesg-with-firmware-3d-modes.txt](dmesg-with-firmware-3d-modes.txt), [dmesg-with-firmware-720p60-fp.txt](dmesg-with-firmware-720p60-fp.txt)). The EX725's HDMI 1.4 3D modes, set with `kscreen-doctor` and read on the TV's own Display key: top and bottom 1080p60, side by side 1080p60, frame packing 1080p24 and 720p60, each engaged by the TV itself at 12 bits per component. nouveau's `link_config` reported 12 bpc (36 bpp) in every mode; frame packing 1080p24 and 720p60 run a 148.5 MHz pixel clock, 222.75 MHz TMDS at 12 bpc, under the TV's 225 MHz limit.
 
 Done by Daniel Ramos, with an AI assistant doing the legwork under his direction; the TV readings are his.
+
+**Sent:** the Tested-by for 1/3 and 2/3, with this folder linked, as a reply to the cover letter on the nouveau, dri-devel and linux-kernel lists, 2026-10-03 18:20 -03 (Message-ID `20261003212010.113714-1-Capitain_Jack@yahoo.com`).
