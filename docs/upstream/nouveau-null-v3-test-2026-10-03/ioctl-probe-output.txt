@@ -1,0 +1,2 @@
+GETPARAM_GRAPH_UNITS: ret=-1 errno=19 (No such device) value=0x0
+GET_ZCULL_INFO: ret=-1 errno=25 (Inappropriate ioctl for device)
