@@ -6,6 +6,8 @@ Hardware: a Sony KDL-46HX855 (AMD iGPU, amdgpu) and a Sony KDL-46EX725 (RTX 3060
 
 ## The display's 3D modes in KDE's display settings (2026-10-01, 03:11 to 03:14)
 
+Both TVs, each in frame packing and in half side by side and top and bottom, every mode chosen in KDE's own display settings: the output mode changer (KScreen) lists the 3D modes beside the 2D ones and KWin switches the TV into 3D (Daniel, the same night).
+
 KWin branch at [92dfde1](https://invent.kde.org/danielcamposramos/kwin/-/commit/92dfde1) (`drm: side by side (full), and 3D layouts for displays without 3D detection`), with [0672162](https://invent.kde.org/danielcamposramos/kwin/-/commit/0672162) (`drm: list a display's HDMI 3D modes with its other modes`) and [57b02a2](https://invent.kde.org/danielcamposramos/kwin/-/commit/57b02a2) (frame packing modes) below it.
 
 - [IMG_20261001_031131.jpg](photos/IMG_20261001_031131.jpg): the HX855 in a 3D mode chosen in the display settings. Its banner: **16:9, 1080p HD, 12bit, 3D**, and "3D: Sim" (on). The flat desktop is in both eyes.
