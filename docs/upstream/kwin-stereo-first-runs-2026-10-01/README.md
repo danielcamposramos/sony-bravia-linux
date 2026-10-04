@@ -39,4 +39,17 @@ KWin package 4:6.7.4-2+stereo3d11, the same LEFT/RIGHT clip in mpv under the sam
 - [IMG_20261003_205141.jpg](photos/IMG_20261003_205141.jpg): the mpv window on the 2D monitor shows the left view only (LEFT). That is the design: two eyes reach a screen only when a 3D mode is active, and a 2D output takes the left view. The display settings on the HX855 show its frame packing mode.
 - [IMG_20261003_205154.jpg](photos/IMG_20261003_205154.jpg): the same window dragged across both monitors. The part on the HX855 is in 3D (the phone caught the TV's right-eye frame: "RIG"), and the part on the 2D monitor shows the left view ("EFT"). One window, two outputs, each output taking from the same two eyes what it can show: the output is the last step, per monitor.
 
+## One window across three outputs and two GPUs (2026-10-03, 21:19 to 21:27)
+
+The HX855 (HDMI-A-1, AMD iGPU) in frame packing 1080p30, the AOC LE26W154 (DP-1, AMD iGPU) in 2D in the middle, and the EX725 (HDMI-A-2, RTX 3060) in top and bottom 1080p60, each set in KDE's display settings. One mpv window of 5200x600 across all three, stretched so each half of the window is one eye (`--keepaspect=no --keepaspect-window=no`), with the same clip and window rule. KWin package 4:6.7.4-2+stereo3d11. The configuration and drivers at the time: [logs/2026-10-03-three-outputs-config.txt](logs/2026-10-03-three-outputs-config.txt).
+
+- [Screenshot_20261003_211911.png](photos/Screenshot_20261003_211911.png), [Screenshot_20261003_211946.png](photos/Screenshot_20261003_211946.png), [Screenshot_20261003_211958.png](photos/Screenshot_20261003_211958.png): the display settings with each output selected in turn: "30.00 Hz (3D frame packing)", "60.01 Hz" (2D) and "60.00 Hz (3D top and bottom, suggested for games)".
+- [IMG_20261003_212607.jpg](photos/IMG_20261003_212607.jpg): all three at once, the window running across them: the HX855 in front, the AOC in the middle, the EX725 at the back.
+- [IMG_20261003_212646.jpg](photos/IMG_20261003_212646.jpg) and [IMG_20261003_212650.jpg](photos/IMG_20261003_212650.jpg): the HX855 in frame packing through each lens of the TV's active shutter glasses: the right view's blue RIGHT label through one lens, the left view's red LEFT label through the other. Cropped by Daniel to leave out personal belongings.
+- [IMG_20261003_212658.jpg](photos/IMG_20261003_212658.jpg) and [IMG_20261003_212711.jpg](photos/IMG_20261003_212711.jpg): the EX725 in top and bottom, on the other card, through each lens: the right view through one, the left view through the other, each at full height (the TV unpacks top and bottom).
+- [IMG_20261003_212724.jpg](photos/IMG_20261003_212724.jpg): without glasses: on the HX855 the phone catches the alternating eyes overlapping, and the AOC shows the left view only.
+- [Screenshot_20261003_212149.png](photos/Screenshot_20261003_212149.png): today's 2D screenshot of the same desktop: the window holds the left view only, across all 5200 pixels. The stereo screenshot work in progress makes this capture side by side.
+
+One window, three outputs, three formats at the end (frame packing, 2D, top and bottom), on two GPUs at the same time: KWin holds the two eyes, and each output takes what it can show.
+
 Done by Daniel Ramos, with an AI assistant doing the legwork under his direction; the TV readings are his.
