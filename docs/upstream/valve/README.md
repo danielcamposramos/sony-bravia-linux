@@ -1,5 +1,3 @@
-> This now lives at https://github.com/Sparky-OS/sparky-stereo-os/blob/main/docs/upstream/valve/README.md; this copy stays for the links already shared and is no longer updated.
-
 # Valve: stereo spectator drafts (2026-09-24)
 
 Raw material for Daniel, who reviews and approves each one before it is posted. **Posted 2026-09-24: 01 as [Source-1-Games#8297](https://github.com/ValveSoftware/Source-1-Games/issues/8297); 02 as a [comment on #3782](https://github.com/ValveSoftware/Source-1-Games/issues/3782#issuecomment-5822863780); 03 as a [comment on #1013](https://github.com/ValveSoftware/Source-1-Games/issues/1013#issuecomment-5822869918); 04 as a [comment on source-sdk-2013#268](https://github.com/ValveSoftware/source-sdk-2013/issues/268#issuecomment-5822876523); 05 as [SteamVR-for-Linux#961](https://github.com/ValveSoftware/SteamVR-for-Linux/issues/961). All five posted.**
