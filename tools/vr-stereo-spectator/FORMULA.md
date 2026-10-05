@@ -15,10 +15,11 @@ cameras and are therefore much easier to convert to 3D" (Linus Tech Tips,
 scene as geometry, so the second eye is a second camera, not a guess.
 
 wiz3D solves a different problem, stereo for games that never had a VR mode
-(a DirectX proxy that renders each draw twice).
-It is backward compatibility, for games whose camera cannot be reached, and
-never the model for new work: new work takes the camera. This formula is for games
-that already have one.
+(a DirectX proxy; in iZ3D's tradition it renders each draw twice).
+Our work on it brings it to the same design as this formula: it takes the camera
+the game hands the API and renders that camera's view for each eye, keeping the
+per-draw shift inside as the fallback for draws that show no camera.
+This formula is for games that already have a VR mode.
 
 ## 1. The eyes: a window, not a headset
 
