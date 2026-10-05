@@ -394,6 +394,14 @@ packages are **not hosted here** — they live in Daniel's offline
 private archive (see the scope note above and the private-material
 section of the partner guide).
 
+## Licence
+
+This is open work.
+The code here (scripts, tools, units and configuration under `tools/` and elsewhere) is free software under the GNU General Public License, version 2 or, at your option, any later version: see [LICENSE](LICENSE).
+The documentation, research notes, measurements, logs and photographs (under `docs/`, `data/` and the Markdown files) are under Creative Commons Attribution 4.0 International: see [LICENSE-CC-BY-4.0](LICENSE-CC-BY-4.0).
+A file or folder that carries its own licence keeps it: the files marked `SPDX-License-Identifier: CC0-1.0`, and `tools/vr-stereo-spectator/`, whose `sourcevr` and `steamvr` folders hold their own licence files.
+Third-party material referenced or mirrored here (the public certificates under `certs/`, quoted specifications and pages) belongs to its owners and is not relicensed by this notice.
+
 ## Legal note
 
 This project studies devices the author owns. Sony-distributed material
