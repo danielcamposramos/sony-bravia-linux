@@ -1,3 +1,5 @@
+> This now lives at https://github.com/Sparky-OS/sparky-stereo-os/blob/main/docs/formula.md; this copy stays for the links already shared and is no longer updated.
+
 # From a VR engine to a 3D display: the formula
 
 A game with a VR mode already renders two eyes. A 3D television, projector or
