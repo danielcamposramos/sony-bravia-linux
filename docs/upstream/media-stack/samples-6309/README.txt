@@ -83,10 +83,21 @@ HEVC companion samples (2026-09-19)
 
 x265 has no frame-packing option (checked against 3.5 on Debian testing and
 4.1 on Debian trixie, both report "Unknown option"), so the HEVC samples are
-plain x265 elementary streams with a spec-exact frame packing arrangement SEI
-injected before the first IDR by hevc_inject_frame_packing.py from this
-directory. The payload bytes were verified by hand against Rec. ITU-T H.265
-D.2.7 (e.g. side by side, frame0 = left view: 81 81 2C 02 80).
+plain x265 elementary streams with a frame packing arrangement SEI injected
+before the first IDR by hevc_inject_frame_packing.py from this directory,
+following Rec. ITU-T H.265 (08/2021), D.2.16 (side by side, frame0 = left view:
+payload 81 81 00 00 00 02, the NAL unit 4E 01 2D 06 81 81 00 00 03 00 02 80).
+
+Correction, 2026-10-05: the script as first published here wrote a malformed
+message (payload 81 81 2C 02 80): current_frame_is_frame0_flag before
+field_views_flag, the four grid position fields missing, both self-contained
+flags set, and no rbsp_trailing_bits after the message. The arrangement type
+and the content interpretation type, the two fields a reader of the layout
+uses, were right, so the layout was read correctly; a strict parser reads the
+later fields wrongly. HEVC samples made with the script before this date carry
+that message. The script is corrected; its output now equals, byte for byte,
+what our `--frame-packing` patch for x265 writes, and FFmpeg's trace_headers
+parses every field with the expected value.
 
     ffmpeg -f lavfi -i "testsrc2=size=1280x720:rate=25" \
            -f lavfi -i "smptebars=size=1280x720:rate=25" \
