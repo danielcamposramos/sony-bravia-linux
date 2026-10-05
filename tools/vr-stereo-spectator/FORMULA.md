@@ -100,6 +100,10 @@ This formula is for games that already have a VR mode.
   is drawn with the eye projection. Making the two fields of view agree
   puts them back (`viewmodel_fov 90` in Half-Life 2; a cheat-protected
   setting today).
+- Effects that remember past frames keep that memory per eye. Half-Life
+  2's motion blur keeps one previous view for both eyes, so each eye blurs
+  against the other eye's camera and the mouse movement smears; it is off
+  in 3D until it keeps one per eye.
 
 ## 7. Input: one window, two eyes
 
