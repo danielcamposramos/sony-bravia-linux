@@ -1,3 +1,5 @@
+> This now lives at https://github.com/Sparky-OS/sparky-stereo-os/blob/main/docs/first-runs/kwin-2026-10-01/README.md; this copy stays for the links already shared and is no longer updated.
+
 # KWin stereo 3D: the first runs on real TVs, 2026-10-01 to 10-03
 
 Evidence for the KWin stereo work under review in [plasma/kwin #324](https://invent.kde.org/plasma/kwin/-/work_items/324). The design in one page: [STEREO3D.md](https://invent.kde.org/danielcamposramos/kwin/-/blob/stereo3d/STEREO3D.md). Code: the `stereo3d` branch of [invent.kde.org/danielcamposramos/kwin](https://invent.kde.org/danielcamposramos/kwin/-/tree/stereo3d).
