@@ -629,3 +629,31 @@ commits; both comment IDs returned by the Codeberg API at creation and stored in
 `reply-6309-hevc-samples-and-6312-rework.md` (bodies in that file verbatim).
 
 **Whose move: mbunkus** (final review/merge of !6312).
+
+## Correction of the HEVC samples on !6312 — **POSTED 2026-10-05 as [comment 24747750](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312#issuecomment-24747750)**
+
+The injector in `../samples-6309/` wrote a malformed HEVC frame packing arrangement SEI (found while writing the `--frame-packing` option for x265, [Multicorewareinc/x265#986](https://github.com/Multicorewareinc/x265/pull/986); corrected here in pull request #7). The set uploaded on 2026-09-20 was made with it. The corrected set was uploaded to `/6309/hevc-corrected/` on the maintainer's server on 2026-10-05 (2 base streams, the 4 variants as `.h265`, `.mp4`, `.ts` and a stock mkvmerge v101 `.mkv`, the fixed script, a README), then this comment was posted, text approved by Daniel:
+
+```
+A correction to the HEVC samples I uploaded for this, the /6309/ set from 2026-09-20.
+
+The script that injected the SEI wrote a malformed message.
+The frame packing type and the content interpretation type were right, and those are the two fields this MR reads, so its results on the samples are the same.
+The rest of the payload was wrong: `field_views_flag` and `current_frame_is_frame0_flag` were swapped, the four grid position fields were missing, both self-contained flags were set, and the NAL unit did not end with `rbsp_trailing_bits`.
+My note that the bytes were verified by hand against D.2.7 was wrong as well: the syntax is in D.2.16 (H.265, 08/2021), and the check missed those fields.
+
+I found it while writing the `--frame-packing` option for x265 (Multicorewareinc/x265#986), where the bytes are compared with an independent writer.
+
+The script is fixed and the set is regenerated.
+For side by side with the left view first the payload is now `81 81 00 00 00 02`, where it was `81 81 2C 02 80`, and FFmpeg's `trace_headers` parses every field with the expected value.
+The first two bytes, which carry the type and the content interpretation, are identical in the old and the new files.
+
+The corrected set is in /6309/hevc-corrected/ on your server, with the fixed script and a README.
+The old HEVC files in /6309/ can be deleted.
+The unit tests here build their own payload with only the leading fields, so they are not affected.
+I also corrected the provenance sentence in the description above.
+
+Sorry for the noise.
+```
+
+In the description of !6312 the provenance sentence was corrected at the same time. It now reads: "Sample provenance: x265 does not offer frame packing (checked 3.5 and 4.1), so the samples carry an SEI injected by a script, written as Rec. ITU-T H.265 (08/2021) D.2.16 says and checked field by field with FFmpeg's `trace_headers`. The set, with the script and a README, is in /6309/hevc-corrected/ on your server."
