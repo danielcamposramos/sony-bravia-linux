@@ -3,8 +3,14 @@
 
 The message is written as a prefix SEI NAL unit immediately before the first
 IRAP picture, which is where encoders (e.g. x264 for AVC) place it. The syntax
-follows Rec. ITU-T H.265, annex D.2.7 / D.3.7; the leading fields are the same
-as in Rec. ITU-T H.264.
+follows Rec. ITU-T H.265 (08/2021), D.2.16 and D.3.16; the leading fields are the
+same as in Rec. ITU-T H.264.
+
+Corrected 2026-10-05: until then this script wrote current_frame_is_frame0_flag
+before field_views_flag, left out the four grid position fields, set both
+self-contained flags, left out upsampled_aspect_ratio_flag when cancelling and
+did not end the NAL unit with rbsp_trailing_bits. The arrangement type and the
+content interpretation, which are what readers of the layout use, were right.
 
 Usage: hevc_inject_frame_packing.py in.h265 out.h265 [--type 3] [--ci 1|2] [--cancel]
 """
@@ -55,28 +61,33 @@ def build_sei_nalu(arrangement_type, content_interpretation_type, cancel):
     w.put_ue(0)                    # frame_packing_arrangement_id
     w.put(1 if cancel else 0, 1)   # frame_packing_arrangement_cancel_flag
 
-    if cancel:
-        w.align_with_trailing_bits()
-    else:
+    if not cancel:
         w.put(arrangement_type, 7)              # frame_packing_arrangement_type
         w.put(0, 1)                             # quincunx_sampling_flag
         w.put(content_interpretation_type, 6)   # content_interpretation_type
         w.put(0, 1)                             # spatial_flipping_flag
         w.put(0, 1)                             # frame0_flipped_flag
-        w.put(1, 1)                             # current_frame_is_frame0_flag
         w.put(0, 1)                             # field_views_flag
-        w.put(1, 1)                             # frame0_self_contained_flag
-        w.put(1, 1)                             # frame1_self_contained_flag
+        w.put(0, 1)                             # current_frame_is_frame0_flag
+        w.put(0, 1)                             # frame0_self_contained_flag
+        w.put(0, 1)                             # frame1_self_contained_flag
+        if arrangement_type != 5:               # quincunx_sampling_flag is 0 here
+            w.put(0, 4)                         # frame0_grid_position_x
+            w.put(0, 4)                         # frame0_grid_position_y
+            w.put(0, 4)                         # frame1_grid_position_x
+            w.put(0, 4)                         # frame1_grid_position_y
         w.put(0, 8)                             # frame_packing_arrangement_reserved_byte
         w.put(1, 1)                             # frame_packing_arrangement_persistence_flag
-        w.put(0, 1)                             # upsampled_aspect_ratio_flag
+    w.put(0, 1)                                 # upsampled_aspect_ratio_flag (also when cancelling)
+    if w.pos:
+        # sei_payload(): payload_bit_equal_to_one and zeros, only when the payload is not byte aligned
         w.align_with_trailing_bits()
 
     payload = bytes(w.bytes)
     assert len(payload) < 255
 
     header = bytes([39 << 1, 1])   # nal_unit_type 39 (prefix SEI), nuh_layer_id 0, nuh_temporal_id_plus1 1
-    message = bytes([45, len(payload)]) + payload
+    message = bytes([45, len(payload)]) + payload + b"\x80"   # then rbsp_trailing_bits
 
     return header + bytes(escape_ebsp(message))
 
