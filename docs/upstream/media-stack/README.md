@@ -8,7 +8,7 @@ the **diagnosis + a working fix**, not just a feature request.
 
 **Status: all 9 original targets engaged + 4 more filed 2026-09-18 (see
 the ecosystem section below).** **4 merged** (HandBrake PR #8100;
-UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0`; MKVToolNix
+UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0` and released in 15.9.0 on 2026-10-05; MKVToolNix
 !6311, 2026-09-21; mpv PR #18490, 2026-09-23 by kasper93), the rest
 posted/filed — including mkvmerge, whose Codeberg signup had read as a
 paywall but turned out to be the donate page wearing the same layout
@@ -109,6 +109,8 @@ halves of the finding:**
   E-AC3 is now declared for MP4 on all three (decoded up to 7.1, shown as
   "Dolby Digital Plus"); DTS-silent and Matroska-not-advertised are
   recorded as comments so the next person does not rediscover them.
+
+**Released in [15.9.0](https://github.com/UniversalMediaServer/UniversalMediaServer/releases/tag/15.9.0) on 2026-10-05.** The tag contains the merge (`bd032ab0f8e6` is an ancestor of `15.9.0`). The changelog lists "Enable media players to automatically detect when videos are 3D (thanks, Daniel Ramos!)" under General and "Improved support for Sony TVs from 2011 to current (thanks, Daniel Ramos!)" under Media players. The [announcement](https://github.com/UniversalMediaServer/UniversalMediaServer/discussions/6377) thanks Daniel among the release's first-time contributors. 15.9.0 is a pre-release: it is out first through the project's Patreon and becomes public with the next release.
 
 **Issue #6329 answered in the owner's words and closed**, pointing at the
 PR ([issuecomment-5738661601](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329#issuecomment-5738661601)).
