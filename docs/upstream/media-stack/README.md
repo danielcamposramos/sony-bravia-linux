@@ -112,6 +112,17 @@ halves of the finding:**
 
 **Released in [15.9.0](https://github.com/UniversalMediaServer/UniversalMediaServer/releases/tag/15.9.0) on 2026-10-05.** The tag contains the merge (`bd032ab0f8e6` is an ancestor of `15.9.0`). The changelog lists "Enable media players to automatically detect when videos are 3D (thanks, Daniel Ramos!)" under General and "Improved support for Sony TVs from 2011 to current (thanks, Daniel Ramos!)" under Media players. The [announcement](https://github.com/UniversalMediaServer/UniversalMediaServer/discussions/6377) thanks Daniel among the release's first-time contributors. 15.9.0 is a pre-release: it is out first through the project's Patreon and becomes public with the next release.
 
+**Daniel's reply on the release announcement, posted 2026-10-05 20:32 UTC** ([discussion #6377, comment 18765634](https://github.com/UniversalMediaServer/UniversalMediaServer/discussions/6377#discussioncomment-18765634)), approved by him and sent as him; it also announces the edition ahead of its release:
+
+> Thank you for the release, and for asking for the code in the first place.
+> #6329 was only a report of what my two Sony sets do. Your question turned it into a patch.
+> It is good to see it ship next to the Philips work and the Ukrainian translation.
+>
+> A word on where it goes next: Sparky Stereo OS, an edition of SparkyLinux for stereo 3D, is on its way, and Universal Media Server is its DLNA server.
+> Our first ISO will probably be out before 15.9.0 is public, so it offers your current public version as an install option.
+> 15.9.0 becomes the default when you release it, exactly as you ship it, because the 3D signal is the whole point of the edition.
+> The project will live at sparkyos.org soon. Until then: https://github.com/Sparky-OS/sparky-stereo-os
+
 **Issue #6329 answered in the owner's words and closed**, pointing at the
 PR ([issuecomment-5738661601](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329#issuecomment-5738661601)).
 
