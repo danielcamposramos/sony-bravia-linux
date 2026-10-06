@@ -304,7 +304,7 @@ German fourteen years ago, stopping exactly where the missing SEI stops
 everyone. A companion thread from a **KDL-40EX725** owner (Sep 2011)
 confirms the video 3D menu offers *Nebeneinander* and *Untereinander*
 as manual formats
-([thread](http://www.hifi-forum.de/viewthread-144-6530.html)) — the
+([thread](https://www.hifi-forum.de/viewthread-144-6530.html), [archived 2026-09-18](https://web.archive.org/web/20260918113115/https://www.hifi-forum.de/viewthread-144-6530.html)) — the
 side-by-side entry that the photo menu, on the same sets, does not
 have.
 
