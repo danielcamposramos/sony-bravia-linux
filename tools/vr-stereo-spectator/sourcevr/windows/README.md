@@ -1,6 +1,6 @@
 # Windows builds of the display module, from Linux
 
-The module (`src/sourcevr_display` on [Daniel's fork of Valve's SDK](https://github.com/danielcamposramos/source-sdk-2013/tree/stereo3d-full-res-wip/src/sourcevr_display)) builds for Windows in Valve's own route (VPC, Visual Studio 2022). These scripts build it from Linux instead, for testing before a Windows boot, and load it under Wine.
+The module (`src/sourcevr_display` on [the Sparky Stereo OS fork of Valve's SDK](https://github.com/Sparky-OS/source-sdk-2013/tree/stereo3d-full-res-wip/src/sourcevr_display)) builds for Windows in Valve's own route (VPC, Visual Studio 2022). These scripts build it from Linux instead, for testing before a Windows boot, and load it under Wine.
 
 Today's Half-Life 2 on Windows is 32-bit (Steam launches `hl2.exe` and lists no 64-bit Half-Life 2; Half-Life 2: Deathmatch has `hl2mp_win64.exe`), so both architectures are built: x86 for Half-Life 2 today, x64 for the 64-bit Source engines and the future (Daniel: 64-bit is the main one).
 

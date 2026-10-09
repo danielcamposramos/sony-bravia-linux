@@ -20,7 +20,7 @@ This folder's `sourcevr_tv.cpp` is the first, standalone module, set up
 through `SVRTV_*` variables or `svrtv.ini`; its records below stay as the
 history. The current version lives in Daniel's fork of Valve's SDK, being
 prepared as a pull request to Valve:
-[source-sdk-2013, branch `stereo3d-sbs-native`](https://github.com/danielcamposramos/source-sdk-2013/tree/stereo3d-sbs-native/src/sourcevr_display).
+[source-sdk-2013, branch `stereo3d-sbs-native`](https://github.com/Sparky-OS/source-sdk-2013/tree/stereo3d-sbs-native/src/sourcevr_display).
 It adds the 3D section to the game's own options (Stereo 3D, 3D format,
 3D output, Swap eyes, one reload on Apply), half top and bottom and half
 side by side natively, and anaglyph, row-interleaved and checkerboard

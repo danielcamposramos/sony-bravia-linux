@@ -131,7 +131,7 @@ Please report with that log: https://github.com/danielcamposramos/sony-bravia-li
 
 SOURCE AND LICENSE
 
-Source: https://github.com/danielcamposramos/source-sdk-2013 (branch stereo3d-full-res-wip, src/sourcevr_display), under the Source 1 SDK License; rebuild it byte for byte with src/sourcevr_display/build32-hl2.sh.
+Source: https://github.com/Sparky-OS/source-sdk-2013 (branch stereo3d-full-res-wip, src/sourcevr_display), under the Source 1 SDK License; rebuild it byte for byte with src/sourcevr_display/build32-hl2.sh.
 The story, measurements and test runs: https://github.com/danielcamposramos/sony-bravia-linux/tree/main/tools/vr-stereo-spectator
 Built by Daniel Campos Ramos, with AI assistance (Claude); every run checked on a 3D TV by Daniel.
 menu/gamepadui/options.res is the game's own options file with the 3D section added.

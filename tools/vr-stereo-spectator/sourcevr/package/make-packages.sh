@@ -9,7 +9,7 @@
 set -e
 OUT=$1 X86=$2 X64=$3 SO=$4 SO64=$5 FX=$6 RES=$7 COMMIT=$8
 HERE=$(cd "$(dirname "$0")" && pwd)
-SRCURL="https://github.com/danielcamposramos/source-sdk-2013 branch stereo3d-full-res-wip, commit $COMMIT (src/sourcevr_display)"
+SRCURL="https://github.com/Sparky-OS/source-sdk-2013 branch stereo3d-full-res-wip, commit $COMMIT (src/sourcevr_display)"
 rm -rf "$OUT/svrtv-hl2-3d-windows" "$OUT/svrtv-hl2-3d-linux"
 W="$OUT/svrtv-hl2-3d-windows" L="$OUT/svrtv-hl2-3d-linux"
 mkdir -p "$W/x86" "$W/x64" "$W/menu/gamepadui" "$L/menu/gamepadui" "$L/linux64"
