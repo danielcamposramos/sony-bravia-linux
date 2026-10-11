@@ -78,8 +78,9 @@ merged 2026-09-19, after its maintainer read the measurements and asked
 for the code) — the encoder end and the server end of the same chain.
 Universal Media Server shipped it in [15.9.0](https://github.com/UniversalMediaServer/UniversalMediaServer/releases/tag/15.9.0) on 2026-10-05, with these two lines in its changelog: "Enable media players to automatically detect when videos are 3D (thanks, Daniel Ramos!)" and "Improved support for Sony TVs from 2011 to current (thanks, Daniel Ramos!)".
 **MKVToolNix** now carries it into Matroska
-([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311), merged
-2026-09-21), and **mpv** now reads it
+([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) for H.264, merged
+2026-09-21, and [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) for HEVC, merged 2026-10-11 with the
+maintainer's own tests), and **mpv** now reads it
 ([PR #18490](https://github.com/mpv-player/mpv/pull/18490), merged
 2026-09-23 by its lead maintainer, kasper93). Everyone with one of these
 televisions benefits from those merges without ever finding this
@@ -177,8 +178,8 @@ merged 2026-09-21), mpv reads the layout from the stream when it plays
 stops transcoding what these sets already play
 ([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
 merged 2026-09-19, released in 15.9.0 on 2026-10-05). The UMS patch was written after its maintainer read
-the measurements and asked for code. In review: MKVToolNix's HEVC half and
-two FFmpeg PRs; VLC's fix ships in our own builds.
+the measurements and asked for code. MKVToolNix's HEVC half followed on
+2026-10-11. In review: two FFmpeg PRs; VLC's fix ships in our own builds.
 
 Full drafts, per-target status,
 and links live in
@@ -197,7 +198,7 @@ short form linked in every upstream post is
 | x265 | [issue #970](https://github.com/Multicorewareinc/x265/issues/970): the maintainers asked for a dedicated `--frame-packing` option, so it became **[PR #986](https://github.com/Multicorewareinc/x265/pull/986)** (CI green, contributor agreement sent); MulticoreWare is reviewing it and running independent bitstream tests against the reference SEI bytes (2026-10-06). The patch and the two stereo captures are in [docs/upstream/media-stack/x265-970/](docs/upstream/media-stack/x265-970/) |
 | mpv | **[PR #18490 merged](https://github.com/mpv-player/mpv/pull/18490)** (2026-09-23, by kasper93, closing [issue #18489](https://github.com/mpv-player/mpv/issues/18489)) — mpv reads the layout signalled in the stream (frame-packing SEI, MP4 `st3d`), and the bitstream wins over the container tag; kasper93 added three follow-ups of his own on top. Completes the pipeline end to end |
 | BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756) — answered, closed out, cross-brand confirmed (Samsung) |
-| MKVToolNix | **[!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) (AVC) merged 2026-09-21; [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) (HEVC) in final review**, from [#6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309). The HEVC branch was rebased over the merge, its sample set acknowledged by mbunkus, and all seven technical requests answered. Testing his review also found that `mkvmerge --stereo-mode 0:0` discarded an explicitly requested "mono"; the fix landed with the AVC work |
+| MKVToolNix | **[!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) (AVC) merged 2026-09-21; [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) (HEVC) merged 2026-10-11** (`70889f220e`, with tests of the maintainer's own around our test files, `db3410509d`; #6309 closed), from [#6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309). The HEVC branch was rebased over the merge, its sample set acknowledged by mbunkus, and all seven technical requests answered. Testing his review also found that `mkvmerge --stereo-mode 0:0` discarded an explicitly requested "mono"; the fix landed with the AVC work |
 | Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — DLNA profile mislabel (first version was wrong and corrected in place). **Verified by Daniel on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |
 | Jellyfin | [comment on PR #18060](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078) (layout-detection point) |
 | Universal Media Server | **[PR #6330 merged](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)** (2026-09-19) — the maintainer read the measurements on [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) and asked for code. Writes the frame-packing SEI on libx264 transcodes, and corrects the 2011–2012 Bravia profiles: the EX725 profile had **no MP4 line at all**, so every MP4 was transcoded on a set that plays it directly, and **E-AC3 is now declared** (decoded to 7.1, shown as *Dolby Digital Plus*). **Released in [15.9.0](https://github.com/UniversalMediaServer/UniversalMediaServer/releases/tag/15.9.0)** (2026-10-05), credited in its changelog |
