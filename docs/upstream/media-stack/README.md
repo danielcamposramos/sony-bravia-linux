@@ -9,7 +9,7 @@ the **diagnosis + a working fix**, not just a feature request.
 **Status: all 9 original targets engaged + 4 more filed 2026-09-18 (see
 the ecosystem section below).** **4 merged** (HandBrake PR #8100;
 UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0` and released in 15.9.0 on 2026-10-05; MKVToolNix
-!6311, 2026-09-21; mpv PR #18490, 2026-09-23 by kasper93), the rest
+!6311, 2026-09-21, and !6312, 2026-10-11; mpv PR #18490, 2026-09-23 by kasper93), the rest
 posted/filed — including mkvmerge, whose Codeberg signup had read as a
 paywall but turned out to be the donate page wearing the same layout
 (account created; issue filed). First audience-facing target: the LTT
