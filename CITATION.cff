@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+type: software
+title: "sony-bravia-linux: a right-to-repair revival of pre-Android Sony BRAVIA TVs"
+abstract: "A right-to-repair revival of pre-Android Sony BRAVIA TVs (KDL EX7xx and HX8xx, 2011-12): an owner-run media stack, and the 3D fix, the missing H.264 frame-packing SEI that makes 3D files play flat (merged in HandBrake). Tools for side-by-side, MPO, JPS and anaglyph 3D photos and video, and documentation in 11 languages. Code under GPL-2.0-or-later; documentation, measurements and photographs under CC BY 4.0."
+authors:
+  - family-names: "Ramos"
+    given-names: "Daniel Campos"
+    orcid: "https://orcid.org/0009-0001-4546-8673"
+license:
+  - GPL-2.0-or-later
+  - CC-BY-4.0
+repository-code: "https://github.com/danielcamposramos/sony-bravia-linux"
+keywords:
+  - "right to repair"
+  - "Sony BRAVIA"
+  - "3D TV"
+  - "stereoscopic 3D"
+  - "frame packing"
+  - "H.264 SEI"
+  - "DLNA"
+  - "embedded Linux"
+  - "planned obsolescence"
+  - "anaglyph"
