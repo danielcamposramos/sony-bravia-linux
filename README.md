@@ -1,5 +1,7 @@
 # sony-bravia-linux
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23308991.svg)](https://doi.org/10.5281/zenodo.23308991)
+
 Reverse-engineering and software porting for **Sony BRAVIA KDL-era TVs** — the
 pre-Android, Linux-based BRAVIA platform (~2005–2015). Goal: understand the
 platform well enough to run third-party software on it (e.g. VLC) and unlock

@@ -10,6 +10,7 @@ authors:
 license:
   - GPL-2.0-or-later
   - CC-BY-4.0
+doi: "10.5281/zenodo.23308991"
 repository-code: "https://github.com/danielcamposramos/sony-bravia-linux"
 keywords:
   - "right to repair"
