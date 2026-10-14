@@ -1,6 +1,8 @@
 # tools
 
-Everything this project runs, tests or measures with. Each folder has its own README with the details. The single files carry their notes in their header.
+Everything this project runs, tests or measures with.
+Each folder has its own README with the details.
+The single files carry their notes in their header.
 
 Project status and the partner guide: [docs/project-status.md](../docs/project-status.md).
 

@@ -65,7 +65,7 @@
    - An explicit request for complete corresponding source, including the kernel `.config` and build scripts.
 
    Send it through the form and by physical letter, and keep dated records.
-3. **Escalate to Software Freedom Conservancy** (compliance@sfconservancy.org). SFC enforces for BusyBox, which is on your list, and for some Linux copyright holders. Only copyright holders have standing. SFC v. Vizio's third-party-beneficiary theory is relevant; check where that case stands now. Go public via FULU or Rossmann only after a documented non-response.
+3. **Escalate to Software Freedom Conservancy** (its compliance address, published at sfconservancy.org). SFC enforces for BusyBox, which is on your list, and for some Linux copyright holders. Only copyright holders have standing. SFC v. Vizio's third-party-beneficiary theory is relevant; check where that case stands now. Go public via FULU or Rossmann only after a documented non-response.
 4. **Better odds than any letter:** run a Wayback CDX prefix query on `sony.net/Products/Linux/Download/*` and match tarballs by platform rather than model page. The BRA/BRB/GAA builds share platform IDs, so another region's page may link the same kernel.
 
 ## 5. Red-team findings

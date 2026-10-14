@@ -92,7 +92,7 @@ documented on the front page; ask in their Zulip once registered).
   (frame-packing SEI), service-mode findings, board/chassis notes
   (AZ2-F / AZ3). Anything a future owner-repairer would need.
 
-## 3. youtube@rossmanngroup.com — the man himself
+## 3. Louis Rossmann's video-channel inbox — the man himself
 
 His channel lists this as the contact, with the note
 **"Louis reads this (if not written by AI)"** — so the email must be
@@ -165,9 +165,9 @@ no GitHub presence exists.)
 3. Serviio forum post — DONE (see section 4)
 4. Hand-written email — SENT 2026-09-13 (hand-rewritten by the owner; archive
    offer + password included; response window is weeks, not days — Louis
-   reads them all but slowly). Sent to BOTH youtube@rossmanngroup.com
-   (Louis's video-channel inbox) and help@rossmanngroup.com (verified legit:
-   the repair-shop help line, published on boards.rossmanngroup.com —
+   reads them all but slowly). Sent to BOTH Louis's video-channel inbox
+   and the repair-shop help line (verified legit:
+   published on boards.rossmanngroup.com —
    staff-triaged, board-repair techs, a second and arguably warmer
    audience). Awaiting reply from either.
 5. Archive handover to RPG/FULU if they take it up

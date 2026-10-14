@@ -1,8 +1,11 @@
 # SteamVR on a 3D display: the stereodisplay driver
 
-Everything SteamVR draws (SteamVR Home, the dashboard with Big Picture, any VR game, the stereo screenshots it keeps) shown in stereo on a 3D television, projector or monitor, with the display as the headset. Daniel, 2026-09-28: "we should port VR Big Picture to 3DTVs". It is the spectator at the level of SteamVR instead of one game, and where the stereo captures get reviewed.
+Everything SteamVR draws (SteamVR Home, the dashboard with Big Picture, any VR game, the stereo screenshots it keeps) shown in stereo on a 3D television, projector or monitor, with the display as the headset.
+Daniel, 2026-09-28: "we should port VR Big Picture to 3DTVs".
+It is the spectator at the level of SteamVR instead of one game, and where the stereo captures get reviewed.
 
-It is Valve's own virtual-headset sample, OpenVR's `samples/drivers/drivers/simplehmd` (BSD-3-Clause, [LICENSE-OPENVR](LICENSE-OPENVR)), whose display is already a desktop window with each eye in half of it and no lens. The first commit here is the sample unchanged; the changes for a 3D display are their own commit:
+It is Valve's own virtual-headset sample, OpenVR's `samples/drivers/drivers/simplehmd` (BSD-3-Clause, [LICENSE-OPENVR](LICENSE-OPENVR)), whose display is already a desktop window with each eye in half of it and no lens.
+The first commit here is the sample unchanged; the changes for a 3D display are their own commit:
 
 - **Layout:** side by side (left eye left) or top and bottom (left eye on top), as HDMI 1.4 packs them; the display stretches each half back to the whole screen.
 - **Eyes:** [FORMULA.md](../FORMULA.md), section 1: a window, not a headset. The eyes look straight ahead, half the IPD to each side, and each eye's view is shifted so both frame the same screen at `screen_distance_meters`, where depth is zero.
@@ -18,7 +21,10 @@ Settings (`stereodisplay/resources/settings/default.vrsettings`, section `stereo
 
 ## Status
 
-**2026-09-28, 18:56: SteamVR on a 3D TV, side by side, in direct mode.** The KDL-46EX725 on the RTX 3060 (`card1-HDMI-A-2`), marked as a head-mounted display with `hmd-edid.py` (its own EDID plus a DisplayID 2.0 block, primary use "head-mounted VR"; loaded through the kernel's `edid_override` and a forced reconnect, after which the connector reported `non-desktop = 1` and KWin gave the display up). SteamVR's compositor leased it ("Tried to find direct display through Wayland: 0x…", "Acquired drm display!", "Headset is using direct mode") and drew SteamVR's environment side by side on the TV (Daniel: "it opened though!!! sbs on the 725!"). Open: input (SteamVR expects VR controllers; the driver has only a system button), the repeated "WaitForPendingPresent: failed to wait for present", and the 60 Hz mode (SteamVR asked for 90 Hz and took the TV's mode 0).
+**2026-09-28, 18:56: SteamVR on a 3D TV, side by side, in direct mode.**
+The KDL-46EX725 on the RTX 3060 (`card1-HDMI-A-2`), marked as a head-mounted display with `hmd-edid.py` (its own EDID plus a DisplayID 2.0 block, primary use "head-mounted VR"; loaded through the kernel's `edid_override` and a forced reconnect, after which the connector reported `non-desktop = 1` and KWin gave the display up).
+SteamVR's compositor leased it ("Tried to find direct display through Wayland: 0x…", "Acquired drm display!", "Headset is using direct mode") and drew SteamVR's environment side by side on the TV (Daniel: "it opened though!!! sbs on the 725!").
+Open: input (SteamVR expects VR controllers; the driver has only a system button), the repeated "WaitForPendingPresent: failed to wait for present", and the 60 Hz mode (SteamVR asked for 90 Hz and took the TV's mode 0).
 
 This is the proof, not the product (Daniel): SteamVR is closed, and the right home for a 3D-display target is SteamVR itself, offering any chosen display as a direct-mode 3D display with no EDID mark.
 

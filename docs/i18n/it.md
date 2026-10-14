@@ -2,7 +2,9 @@
 
 <!-- lang: it · canonical source: ../../README.md (English) · translated 2026-09-18 -->
 
-Questo progetto riporta in vita i BRAVIA precedenti ad Android (serie KDL, 2010–2012) dopo che Sony ne ha spento i servizi online, interamente sulla rete di casa del proprietario. Il firmware non viene modificato e nessun DRM viene toccato. Il **diritto alla riparazione**, in pratica.
+Questo progetto riporta in vita i BRAVIA precedenti ad Android (serie KDL, 2010–2012) dopo che Sony ne ha spento i servizi online, interamente sulla rete di casa del proprietario.
+Il firmware non viene modificato e nessun DRM viene toccato.
+Il **diritto alla riparazione**, in pratica.
 
 ## Cercavi questo?
 
@@ -43,4 +45,5 @@ Questa pagina risponde a domande come:
 
 ---
 
-*Tradotto dall'inglese il 18 settembre 2026. Le correzioni da parte di madrelingua sono benvenute: apri una issue.*
+*Tradotto dall'inglese il 18 settembre 2026.
+Le correzioni da parte di madrelingua sono benvenute: apri una issue.*

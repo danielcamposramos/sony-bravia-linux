@@ -1,9 +1,11 @@
 # How often the frame-packing SEI is actually attached to a frame
 
-Runnable evidence for the "why the first frame was not enough" half of [mpv PR #18490](https://github.com/mpv-player/mpv/pull/18490): the `frame_packing_arrangement` SEI reaches libavcodec as `AV_FRAME_DATA_STEREO3D` on **keyframes only**, so a player that reads the side data once and then lets `fix_image_params()` run again on the next frame loses the layout. That is what the PR's second commit (`f_decoder_wrapper: keep in-band stereo 3D layout across frames`) fixes.
+Runnable evidence for the "why the first frame was not enough" half of [mpv PR #18490](https://github.com/mpv-player/mpv/pull/18490): the `frame_packing_arrangement` SEI reaches libavcodec as `AV_FRAME_DATA_STEREO3D` on **keyframes only**, so a player that reads the side data once and then lets `fix_image_params()` run again on the next frame loses the layout.
+That is what the PR's second commit (`f_decoder_wrapper: keep in-band stereo 3D layout across frames`) fixes.
 
 The point of this file is that nobody has to take the numbers on faith.
-It needs no patched mpv and no sample downloads. Stock ffmpeg, four commands, about ten seconds.
+It needs no patched mpv and no sample downloads.
+Stock ffmpeg, four commands, about ten seconds.
 
 ## The block
 
@@ -62,9 +64,13 @@ Same counts and the same frame indices across three major FFmpeg versions, so th
 
 Two details do real work and are easy to leave out.
 
-**The negative control.** `no_sei.mp4` is the same clip encoded without `-x264-params frame-packing=3` and reports `stereo3d_side_data=0`. Without it, a reader cannot tell whether the counter detects the SEI or simply always prints a number.
+**The negative control.** `no_sei.mp4` is the same clip encoded without `-x264-params frame-packing=3` and reports `stereo3d_side_data=0`.
+Without it, a reader cannot tell whether the counter detects the SEI or simply always prints a number.
 
-**The keyframe interval.** `-g 48` over 10 seconds gives five keyframes. A 2-second clip has exactly one, and `1 of 1` cannot distinguish "one per keyframe" from "one per file" — which is precisely the distinction the second commit turns on. Frames 1, 49, 97, 145 and 193 settle the observed file behaviour: x264 physically emits the SEI at each IDR. Its `frame_packing_arrangement_repetition_period = 1` instructs the decoder to retain the arrangement; IDR placement is the tested encoder/file cadence, not the standard's persistence boundary.
+**The keyframe interval.** `-g 48` over 10 seconds gives five keyframes.
+A 2-second clip has exactly one, and `1 of 1` cannot distinguish "one per keyframe" from "one per file", which is precisely the distinction the second commit turns on.
+Frames 1, 49, 97, 145 and 193 settle the observed file behaviour: x264 physically emits the SEI at each IDR.
+Its `frame_packing_arrangement_repetition_period = 1` instructs the decoder to retain the arrangement; IDR placement is the tested encoder/file cadence, not the standard's persistence boundary.
 
 ## Related
 

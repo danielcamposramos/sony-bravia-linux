@@ -1,6 +1,8 @@
 # KEPT, NOT POSTED: SourceTV with tv_transmitall 0 writes demos that re-create every entity each frame
 
-Kept as our record, not posted (Daniel's decision, 2026-09-28): the fix is in Valve's closed engine, so nothing is solvable from our side; the community that relies on demos already records with `tv_transmitall 1` (ETF2L's config since 2009); and the closest report, Source-1-Games #3112, has had no Valve reply since 2020 (#6279 was closed as its duplicate, not fixed). "So we know we know." If it ever matters again, the text below is ready for Daniel to post in his own words.
+Kept as our record, not posted (Daniel's decision, 2026-09-28): the fix is in Valve's closed engine, so nothing is solvable from our side; the community that relies on demos already records with `tv_transmitall 1` (ETF2L's config since 2009); and the closest report, Source-1-Games #3112, has had no Valve reply since 2020 (#6279 was closed as its duplicate, not fixed).
+"So we know we know."
+If it ever matters again, the text below is ready for Daniel to post in his own words.
 
 Target, if posted: ValveSoftware/Source-1-Games (a new issue).
 
@@ -27,9 +29,15 @@ Parsed with a demo parser (per entity: entering, updated, leaving, deleted), fou
 | 0 | 1 | 0.5 MB for 76 s | enter once, then updated |
 | 5 | 1 | 0.5 MB for 87 s | enter once, then updated |
 
-With `tv_transmitall 0` a door, a weapon and every physics prop are each sent as entering in all 2,865 frames of a 172 s recording; only the recording's own player is delta-updated normally. That is 60 times the data, and playback fails when an entity index is reused by another class (here 77: a `CBaseAnimating`, later a `CBaseGrenade`). With `tv_transmitall 1` the demo is normal and plays end to end, first-person spectating included. The delay makes no difference.
+With `tv_transmitall 0` a door, a weapon and every physics prop are each sent as entering in all 2,865 frames of a 172 s recording; only the recording's own player is delta-updated normally.
+That is 60 times the data, and playback fails when an entity index is reused by another class (here 77: a `CBaseAnimating`, later a `CBaseGrenade`).
+With `tv_transmitall 1` the demo is normal and plays end to end, first-person spectating included.
+The delay makes no difference.
 
-The Valve Developer Community's SourceTV page describes the intent: SourceTV "can also record server-side demos that contain the whole game with all entities and events", while with `tv_transmitall 0` "entities and events outside of the auto-director view are removed from SourceTV broadcasts to save bandwidth". The recording looks like the whole frame delta-encoded against the culled broadcast frame: every entity outside the director's view is missing from the reference, so it is written as entering every frame, and the one exception is the player the director follows, which is always in view. The game side (`CServerGameEnts::CheckTransmit`) hands SourceTV every entity, as intended; the culling and the demo writing are in the engine. Not tried: a dedicated server.
+The Valve Developer Community's SourceTV page describes the intent: SourceTV "can also record server-side demos that contain the whole game with all entities and events", while with `tv_transmitall 0` "entities and events outside of the auto-director view are removed from SourceTV broadcasts to save bandwidth".
+The recording looks like the whole frame delta-encoded against the culled broadcast frame: every entity outside the director's view is missing from the reference, so it is written as entering every frame, and the one exception is the player the director follows, which is always in view.
+The game side (`CServerGameEnts::CheckTransmit`) hands SourceTV every entity, as intended; the culling and the demo writing are in the engine.
+Not tried: a dedicated server.
 
 Workaround: `tv_transmitall 1`.
 

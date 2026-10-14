@@ -1,12 +1,9 @@
-# wiz3D — offer of hardware testing on real 3D displays
+# wiz3D: offer of hardware testing on real 3D displays
 
-Target: https://github.com/effcol/wiz3D (LGPL-2.1, active 2026, built on the
-MIT-licensed iZ3D source at https://github.com/bo3b/iZ3D)
+Target: https://github.com/effcol/wiz3D (LGPL-2.1, active 2026, built on the MIT-licensed iZ3D source at https://github.com/bo3b/iZ3D)
 
 No AI policy in the repository (the only "AI" string is `immersity.ai`).
-Their CONTRIBUTING asks for exactly this: "Game testing" and "Output modes —
-test the various stereo output plugins (SBS, anaglyph, interlaced, shutter)",
-and says to open an issue before starting anything large.
+Their CONTRIBUTING asks for exactly this: "Game testing" and "Output modes: test the various stereo output plugins (SBS, anaglyph, interlaced, shutter)", and says to open an issue before starting anything large.
 
 
 ---
@@ -49,7 +46,8 @@ The same discipline applies here: one variable at a time, the exact build, the e
 3. On the AMD side I have a 5600G's integrated Radeon, which looks close to the 5600U iGPU reported working in #6, so I assume the path is fine. Is there anything specific you want checked there, or is the Radeon side better served by game coverage than by another hardware report?
 4. For the 3D Vision work, would a side-by-side comparison against genuine 3D Vision be useful? Your notes say the Automatic Mode games still need convergence and separation wired through to iZ3D and that the shader fixes are not triggering yet, and that is easier to judge against the original behaviour than against a description of it. One question about the reference only, not about wiz3D: the last driver supporting 3D Vision is 425.31, listed by Nvidia for Windows 10, 8.1 and 7, and my Windows installation is 11. If anyone has seen 425.31 run on Windows 11 I will use that, otherwise I will put Windows 10 on the reference machine. My wiz3D testing itself stays on the modern setup, since that is the situation your users are actually in.
 
-One thing you may not have data on, and I can answer: the 3D televisions of this generation accept stereo over HDMI in two different ways, an automatic path and a manual one, and which of them a given output mode lands on is not obvious from the PC side. If that is useful to you, I will write it up properly.
+One thing you may not have data on, and I can answer: the 3D televisions of this generation accept stereo over HDMI in two different ways, an automatic path and a manual one, and which of them a given output mode lands on is not obvious from the PC side.
+If that is useful to you, I will write it up properly.
 
 **One measurement you may find useful, since it is the gap wiz3D sits in.**
 Both operating systems can already see that this television does 3D, and neither offers any way to use it on the desktop.
@@ -60,8 +58,15 @@ There is no desktop path to stereo left on either platform, which is exactly why
 
 **Two suggestions, both about reach rather than code.**
 
-*Proton.* I see #6 already has people running wiz3D under Proton, one of them on a Steam Deck, and that you fixed the HD3D path for Proton systems in 0.2.0. I would treat that as a headline feature rather than a compatibility footnote. Valve has spent years making Proton the way Windows games run on Linux, and it is the one route where stereo can reach a broad audience without asking anyone to keep an old Windows install alive. On my side that also means the same games can be tested through Proton and native Windows on the same machine, with the same GPU and the same television, which isolates the wrapper from the platform.
+*Proton.*
+I see #6 already has people running wiz3D under Proton, one of them on a Steam Deck, and that you fixed the HD3D path for Proton systems in 0.2.0.
+I would treat that as a headline feature rather than a compatibility footnote.
+Valve has spent years making Proton the way Windows games run on Linux, and it is the one route where stereo can reach a broad audience without asking anyone to keep an old Windows install alive.
+On my side that also means the same games can be tested through Proton and native Windows on the same machine, with the same GPU and the same television, which isolates the wrapper from the platform.
 
-*Steam Frame.* Valve's standalone SteamOS headset shipped on 14 September 2026, runs Proton and streams from a PC over its own wireless adapter. That makes a headset a plain output target for a wrapper that already produces side-by-side, and I notice VR output came up in #19 as roadmap. A stereo wrapper whose output can land on a 3D television, a 3D projector or a Steam Frame, through Proton on Linux or natively on Windows, covers essentially every way anyone can still watch stereo.
+*Steam Frame.*
+Valve's standalone SteamOS headset shipped on 14 September 2026, runs Proton and streams from a PC over its own wireless adapter.
+That makes a headset a plain output target for a wrapper that already produces side-by-side, and I notice VR output came up in #19 as roadmap.
+A stereo wrapper whose output can land on a 3D television, a 3D projector or a Steam Frame, through Proton on Linux or natively on Windows, covers essentially every way anyone can still watch stereo.
 
 I also maintain a public list of stereoscopic material, and wiz3D is in it, together with the iZ3D source release and Vadim's name, because that lineage deserves to be recorded: https://github.com/danielcamposramos/awesome-stereoscopy

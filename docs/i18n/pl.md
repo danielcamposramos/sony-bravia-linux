@@ -2,7 +2,9 @@
 
 <!-- lang: pl · canonical source: ../../README.md (English) · translated 2026-09-18 -->
 
-Ten projekt przywraca do życia telewizory BRAVIA sprzed ery Androida (seria KDL, 2010–2012) po tym, jak Sony wyłączyło ich usługi online, w całości w domowej sieci właściciela. Firmware nie jest modyfikowany, a zabezpieczenia DRM nie są naruszane. **Prawo do naprawy** w praktyce.
+Ten projekt przywraca do życia telewizory BRAVIA sprzed ery Androida (seria KDL, 2010–2012) po tym, jak Sony wyłączyło ich usługi online, w całości w domowej sieci właściciela.
+Firmware nie jest modyfikowany, a zabezpieczenia DRM nie są naruszane.
+**Prawo do naprawy** w praktyce.
 
 ## Czy tego szukasz?
 
@@ -43,4 +45,5 @@ Ta strona odpowiada na pytania takie jak:
 
 ---
 
-*Przetłumaczono z angielskiego 18 września 2026. Poprawki od rodzimych użytkowników języka są mile widziane: otwórz issue.*
+*Przetłumaczono z angielskiego 18 września 2026.
+Poprawki od rodzimych użytkowników języka są mile widziane: otwórz issue.*

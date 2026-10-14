@@ -1,11 +1,8 @@
 # AI-contribution policies by upstream target
 
-Compiled 2026-09-20 from documented sources (every page read; freedesktop GitLab
-content verified via mirror because its Anubis bot-wall was NOT bypassed).
+Compiled 2026-09-20 from documented sources (every page read; freedesktop GitLab content verified via mirror because its Anubis bot-wall was NOT bypassed).
 Purpose: before any patch or MR leaves this project, check its row here.
-Our own doctrine (name model+harness on every AI-assisted post, never claim
-"not AI-generated", Daniel signs and posts in his own words) is the baseline;
-each row adds that target's specific requirements on top.
+Our own doctrine (name model+harness on every AI-assisted post, never claim "not AI-generated", Daniel signs and posts in his own words) is the baseline; each row adds that target's specific requirements on top.
 
 ## Kernel and GPU drivers
 
@@ -34,35 +31,17 @@ each row adds that target's specific requirements on top.
 
 ## What satisfies the strictest targets we actually interact with
 
-Combined kernel + mpv/MAME/Dolphin/RPCS3 denominator (PCSX2 is stricter but we
-do not interact with it at all, by project rule):
+Combined kernel + mpv/MAME/Dolphin/RPCS3 denominator (PCSX2 is stricter but we do not interact with it at all, by project rule):
 
-1. Daniel writes and posts every word that reaches a forge. No agent ever
-   opens, edits, or comments — no API, CLI, or web automation, anywhere.
-2. Disclosure in the initial PR text / cover letter: that AI was used, the
-   model and version (MAME names this explicitly), which parts were generated
-   (Dolphin/RPCS3), and what human testing and review happened (RPCS3).
-3. Daniel owns every line: able to explain the change and its decisions
-   without the assistant. No full-code-generation submissions, nothing
-   "clearly vibe-coded" — hardware-evidenced small deltas are our shape.
-4. Domain bans: no LLM-authored changes to emulated-console behavior
-   (Dolphin; apply the same caution to any emulation core we touch); no AI
-   anywhere near mentored programs like VideoLAN GSoC.
-5. Silent projects (Kodi, RetroArch, MKVToolNix project-level): disclose
-   anyway. It violates nobody's policy and it is our doctrine regardless.
+1. Daniel writes and posts every word that reaches a forge. No agent ever opens, edits, or comments: no API, CLI, or web automation, anywhere.
+2. Disclosure in the initial PR text / cover letter: that AI was used, the model and version (MAME names this explicitly), which parts were generated (Dolphin/RPCS3), and what human testing and review happened (RPCS3).
+3. Daniel owns every line: able to explain the change and its decisions without the assistant. No full-code-generation submissions, nothing "clearly vibe-coded": hardware-evidenced small deltas are our shape.
+4. Domain bans: no LLM-authored changes to emulated-console behavior (Dolphin; apply the same caution to any emulation core we touch); no AI anywhere near mentored programs like VideoLAN GSoC.
+5. Silent projects (Kodi, RetroArch, MKVToolNix project-level): disclose anyway. It violates nobody's policy and it is our doctrine regardless.
 
 ## What the strictest target requires (the kernel)
 
-1. Every kernel patch carries Daniel's human `Signed-off-by:` (he certifies
-   the DCO) and an `Assisted-by: LLM Claude Code` style trailer. The AI never
-   signs; in-tree precedent for the tag exists ("Assisted-by: LLM coccinelle
-   sparse"); editors/compilers are not listed.
-2. The cover letter names the tools, describes the inputs, says which portions
-   are tool-generated, how it was tested, and what was NOT done (untested
-   paths, missing reproducers). Our cover-letter draft already carries a
-   version of this; align its wording with the merged docs.
-3. The human sender must understand and be able to defend every line;
-   maintainers are entitled to reject a series without detailed review
-   otherwise. Build clean, pass checkpatch.pl, verify behavior on hardware —
-   which is exactly what this project's [proven] runs already do.
+1. Every kernel patch carries Daniel's human `Signed-off-by:` (he certifies the DCO) and an `Assisted-by: LLM Claude Code` style trailer. The AI never signs; in-tree precedent for the tag exists ("Assisted-by: LLM coccinelle sparse"); editors/compilers are not listed.
+2. The cover letter names the tools, describes the inputs, says which portions are tool-generated, how it was tested, and what was NOT done (untested paths, missing reproducers). Our cover-letter draft already carries a version of this; align its wording with the merged docs.
+3. The human sender must understand and be able to defend every line; maintainers are entitled to reject a series without detailed review otherwise. Build clean, pass checkpatch.pl, verify behavior on hardware, which is exactly what this project's [proven] runs already do.
 4. The AI never submits anything itself, anywhere. Daniel posts everything.

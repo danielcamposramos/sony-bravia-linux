@@ -1,65 +1,53 @@
-# Documentation index — where the manuals are, and where our copies came from
+# Documentation index, where the manuals are, and where our copies came from
 
-**2026-09-17.** Two jobs in one page:
+**2026-09-17.**
+Two jobs in one page:
 
-1. **Point at Sony's own documents.** Linking to a manufacturer's public
-   documentation is lawful and normal; this page does that and hosts
-   nothing.
-2. **Record provenance**, because it decides what may be shared. Our
-   offline copies split cleanly into documents Sony published under their
-   own document numbers, and service manuals that came from third-party
-   archives — never from Sony. That distinction is the whole point of the
-   table below.
+1. **Point at Sony's own documents.** Linking to a manufacturer's public documentation is lawful and normal; this page does that and hosts nothing.
+2. **Record provenance**, because it decides what may be shared. Our offline copies split cleanly into documents Sony published under their own document numbers, and service manuals that came from third-party archives: never from Sony. That distinction is the whole point of the table below.
 
-Nothing is hosted here. Rule 9b stands: the offline library is the
-owner's, it exists so that a Sony takedown does not erase a repair
-document, and any decision to *distribute* belongs to the right-to-repair
-movement, not to this project.
+Nothing is hosted here.
+Rule 9b stands: the offline library is Daniel's, it exists so that a Sony takedown does not erase a repair document, and any decision to *distribute* belongs to the right-to-repair movement, not to this project.
 
 ## How Sony serves these documents
 
-**Verified in a browser, 2026-09-17.** Two different things live at
-Sony, and it matters which one you link:
+**Verified in a browser, 2026-09-17.**
+Two different things live at Sony, and it matters which one you link:
 
-**1. The direct PDF (what you want).**
+**1.
+The direct PDF (what you want).**
 
 ```
 https://www.sony.com/electronics/support/res/manuals/<FIRST-4-OF-DOCID>/<DOCID>.pdf
 ```
 
-e.g. `42730121M` → `.../manuals/4273/42730121M.pdf`. These resolve to the
-actual file. The operating instructions for the KDL-46EX725 are listed
-there at **4.25 MB, release date 15/02/2019** — Sony was still publishing
-revisions seven years after the set shipped, and the size matches our
-offline copy (4 452 072 bytes) exactly.
+e.g. `42730121M` → `.../manuals/4273/42730121M.pdf`.
+These resolve to the actual file.
+The operating instructions for the KDL-46EX725 are listed there at **4.25 MB, release date 15/02/2019**: Sony was still publishing revisions seven years after the set shipped, and the size matches our offline copy (4 452 072 bytes) exactly.
 
-**2. The per-model support page (the human entry point).**
+**2.
+The per-model support page (the human entry point).**
 
 ```
 https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/<model>/manuals
 https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/<model>/manuals
 ```
 
-Confirmed loading for both `kdl-46ex725` and `kdl-46hx855`, **URL stable
-— no redirect**, each listing its PDFs with release dates.
+Confirmed loading for both `kdl-46ex725` and `kdl-46hx855`, **URL stable: no redirect**, each listing its PDFs with release dates.
 
-**A warning for anyone automating this.** Sony's WAF blocks non-browser
-clients, and it does so with **HTTP 200 and a 63 KB "Access Denied"
-body** — not a 403, not a 404. An earlier pass here probed exactly the
-correct `res/manuals/4273/…` URL and recorded it as dead, because the
-status code said success and only a human with a browser could tell the
-difference. Check the *content*, not the status, and confirm anything
-important in a real browser.
+**A warning for anyone automating this.**
+Sony's WAF blocks non-browser clients, and it does so with **HTTP 200 and a 63 KB "Access Denied" body**, not a 403, not a 404.
+An earlier pass here probed exactly the correct `res/manuals/4273/…` URL and recorded it as dead, because the status code said success and only a human with a browser could tell the difference.
+Check the *content*, not the status, and confirm anything important in a real browser.
 
-(`docs.sony.com/release/<DOCID>.pdf` also answers for these document
-numbers, but it is **RefLib**, a Blazor single-page app — a browser
-renders a viewer there; a fetcher gets the app shell. Prefer the
-`res/manuals/` route above for linking.)
+(`docs.sony.com/release/<DOCID>.pdf` also answers for these document numbers, but it is **RefLib**, a Blazor single-page app: a browser renders a viewer there; a fetcher gets the app shell.
+Prefer the `res/manuals/` route above for linking.)
 
-## Sony-published documents — link to these
+## Sony-published documents: link to these
 
-Sony's own document numbers. **Link here; do not redistribute.** Our
-copies exist only so the repair information survives a takedown.
+Sony's own document numbers.
+**Link here; do not redistribute.**
+Our copies exist only so the repair information survives a takedown.
 
 | Document | Sony doc no. | Model | Direct PDF (verified pattern) |
 |---|---|---|---|
@@ -81,7 +69,7 @@ Entry points, if a document number is ever withdrawn:
 
 ## Per-model support pages (all regions)
 
-One row per model, one column per region — the centralised entry point.
+One row per model, one column per region: the centralised entry point.
 Pattern, confirmed in a browser for the two marked **✔**:
 
 ```
@@ -89,10 +77,9 @@ https://<region-host>/electronics/support/televisions-projectors-lcd-tvs/<model-
 ```
 
 Region hosts: `www.sony.com.br` (BR) · `www.sony.com` (US) · `www.sony.co.uk` (UK) · `www.sony.de` (DE) · `www.sony.fr` (FR) · `www.sony.es` (ES).
-Not every model was sold in every region, so some combinations will 404 —
-that is a distribution fact, not a broken pattern.
+Not every model was sold in every region, so some combinations will 404: that is a distribution fact, not a broken pattern.
 
-### AZ2-F generation (2011) — one chassis, five sizes
+### AZ2-F generation (2011): one chassis, five sizes
 
 | Model | Support pages by region |
 |---|---|
@@ -111,21 +98,15 @@ that is a distribution fact, not a broken pattern.
 | `KDL-55HX753` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-55hx753/manuals) |
 | `KDL-46HX750` | [BR](https://www.sony.com.br/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [US](https://www.sony.com/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [UK](https://www.sony.co.uk/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [DE](https://www.sony.de/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [FR](https://www.sony.fr/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) | [ES](https://www.sony.es/electronics/support/televisions-projectors-lcd-tvs/kdl-46hx750/manuals) |
 
-**✔ = browser-verified 2026-09-17** (page loads, URL stable, PDFs listed and
-resolving). The rest follow the same pattern; the AZ3F rows beyond the HX855
-are from the board-census sibling list in [platform-map.md](platform-map.md)
-and their generation assignment is inferred, not confirmed from a manual.
+**✔ = browser-verified 2026-09-17** (page loads, URL stable, PDFs listed and resolving).
+The rest follow the same pattern; the AZ3F rows beyond the HX855 are from the board-census sibling list in [platform-map.md](platform-map.md) and their generation assignment is inferred, not confirmed from a manual.
 
 ## Audio-system support pages
 
-The same treatment as the televisions, for the 81 products the Home
-Theatre Control widget can drive ([full list in the README](../README.md#sony-audio-systems-hdmi-cec)). Sony still hosts this
-documentation: manuals for hardware from 2009 remain published, and the
-KDL-46EX725 instructions carry a **2019** revision date. Read that as
-*still hosted*, not as *still supported* — late revisions on a
-long-discontinued set are often the ones that document what was
-**removed**. See the note in
-[right-to-repair.md](right-to-repair.md#abandonment-is-the-argument-2026-09-17).
+The same treatment as the televisions, for the 81 products the Home Theatre Control widget can drive ([full list in the README](../README.md#sony-audio-systems-hdmi-cec)).
+Sony still hosts this documentation: manuals for hardware from 2009 remain published, and the KDL-46EX725 instructions carry a **2019** revision date.
+Read that as *still hosted*, not as *still supported*: late revisions on a long-discontinued set are often the ones that document what was **removed**.
+See the note in [right-to-repair.md](right-to-repair.md#abandonment-is-the-argument-2026-09-17).
 
 Support-page pattern, same shape as the TVs:
 
@@ -133,14 +114,12 @@ Support-page pattern, same shape as the TVs:
 https://<region-host>/electronics/support/<category-slug>/<model-slug>
 ```
 
-Category slugs below were recovered from archived Sony support URLs
-(their WAF blocks direct probing). The model slug is the model name
-lowercased — e.g. `speakers-home-speakers/apm-22es` is a real archived
-example of the shape.
+Category slugs below were recovered from archived Sony support URLs (their WAF blocks direct probing).
+The model slug is the model name lowercased: e.g. `speakers-home-speakers/apm-22es` is a real archived example of the shape.
 
 ### Sound bars
 
-Category: `sound-bars-home-theater-systems-sound-bars` — **slug confirmed from archived URLs**
+Category: `sound-bars-home-theater-systems-sound-bars`: **slug confirmed from archived URLs**
 
 | Model | BR | US |
 |---|---|---|
@@ -176,7 +155,7 @@ Category: `sound-bars-home-theater-systems-sound-bars` — **slug confirmed from
 
 ### Blu-ray home theatre systems
 
-Category: `sound-bars-home-theater-systems-blu-ray-home-theater-systems` — **slug confirmed from archived URLs**
+Category: `sound-bars-home-theater-systems-blu-ray-home-theater-systems`: **slug confirmed from archived URLs**
 
 | Model | BR | US |
 |---|---|---|
@@ -192,10 +171,9 @@ Category: `sound-bars-home-theater-systems-blu-ray-home-theater-systems` — **s
 
 ### Receivers & amplifiers
 
-**Category slug not yet confirmed.** No archived URL for this
-family surfaced in the searches run on 2026-09-17, and Sony's WAF
-prevents probing candidates directly. Use the model search until
-someone confirms it in a browser:
+**Category slug not yet confirmed.**
+No archived URL for this family surfaced in the searches run on 2026-09-17, and Sony's WAF prevents probing candidates directly.
+Use the model search until someone confirms it in a browser:
 
 - BR — `https://www.sony.com.br/electronics/support` → search the model
 - US — `https://www.sony.com/electronics/support` → search the model
@@ -204,10 +182,9 @@ Models in this family: `STR-DH520`, `STR-DH530`, `STR-DH540`, `STR-DH550`, `STR-
 
 ### Wireless headphones
 
-**Category slug not yet confirmed.** No archived URL for this
-family surfaced in the searches run on 2026-09-17, and Sony's WAF
-prevents probing candidates directly. Use the model search until
-someone confirms it in a browser:
+**Category slug not yet confirmed.**
+No archived URL for this family surfaced in the searches run on 2026-09-17, and Sony's WAF prevents probing candidates directly.
+Use the model search until someone confirms it in a browser:
 
 - BR — `https://www.sony.com.br/electronics/support` → search the model
 - US — `https://www.sony.com/electronics/support` → search the model
@@ -216,35 +193,27 @@ Models in this family: `MDR-HW700DS`
 
 **Region hosts** are the same as for the televisions (`sony.com.br`, `sony.com`, `sony.co.uk`, `sony.de`, `sony.fr`, `sony.es`); a model not sold in a region will 404 there.
 
-**None of these links is browser-verified.** They are pattern-derived from
-confirmed category slugs, and marked as such deliberately — the same
-discipline that caught a valid Sony URL being recorded as dead earlier
-today. One spot-check in a browser would promote the lot.
-## Service manuals — NOT from Sony
+**None of these links is browser-verified.**
+They are pattern-derived from confirmed category slugs, and marked as such deliberately: the same discipline that caught a valid Sony URL being recorded as dead earlier today.
+One spot-check in a browser would promote the lot.
+## Service manuals, NOT from Sony
 
-Sony does not publish service manuals to the public. **Every file below
-came from third-party technical archives**, which is precisely why they
-are the material the right-to-repair movement cares about: schematics,
-board layouts and part numbers are what make a set repairable, and they
-are the first thing to disappear.
+Sony does not publish service manuals to the public.
+**Every file below came from third-party technical archives**, which is precisely why they are the material the right-to-repair movement cares about: schematics, board layouts and part numbers are what make a set repairable, and they are the first thing to disappear.
 
 | File | Covers | Size |
 |---|---|---|
-| `sony_kdl-32ex725_40ex725_46ex725_55ex725_chassis_az2-f_rev.0_level3_sm.pdf` | KDL-32/40/46/55EX725 — AZ2-F, level 3 | 16 MB |
+| `sony_kdl-32ex725_40ex725_46ex725_55ex725_chassis_az2-f_rev.0_level3_sm.pdf` | KDL-32/40/46/55EX725: AZ2-F, level 3 | 16 MB |
 | `sony_kdl-32ex725_40ex725_46ex725_55ex725_chassis_az2-f_ver.1.0_segm.3a-2_sm.pdf` | same, SEGM.3A-2 v1.0 | 11 MB |
 | `sony_kdl-32ex725_40ex725_46ex725_55ex725_chassis_az2-f_ver.2.0_segm.3a-2_sm.pdf` | same, v2.0 | 13 MB |
-| `sony_kdl-46ex725_chassis_az2f_sm.pdf` | KDL-46EX725 — AZ2-F, full | 27 MB |
-| `sony_kdl-60ex725_chassis_az2-f_sch.pdf` | KDL-60EX725 — AZ2-F schematics | 8.7 MB |
-| `sony_kdl_46hx855_az3f_chassis_sm.pdf` | KDL-46HX855 — AZ3F | 26 MB |
+| `sony_kdl-46ex725_chassis_az2f_sm.pdf` | KDL-46EX725: AZ2-F, full | 27 MB |
+| `sony_kdl-60ex725_chassis_az2-f_sch.pdf` | KDL-60EX725: AZ2-F schematics | 8.7 MB |
+| `sony_kdl_46hx855_az3f_chassis_sm.pdf` | KDL-46HX855: AZ3F | 26 MB |
 
-**Coverage note, which is the useful part:** one AZ2-F service manual
-covers **four sizes** (32/40/46/55) with a fifth (60) in its own
-schematic set. This is the documentary proof behind the
-[generation-level scope](generation-model-map.md) — Sony engineered and
-documented by chassis, not by model.
+**Coverage note, which is the useful part:** one AZ2-F service manual covers **four sizes** (32/40/46/55) with a fifth (60) in its own schematic set.
+This is the documentary proof behind the [generation-level scope](generation-model-map.md): Sony engineered and documented by chassis, not by model.
 
-Integrity, so a future copy can be checked against ours (SHA-256, first
-16 hex):
+Integrity, so a future copy can be checked against ours (SHA-256, first 16 hex):
 
 ```
 77f1d708f7ddc45f  42730121M.pdf
@@ -265,16 +234,12 @@ Three buckets, and only one of them is ours to offer:
 
 | Bucket | Contents | Disposition |
 |---|---|---|
-| **Sony-published** | the four `…M` documents above | **link only** — Sony hosts them; we keep copies purely as takedown insurance |
-| **Third-party service manuals** | the six files above | **the movement's material** — already circulating outside Sony, and the documents that actually enable repair |
+| **Sony-published** | the four `…M` documents above | **link only**: Sony hosts them; we keep copies purely as takedown insurance |
+| **Third-party service manuals** | the six files above | **the movement's material**: already circulating outside Sony, and the documents that actually enable repair |
 | **Recovered platform material** | AppliCast bundles, catalogs, assets ([withheld-by-catalog.md](withheld-by-catalog.md)) | held offline; distribution is the movement's call, per rule 9b |
 
 ## Gaps
 
-- **AZ3F coverage beyond 46"** — we hold only the KDL-46HX855 manual. The
-  AZ3F family certainly spans more sizes; their manuals are not in the
-  library.
-- **AZ1 (2010)** — no manual held at all, for a generation whose widget
-  catalog is [still live](generation-model-map.md#what-az1-actually-got).
-- **Firmware** — the archive holds update packages for 2011 and 2012
-  platforms; their Sony download pages are not indexed on this page yet.
+- **AZ3F coverage beyond 46"** — we hold only the KDL-46HX855 manual. The AZ3F family certainly spans more sizes; their manuals are not in the library.
+- **AZ1 (2010)** — no manual held at all, for a generation whose widget catalog is [still live](generation-model-map.md#what-az1-actually-got).
+- **Firmware** — the archive holds update packages for 2011 and 2012 platforms; their Sony download pages are not indexed on this page yet.

@@ -1,8 +1,7 @@
 # Draft 06: #8297 update, three display modes and the gamescope frame race (comment)
 
 Status: **POSTED 2026-09-26 as https://github.com/ValveSoftware/Source-1-Games/issues/8297#issuecomment-5842650764** (approved by Daniel; posted verbatim with the placeholder filled in as `ValveSoftware/gamescope#2438`).
-Target: https://github.com/ValveSoftware/Source-1-Games/issues/8297 (comment)
-Evidence: angle logs `svrtv-angles.tsv` of runs p13-p19 under `/K3D/temp/hl2-bench/` (local); gamescope logs of p16b, p16c, p18; `tools/vr-stereo-spectator/gamescope/`.
+Target: https://github.com/ValveSoftware/Source-1-Games/issues/8297 (comment) Evidence: angle logs `svrtv-angles.tsv` of runs p13-p19 under `/K3D/temp/hl2-bench/` (local); gamescope logs of p16b, p16c, p18; `tools/vr-stereo-spectator/gamescope/`.
 No new pings: the issue already cc's misyltoad.
 
 ---

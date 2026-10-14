@@ -2,7 +2,9 @@
 
 <!-- lang: nl · canonical source: ../../README.md (English) · translated 2026-09-18 -->
 
-Dit project brengt de BRAVIA-televisies van vóór Android (KDL-serie, 2010–2012) weer tot leven nadat Sony hun onlinediensten heeft uitgeschakeld, volledig binnen het thuisnetwerk van de eigenaar. De firmware wordt niet aangepast en er wordt niet aan DRM gekomen. **Recht op reparatie**, in de praktijk.
+Dit project brengt de BRAVIA-televisies van vóór Android (KDL-serie, 2010–2012) weer tot leven nadat Sony hun onlinediensten heeft uitgeschakeld, volledig binnen het thuisnetwerk van de eigenaar.
+De firmware wordt niet aangepast en er wordt niet aan DRM gekomen.
+**Recht op reparatie**, in de praktijk.
 
 ## Zocht je hiernaar?
 
@@ -43,4 +45,5 @@ Deze pagina beantwoordt vragen zoals:
 
 ---
 
-*Op 18 september 2026 vertaald uit het Engels. Correcties van moedertaalsprekers zijn welkom: open een issue.*
+*Op 18 september 2026 vertaald uit het Engels.
+Correcties van moedertaalsprekers zijn welkom: open een issue.*

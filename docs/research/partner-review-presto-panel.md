@@ -1,6 +1,6 @@
-# Partner panel review: Presto CVE-2011-2628 study — round 2 (on top of Kimi K3)
+# Partner panel review: Presto CVE-2011-2628 study: round 2 (on top of Kimi K3)
 
-- **Panel:** qwen3.5:397b-cloud, kimi-k2.7-code:cloud, deepseek-v4-pro:cloud, nemotron-3-ultra:cloud — all via ollama API, 2026-09-13, run in parallel on an identical 98 KB prompt: the five-question charter + the study + the raw research JSON + the full Kimi K3 review (docs/research/partner-review-presto-kimi.md), with the mandate to AGREE/DISAGREE/EXTEND on K3's findings and add what both prior reviews missed.
+- **Panel:** qwen3.5:397b-cloud, kimi-k2.7-code:cloud, deepseek-v4-pro:cloud, nemotron-3-ultra:cloud: all via ollama API, 2026-09-13, run in parallel on an identical 98 KB prompt: the five-question charter + the study + the raw research JSON + the full Kimi K3 review (docs/research/partner-review-presto-kimi.md), with the mandate to AGREE/DISAGREE/EXTEND on K3's findings and add what both prior reviews missed.
 - **Why this panel exists:** Claude Opus (2x) and GPT Astra via codex (1x) were each refused by their providers' cyber classifiers on this owner-hardware right-to-repair study; the open-weight fleet reviewed it without incident.
 - Verdict bodies below are verbatim.
 
@@ -11,22 +11,22 @@
 Consensus of the round-2 panel (detailed votes in each section):
 
 **Confirmed by all reviewers:**
-- K3 CRITICAL 1 stands — **confirmed by all four reviewers** — the HbbTV broadcast lane is dead *as a Presto delivery path on this firmware*: ISDB-Tb carries ARIB STD-B10/ABNT Ginga descriptors, not ETSI TS 102 796 DVB AIT; no live evidence any HbbTV stack is wired to PKG4.027BRA's tuner path. **Gear-argument correction (DeepSeek + kimi-k2.7-code, independent; nemotron repeats K3's original framing — 2-2, resolved technically):** osmo-fl2k is a generic FL2K-based SDR transmitter and with gr-isdbt *can* synthesize ISDB-Tb — the blocker is the firmware's SI parser, not the RF hardware or tuner. Reclassify the lane "dormant/unverified", not "impossible at RF". Operational conclusion identical either way: no purchase for this lane.
-- K3 CRITICAL 2 stands — **confirmed by all four** (nemotron: "the study's ranking is a planning error"; it cites the manual page, 42730121M.pdf p.21) — but is **gated functionally** (Qwen + kimi-k2.7-code): manual presence of "Navegador da Internet" does not prove free URL entry — 2011 BRA firmware may expose bookmarks/widget portals only, and sendText only types into a focused text field. The zero-hardware sendText test settles it in minutes and must run before the lane is relied on.
+- K3 CRITICAL 1 stands — **confirmed by all four reviewers**: the HbbTV broadcast lane is dead *as a Presto delivery path on this firmware*: ISDB-Tb carries ARIB STD-B10/ABNT Ginga descriptors, not ETSI TS 102 796 DVB AIT; no live evidence any HbbTV stack is wired to PKG4.027BRA's tuner path. **Gear-argument correction (DeepSeek + kimi-k2.7-code, independent; nemotron repeats K3's original framing: 2-2, resolved technically):** osmo-fl2k is a generic FL2K-based SDR transmitter and with gr-isdbt *can* synthesize ISDB-Tb: the blocker is the firmware's SI parser, not the RF hardware or tuner. Reclassify the lane "dormant/unverified", not "impossible at RF". Operational conclusion identical either way: no purchase for this lane.
+- K3 CRITICAL 2 stands — **confirmed by all four** (nemotron: "the study's ranking is a planning error"; it cites the manual page, 42730121M.pdf p.21), but is **gated functionally** (Qwen + kimi-k2.7-code): manual presence of "Navegador da Internet" does not prove free URL entry: 2011 BRA firmware may expose bookmarks/widget portals only, and sendText only types into a focused text field. The zero-hardware sendText test settles it in minutes and must run before the lane is relied on.
 - Oracle calibration is mandatory before any CVE run: HOST_WDT counts system hangs, not clean process deaths (respawn may be silent); a guaranteed-crash positive control + JS phase beacons + quiescent-window counter reads are required (Qwen adds ARP ping loss as a real-time signal).
 - CVE-2012-6468 (long HTTP response) and 2012-3561 (URL-string allocation) are the hedge triggers: server-side, fire from any fetchable resource via DNS-redirected portal/widget sub-resources, need no URL-entry UI; 6468 in particular may be *more reliable* than 2628 on MIPS (no unload-timing dependence).
 - The non-browser root-daemon audit (SetAVTransportURI parser, SUBSCRIBE CALLBACK, libmicrohttpd 0.4.6, s2mtv, UDP 7776) is elevated to a co-primary lane: unauthenticated, always-on, zero delivery risk, directly serves the maintenance goal.
 - Safety gates adopted: no payload writes to /dev/mtd*/NVRAM; WAN quarantine during test windows (kimi-k2.7-code adds HDMI-CEC isolation); recovery rehearsal before the first induced crash; spray cap under measured headroom.
-- Memory claims: mmap base 0x2aaa8000 deterministic (kernel-verified), but "no ASLR on MIPS" is overbroad (stack/brk randomization arch-independent) and — the panel's strongest technical upgrade — **Presto's own heap arenas are the dominant unknown**: JS String spray objects may be split/relocated/UTF-16-stored in Opera's allocator, so no landing address may be derived from glibc-threshold theory; the stage-0 canary must beacon /proc/self/maps (kimi-k2.7-code: one canary resolves NX, ASLR, privilege, and allocator at once via /proc/self/status, /proc/cpuinfo, /proc/self/maps, /proc/meminfo).
+- Memory claims: mmap base 0x2aaa8000 deterministic (kernel-verified), but "no ASLR on MIPS" is overbroad (stack/brk randomization arch-independent) and, the panel's strongest technical upgrade, **Presto's own heap arenas are the dominant unknown**: JS String spray objects may be split/relocated/UTF-16-stored in Opera's allocator, so no landing address may be derived from glibc-threshold theory; the stage-0 canary must beacon /proc/self/maps (kimi-k2.7-code: one canary resolves NX, ASLR, privilege, and allocator at once via /proc/self/status, /proc/cpuinfo, /proc/self/maps, /proc/meminfo).
 - Mobile-lineage leg mislabel confirmed: restate as "cores bracketing 2.7" and pull primary UA strings before publication.
 
-**Standout per-model contributions:** DeepSeek — branch delay slots (every sled word harmless incl. delay slots), don't assume a valid $sp; Qwen — ARP ping loss as real-time oracle signal, D-cache writeback ordering for JS-stored strings; kimi-k2.7-code — beacon via socket+connect+write (avoid six-arg sendto), direct syscall 4147 (don't trust an unverified libc wrapper), sink-hole DRM license endpoints on any DNS-faked portal so license acquisition is never triggered even accidentally, 9784/7776 need structured magic-request probing rather than declaring them dead; nemotron-3-ultra — the deepest engineering pass of the round: cacheflush *race* (I-cache may speculatively reload after flush — execute a sync barrier and jump to a trampoline *outside* the flushed region), Presto HeapAllocator reserves a 64-128 MB startup arena and StringImpl UTF-16 storage may rope-fragment large strings (spray blocks may be non-contiguous in VM), UPnP GENA SUBSCRIBE/CALLBACK as an unanalyzed SSRF/parser surface, libmicrohttpd 0.4.6 concrete probe (Content-Length/Transfer-Encoding ambiguity, path traversal on /s2mtv/), DirectFB 1.4 surface allocation overflows as a Presto-adjacent path, the **watchdog identity question** (hardware PMIC vs kernel softlockup — decides whether a browser crash can ever move HOST_WDT; read /proc/sys/kernel/watchdog post-root), CVE-2011-2629..2633 from the same 11.11 fix batch as candidate siblings of 2628, same-origin/CORS constraint on any DNS-rebinned payload (sub-resources to LAN IPs blocked unless CORS is served), the undocumented recovery procedure (exact FACTORY INIT sequence, USB recovery mode, JTAG as last resort) must be written *before* the first induced crash, and the Ginga Lua version check (`strings` post-root; if Lua 5.1, the CPqD sandbox escape is a known reliable root path that decides the RF purchase on its own).
+**Standout per-model contributions:** DeepSeek: branch delay slots (every sled word harmless incl. delay slots), don't assume a valid $sp; Qwen (ARP ping loss as real-time oracle signal, D-cache writeback ordering for JS-stored strings; kimi-k2.7-code) beacon via socket+connect+write (avoid six-arg sendto), direct syscall 4147 (don't trust an unverified libc wrapper), sink-hole DRM license endpoints on any DNS-faked portal so license acquisition is never triggered even accidentally, 9784/7776 need structured magic-request probing rather than declaring them dead; nemotron-3-ultra: the deepest engineering pass of the round: cacheflush *race* (I-cache may speculatively reload after flush: execute a sync barrier and jump to a trampoline *outside* the flushed region), Presto HeapAllocator reserves a 64-128 MB startup arena and StringImpl UTF-16 storage may rope-fragment large strings (spray blocks may be non-contiguous in VM), UPnP GENA SUBSCRIBE/CALLBACK as an unanalyzed SSRF/parser surface, libmicrohttpd 0.4.6 concrete probe (Content-Length/Transfer-Encoding ambiguity, path traversal on /s2mtv/), DirectFB 1.4 surface allocation overflows as a Presto-adjacent path, the **watchdog identity question** (hardware PMIC vs kernel softlockup: decides whether a browser crash can ever move HOST_WDT; read /proc/sys/kernel/watchdog post-root), CVE-2011-2629..2633 from the same 11.11 fix batch as candidate siblings of 2628, same-origin/CORS constraint on any DNS-rebinned payload (sub-resources to LAN IPs blocked unless CORS is served), the undocumented recovery procedure (exact FACTORY INIT sequence, USB recovery mode, JTAG as last resort) must be written *before* the first induced crash, and the Ginga Lua version check (`strings` post-root; if Lua 5.1, the CPqD sandbox escape is a known reliable root path that decides the RF purchase on its own).
 
-**Panel-unanimous next-6 (all four reviewers, minor ordering differences):** (1) WAN-quarantined step-0 capture + IRCC menu probe; (2) reach the cheapest HTTP lane (browser sendText if URL entry exists, else DNS-redirected portal) and run a positive-control crash page with phase beacons; (3) CVE-2011-2628 falsifier run, `application/xhtml+xml`, ≥3 unload mechanisms, ≥3 trials each, quiescent windows; (4) parallel root-daemon audit (SetAVTransportURI, SUBSCRIBE CALLBACK, libmicrohttpd/s2mtv, UDP 7776) — starts now, zero hardware; (5) if positive: measured MIPS spray ladder with /proc/self/maps beacon, landing address from measurement only, no flash writes; (6) RF gear only for a deliberately chosen Ginga/ISDB-Tb lane, never for HbbTV.
+**Panel-unanimous next-6 (all four reviewers, minor ordering differences):** (1) WAN-quarantined step-0 capture + IRCC menu probe; (2) reach the cheapest HTTP lane (browser sendText if URL entry exists, else DNS-redirected portal) and run a positive-control crash page with phase beacons; (3) CVE-2011-2628 falsifier run, `application/xhtml+xml`, ≥3 unload mechanisms, ≥3 trials each, quiescent windows; (4) parallel root-daemon audit (SetAVTransportURI, SUBSCRIBE CALLBACK, libmicrohttpd/s2mtv, UDP 7776): starts now, zero hardware; (5) if positive: measured MIPS spray ladder with /proc/self/maps beacon, landing address from measurement only, no flash writes; (6) RF gear only for a deliberately chosen Ginga/ISDB-Tb lane, never for HbbTV.
 
 ---
 
-## 1. qwen3.5:397b-cloud — verbatim
+## 1. qwen3.5:397b-cloud: verbatim
 
 - **Overall Position:** Kimi K3 is technically correct on the RF/Standards mismatch (Critical 1) and Oracle calibration (High 3), but over-optimistic on the IRCC "Navegador" URL entry capability (Critical 2) and under-specifies the MIPS cache coherence requirements. The ranking inversion is valid *only if* free URL entry exists, which is unproven for BRA firmware. The study's MIPS retargeting is sound but needs stricter shellcode validation. I align with Kimi on shifting focus away from HbbTV/RF until gates pass, but insist on parallel non-browser audits (UPnP) as higher-value maintenance paths.
 
@@ -54,35 +54,35 @@ Consensus of the round-2 panel (detailed votes in each section):
     6.  **MIPS Shellcode:** Write MIPSel NOP sled + UDP beacon. Test `cacheflush` syscall locally on similar MIPS Linux box. Verify D-cache writeback before I-cache flush.
 ---
 
-## 2. kimi-k2.7-code:cloud — verbatim
+## 2. kimi-k2.7-code:cloud: verbatim
 
-**Overall position.** I largely back the senior review: the HbbTV broadcast lane is over-ranked, the oracle must be calibrated before any CVE run, and zero-cost IRCC/browser probing should come first. Where I differ is precision: the senior reviewer overstates the RF impossibility — osmo-fl2k + gr-isdbt *can* produce ISDB-Tb; the real problem is that the BRA firmware almost certainly has no DVB-SI/HbbTV parser. I also think both the study and the senior review underweight Presto’s internal heap model and treat glibc mmap geometry as more predictive than it is. I support the safety-gate expansion, the non-browser audit, and the 2012 server-side CVE hedges.
+**Overall position.** I largely back the senior review: the HbbTV broadcast lane is over-ranked, the oracle must be calibrated before any CVE run, and zero-cost IRCC/browser probing should come first. Where I differ is precision: the senior reviewer overstates the RF impossibility: osmo-fl2k + gr-isdbt *can* produce ISDB-Tb; the real problem is that the BRA firmware almost certainly has no DVB-SI/HbbTV parser. I also think both the study and the senior review underweight Presto’s internal heap model and treat glibc mmap geometry as more predictive than it is. I support the safety-gate expansion, the non-browser audit, and the 2012 server-side CVE hedges.
 
 ---
 
 ## A. Findings vs the senior reviewer
 
-**A1. CRITICAL — HbbTV/ISDB-Tb lane dead / gear mismatch.**  
+**A1. CRITICAL: HbbTV/ISDB-Tb lane dead / gear mismatch.**  
 **AGREE** on the operational conclusion; **DISAGREE** on the physical-layer reasoning.  
 The osmo-fl2k + gr-isdbt chain *can* synthesize ISDB-Tb inside the tuner band; the tuner is not the blocker. The blocker is firmware: PKG4.027BRA parses ARIB STD-B10/ABNT Ginga descriptors, not ETSI TS 102 796 DVB AIT, and Brazil had no 2011 HbbTV mandate. No live UA/menu from this set shows HbbTV. Reclassify lane 1 as dormant/unverified, not “impossible at RF,” and buy no hardware for it.
 
-**A2. CRITICAL — Ranking inversion to IRCC + `sendText` + “Navegador da Internet.”**  
+**A2. CRITICAL: Ranking inversion to IRCC + `sendText` + “Navegador da Internet.”**  
 **AGREE** on procedural priority; **DISAGREE** that this is already “the answer.”  
 The family manual names an Internet Browser, but warns categories depend on region/country, and the BRA firmware may omit free URL entry. `sendText` only types into a focused text field; if the UI is bookmarks-only, the lane is dead. Test it first because it is free, but keep DNS-redirect and broadcast-Ginga fallbacks ready.
 
-**A3. HIGH — Oracle uncalibrated.**  
+**A3. HIGH: Oracle uncalibrated.**  
 **AGREE and EXTEND.**  
 `HOST_WDT` counts system hangs, not clean browser process deaths; Opera may be respawned by a supervisor without tripping the watchdog. Add a guaranteed-crash JS positive control (runaway recursion/OOM), JS phase beacons (`Image`/XHR pings to a LAN collector at load, post-spray, pre-unload, and post-unload), and read the counter trio (`HOST_WDT`, boot count, 8-blink LED) only in quiescent windows. The last received beacon localizes the crash phase.
 
-**A4. HIGH — Safety gates missing.**  
+**A4. HIGH: Safety gates missing.**  
 **AGREE and EXTEND.**  
 Add WAN and HDMI-CEC isolation during test windows to block OTA/menu state changes; cap spray size from `/proc/meminfo MemFree`; rehearse physical recovery and firmware reflash before the first induced crash; forbid payload writes to `/dev/mtd*`, NVRAM, or persistent config; avoid CERS commands that alter pairing or settings.
 
-**A5. HIGH — Mobile-line lineage mislabel.**  
+**A5. HIGH: Mobile-line lineage mislabel.**  
 **AGREE.**  
 Restate as: the bug fires on cores bracketing 2.7 (Opera Mobile 10.x on ~2.4/2.5 and 11.x on ~2.8.x) and in desktop 11.00/11.01 (2.7.62). The TV’s 2.7.61 SDK build sits one patch below the RCE-verified desktop 2.7.62, and the frameset-unload path is core layout code, so the inference still holds.
 
-**A6. MEDIUM — MIME/timing controls.**  
+**A6. MEDIUM: MIME/timing controls.**  
 **AGREE.**  
 Serve the original PoC exactly as `application/xhtml+xml` with the XHTML namespace and the meta-refresh/iframe unload path. A `text/html` fallback may silently route through a different parser. Test multiple unload vectors: meta refresh, JS `location` change, and parent iframe removal.
 
@@ -90,23 +90,23 @@ Serve the original PoC exactly as `application/xhtml+xml` with the XHTML namespa
 **AGREE with correction.**  
 The mmap base is deterministic at `0x2aaa8000`; any stack/brk randomization under `randomize_va_space` is irrelevant for the mmap-region spray. Library load order within that region can shift offsets by firmware build, but not by run.
 
-**A8. MEDIUM — Allocation geometry / Opera heap.**  
+**A8. MEDIUM: Allocation geometry / Opera heap.**  
 **AGREE and EXTEND.**  
 The glibc mmap analysis is a weak proxy. Presto 2.7 uses its own memory arenas for DOM/JS strings; the `%u` spray blocks may be split, relocated, or stored as UTF-16 units. Do not derive a landing address from `0x2aaa8000 + n`. The spray ladder must measure actual allocation addresses via a canary that reads `/proc/self/maps` and beacons them back.
 
-**A9. MEDIUM — Stockpile server-side CVEs as hedges.**  
+**A9. MEDIUM: Stockpile server-side CVEs as hedges.**  
 **AGREE.**  
 CVE-2012-6468 (long HTTP response) and CVE-2012-3561 (URL allocation) are especially valuable because they fire from any fetchable resource and need no URL-entry UI. CVE-2012-6470 (GIF), 2012-6465/2013-1638 (SVG), and 2013-1637 (DOM events) fit sub-resources or inline content. They may be more reliable than 2628 if the Devices SDK build diverges.
 
-**A10. MEDIUM — Root-daemon audit and Ginga lane.**  
+**A10. MEDIUM: Root-daemon audit and Ginga lane.**  
 **AGREE and EXTEND.**  
 UPnP `SetAVTransportURI`, `SUBSCRIBE` callback handling, libmicrohttpd 0.4.6, `s2mtv` endpoints, and UDP 7776 are unauthenticated, always-on, and directly serve the maintenance goal. Ginga/ISDB-Tb is the correct broadcast lane for this market; buy RF gear only if that lane is deliberately chosen.
 
-**A11. LOW — AIT descriptor tag.**  
+**A11. LOW: AIT descriptor tag.**  
 **AGREE.**  
 `transport_protocol_descriptor` tag is 0x02; protocol_id 0x0003 selects HTTP. Fix before any OpenCaster payload work.
 
-**A12. LOW — Repo hygiene.**  
+**A12. LOW: Repo hygiene.**  
 **AGREE.**  
 `[C:live]` tags on the EUA UA are mislabeled; AppliCast should be marked “hypothesis”; step 0 must include a keyed AppliCast press during capture.
 
@@ -133,7 +133,7 @@ A fake Sony Internet Video portal may trigger WMDRM/Marlin license acquisition o
 9784 may expect a magic request before responding, not simply accept-close. UDP 7776 may be a debug/discovery protocol. Fuzz both with Sony/CERS-style payloads and watch the same crash oracle.
 
 **B7. Non-browser surfaces are higher expected value than framed.**  
-`SetAVTransportURI` receives attacker-controlled URI strings unauthenticated — long URIs, exotic schemes, and query strings are a classic parser fuzz target. Additional `s2mtv` endpoints (category/content list) likely accept query parameters. libmicrohttpd 0.4.6 is a 2008-era HTTP parser with a long vulnerability history in header and URI handling.
+`SetAVTransportURI` receives attacker-controlled URI strings unauthenticated: long URIs, exotic schemes, and query strings are a classic parser fuzz target. Additional `s2mtv` endpoints (category/content list) likely accept query parameters. libmicrohttpd 0.4.6 is a 2008-era HTTP parser with a long vulnerability history in header and URI handling.
 
 ---
 
@@ -158,7 +158,7 @@ A fake Sony Internet Video portal may trigger WMDRM/Marlin license acquisition o
    Fuzz `SetAVTransportURI` length/scheme, `SUBSCRIBE` callback URL, libmicrohttpd endpoints, `s2mtv` command endpoints, and UDP 7776 with crafted probes. Defer any RF purchase to a deliberately chosen Ginga lane, not the HbbTV lane.
 ---
 
-## 3. deepseek-v4-pro:cloud — verbatim
+## 3. deepseek-v4-pro:cloud: verbatim
 
 ## Overall position
 
@@ -166,12 +166,12 @@ I concur with the senior reviewer’s two CRITICALs, the oracle-calibration dema
 
 ---
 
-## Item A — Senior reviewer’s major findings
+## Item A: Senior reviewer’s major findings
 
 1. **CRITICAL 1 — HbbTV lane standards mismatch and gear can’t be tuned**  
    **AGREE with conclusion; EXTEND on the gear claim.**  
    The lane is dead as a Presto delivery path: ISDB-Tb does not carry DVB AIT, and PKG4.027BRA has no evidence of an HbbTV stack wired to the tuner. The senior reviewer is correct that the study’s Rank 1 is standards-mismatched and must not justify any purchase.  
-   *However*, the claim “osmo-fl2k emits DVB-T” is technically imprecise. osmo-fl2k is a generic SDR transmitter; with `gr-isdbt` it can produce ISDB-Tb. The real incompatibility is not the hardware but the signalling stack — the study’s plan mixes OpenCaster (DVB) with ISDB-Tb modulation, and even if the RF were correct, the BRA firmware would not parse HbbTV AIT. So the lane is blocked, but the gear argument should be corrected in the repo.
+   *However*, the claim “osmo-fl2k emits DVB-T” is technically imprecise. osmo-fl2k is a generic SDR transmitter; with `gr-isdbt` it can produce ISDB-Tb. The real incompatibility is not the hardware but the signalling stack: the study’s plan mixes OpenCaster (DVB) with ISDB-Tb modulation, and even if the RF were correct, the BRA firmware would not parse HbbTV AIT. So the lane is blocked, but the gear argument should be corrected in the repo.
 
 2. **CRITICAL 2 — Ranking inversion toward built-in browser + CERS sendText**  
    **AGREE fully.**  
@@ -220,7 +220,7 @@ I concur with the senior reviewer’s two CRITICALs, the oracle-calibration dema
 
 ---
 
-## Item B — Additions (things both study and senior reviewer missed or underweighted)
+## Item B: Additions (things both study and senior reviewer missed or underweighted)
 
 1. **MIPS shellcode specifics beyond cacheflush**  
    The study correctly identifies syscall 4147, but additional constraints matter:  
@@ -233,7 +233,7 @@ I concur with the senior reviewer’s two CRITICALs, the oracle-calibration dema
    Even if large allocations reach mmap, the corrupted pointer may land in a fragmented heap if Opera’s sub-allocator interleaves smaller blocks. The spray ladder must include multiple small-to-medium sprays and a final large contiguous region; the stage-0 `/proc/self/maps` beacon will reveal the actual layout.
 
 3. **Alternative era bugs: CVE-2012-6468 as a better first trigger**  
-   CVE-2012-6468 (heap overflow via long HTTP response) can be triggered by any server-controlled response — a single oversized header or body. It requires no precise heap grooming and may be more reliable on a MIPS build than 2628’s unload-timing dependency. Consider running it as a parallel falsifier or fallback if 2628 fails to crash.
+   CVE-2012-6468 (heap overflow via long HTTP response) can be triggered by any server-controlled response: a single oversized header or body. It requires no precise heap grooming and may be more reliable on a MIPS build than 2628’s unload-timing dependency. Consider running it as a parallel falsifier or fallback if 2628 fails to crash.
 
 4. **Non-browser surfaces: SUBSCRIBE CALLBACK and libmicrohttpd**  
    - UPnP event subscription (`SUBSCRIBE` with a callback URL) may allow header injection or SSRF; even if not exploitable for code execution, it may leak internal state or cause a crash.  
@@ -241,14 +241,14 @@ I concur with the senior reviewer’s two CRITICALs, the oracle-calibration dema
    - UDP 7776 is bound but silent; black-box probes with malformed payloads may elicit a response or crash, providing a root-daemon crash oracle independent of the browser.
 
 5. **Ginga lane as direct root path**  
-   The CPqD SBSeg 2010 findings show NCL/Lua runs as root on Brazilian ISDB-Tb middleware. If the owner ever buys RF gear, targeting Ginga with a known NCL/Lua injection may yield root faster than a Presto exploit. This should be a parallel lane, not a footnote, especially since the same ISDB-Tb modulator can serve both Ginga and (theoretically) HbbTV if it ever existed.
+   The CPqD SBSeg 2010 findings show NCL/Lua runs as root on Brazilian ISDB-Tb middleware. If Daniel ever buys RF gear, targeting Ginga with a known NCL/Lua injection may yield root faster than a Presto exploit. This should be a parallel lane, not a footnote, especially since the same ISDB-Tb modulator can serve both Ginga and (theoretically) HbbTV if it ever existed.
 
 6. **HbbTV token check via passive capture**  
    The senior reviewer’s step 0 already captures the live UA; if the token `HbbTV/1.1.1` appears, an HbbTV-flavored page over plain HTTP (via browser lane) exercises the same Presto core even without AIT. That is a cheap way to test HbbTV-specific code paths if the engine includes them.
 
 ---
 
-## Item C — My ordered next-6 actions
+## Item C: My ordered next-6 actions
 
 1. **Step 0 with WAN quarantine**  
    Boot the EX725, press IRCC keys (InternetWidgets, InternetVideo, AppliCast, Ddata) while capturing all outbound traffic. Record live UA (HbbTV token yes/no), portal hosts, and whether AppliCast emits anything. No new hardware.
@@ -266,52 +266,52 @@ I concur with the senior reviewer’s two CRITICALs, the oracle-calibration dema
    Spray with pure NOP sled in increasing sizes (capped under measured headroom), with on-screen markers and `/proc/self/maps` beacon at each step. Determine actual allocation geometry and memory budget. No payload, no flash writes.
 
 6. **In parallel, start non-browser root-daemon audit**  
-   Probe SetAVTransportURI parser with long strings, fuzz libmicrohttpd via s2mtv, send malformed packets to UDP 7776. Document any crash or unexpected response. Buy RF gear only if Ginga lane is chosen deliberately — never for HbbTV.
+   Probe SetAVTransportURI parser with long strings, fuzz libmicrohttpd via s2mtv, send malformed packets to UDP 7776. Document any crash or unexpected response. Buy RF gear only if Ginga lane is chosen deliberately: never for HbbTV.
 ---
 
-## 4. nemotron-3-ultra:cloud — verbatim
+## 4. nemotron-3-ultra:cloud: verbatim
 
 ## Overall Position
 
-The senior reviewer is technically precise on the two CRITICAL findings (DVB-AIT/ISDB-Tb mismatch, ranking inversion) and the oracle/safety gaps. I agree with the substance of all 12 findings but extend several where the engineering reality is worse than stated — particularly on the MIPS retarget (Opera allocator vs. glibc mmap, cacheflush race windows, branch-delay-slot constraints) and the non-browser attack surface (UPnP GENA SUBSCRIBE, libmicrohttpd 0.4.6 request parsing, UDP 7776 as a fuzz target). The study's "right-to-repair" framing is sound, but the experiment ladder treats the TV as a generic Linux/MIPS box; it is not — it's a Sony AZ2-F platform with proprietary middleware, unknown compiler hardening, and a process supervisor that may mask crashes. The senior reviewer's next-6 is operationally correct; I reorder slightly to parallelize the root-daemon audit and add a hard stop on flash-write risk.
+The senior reviewer is technically precise on the two CRITICAL findings (DVB-AIT/ISDB-Tb mismatch, ranking inversion) and the oracle/safety gaps. I agree with the substance of all 12 findings but extend several where the engineering reality is worse than stated: particularly on the MIPS retarget (Opera allocator vs. glibc mmap, cacheflush race windows, branch-delay-slot constraints) and the non-browser attack surface (UPnP GENA SUBSCRIBE, libmicrohttpd 0.4.6 request parsing, UDP 7776 as a fuzz target). The study's "right-to-repair" framing is sound, but the experiment ladder treats the TV as a generic Linux/MIPS box; it is not: it's a Sony AZ2-F platform with proprietary middleware, unknown compiler hardening, and a process supervisor that may mask crashes. The senior reviewer's next-6 is operationally correct; I reorder slightly to parallelize the root-daemon audit and add a hard stop on flash-write risk.
 
 ---
 
-## A. Senior Reviewer Major Findings — AGREE / DISAGREE / EXTEND
+## A. Senior Reviewer Major Findings: AGREE / DISAGREE / EXTEND
 
 1. **CRITICAL — DVB-AIT/ISDB-Tb standards mismatch (Finding 1)**  
-   **AGREE.** ISDB-Tb (ARIB STD-B10) carries application signalling in the PMT via `component_descriptor` (tag 0x50) pointing to a data component carrying an AIT *equivalent* (ARIB B23 `application_info_table`), not ETSI TS 102 796 AIT sections on `stream_type 0x05`. The Opera HbbTV stack expects DVB-SI; it will never see ISDB-Tb AIT sections. `osmo-fl2k` generates DVB-T; the EX725's ISDB-Tb tuner (likely Sony CXD28xx) cannot demodulate it. The OpenCaster ISDB-Tb fork produces Ginga NCL signalling, not HbbTV. **Lane 1 is dead for HbbTV on this hardware.** Reclassify as "gated hypothesis — only testable if post-root firmware inspection reveals a dormant HbbTV AIT parser wired to the ISDB-Tb demux path (probability: near zero)."
+   **AGREE.** ISDB-Tb (ARIB STD-B10) carries application signalling in the PMT via `component_descriptor` (tag 0x50) pointing to a data component carrying an AIT *equivalent* (ARIB B23 `application_info_table`), not ETSI TS 102 796 AIT sections on `stream_type 0x05`. The Opera HbbTV stack expects DVB-SI; it will never see ISDB-Tb AIT sections. `osmo-fl2k` generates DVB-T; the EX725's ISDB-Tb tuner (likely Sony CXD28xx) cannot demodulate it. The OpenCaster ISDB-Tb fork produces Ginga NCL signalling, not HbbTV. **Lane 1 is dead for HbbTV on this hardware.** Reclassify as "gated hypothesis, only testable if post-root firmware inspection reveals a dormant HbbTV AIT parser wired to the ISDB-Tb demux path (probability: near zero)."
 
 2. **CRITICAL — Ranking inversion toward built-in browser + CERS sendText (Finding 2)**  
    **AGREE.** The Brazilian manual (42730121M.pdf, p.21) explicitly lists "Navegador da Internet" under Aplicativos for the EX725 family. CERS registration is live; `sendText`/`getText` are in the ActionList; IRCC keys for InternetWidgets/InternetVideo/AppliCast exist. Zero hardware, zero purchase, delivery path verified end-to-end *except* the final UI interaction. This **must be Lane 1**. The study's Lane 2 is the only lane that can falsify CVE-2011-2628 *today*. The senior reviewer's inversion is correct; the study's ranking is a planning error.
 
 3. **HIGH — Oracle uncalibrated, no positive control (Finding 3)**  
-   **EXTEND.** The senior reviewer correctly identifies that `HOST_WDT` counts hardware watchdog trips (full-system hang), not supervised-process crashes. The browser likely runs under a `procd`/`init` supervisor that respawns on SIGSEGV/SIGKILL — a clean exploit crash may *never* increment `HOST_WDT`. The 8-blink LED is the only per-crash signal, and its sensitivity is unmeasured. **Additional flaw:** the study's "SELF CHECK" readout requires the *physical remote* (service mode not armable via IRCC — live-tested negative). Between crashes you must physically press buttons on the TV. This makes high-frequency ladder runs impractical. **Fix:** the stage-0 payload *must* include a LAN beacon *and* an on-screen DirectFB write (via Presto's DFB layer) as primary readouts; service-mode counters are secondary, low-frequency confirmation only.
+   **EXTEND.** The senior reviewer correctly identifies that `HOST_WDT` counts hardware watchdog trips (full-system hang), not supervised-process crashes. The browser likely runs under a `procd`/`init` supervisor that respawns on SIGSEGV/SIGKILL: a clean exploit crash may *never* increment `HOST_WDT`. The 8-blink LED is the only per-crash signal, and its sensitivity is unmeasured. **Additional flaw:** the study's "SELF CHECK" readout requires the *physical remote* (service mode not armable via IRCC: live-tested negative). Between crashes you must physically press buttons on the TV. This makes high-frequency ladder runs impractical. **Fix:** the stage-0 payload *must* include a LAN beacon *and* an on-screen DirectFB write (via Presto's DFB layer) as primary readouts; service-mode counters are secondary, low-frequency confirmation only.
 
 4. **HIGH — Safety gates missing (Finding 4)**  
-   **AGREE.** The study lists "deliberate safety gates" as narrative; they are not encoded as pass/fail preconditions. **Add:** (a) payload manifest: `no open("/dev/mtd*", O_WRONLY)`, `no ioctl(MEMERASE/MEMWRITE)`, `no write()` to `/dev/block/*` — enforced by static analysis of shellcode bytes; (b) WAN quarantine: `iptables -A OUTPUT -o br0 -d ! 192.168.0.0/16 -j DROP` during test windows; (c) spray cap: `measured_headroom_MB - 32` (leave margin for middleware); (d) recovery rehearsal: document the exact physical-remote sequence for factory reset / service-mode "FACTORY INIT" before first induced crash.
+   **AGREE.** The study lists "deliberate safety gates" as narrative; they are not encoded as pass/fail preconditions. **Add:** (a) payload manifest: `no open("/dev/mtd*", O_WRONLY)`, `no ioctl(MEMERASE/MEMWRITE)`, `no write()` to `/dev/block/*`: enforced by static analysis of shellcode bytes; (b) WAN quarantine: `iptables -A OUTPUT -o br0 -d ! 192.168.0.0/16 -j DROP` during test windows; (c) spray cap: `measured_headroom_MB - 32` (leave margin for middleware); (d) recovery rehearsal: document the exact physical-remote sequence for factory reset / service-mode "FACTORY INIT" before first induced crash.
 
 5. **HIGH — Mobile-line lineage mislabeled (Finding 5)**  
-   **AGREE.** The study claims "fires on Opera Mobile of the same 2.7 core." Adversarial pass shows Mobile 10.x = Presto 2.4/2.5, Mobile 11.x = 2.8.149 (Wikipedia says Mobile 11.0 = 2.7.62 — conflict unresolved). **Correct statement:** "fires on cores bracketing 2.7 from below (2.4/2.5) and above (2.8.149/2.7.62), demonstrating the frameset-unload path survives cross-product compilation." Pull the exact Mobile UA strings from the researcher's blog (Nokia N8/Symbian^3 debug session) to anchor this.
+   **AGREE.** The study claims "fires on Opera Mobile of the same 2.7 core." Adversarial pass shows Mobile 10.x = Presto 2.4/2.5, Mobile 11.x = 2.8.149 (Wikipedia says Mobile 11.0 = 2.7.62: conflict unresolved). **Correct statement:** "fires on cores bracketing 2.7 from below (2.4/2.5) and above (2.8.149/2.7.62), demonstrating the frameset-unload path survives cross-product compilation." Pull the exact Mobile UA strings from the researcher's blog (Nokia N8/Symbian^3 debug session) to anchor this.
 
 6. **MEDIUM — MIME/timing controls for trigger (Finding 6)**  
-   **AGREE.** `application/xhtml+xml` is mandatory — `text/html` uses a different parser path in Presto. Unload must be triggered via multiple mechanisms: `<meta http-equiv="refresh">`, `location.href = ...`, `iframe.remove()`, `window.open('','_self')`. Minimum 3 trials per mechanism. Document that a single silent run = non-result.
+   **AGREE.** `application/xhtml+xml` is mandatory: `text/html` uses a different parser path in Presto. Unload must be triggered via multiple mechanisms: `<meta http-equiv="refresh">`, `location.href = ...`, `iframe.remove()`, `window.open('','_self')`. Minimum 3 trials per mechanism. Document that a single silent run = non-result.
 
 7. **MEDIUM — "No ASLR on MIPS" overbroad (Finding 7)**  
-   **AGREE.** `mmap`/library base is deterministic (no `HAVE_ARCH_PICK_MMAP_LAYOUT` for MIPS in 2.6.35). But `randomize_va_space` (sysctl) enables `randomize_stack_top()` and `arch_randomize_brk()` — arch-independent. Sony's init scripts may set `vm.mmap_rnd_bits`/`vm.mmap_rnd_compat_bits` (backported?). **Fix:** treat stack/brk as *potentially* randomized; add `cat /proc/self/maps` beacon in stage-0 to measure actual layout per run.
+   **AGREE.** `mmap`/library base is deterministic (no `HAVE_ARCH_PICK_MMAP_LAYOUT` for MIPS in 2.6.35). But `randomize_va_space` (sysctl) enables `randomize_stack_top()` and `arch_randomize_brk()`: arch-independent. Sony's init scripts may set `vm.mmap_rnd_bits`/`vm.mmap_rnd_compat_bits` (backported?). **Fix:** treat stack/brk as *potentially* randomized; add `cat /proc/self/maps` beacon in stage-0 to measure actual layout per run.
 
 8. **MEDIUM — Allocation geometry unknowable ex ante (Finding 8)**  
-   **EXTEND.** The senior reviewer notes Opera's sub-allocator may intercept large blocks. **Deeper:** Presto's `OpMemory`/`HeapAllocator` carves a single large `mmap` region at startup (typically 64–128 MB on embedded) and sub-allocates DOM/JS objects from it. `%u`-encoded JS strings may be allocated from this arena *or* from glibc via `malloc` — depends on string length and Presto's `StringImpl` threshold. The 1 MB spray blocks in the PoC likely exceed Presto's internal threshold and fall back to `malloc` → `mmap`, but **this is unverified**. The spray ladder *must* measure: (a) where each spray block lands (`/proc/self/maps` beacon), (b) whether adjacent blocks are contiguous (required for sled reliability), (c) whether the allocator returns `MAP_FIXED` regions (unlikely). **Do not assume glibc malloc geometry.**
+   **EXTEND.** The senior reviewer notes Opera's sub-allocator may intercept large blocks. **Deeper:** Presto's `OpMemory`/`HeapAllocator` carves a single large `mmap` region at startup (typically 64–128 MB on embedded) and sub-allocates DOM/JS objects from it. `%u`-encoded JS strings may be allocated from this arena *or* from glibc via `malloc`: depends on string length and Presto's `StringImpl` threshold. The 1 MB spray blocks in the PoC likely exceed Presto's internal threshold and fall back to `malloc` → `mmap`, but **this is unverified**. The spray ladder *must* measure: (a) where each spray block lands (`/proc/self/maps` beacon), (b) whether adjacent blocks are contiguous (required for sled reliability), (c) whether the allocator returns `MAP_FIXED` regions (unlikely). **Do not assume glibc malloc geometry.**
 
 9. **MEDIUM — Stockpile lane-fit alternates (Finding 9)**  
    **AGREE.** CVE-2012-6468 (long HTTP response heap overflow) is the highest-value hedge: pure server-side, triggers on *any* fetch the attacker controls (DNS-redirected portal, widget manifest, `<img>`, `<svg>`, XHR). CVE-2012-3561 (URL-string allocation) via 302 `Location` header. CVE-2012-6470 (GIF) via `<img>`. CVE-2012-6465/2013-1638 (SVG clipPaths) and CVE-2013-1637 (DOM events) fire from any rendered page. **All six require no URL-entry UI.** They fit Lanes 2–4 (DNS redirect) and the HbbTV broadband path. Stockpile PoCs for each; test in parallel with 2628.
 
 10. **MEDIUM — Promote root-daemon audit and Ginga lane (Finding 10)**  
     **EXTEND.** The non-browser surfaces are *always-on, unauthenticated, root-privilege* (or `root`-equivalent via `libupnp`/`libmicrohttpd` running as `root` on AZ2-F):
-    - **UPnP SetAVTransportURI**: `libupnp` 1.6.x parser for `URI` argument (unvalidated length, scheme, path) — classic stack/heap overflow surface.
+    - **UPnP SetAVTransportURI**: `libupnp` 1.6.x parser for `URI` argument (unvalidated length, scheme, path): classic stack/heap overflow surface.
     - **SUBSCRIBE / CALLBACK**: GENA eventing delivers `NOTIFY` to attacker-controlled `CALLBACK` URLs (SSRF, parser bugs, internal service enumeration).
     - **libmicrohttpd 0.4.6** (s2mtv endpoint): known CVEs (CVE-2012-2741 path traversal, CVE-2013-0294 DoS), but more importantly: minimal request parsing, no limits on header/body size, runs as `root`.
-    - **UDP 7776**: bound socket, undocumented protocol. Black-box fuzz with `radamsa`/`boofuzz` from LAN — zero cost, high yield.
+    - **UDP 7776**: bound socket, undocumented protocol. Black-box fuzz with `radamsa`/`boofuzz` from LAN: zero cost, high yield.
     - **Ginga/ISDB-Tb**: the *only* standards-native broadcast lane. CPqD SBSeg 2010 demonstrated root via malicious NCL/Lua (TQTVD Astro engine). Same `gr-isdbt` modulator gear. **Promote to Lane 1b (parallel to browser lane).**
 
 11. **LOW — AIT descriptor labeling (Finding 11)**  
@@ -322,7 +322,7 @@ The senior reviewer is technically precise on the two CRITICAL findings (DVB-AIT
 
 ---
 
-## B. Additions — Missed by Both Study and Senior Reviewer
+## B. Additions: Missed by Both Study and Senior Reviewer
 
 1. **UPnP GENA SUBSCRIBE / CALLBACK handling** — The `libupnp` stack processes `SUBSCRIBE` with `CALLBACK` headers containing attacker-controlled URLs (IPv6, internal IPs, redirects, long paths). This hits the event delivery HTTP client code path (often a minimal `libcurl`/`wget`-like fetcher running as `root`). No analysis in study; no fuzz plan.
 
@@ -347,7 +347,7 @@ The senior reviewer is technically precise on the two CRITICAL findings (DVB-AIT
 
 9. **DNS rebinding / same-origin on LAN** — If the browser loads a page from `http://tv.local/...` (DNS-redirected portal), its same-origin policy applies to `tv.local`. Sub-resources (XHR, fetch, WebSocket) to `192.168.0.x` may be blocked unless CORS headers are served. **Exploit payload must be same-origin or serve CORS.**
 
-10. **Ginga NCL/Lua engine version** — CPqD SBSeg 2010 exploited Lua 5.1 sandbox escape in TQTVD Astro. **What Lua version ships on PKG4.027BRA?** `strings` on Ginga binaries post-root. If Lua 5.1, the sandbox escape is a known, reliable root path via broadcast NCL — no browser needed.
+10. **Ginga NCL/Lua engine version** — CPqD SBSeg 2010 exploited Lua 5.1 sandbox escape in TQTVD Astro. **What Lua version ships on PKG4.027BRA?** `strings` on Ginga binaries post-root. If Lua 5.1, the sandbox escape is a known, reliable root path via broadcast NCL: no browser needed.
 
 ---
 

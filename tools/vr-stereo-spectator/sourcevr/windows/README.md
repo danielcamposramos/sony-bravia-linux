@@ -1,6 +1,7 @@
 # Windows builds of the display module, from Linux
 
-The module (`src/sourcevr_display` on [the Sparky Stereo OS fork of Valve's SDK](https://github.com/Sparky-OS/source-sdk-2013/tree/stereo3d-full-res-wip/src/sourcevr_display)) builds for Windows in Valve's own route (VPC, Visual Studio 2022). These scripts build it from Linux instead, for testing before a Windows boot, and load it under Wine.
+The module (`src/sourcevr_display` on [the Sparky Stereo OS fork of Valve's SDK](https://github.com/Sparky-OS/source-sdk-2013/tree/stereo3d-full-res-wip/src/sourcevr_display)) builds for Windows in Valve's own route (VPC, Visual Studio 2022).
+These scripts build it from Linux instead, for testing before a Windows boot, and load it under Wine.
 
 Today's Half-Life 2 on Windows is 32-bit (Steam launches `hl2.exe` and lists no 64-bit Half-Life 2; Half-Life 2: Deathmatch has `hl2mp_win64.exe`), so both architectures are built: x86 for Half-Life 2 today, x64 for the 64-bit Source engines and the future (Daniel: 64-bit is the main one).
 
@@ -23,4 +24,6 @@ docker build -t svrtv-winetest -f Dockerfile.winetest .
 ./test-win.sh /path/to/src-cross /path/to/out
 ```
 
-Result on 2026-09-28 (fork commit `4c79423`): both DLLs link against tier0 only (six symbols) and kernel32, no runtime to install; under Wine both load, find their own folder, write their log there and pass the geometry test in all four formats. What Wine cannot show is the game itself: the first in-game run on Windows is Daniel's test. The end-user packages are assembled by `../package/make-packages.sh`.
+Result on 2026-09-28 (fork commit `4c79423`): both DLLs link against tier0 only (six symbols) and kernel32, no runtime to install; under Wine both load, find their own folder, write their log there and pass the geometry test in all four formats.
+What Wine cannot show is the game itself: the first in-game run on Windows is Daniel's test.
+The end-user packages are assembled by `../package/make-packages.sh`.

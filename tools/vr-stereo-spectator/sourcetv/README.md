@@ -1,8 +1,10 @@
 # SourceTV demo analysis
 
-`entity_trace.rs` reads a Source SourceTV demo (network protocol 24: Team Fortress 2, Half-Life 2: Deathmatch, the Source SDK 2013 multiplayer games) and reports, per entity, how often it was sent as entering (created), preserved (updated), leaving or deleted, plus any update for an entity the client never created (the condition behind the engine's `Host_Error: CL_PreserveExistingEntity: missing client entity`). With an entity index it lists that entity's every event.
+`entity_trace.rs` reads a Source SourceTV demo (network protocol 24: Team Fortress 2, Half-Life 2: Deathmatch, the Source SDK 2013 multiplayer games) and reports, per entity, how often it was sent as entering (created), preserved (updated), leaving or deleted, plus any update for an entity the client never created (the condition behind the engine's `Host_Error: CL_PreserveExistingEntity: missing client entity`).
+With an entity index it lists that entity's every event.
 
-It is a binary for the TF2 community's demo parser, [demostf/parser](https://github.com/demostf/parser) (used here at `e1425a7`); the parser is not part of this repository. Built and run in a throwaway container:
+It is a binary for the TF2 community's demo parser, [demostf/parser](https://github.com/demostf/parser) (used here at `e1425a7`); the parser is not part of this repository.
+Built and run in a throwaway container:
 
 ```sh
 git clone https://github.com/demostf/parser.git && cd parser
