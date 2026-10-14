@@ -181,12 +181,12 @@ stops transcoding what these sets already play
 ([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
 merged 2026-09-19, released in 15.9.0 on 2026-10-05). The UMS patch was written after its maintainer read
 the measurements and asked for code. MKVToolNix's HEVC half followed on
-2026-10-11. Since then the front has grown: Qt Multimedia reports the stream's layout to every Qt player
+2026-10-11. Since then the front has grown, among others: Qt Multimedia reports the stream's layout to every Qt player
 ([778399](https://codereview.qt-project.org/c/qt/qtmultimedia/+/778399), merged 2026-10-08), Bino shows
 right-eye-first videos the right way round ([e1be2918fe](https://github.com/marlam/bino/commit/e1be2918fe),
 applied 2026-10-09), PeerTube keeps the packing when it transcodes an upload
 ([#7816](https://github.com/Chocobozzz/PeerTube/pull/7816), merged 2026-10-13), and wiz3D builds on Linux for
-games under Proton ([#33](https://github.com/effcol/wiz3D/pull/33), merged 2026-10-13); the full list is
+games under Proton ([#33](https://github.com/effcol/wiz3D/pull/33), merged 2026-10-13); the full list, kept current, is
 [Merged outside Sparky Stereo](https://github.com/Sparky-OS/sparky-stereo-os/blob/main/docs/upstream-merges.md).
 In review: two FFmpeg PRs; VLC's fix ships in our own builds.
 
