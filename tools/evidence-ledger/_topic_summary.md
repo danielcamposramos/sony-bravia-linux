@@ -1,16 +1,12 @@
 # Evidence Ledger tool
 
-This small Python 3.11+ tool validates the append-only Signal Ledger and
-generates its human-readable diagnostic view.
+This small Python 3.11+ tool validates the append-only Signal Ledger and generates its human-readable diagnostic view.
 
-- `ledger.py.source` is the commented SOURCE projection and the only code file
-  partners edit.
+- `ledger.py.source` is the commented SOURCE projection and the only code file partners edit.
 - `ledger.py` is the generated machine-runtime projection.
 - `ledger.py.md` is the human-readable contract.
-- `federation.py.source` and its projections verify immutable pointers from
-  consumer repositories without copying claim bodies.
-- `tests/` contains the adversarial gates, including the visible-sink poison
-  pill that must be rejected when presented as an instrument measurement.
+- `federation.py.source` and its projections verify immutable pointers from consumer repositories without copying claim bodies.
+- `tests/` contains the adversarial gates, including the visible-sink poison pill that must be rejected when presented as an instrument measurement.
 
 Commands:
 

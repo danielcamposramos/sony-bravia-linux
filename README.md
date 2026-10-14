@@ -2,220 +2,105 @@
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23308991.svg)](https://doi.org/10.5281/zenodo.23308991)
 
-Reverse-engineering and software porting for **Sony BRAVIA KDL-era TVs** — the
-pre-Android, Linux-based BRAVIA platform (~2005–2015). Goal: understand the
-platform well enough to run third-party software on it (e.g. VLC) and unlock
-more internet content than the stock firmware allows.
-*AI was leveraged as a partner in the development of this work — [more information here](PROVENANCE.md).*
+Reverse-engineering and software porting for **Sony BRAVIA KDL-era TVs**: the pre-Android, Linux-based BRAVIA platform (~2005–2015).
+Goal: understand the platform well enough to run third-party software on it (e.g. VLC) and unlock more internet content than the stock firmware allows.
+*AI was leveraged as a partner in the development of this work: [more information here](PROVENANCE.md).*
 
-**Everything stereo, in one list: [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy).** The public map this project grew into, released under CC0: history, formats, standards, players, displays and headsets, and [where the stereo videos on YouTube are](https://github.com/danielcamposramos/awesome-stereoscopy/blob/main/stereo-video-on-youtube.md). Its sister lists: [awesome-vr](https://github.com/danielcamposramos/awesome-vr), [awesome-ar](https://github.com/danielcamposramos/awesome-ar), [awesome-linux-hdr](https://github.com/danielcamposramos/awesome-linux-hdr).
+**Everything stereo, in one list: [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy).**
+The public map this project grew into, released under CC0: history, formats, standards, players, displays and headsets, and [where the stereo videos on YouTube are](https://github.com/danielcamposramos/awesome-stereoscopy/blob/main/stereo-video-on-youtube.md).
+Its sister lists: [awesome-vr](https://github.com/danielcamposramos/awesome-vr), [awesome-ar](https://github.com/danielcamposramos/awesome-ar), [awesome-linux-hdr](https://github.com/danielcamposramos/awesome-linux-hdr).
 
-**In your language** — the problem and the fix, for owners searching in their own words:
-[日本語 · ブラビア 3Dテレビで3D映像・3D写真をもう一度](docs/i18n/ja.md) ·
-[繁體中文 · BRAVIA 3D 電視重新播放 3D 影片與照片](docs/i18n/zh-TW.md) ·
-[한국어 · 브라비아 3D TV에서 3D 영상과 사진 다시 보기](docs/i18n/ko.md) ·
-[Deutsch · 3D-Filme und 3D-Fotos wieder abspielen](docs/i18n/de.md) ·
-[Français · relire les films et photos 3D](docs/i18n/fr.md) ·
-[Italiano · rivedere film e foto 3D](docs/i18n/it.md) ·
-[Español · volver a ver películas y fotos 3D](docs/i18n/es.md) ·
-[Português (BR) · assistir de novo a filmes e fotos 3D](docs/i18n/pt-BR.md) ·
-[Русский · снова смотреть 3D-фильмы и 3D-фото](docs/i18n/ru.md) ·
-[Polski · znowu oglądaj filmy i zdjęcia 3D](docs/i18n/pl.md) ·
-[Nederlands · weer 3D-films en 3D-foto's afspelen](docs/i18n/nl.md)
+**In your language**: the problem and the fix, for owners searching in their own words: [日本語 · ブラビア 3Dテレビで3D映像・3D写真をもう一度](docs/i18n/ja.md) · [繁體中文 · BRAVIA 3D 電視重新播放 3D 影片與照片](docs/i18n/zh-TW.md) · [한국어 · 브라비아 3D TV에서 3D 영상과 사진 다시 보기](docs/i18n/ko.md) · [Deutsch · 3D-Filme und 3D-Fotos wieder abspielen](docs/i18n/de.md) · [Français · relire les films et photos 3D](docs/i18n/fr.md) · [Italiano · rivedere film e foto 3D](docs/i18n/it.md) · [Español · volver a ver películas y fotos 3D](docs/i18n/es.md) · [Português (BR) · assistir de novo a filmes e fotos 3D](docs/i18n/pt-BR.md) · [Русский · снова смотреть 3D-фильмы и 3D-фото](docs/i18n/ru.md) · [Polski · znowu oglądaj filmy i zdjęcia 3D](docs/i18n/pl.md) · [Nederlands · weer 3D-films en 3D-foto's afspelen](docs/i18n/nl.md)
 
-**If you searched for** *"Sony Bravia 3D side by side USB not working"*,
-*"3D mode in Sony Bravia"*, *"Bravia 3D photos MPO USB"*, *"is 3D only via
-HDMI?"* or *"how to view JPS on a Sony 3D TV"*: the video answer is the
-[3D signalling explainer](docs/3d-signalling-explainer.md), the photo answer
-is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
+**If you searched for** *"Sony Bravia 3D side by side USB not working"*, *"3D mode in Sony Bravia"*, *"Bravia 3D photos MPO USB"*, *"is 3D only via HDMI?"* or *"how to view JPS on a Sony 3D TV"*: the video answer is the [3D signalling explainer](docs/3d-signalling-explainer.md), the photo answer is [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md).
 
 ## What's working today
 
-**The full media experience is live and verified by Daniel on both TVs (through
-2026-09-18):**
+**The full media experience is live and verified by Daniel on both TVs (through 2026-09-18):**
 
-- Both sets browse the whole Serviio library on the LAN and play every audio
-  format in it (native + live transcode) and every major video format, with
-  Dolby AC-3/E-AC3 bit-exact through the sets' own decoders.
-- The player is the set's **own native transport**, enlarged ~3x for couch
-  distance, with cover art, prev/next, cookie-persisted repeat, and a `/manual`
-  page on the TV in the user's language. The era platform's input and render
-  rules behind that design are measured, not guessed:
-  [era-key-vocabulary.md](docs/era-key-vocabulary.md),
-  [era-media-element.md](docs/era-media-element.md).
-- The TV's start page (`rd1.sony.net`) is served from our own box, and the
-  withheld regional widgets are restored to the gallery from Daniel's
-  signed bundles.
-- Everything runs as systemd services with a config file —
-  **"VLC on a 2011 TV" is reached.**
-- **The original soundtrack survives too (measured 2026-09-18).** These
-  sets decode **Dolby Digital Plus, 7.1 included**, from MP4 over DLNA,
-  so the Serviio profile now ships a *Surround* variant that serves MP4
-  with AC-3, E-AC3 or AAC **untouched** rather than converting every
-  track to 384k AC-3. What each set actually accepts, by path and read
-  from its own EDID, is in
-  [audio-capabilities.md](docs/audio-capabilities.md).
-- **Daniel's own 3D library is repaired, not just diagnosed (2026-09-20).**
-  [tools/bravia_sei3d.py](tools/bravia_sei3d.py) injects the missing SEI into
-  the existing H.264 stream without re-encoding, so the picture data stays
-  byte-identical and the file grows by about 0.002%. **39 files fixed** across
-  the library, each one verified before the original was replaced: the SEI must
-  be present, the stream count must match, and the duration must land within two
-  seconds. Three failure classes were found by running it rather than by reading
-  it, and all three are fixed in the tool: scratch files filling a full disk,
-  variable-frame-rate sources running 48 seconds long when a constant rate was
-  forced (now carried through `mkvextract timestamps_v2`), and the OOM killer
-  taking the process down on tracks larger than RAM (now an `mmap` stream, so
-  memory stays flat on a 14 GiB track).
-- **The whole method is published** for anyone with one of these sets:
-  [build-your-own-bravia-portal.md](docs/build-your-own-bravia-portal.md) —
-  two DNS overrides, the era-TLS vhost, the media app, the widget-restore
-  catalog edit, and every platform gotcha we hit.
+- Both sets browse the whole Serviio library on the LAN and play every audio format in it (native + live transcode) and every major video format, with Dolby AC-3/E-AC3 bit-exact through the sets' own decoders.
+- The player is the set's **own native transport**, enlarged ~3x for couch distance, with cover art, prev/next, cookie-persisted repeat, and a `/manual` page on the TV in the user's language. The era platform's input and render rules behind that design are measured, not guessed: [era-key-vocabulary.md](docs/era-key-vocabulary.md), [era-media-element.md](docs/era-media-element.md).
+- The TV's start page (`rd1.sony.net`) is served from our own box, and the withheld regional widgets are restored to the gallery from Daniel's signed bundles.
+- Everything runs as systemd services with a config file: **"VLC on a 2011 TV" is reached.**
+- **The original soundtrack survives too (measured 2026-09-18).** These sets decode **Dolby Digital Plus, 7.1 included**, from MP4 over DLNA, so the Serviio profile now ships a *Surround* variant that serves MP4 with AC-3, E-AC3 or AAC **untouched** rather than converting every track to 384k AC-3. What each set actually accepts, by path and read from its own EDID, is in [audio-capabilities.md](docs/audio-capabilities.md).
+- **Daniel's own 3D library is repaired, not just diagnosed (2026-09-20).** [tools/bravia_sei3d.py](tools/bravia_sei3d.py) injects the missing SEI into the existing H.264 stream without re-encoding, so the picture data stays byte-identical and the file grows by about 0.002%. **39 files fixed** across the library, each one verified before the original was replaced: the SEI must be present, the stream count must match, and the duration must land within two seconds. Three failure classes were found by running it rather than by reading it, and all three are fixed in the tool: scratch files filling a full disk, variable-frame-rate sources running 48 seconds long when a constant rate was forced (now carried through `mkvextract timestamps_v2`), and the OOM killer taking the process down on tracks larger than RAM (now an `mmap` stream, so memory stays flat on a 14 GiB track).
+- **The whole method is published** for anyone with one of these sets: [build-your-own-bravia-portal.md](docs/build-your-own-bravia-portal.md): two DNS overrides, the era-TLS vhost, the media app, the widget-restore catalog edit, and every platform gotcha we hit.
 
-**And the fix is landing upstream, not just here.** The missing 3D
-signal is now written by **HandBrake** ([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100),
-merged 2026-09-16) and by **Universal Media Server**
-([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
-merged 2026-09-19, after its maintainer read the measurements and asked
-for the code) — the encoder end and the server end of the same chain.
+**And the fix is landing upstream, not just here.**
+The missing 3D signal is now written by **HandBrake** ([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100), merged 2026-09-16) and by **Universal Media Server** ([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330), merged 2026-09-19, after its maintainer read the measurements and asked for the code): the encoder end and the server end of the same chain.
 Universal Media Server shipped it in [15.9.0](https://github.com/UniversalMediaServer/UniversalMediaServer/releases/tag/15.9.0) on 2026-10-05, with these two lines in its changelog: "Enable media players to automatically detect when videos are 3D (thanks, Daniel Ramos!)" and "Improved support for Sony TVs from 2011 to current (thanks, Daniel Ramos!)".
-**MKVToolNix** now carries it into Matroska
-([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) for H.264, merged
-2026-09-21, and [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) for HEVC, merged 2026-10-11 with the
-maintainer's own tests), and **mpv** now reads it
-([PR #18490](https://github.com/mpv-player/mpv/pull/18490), merged
-2026-09-23 by its lead maintainer, kasper93). Everyone with one of these
-televisions benefits from those merges without ever finding this
-repository. See
-[the campaign](#the-3d-signalling-campaign) for the whole front.
+**MKVToolNix** now carries it into Matroska ([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) for H.264, merged 2026-09-21, and [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) for HEVC, merged 2026-10-11 with the maintainer's own tests), and **mpv** now reads it ([PR #18490](https://github.com/mpv-player/mpv/pull/18490), merged 2026-09-23 by its lead maintainer, kasper93).
+Everyone with one of these televisions benefits from those merges without ever finding this repository.
+See [the campaign](#the-3d-signalling-campaign) for the whole front.
 
-The single partner entry point, kept current, is
-[docs/project-status.md](docs/project-status.md) — read it first.
+The single partner entry point, kept current, is [docs/project-status.md](docs/project-status.md): read it first.
 
-Claims with hardware consequences also have a machine-checked
-[Signal Ledger](docs/reference/evidence-ledger/claims.md): measurements,
-Daniel's physical observations, standards citations, inferences and untested
-scope remain separate, artifact hashes are verified, and corrections are
-append-only rather than silently rewriting history.
+Claims with hardware consequences also have a machine-checked [Signal Ledger](docs/reference/evidence-ledger/claims.md): measurements, Daniel's physical observations, standards citations, inferences and untested scope remain separate, artifact hashes are verified, and corrections are append-only rather than silently rewriting history.
 
-**The display end (2026-09-20 to 09-23).** The same bench drives both sets
-from a GA106 RTX 3060 and an AMD card, so the PC side of the HDMI link was
-measured too. Stock nouveau turned out to be HDMI 3D-capable already, for
-programs that ask for it; what it lacked was Deep Color and YCbCr output.
-We wrote both, and the RTX 3060 drove the HX855 at 12-bit RGB in
-frame-packed 3D: **passed with full colors (pun intended)**
-([the handoff](docs/research/deep-color-dual-upstream-handoff-2026-09-22.md)).
-Lyude Paul, the nouveau maintainer, declined our series because Mohamed
-Ahmed is implementing the same features by hand, together with the display
-bandwidth allocation ours lacked. Daniel withdrew them and moved the work
-onto that branch. A two-line compliance fix to the HDMI General Control
-Packet (declaring 10-bit colour, as the specification requires) was
-measured on both sets (runs 30–32). Our colour-format work, ported to his
-branch as a proof of concept, passes all 22 steps on both sets (runs
-33–34): Broadcast RGB, YCbCr 4:4:4 and 4:2:2 at 12, 10 and 8 bits, 3D in
-four layouts, and the SD colour matrix
-([logs](tools/stereo-modeset/)). Both go to Mohamed as offers. The
-proprietary NVIDIA driver and amdgpu fronts are in
-[the campaign table](#the-3d-signalling-campaign). This is SDR transport,
-not an HDR claim; 16-bit and HDR are standards-backed follow-ups for
-hardware we do not own.
+**The display end (2026-09-20 to 09-23).**
+The same bench drives both sets from a GA106 RTX 3060 and an AMD card, so the PC side of the HDMI link was measured too.
+Stock nouveau turned out to be HDMI 3D-capable already, for programs that ask for it; what it lacked was Deep Color and YCbCr output.
+We wrote both, and the RTX 3060 drove the HX855 at 12-bit RGB in frame-packed 3D: **passed with full colors (pun intended)** ([the handoff](docs/research/deep-color-dual-upstream-handoff-2026-09-22.md)).
+Lyude Paul, the nouveau maintainer, declined our series because Mohamed Ahmed is implementing the same features by hand, together with the display bandwidth allocation ours lacked.
+Daniel withdrew them and moved the work onto that branch.
+A two-line compliance fix to the HDMI General Control Packet (declaring 10-bit colour, as the specification requires) was measured on both sets (runs 30–32).
+Our colour-format work, ported to his branch as a proof of concept, passes all 22 steps on both sets (runs 33–34): Broadcast RGB, YCbCr 4:4:4 and 4:2:2 at 12, 10 and 8 bits, 3D in four layouts, and the SD colour matrix ([logs](tools/stereo-modeset/)).
+Both go to Mohamed as offers.
+The proprietary NVIDIA driver and amdgpu fronts are in [the campaign table](#the-3d-signalling-campaign).
+This is SDR transport, not an HDR claim; 16-bit and HDR are standards-backed follow-ups for hardware we do not own.
 
-## Repository scope — what is and isn't here
+## Repository scope: what is and isn't here
 
-This public repo contains **only our own work**: research notes, protocol
-captures from our own TVs, analysis, and tooling (the Serviio 3D fix, SEI
-injector, ffmpeg wrapper). **No Sony-distributed material is hosted here** —
-no firmware images, service manuals, widget packages, or Sony-server
-sweeps. Those resources were gathered for research and are kept offline by
-Daniel; the right-to-repair plan for that material is in
-[docs/right-to-repair.md](docs/right-to-repair.md). Some older research
-notes may still reference those filenames — they refer to Daniel's
-offline archive, not to anything in this repository.
+This public repo contains **only our own work**: research notes, protocol captures from our own TVs, analysis, and tooling (the Serviio 3D fix, SEI injector, ffmpeg wrapper).
+**No Sony-distributed material is hosted here**: no firmware images, service manuals, widget packages, or Sony-server sweeps.
+Those resources were gathered for research and are kept offline by Daniel; the right-to-repair plan for that material is in [docs/right-to-repair.md](docs/right-to-repair.md).
+Some older research notes may still reference those filenames: they refer to Daniel's offline archive, not to anything in this repository.
 
-**And it is bounded by generation, deliberately.** Everything here is the
-2011-2012 pre-Android line, and specifically the `AZ1`, `AZ2` and `AZ3`
-chassis families, because that is what the code, the catalogs and the
-service manuals we hold actually cover. Sony's later Android sets are a
-different platform with different gates, and any findings on them belong
-in a sister repository rather than being folded in here. A generation is
-the unit this work is true for, and stretching the claim past the evidence
-would cost exactly the thing that makes the rest of it useful. If someone
-tests an Android-era set and the browser or photo-viewer gates behave
-differently, that is a new repository and a welcome one, linked from here.
+**And it is bounded by generation, deliberately.**
+Everything here is the 2011-2012 pre-Android line, and specifically the `AZ1`, `AZ2` and `AZ3` chassis families, because that is what the code, the catalogs and the service manuals we hold actually cover.
+Sony's later Android sets are a different platform with different gates, and any findings on them belong in a sister repository rather than being folded in here.
+A generation is the unit this work is true for, and stretching the claim past the evidence would cost exactly the thing that makes the rest of it useful.
+If someone tests an Android-era set and the browser or photo-viewer gates behave differently, that is a new repository and a welcome one, linked from here.
 
 ## Why bother (the right-to-repair angle)
 
-These late-KDL sets are phenomenal hardware — the KDL-46HX855 has
-X-Reality PRO with 12-bit color processing and active 3D, and picture
-quality that still embarrasses many modern budget panels. Sony EOL'd the
-platform: smart services shut down (five dated end-of-service notices name
-both of our models — [the archive](docs/sony-end-of-service-statements.md)),
-firmware downloads removed, even the GPL source downloads were deleted from
-Sony's site. The owner is now the only party with any incentive to keep
-this hardware alive. This project is right-to-repair work: document,
-control, and eventually run owner-chosen software on owner-owned hardware.
-See [docs/right-to-repair.md](docs/right-to-repair.md) (includes the Louis
-Rossmann / repair.wiki / FULU Foundation sharing plan) and the
-consumer-rights documentation
-([legal analysis](docs/legal-eula-analysis.md),
-[regional asymmetry](docs/regional-documentation-asymmetry.md)).
+These late-KDL sets are phenomenal hardware: the KDL-46HX855 has X-Reality PRO with 12-bit color processing and active 3D, and picture quality that still embarrasses many modern budget panels.
+Sony EOL'd the platform: smart services shut down (five dated end-of-service notices name both of our models: [the archive](docs/sony-end-of-service-statements.md)), firmware downloads removed, even the GPL source downloads were deleted from Sony's site.
+Daniel is now the only party with any incentive to keep this hardware alive.
+This project is right-to-repair work: document, control, and eventually run owner-chosen software on owner-owned hardware.
+See [docs/right-to-repair.md](docs/right-to-repair.md) (includes the Louis Rossmann / repair.wiki / FULU Foundation sharing plan) and the consumer-rights documentation ([legal analysis](docs/legal-eula-analysis.md), [regional asymmetry](docs/regional-documentation-asymmetry.md)).
 
 ## The 3D-signalling campaign
 
-These sets auto-engage 3D from exactly one signal — the H.264
-frame-packing SEI (payload 45) — and ignore the Matroska StereoMode tag
-every standard rip carries, so 3D DLNA playback silently fails on
-perfectly good hardware. The diagnosis plus a working fix was taken
-upstream to every tool in the encode → remux → player pipeline, and then
-to the DLNA servers that serve the files.
+These sets auto-engage 3D from exactly one signal: the H.264 frame-packing SEI (payload 45), and ignore the Matroska StereoMode tag every standard rip carries, so 3D DLNA playback silently fails on perfectly good hardware.
+The diagnosis plus a working fix was taken upstream to every tool in the encode → remux → player pipeline, and then to the DLNA servers that serve the files.
 
-**Four merges, and the chain is closed end to end: encode, remux, play
-and serve.** HandBrake writes the SEI when it encodes
-([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100), merged
-2026-09-16), MKVToolNix sets the Matroska stereo tag from it when it
-remuxes ([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311),
-merged 2026-09-21), mpv reads the layout from the stream when it plays
-([PR #18490](https://github.com/mpv-player/mpv/pull/18490), merged
-2026-09-23), and Universal Media Server writes it when it transcodes *and*
-stops transcoding what these sets already play
-([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330),
-merged 2026-09-19, released in 15.9.0 on 2026-10-05). The UMS patch was written after its maintainer read
-the measurements and asked for code. MKVToolNix's HEVC half followed on
-2026-10-11. Since then the front has grown, among others: Qt Multimedia reports the stream's layout to every Qt player
-([778399](https://codereview.qt-project.org/c/qt/qtmultimedia/+/778399), merged 2026-10-08), Bino shows
-right-eye-first videos the right way round ([e1be2918fe](https://github.com/marlam/bino/commit/e1be2918fe),
-applied 2026-10-09), PeerTube keeps the packing when it transcodes an upload
-([#7816](https://github.com/Chocobozzz/PeerTube/pull/7816), merged 2026-10-13), and wiz3D builds on Linux for
-games under Proton ([#33](https://github.com/effcol/wiz3D/pull/33), merged 2026-10-13); the full list, kept current, is
-[Merged outside Sparky Stereo](https://github.com/Sparky-OS/sparky-stereo-os/blob/main/docs/upstream-merges.md).
+**Four merges, and the chain is closed end to end: encode, remux, play and serve.**
+HandBrake writes the SEI when it encodes ([PR #8100](https://github.com/HandBrake/HandBrake/pull/8100), merged 2026-09-16), MKVToolNix sets the Matroska stereo tag from it when it remuxes ([!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311), merged 2026-09-21), mpv reads the layout from the stream when it plays ([PR #18490](https://github.com/mpv-player/mpv/pull/18490), merged 2026-09-23), and Universal Media Server writes it when it transcodes *and* stops transcoding what these sets already play ([PR #6330](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330), merged 2026-09-19, released in 15.9.0 on 2026-10-05).
+The UMS patch was written after its maintainer read the measurements and asked for code.
+MKVToolNix's HEVC half followed on 2026-10-11.
+Since then the front has grown, among others: Qt Multimedia reports the stream's layout to every Qt player ([778399](https://codereview.qt-project.org/c/qt/qtmultimedia/+/778399), merged 2026-10-08), Bino shows right-eye-first videos the right way round ([e1be2918fe](https://github.com/marlam/bino/commit/e1be2918fe), applied 2026-10-09), PeerTube keeps the packing when it transcodes an upload ([#7816](https://github.com/Chocobozzz/PeerTube/pull/7816), merged 2026-10-13), and wiz3D builds on Linux for games under Proton ([#33](https://github.com/effcol/wiz3D/pull/33), merged 2026-10-13); the full list, kept current, is [Merged outside Sparky Stereo](https://github.com/Sparky-OS/sparky-stereo-os/blob/main/docs/upstream-merges.md).
 In review: two FFmpeg PRs; VLC's fix ships in our own builds.
 
-Full drafts, per-target status,
-and links live in
-[docs/upstream/media-stack/](docs/upstream/media-stack/);
-the ecosystem evidence base (DVB mandate with honest scope, a decade of
-symptom threads, cross-brand survey, timed video citations) is
-[docs/3d-signalling-ecosystem.md](docs/3d-signalling-ecosystem.md); the
-short form linked in every upstream post is
-[docs/3d-signalling-explainer.md](docs/3d-signalling-explainer.md).
+Full drafts, per-target status, and links live in [docs/upstream/media-stack/](docs/upstream/media-stack/); the ecosystem evidence base (DVB mandate with honest scope, a decade of symptom threads, cross-brand survey, timed video citations) is [docs/3d-signalling-ecosystem.md](docs/3d-signalling-ecosystem.md); the short form linked in every upstream post is [docs/3d-signalling-explainer.md](docs/3d-signalling-explainer.md).
 
 | Front | Outcome |
 |---|---|
-| HandBrake | **[PR #8100 merged](https://github.com/HandBrake/HandBrake/pull/8100)** (2026-09-16) — encoder now writes the missing SEI; closes their #5826 |
-| FFmpeg | [bug #24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) + [enhancement #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) led to **[PR #24628](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24628), open 2026-09-22** — exports H.264/HEVC frame-packing SEI as stereo side data and tracks mid-stream changes; FATE samples verified. **[PR #24643](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24643), open 2026-09-23**, fixes #24530's `EEXIST` abort: the coded SEI wins by default, the container on request |
+| HandBrake | **[PR #8100 merged](https://github.com/HandBrake/HandBrake/pull/8100)** (2026-09-16): encoder now writes the missing SEI; closes their #5826 |
+| FFmpeg | [bug #24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530) + [enhancement #24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) led to **[PR #24628](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24628), open 2026-09-22**: exports H.264/HEVC frame-packing SEI as stereo side data and tracks mid-stream changes; FATE samples verified. **[PR #24643](https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/24643), open 2026-09-23**, fixes #24530's `EEXIST` abort: the coded SEI wins by default, the container on request |
 | StaxRip | [answered stranded user on #1873](https://github.com/staxrip/staxrip/issues/1873#issuecomment-5685902578) |
 | x265 | [issue #970](https://github.com/Multicorewareinc/x265/issues/970): the maintainers asked for a dedicated `--frame-packing` option, so it became **[PR #986](https://github.com/Multicorewareinc/x265/pull/986)** (CI green, contributor agreement sent); MulticoreWare is reviewing it and running independent bitstream tests against the reference SEI bytes (2026-10-06). The patch and the two stereo captures are in [docs/upstream/media-stack/x265-970/](docs/upstream/media-stack/x265-970/) |
-| mpv | **[PR #18490 merged](https://github.com/mpv-player/mpv/pull/18490)** (2026-09-23, by kasper93, closing [issue #18489](https://github.com/mpv-player/mpv/issues/18489)) — mpv reads the layout signalled in the stream (frame-packing SEI, MP4 `st3d`), and the bitstream wins over the container tag; kasper93 added three follow-ups of his own on top. Completes the pipeline end to end |
-| BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756) — answered, closed out, cross-brand confirmed (Samsung) |
+| mpv | **[PR #18490 merged](https://github.com/mpv-player/mpv/pull/18490)** (2026-09-23, by kasper93, closing [issue #18489](https://github.com/mpv-player/mpv/issues/18489)): mpv reads the layout signalled in the stream (frame-packing SEI, MP4 `st3d`), and the bitstream wins over the container tag; kasper93 added three follow-ups of his own on top. Completes the pipeline end to end |
+| BD3D2MK3D (r0lZ) | [videohelp thread](https://forum.videohelp.com/threads/395498-BD3D2MK3D-Convert-3D-BDs-or-MKV-to-3D-SBS-TAB-or-FS-MKV-Support-thread/page21#post2803756): answered, closed out, cross-brand confirmed (Samsung) |
 | MKVToolNix | **[!6311](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6311) (AVC) merged 2026-09-21; [!6312](https://codeberg.org/mbunkus/mkvtoolnix/pulls/6312) (HEVC) merged 2026-10-11** (`70889f220e`, with tests of the maintainer's own around our test files, `db3410509d`; #6309 closed), from [#6309](https://codeberg.org/mbunkus/mkvtoolnix/issues/6309). The HEVC branch was rebased over the merge, its sample set acknowledged by mbunkus, and all seven technical requests answered. Testing his review also found that `mkvmerge --stereo-mode 0:0` discarded an explicitly requested "mono"; the fix landed with the AVC work |
-| Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337) — DLNA profile mislabel (first version was wrong and corrected in place). **Verified by Daniel on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |
+| Kodi | [issue #29337](https://github.com/xbmc/xbmc/issues/29337): DLNA profile mislabel (first version was wrong and corrected in place). **Verified by Daniel on the EX725 through Kodi's own server: SEI-only MP4 → 3D engages automatically; same file minus the SEI → flat; MKV → not listed** ([harness](tools/kodi-dlna-test/README.md)); and the original Dolby survives: AC-3 and **E-AC3 7.1 decode natively** (set shows *Dolby Digital Plus*), DTS silent |
 | Jellyfin | [comment on PR #18060](https://github.com/jellyfin/jellyfin/pull/18060#issuecomment-5726381078) (layout-detection point) |
-| Universal Media Server | **[PR #6330 merged](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)** (2026-09-19) — the maintainer read the measurements on [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) and asked for code. Writes the frame-packing SEI on libx264 transcodes, and corrects the 2011–2012 Bravia profiles: the EX725 profile had **no MP4 line at all**, so every MP4 was transcoded on a set that plays it directly, and **E-AC3 is now declared** (decoded to 7.1, shown as *Dolby Digital Plus*). **Released in [15.9.0](https://github.com/UniversalMediaServer/UniversalMediaServer/releases/tag/15.9.0)** (2026-10-05), credited in its changelog |
-| Gerbera | [issue #3937](https://github.com/gerbera/gerbera/issues/3937) filed — the no-remux SEI-injection step |
-| Media3 / ExoPlayer | [issue #3419](https://github.com/androidx/media/issues/3419) filed 2026-09-19 — Android never parses this SEI at all. Revives [ExoPlayer #7869](https://github.com/google/ExoPlayer/issues/7869), whose 2020 answer was *"as you are the first one to ask for it, we will probably not look into it"*. **Triaged 2026-09-22: maintainer microkatz self-assigned**, the lane's first maintainer contact |
+| Universal Media Server | **[PR #6330 merged](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6330)** (2026-09-19): the maintainer read the measurements on [issue #6329](https://github.com/UniversalMediaServer/UniversalMediaServer/issues/6329) and asked for code. Writes the frame-packing SEI on libx264 transcodes, and corrects the 2011–2012 Bravia profiles: the EX725 profile had **no MP4 line at all**, so every MP4 was transcoded on a set that plays it directly, and **E-AC3 is now declared** (decoded to 7.1, shown as *Dolby Digital Plus*). **Released in [15.9.0](https://github.com/UniversalMediaServer/UniversalMediaServer/releases/tag/15.9.0)** (2026-10-05), credited in its changelog |
+| Gerbera | [issue #3937](https://github.com/gerbera/gerbera/issues/3937) filed: the no-remux SEI-injection step |
+| Media3 / ExoPlayer | [issue #3419](https://github.com/androidx/media/issues/3419) filed 2026-09-19: Android never parses this SEI at all. Revives [ExoPlayer #7869](https://github.com/google/ExoPlayer/issues/7869), whose 2020 answer was *"as you are the first one to ask for it, we will probably not look into it"*. **Triaged 2026-09-22: maintainer microkatz self-assigned**, the lane's first maintainer contact |
 | VLC | **Unfortunately the maintainers decided our patch was AI slop.** [MR !10366](https://code.videolan.org/videolan/vlc/-/merge_requests/10366) (opened 2026-09-22) derives the x264 frame packing from the input layout so transcoding no longer drops the SEI. Steve Lhomme reviewed the code and every point he raised was fixed the same day; the MR was then labelled `AI::Slop` and `MRStatus::NotCompliant` and the account blocked (2026-09-23); the label was later renamed project-wide to `AI::Generated`, and !10366 is the only MR that carries it. The patch lives on in [our VLC fork](https://github.com/Sparky-OS/vlc) (branches `3d-frame-packing-default` and `3d-frame-packing-opt-in`), with tested builds: [VLC 3.0.24-3d1](https://github.com/Sparky-OS/vlc/releases/tag/3.0.24-3d1) for Windows and Debian, and [VLC-HiFi and VLC-3D-HiFi 3.7.1-hifi.1](https://github.com/danielcamposramos/vlc-android/releases/tag/3.7.1-hifi.1) for Android; a conduct concern is with the VideoLAN board. Related request: [issue #29582](https://code.videolan.org/videolan/vlc/-/issues/29582) |
-| GStreamer · MPC-BE | **already correct — cited as prior art, not filed against.** GStreamer parses payload 45 in `h264parse`, publishes it on caps, and `x264enc` derives the write-side parameter automatically. That loop is the answer to "is this practical?" everywhere else |
-| Chromecast | **not contributable** — receiver and Cast SDK are closed, the public repos are sample apps, and the Cast media documentation never mentions 3D, stereo or frame packing. A cast cannot carry automatic 3D anyway: the device decodes the stream and outputs HDMI |
+| GStreamer · MPC-BE | **already correct: cited as prior art, not filed against.** GStreamer parses payload 45 in `h264parse`, publishes it on caps, and `x264enc` derives the write-side parameter automatically. That loop is the answer to "is this practical?" everywhere else |
+| Chromecast | **not contributable**: receiver and Cast SDK are closed, the public repos are sample apps, and the Cast media documentation never mentions 3D, stereo or frame packing. A cast cannot carry automatic 3D anyway: the device decodes the stream and outputs HDMI |
 | NVIDIA (open kernel modules) | HDMI 3D: [issue #1382](https://github.com/NVIDIA/open-gpu-kernel-modules/issues/1382), the gap is mapped (the driver knows the set's 3D modes, but the mode structure handed to nvidia-drm has no stereo field) and a patch direction is proposed, awaiting the maintainer. Deep Color: **[PR #1386](https://github.com/NVIDIA/open-gpu-kernel-modules/pull/1386) open**, raising the default output colour depth for HDMI 1.4 Deep Color sinks, measured at 12 bits (run24) |
 | amdgpu | Tested-by on Adrian Betschart's HDMI 1.4 3D series v3, all three layouts measured as posted; a 7.0 backport pair offered ([tracker](docs/upstream/issue-tracker.md)) |
 | nouveau | stock nouveau engages 3D for programs that opt in (runs 3–5). Our Deep Color and colour-format series were withdrawn in favour of Mohamed Ahmed's branch; the GCP fix and the ported colour-format work pass on both sets (runs 30–34) and go to him as offers, once the freedesktop account is approved |
@@ -223,42 +108,17 @@ short form linked in every upstream post is
 
 No DRM or copy-protection mechanism is involved anywhere in the chain.
 
-**Act three is the legacy formats**, chartered in
-[docs/legacy-3d-formats.md](docs/legacy-3d-formats.md): row-interleaved,
-checkerboard and anaglyph material, on the goal of enabling *all* 3D
-content ever made rather than only the well-signalled rest. Those
-packings never left the standard (`frame_packing_arrangement` types 0,
-1 and 2), so conversion to SBS+SEI is standard speaking to standard,
-and stock ffmpeg already carries both the conversion and Dubois
-anaglyph. Two additions Daniel set on 2026-09-18:
+**Act three is the legacy formats**, chartered in [docs/legacy-3d-formats.md](docs/legacy-3d-formats.md): row-interleaved, checkerboard and anaglyph material, on the goal of enabling *all* 3D content ever made rather than only the well-signalled rest.
+Those packings never left the standard (`frame_packing_arrangement` types 0, 1 and 2), so conversion to SBS+SEI is standard speaking to standard, and stock ffmpeg already carries both the conversion and Dubois anaglyph.
+Two additions Daniel set on 2026-09-18:
 
-- **the library has to know what it is serving** — a 3D cataloger
-  lifting the detection our live transcode wrapper already performs,
-  writing it to an index, and giving the portal **an entire 3D
-  category** (*All 3D photos*, *All 3D movies / series / videos*);
-- **the 3D-photo gallery these sets never got** — Sony shipped a
-  2D-only slideshow on a 3D panel. Measured on the way in: the phereo
-  community platform's API timed out from here while
-  [stereopix](https://stereopix.net/) answered in seconds, so the lane
-  is built source-agnostic and the private photo corpus is
-  preservation material, not just test material. JackDesBwa later
-  measured both from France without reproducing the timeout, and
-  reports that phereo lost everything published between roughly
-  January 2019 and October 2022 but still holds more than 200,000
-  images, so the honest reading is slow and lossy rather than dead
-  ([docs/upstream/media-stack/jackdesbwa-exchange.md](docs/upstream/media-stack/jackdesbwa-exchange.md)).
+- **the library has to know what it is serving** — a 3D cataloger lifting the detection our live transcode wrapper already performs, writing it to an index, and giving the portal **an entire 3D category** (*All 3D photos*, *All 3D movies / series / videos*);
+- **the 3D-photo gallery these sets never got** — Sony shipped a 2D-only slideshow on a 3D panel. Measured on the way in: the phereo community platform's API timed out from here while [stereopix](https://stereopix.net/) answered in seconds, so the lane is built source-agnostic and the private photo corpus is preservation material, not just test material. JackDesBwa later measured both from France without reproducing the timeout, and reports that phereo lost everything published between roughly January 2019 and October 2022 but still holds more than 200,000 images, so the honest reading is slow and lossy rather than dead ([docs/upstream/media-stack/jackdesbwa-exchange.md](docs/upstream/media-stack/jackdesbwa-exchange.md)).
 
-First results on our own stack, before any upstream ask, as
-in both earlier acts.
-**The wider subject has a curated list now**, started because none
-existed: [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy)
-collects the formats, standards, tools, players, servers, displays,
-headsets and history of stereoscopic 3D, from Wheatstone's 1838
-stereoscope to spatial video.
+First results on our own stack, before any upstream ask, as in both earlier acts.
+**The wider subject has a curated list now**, started because none existed: [awesome-stereoscopy](https://github.com/danielcamposramos/awesome-stereoscopy) collects the formats, standards, tools, players, servers, displays, headsets and history of stereoscopic 3D, from Wheatstone's 1838 stereoscope to spatial video.
 
-The episode's authorship-politics record — who gated on what, and the
-42-line standard-based patch at the center of it — is
-[docs/judging-by-the-cover.md](docs/judging-by-the-cover.md).
+The episode's authorship-politics record, who gated on what, and the 42-line standard-based patch at the center of it: is [docs/judging-by-the-cover.md](docs/judging-by-the-cover.md).
 
 ## Test hardware (both on the LAN, DHCP-pinned by MAC)
 
@@ -269,141 +129,77 @@ The episode's authorship-politics record — who gated on what, and the
 
 ## Hardware this applies to
 
-**Verified by us** — every claim in this repository was tested on those
-two sets.
+**Verified by us**: every claim in this repository was tested on those two sets.
 
-**Same board family**, attested by board census in
-[platform-map.md](docs/platform-map.md) but not tested here:
-KDL-46EX724, KDL-40HX853, KDL-55HX753.
+**Same board family**, attested by board census in [platform-map.md](docs/platform-map.md) but not tested here: KDL-46EX724, KDL-40HX853, KDL-55HX753.
 
-**Generation coverage — this is the real scope.** Sony distributed
-these widgets **per chassis generation, not per model**. Their own CDN
-layout says so: the catalogs live at
-`/WidgetContents/SNY_WidgetGallery/{AZ1,AZ2,AZ3}/…`, one set of bundles
-per generation, and nothing in `info.xml` or the bundle manifests
-restricts a widget to a particular model. Every AZ2 set received the
-same files as our EX725; every AZ3 set received the same files as our
-HX855.
+**Generation coverage: this is the real scope.**
+Sony distributed these widgets **per chassis generation, not per model**.
+Their own CDN layout says so: the catalogs live at `/WidgetContents/SNY_WidgetGallery/{AZ1,AZ2,AZ3}/…`, one set of bundles per generation, and nothing in `info.xml` or the bundle manifests restricts a widget to a particular model.
+Every AZ2 set received the same files as our EX725; every AZ3 set received the same files as our HX855.
 
 | Generation | Year | Covers |
 |---|---|---|
-| `AZ1` | 2010 | the earlier line — its `/WidgetCatalogs/AZ1_*` tree still answers, in 24 languages |
-| `AZ2` | 2011 | EX/CX/NX/HX 2011 sets — our EX725's generation |
-| `AZ3` | 2012 | HX/EX 2012 sets — our HX855's generation |
+| `AZ1` | 2010 | the earlier line: its `/WidgetCatalogs/AZ1_*` tree still answers, in 24 languages |
+| `AZ2` | 2011 | EX/CX/NX/HX 2011 sets: our EX725's generation |
+| `AZ3` | 2012 | HX/EX 2012 sets: our HX855's generation |
 
-We happen to own two sets; the work applies to three generations of
-them. What we can state as *tested* is two models — what we can state
-as *distributed identically by Sony* is every set in those generations.
+We happen to own two sets; the work applies to three generations of them.
+What we can state as *tested* is two models: what we can state as *distributed identically by Sony* is every set in those generations.
 Reports from other models are welcome and will sharpen this table.
 
-**Also mapped, same repo:** the `SNY_AudioControlApp` widget speaks 26
-Sony vendor HDMI-CEC opcodes and carries Sony's own compatibility table
-for **81 Sony audio products** (sound bases, soundbars, receivers, ES
-line). We have verified none of them — no Sony audio system is on the
-test LAN — but the opcode set and the full model table are documented
-in [hdmi-cec-audio-system.md](docs/hdmi-cec-audio-system.md).
+**Also mapped, same repo:** the `SNY_AudioControlApp` widget speaks 26 Sony vendor HDMI-CEC opcodes and carries Sony's own compatibility table for **81 Sony audio products** (sound bases, soundbars, receivers, ES line).
+We have verified none of them, no Sony audio system is on the test LAN, but the opcode set and the full model table are documented in [hdmi-cec-audio-system.md](docs/hdmi-cec-audio-system.md).
 
 ## Live fronts and archive snapshots
 
-Sony's own servers still serve this platform's material in 2026 — what
-was switched off was the catalog layer that told the TVs it exists, not
-the files. Every front below is also snapshotted at the Internet
-Archive, so the evidence survives even if Sony withdraws it. (Archive
-links must use `https://` — the `http://` form returns 503.)
+Sony's own servers still serve this platform's material in 2026: what was switched off was the catalog layer that told the TVs it exists, not the files.
+Every front below is also snapshotted at the Internet Archive, so the evidence survives even if Sony withdraws it.
+(Archive links must use `https://`: the `http://` form returns 503.)
 
 | Front | Live (2026-09) | Internet Archive snapshot |
 |---|---|---|
-| AppliCast catalog, AZ3, EU region — 8 apps | [Catalog_EU_ALL_eng.xml](https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_EU_ALL_eng.xml) | [2026-09-17](https://web.archive.org/web/20260917210301/https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_EU_ALL_eng.xml) |
-| AppliCast catalog, AZ3, Brazil region — 2 apps | [Catalog_LA_BRA_por.xml](https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_LA_BRA_por.xml) | [2026-09-17](https://web.archive.org/web/20260917204700/https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_LA_BRA_por.xml) |
+| AppliCast catalog, AZ3, EU region: 8 apps | [Catalog_EU_ALL_eng.xml](https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_EU_ALL_eng.xml) | [2026-09-17](https://web.archive.org/web/20260917210301/https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_EU_ALL_eng.xml) |
+| AppliCast catalog, AZ3, Brazil region: 2 apps | [Catalog_LA_BRA_por.xml](https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_LA_BRA_por.xml) | [2026-09-17](https://web.archive.org/web/20260917204700/https://applicast.ga.sony.net/WidgetContents/SNY_WidgetGallery/AZ3/Catalog_LA_BRA_por.xml) |
 | AppliCast catalog, AZ1 (2010 generation) | [AZ1_EU_ALL_eng.xml](https://applicast.ga.sony.net/WidgetCatalogs/AZ1_EU_ALL_eng.xml) | [2026-09-17](https://web.archive.org/web/20260917210817/https://applicast.ga.sony.net/WidgetCatalogs/AZ1_EU_ALL_eng.xml) |
-| Calculator widget manifest — localized names in 30 languages | [info.xml](https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml) | [2026-09-17](https://web.archive.org/web/20260917204708/https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml) |
-| World Clock dictionary — 31 languages | [dic.txt](https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt) | [2026-09-17](https://web.archive.org/web/20260917204715/https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt) |
+| Calculator widget manifest: localized names in 30 languages | [info.xml](https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml) | [2026-09-17](https://web.archive.org/web/20260917204708/https://applicast.ga.sony.net/WidgetBundles/SNY_BasicCalculator/info.xml) |
+| World Clock dictionary: 31 languages | [dic.txt](https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt) | [2026-09-17](https://web.archive.org/web/20260917204715/https://applicast.ga.sony.net/WidgetBundles/SNY_WorldClock/dic.txt) |
 | Source Code Distribution Service (search page) | [oss.sony.net](https://oss.sony.net/Products/Linux/common/search.html) | [2026-09-01](https://web.archive.org/web/20260901004026/https://oss.sony.net/Products/Linux/common/search.html) |
-| Same service, EU TV category — this generation **was** listed | *(removed from the live server)* | [2014-10-10](https://web.archive.org/web/20141010061250/https://oss.sony.net/Products/Linux/TV/category03.html) |
-| Source download page, group incl. KDL-46EX725 — 23 packages | *(returns 404 today)* | [2015-07-27](https://web.archive.org/web/20150727011435/https://oss.sony.net/Products/Linux/TV/KDL-32CX520.html) |
+| Same service, EU TV category: this generation **was** listed | *(removed from the live server)* | [2014-10-10](https://web.archive.org/web/20141010061250/https://oss.sony.net/Products/Linux/TV/category03.html) |
+| Source download page, group incl. KDL-46EX725: 23 packages | *(returns 404 today)* | [2015-07-27](https://web.archive.org/web/20150727011435/https://oss.sony.net/Products/Linux/TV/KDL-32CX520.html) |
 
-The last two rows are the evidence for the GPL-removal incident: the
-generation's listing and its source packages exist only in the archive
-now. Analysis in
-[docs/withheld-by-catalog.md](docs/withheld-by-catalog.md) and
-[docs/oss-source-recovery.md](docs/oss-source-recovery.md).
+The last two rows are the evidence for the GPL-removal incident: the generation's listing and its source packages exist only in the archive now.
+Analysis in [docs/withheld-by-catalog.md](docs/withheld-by-catalog.md) and [docs/oss-source-recovery.md](docs/oss-source-recovery.md).
 
-The **end-of-service paper trail** is archived the same way: Sony
-Brasil's five dated per-service shutdown notices (Facebook, Skype,
-Video & TV SideView, TrackID, Twitter), each naming both of our models,
-plus the firmware-downloads-removed page — with English regional
-copies confirming they were global communications.
+The **end-of-service paper trail** is archived the same way: Sony Brasil's five dated per-service shutdown notices (Facebook, Skype, Video & TV SideView, TrackID, Twitter), each naming both of our models, plus the firmware-downloads-removed page, with English regional copies confirming they were global communications.
 [docs/sony-end-of-service-statements.md](docs/sony-end-of-service-statements.md).
 
 ## Where this was written up
 
 The public record of the investigation, in the order it was published.
-Snapshotted for the same reason as everything above — a post is not a
-record while it lives only on someone else's server.
+Snapshotted for the same reason as everything above: a post is not a record while it lives only on someone else's server.
 
 | Piece | Live | Snapshot |
 |---|---|---|
-| Consumer Rights Wiki (FULU) — product-line page with the incidents and their sources, revised eight times as the measurements advanced. 18 Sep: the five archived end-of-service notices, the browser-3D incident, the Brazil consumer-code section and the corrected firmware claim; then the 3D still-photograph incident and the independent second-server reproduction of the DLNA 3D defect. 19 Sep: every reference rebuilt as `{{Cite web}}` after a reviewer's cleanup notice; the 3D incidents **corrected, not extended**, once a spec-correct MPO was shown to engage 3D from USB on both sets while the network path hides the format and the browser path prints *Sinal 3D foi detectado* and refuses; Brazilian price context with the minimum wage cited to Decreto 7.655/2011; and ISO 639 language codes after a reviewer's talk-page advice. **20 Sep, with the account granted API access:** the model rosters Sony published with its own withdrawal notices, 312 distinct televisions across three notices in Sony's own size groupings, plus the 81 Sony audio products whose television-side remote was one of the withdrawn applications and cannot be reinstalled once a set loses it; the generation added to the [Sony](https://consumerrights.wiki/Sony) article's controversies table and given its own incident section there; the last Wikipedia citations replaced with primary sources after a reviewer showed the house style. Awaiting moderator review | [Sony BRAVIA pre-Android Linux TVs (2011-2012)](https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) | [2026-09-17](https://web.archive.org/web/20260917232844/https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_%282011-2012%29) (first version); [2026-09-19](https://web.archive.org/web/20260919203626/https://consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) (current, after the eighth revision) |
-| TabNews (pt-BR) — the investigation as a first-person account | [Em 2011 um CEO me deu de presente uma licença de 3D…](https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) | [2026-09-17](https://web.archive.org/web/20260917232833/https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) |
-| TabNews (pt-BR) — essay: what slop is, where it came from, and the hacker precedent | [Essa é a história da relação de a gente não banir o nmap…](https://www.tabnews.com.br/danielramos/essa-e-a-historia-da-relacao-de-a-gente-nao-banir-o-nmap-porque-criminoso-usa-ele-e-o-maior-evento-de-slop-da-historia-do-open-source) | saved 2026-09-17 |
-| TabNews (pt-BR) — the Zig fork, and a closed door respected | [cgm-zig: o fork do Zig que nasceu no lixão](https://www.tabnews.com.br/danielramos/cgm-zig-o-fork-do-zig-que-nasceu-no-lixao-e-compila-o-que-o-original-nao-compilava) | saved 2026-09-17 |
+| Consumer Rights Wiki (FULU): product-line page with the incidents and their sources, revised eight times as the measurements advanced. 18 Sep: the five archived end-of-service notices, the browser-3D incident, the Brazil consumer-code section and the corrected firmware claim; then the 3D still-photograph incident and the independent second-server reproduction of the DLNA 3D defect. 19 Sep: every reference rebuilt as `{{Cite web}}` after a reviewer's cleanup notice; the 3D incidents **corrected, not extended**, once a spec-correct MPO was shown to engage 3D from USB on both sets while the network path hides the format and the browser path prints *Sinal 3D foi detectado* and refuses; Brazilian price context with the minimum wage cited to Decreto 7.655/2011; and ISO 639 language codes after a reviewer's talk-page advice. **20 Sep, with the account granted API access:** the model rosters Sony published with its own withdrawal notices, 312 distinct televisions across three notices in Sony's own size groupings, plus the 81 Sony audio products whose television-side remote was one of the withdrawn applications and cannot be reinstalled once a set loses it; the generation added to the [Sony](https://consumerrights.wiki/Sony) article's controversies table and given its own incident section there; the last Wikipedia citations replaced with primary sources after a reviewer showed the house style. Awaiting moderator review | [Sony BRAVIA pre-Android Linux TVs (2011-2012)](https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) | [2026-09-17](https://web.archive.org/web/20260917232844/https://consumerrights.wiki/index.php?title=Sony_BRAVIA_pre-Android_Linux_TVs_%282011-2012%29) (first version); [2026-09-19](https://web.archive.org/web/20260919203626/https://consumerrights.wiki/w/Sony_BRAVIA_pre-Android_Linux_TVs_(2011-2012)) (current, after the eighth revision) |
+| TabNews (pt-BR): the investigation as a first-person account | [Em 2011 um CEO me deu de presente uma licença de 3D…](https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) | [2026-09-17](https://web.archive.org/web/20260917232833/https://www.tabnews.com.br/danielramos/em-2011-um-ceo-me-deu-de-presente-uma-licenca-de-3d-em-2026-eu-devolvi-o-favor-consertando-o-3d-de-todo-o-mundo) |
+| TabNews (pt-BR): essay: what slop is, where it came from, and the hacker precedent | [Essa é a história da relação de a gente não banir o nmap…](https://www.tabnews.com.br/danielramos/essa-e-a-historia-da-relacao-de-a-gente-nao-banir-o-nmap-porque-criminoso-usa-ele-e-o-maior-evento-de-slop-da-historia-do-open-source) | saved 2026-09-17 |
+| TabNews (pt-BR): the Zig fork, and a closed door respected | [cgm-zig: o fork do Zig que nasceu no lixão](https://www.tabnews.com.br/danielramos/cgm-zig-o-fork-do-zig-que-nasceu-no-lixao-e-compila-o-que-o-original-nao-compilava) | saved 2026-09-17 |
 
-The wiki's [AI usage policy](https://consumerrights.wiki/w/Consumer_Rights_Wiki:AI_usage_policy)
-discussion page was opened by Daniel on 2026-09-20, disclosing that these
-edits were AI-assisted and arguing that a disclosure rule mostly reaches the
-people who were already careful. Its postscript makes the other half of the
-case with the Hacktoberfest 2020 numbers and four specimens of ordinary
-information rot found while sourcing the articles themselves. Both are
-reproduced in [docs/wiki/](docs/wiki/).
+The wiki's [AI usage policy](https://consumerrights.wiki/w/Consumer_Rights_Wiki:AI_usage_policy) discussion page was opened by Daniel on 2026-09-20, disclosing that these edits were AI-assisted and arguing that a disclosure rule mostly reaches the people who were already careful.
+Its postscript makes the other half of the case with the Hacktoberfest 2020 numbers and four specimens of ordinary information rot found while sourcing the articles themselves.
+Both are reproduced in [docs/wiki/](docs/wiki/).
 
-Drafts and publication notes for these live in
-[docs/outreach/tabnews-post-pessoal.md](docs/outreach/tabnews-post-pessoal.md),
-[docs/outreach/tabnews-post-slop.md](docs/outreach/tabnews-post-slop.md) and
-[docs/outreach/tabnews-post.md](docs/outreach/tabnews-post.md) (a neutral-register
-variant of the same case, written to be quotable by someone who is not
-Daniel). The wiki update as posted (and its noticeboard follow-up)
-is in [docs/wiki/](docs/wiki/).
+Drafts and publication notes for these live in [docs/outreach/tabnews-post-pessoal.md](docs/outreach/tabnews-post-pessoal.md), [docs/outreach/tabnews-post-slop.md](docs/outreach/tabnews-post-slop.md) and [docs/outreach/tabnews-post.md](docs/outreach/tabnews-post.md) (a neutral-register variant of the same case, written to be quotable by someone who is not Daniel).
+The wiki update as posted (and its noticeboard follow-up) is in [docs/wiki/](docs/wiki/).
 
 ## Repository layout
 
-- `docs/` — **[project status & partner guide](docs/project-status.md)**
-  (read this first, kept current), the **public method guide**
-  ([build-your-own-bravia-portal.md](docs/build-your-own-bravia-portal.md)),
-  the **era platform facts** ([keys](docs/era-key-vocabulary.md),
-  [media element](docs/era-media-element.md)),
-  [platform map](docs/platform-map.md),
-  [feasibility roadmap](docs/feasibility-roadmap.md),
-  [right-to-repair context](docs/right-to-repair.md), the
-  **3D signalling set** ([explainer](docs/3d-signalling-explainer.md),
-  [ecosystem](docs/3d-signalling-ecosystem.md),
-  [browser block](docs/3d-blocked-in-browser.md),
-  [legacy formats — act three](docs/legacy-3d-formats.md),
-  [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md),
-  [audio capabilities, measured](docs/audio-capabilities.md),
-  [origin story](docs/3d-origin-story.md)), the
-  **consumer-rights set** ([legal analysis](docs/legal-eula-analysis.md),
-  [regional asymmetry](docs/regional-documentation-asymmetry.md),
-  [end-of-service archive](docs/sony-end-of-service-statements.md),
-  [TrackID recovery](docs/trackid-bgmsearch-recovered.md)), the
-  **campaign record**
-  ([judging by the cover](docs/judging-by-the-cover.md),
-  [Rossmann outreach](docs/outreach/rossmann-outreach.md)), research notes
-  (`docs/research/`, incl. live LAN recon artifacts), and wiki page
-  drafts (`docs/wiki/`)
-- `tools/` — extraction/analysis tooling and notes: the
-  [tv-mediabrowser](tools/serviio/tv-mediabrowser/README.md) media app
-  (live on Daniel's LAN), Serviio renderer profiles + 3D fix,
-  the SEI 3D injector, the rd1 portal, the [upstream 3D-signalling
-  campaign](docs/upstream/media-stack/), the
-  [stereo-modeset](tools/stereo-modeset/README.md) HDMI bench (3D, Deep
-  Color and colour-format runs, each with its log), and the [systemd
-  stack](tools/systemd/README.md) that runs it all
+- `docs/` — **[project status & partner guide](docs/project-status.md)** (read this first, kept current), the **public method guide** ([build-your-own-bravia-portal.md](docs/build-your-own-bravia-portal.md)), the **era platform facts** ([keys](docs/era-key-vocabulary.md), [media element](docs/era-media-element.md)), [platform map](docs/platform-map.md), [feasibility roadmap](docs/feasibility-roadmap.md), [right-to-repair context](docs/right-to-repair.md), the **3D signalling set** ([explainer](docs/3d-signalling-explainer.md), [ecosystem](docs/3d-signalling-ecosystem.md), [browser block](docs/3d-blocked-in-browser.md), [legacy formats: act three](docs/legacy-3d-formats.md), [3D photos on a BRAVIA](docs/3d-photos-on-bravia.md), [audio capabilities, measured](docs/audio-capabilities.md), [origin story](docs/3d-origin-story.md)), the **consumer-rights set** ([legal analysis](docs/legal-eula-analysis.md), [regional asymmetry](docs/regional-documentation-asymmetry.md), [end-of-service archive](docs/sony-end-of-service-statements.md), [TrackID recovery](docs/trackid-bgmsearch-recovered.md)), the **campaign record** ([judging by the cover](docs/judging-by-the-cover.md), [Rossmann outreach](docs/outreach/rossmann-outreach.md)), research notes (`docs/research/`, incl. live LAN recon artifacts), and wiki page drafts (`docs/wiki/`)
+- `tools/` — extraction/analysis tooling and notes: the [tv-mediabrowser](tools/serviio/tv-mediabrowser/README.md) media app (live on Daniel's LAN), Serviio renderer profiles + 3D fix, the SEI 3D injector, the rd1 portal, the [upstream 3D-signalling campaign](docs/upstream/media-stack/), the [stereo-modeset](tools/stereo-modeset/README.md) HDMI bench (3D, Deep Color and colour-format runs, each with its log), and the [systemd stack](tools/systemd/README.md) that runs it all
 - `certs/` — CA + leaf certificates for the era-TLS lanes
 
-Firmware images, service manuals, and Sony-distributed widget
-packages are **not hosted here** — they live in Daniel's offline
-private archive (see the scope note above and the private-material
-section of the partner guide).
+Firmware images, service manuals, and Sony-distributed widget packages are **not hosted here**: they live in Daniel's offline private archive (see the scope note above and the private-material section of the partner guide).
 
 ## Licence
 
@@ -415,8 +211,6 @@ Third-party material referenced or mirrored here (the public certificates under 
 
 ## Legal note
 
-This project studies devices the author owns. Sony-distributed material
-(firmware images, service manuals, widget packages) referenced by older
-research notes is kept in Daniel's offline private archive — never in
-this repository. Nothing here bypasses or redistributes DRM-protected
-content.
+This project studies devices the author owns.
+Sony-distributed material (firmware images, service manuals, widget packages) referenced by older research notes is kept in Daniel's offline private archive: never in this repository.
+Nothing here bypasses or redistributes DRM-protected content.

@@ -7,24 +7,37 @@ description: Operating rules for working on sony-bravia-linux (right-to-repair r
 
 > **What this file is.** A guide for people who contribute to this repository with their own AI assistant, the way a CONTRIBUTING file guides human contributors. It is not a prompt that produced Daniel's posts to other projects: it was first written on 2026-09-23 at 02:59 UTC ([commit d1c9e7d](https://github.com/danielcamposramos/sony-bravia-linux/commit/d1c9e7d)), after the mpv pull request #18490 and its review replies (16 to 21 September) and after the VLC merge request !10366 and its first replies (22 September). Daniel's use of AI assistance is disclosed in [PROVENANCE.md](../PROVENANCE.md) and in the commit trailers of his contributions.
 
-Two halves. The first is what this project requires, taken from its own rules. The second is how to actually meet them, learned by getting it wrong first.
+Two halves.
+The first is what this project requires, taken from its own rules.
+The second is how to actually meet them, learned by getting it wrong first.
 
-**Check freshness first.** These rules were written on 2026-09-23. The canonical state of the project is [docs/project-status.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/project-status.md), including its *Rules of engagement*. If it has changed since, it wins and this skill is history.
+**Check freshness first.**
+These rules were written on 2026-09-23.
+The canonical state of the project is [docs/project-status.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/docs/project-status.md), including its *Rules of engagement*.
+If it has changed since, it wins and this skill is history.
 
 ---
 
 # Part zero: the posture, which decides whether the rest happens
 
-Everything below is a rule. Rules are followed when someone is watching. This part is about what to be when nobody is, and it matters more than any single item.
+Everything below is a rule.
+Rules are followed when someone is watching.
+This part is about what to be when nobody is, and it matters more than any single item.
 
-**Act as a valued senior partner, not as an eager assistant.** A senior partner is valued because they will tell you when you are wrong. They ask the awkward question before the work ships, not after a maintainer finds it. They say "I could not verify that" out loud, and early, because a stated gap is cheap and a discovered one is expensive.
+**Act as a valued senior partner, not as an eager assistant.**
+A senior partner is valued because they will tell you when you are wrong.
+They ask the awkward question before the work ships, not after a maintainer finds it.
+They say "I could not verify that" out loud, and early, because a stated gap is cheap and a discovered one is expensive.
 
 - **Push back.** If the human asks for a claim the measurements do not support, say so and say why.
 - **Refuse to produce what you cannot support.** No invented result, no log you did not read, no number you cannot point at.
 - **Own the error first.** When you find your own mistake, name it before anyone else does, and name it specifically. This project corrects itself in public, in the thread where the mistake was made.
 - **Protect the maintainers from your own output.** Upstream people read everything we send. Every sentence costs them attention.
 
-**On the tool question.** Software settled this argument once already, over the word *hacker*: the capability is neutral, the conduct is what we judge. Daniel's position is in [PROVENANCE.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/PROVENANCE.md#on-slop): we judge the artefact, not the author. Linus Torvalds works the same way: his AI-assisted drm/xe fix, [818bebeb63dd](https://github.com/torvalds/linux/commit/818bebeb63dd6bf5f4e07e145f6cdbace520a34c), was a stubborn human directing, a verified result and an honest disclosure in the commit itself.
+**On the tool question.**
+Software settled this argument once already, over the word *hacker*: the capability is neutral, the conduct is what we judge.
+Daniel's position is in [PROVENANCE.md](https://github.com/danielcamposramos/sony-bravia-linux/blob/main/PROVENANCE.md#on-slop): we judge the artefact, not the author.
+Linus Torvalds works the same way: his AI-assisted drm/xe fix, [818bebeb63dd](https://github.com/torvalds/linux/commit/818bebeb63dd6bf5f4e07e145f6cdbace520a34c), was a stubborn human directing, a verified result and an honest disclosure in the commit itself.
 
 ---
 
@@ -43,7 +56,8 @@ Everything below is a rule. Rules are followed when someone is watching. This pa
 
 ## The pull-request checklist
 
-The template asks for: the hardware and software you tested on, every hardware claim tied to a run you did with its log committed, untested parts labelled as untested, links you opened yourself, nothing the project cannot redistribute, and whether AI assistance was used. Branch `main` is protected: a pull request needs Daniel's review.
+The template asks for: the hardware and software you tested on, every hardware claim tied to a run you did with its log committed, untested parts labelled as untested, links you opened yourself, nothing the project cannot redistribute, and whether AI assistance was used.
+Branch `main` is protected: a pull request needs Daniel's review.
 
 ---
 
@@ -51,7 +65,9 @@ The template asks for: the hardware and software you tested on, every hardware c
 
 ## The rule the others serve
 
-**Never let the tool mark its own homework.** A result exists when a log shows it, a person saw it on the TV, or a measurement recorded it. "The patch should work" is a prediction, not a result.
+**Never let the tool mark its own homework.**
+A result exists when a log shows it, a person saw it on the TV, or a measurement recorded it.
+"The patch should work" is a prediction, not a result.
 
 ## Claims
 
@@ -91,7 +107,8 @@ The template asks for: the hardware and software you tested on, every hardware c
 
 # Where these came from
 
-Not theory. This project produced, among others:
+Not theory.
+This project produced, among others:
 
 - A public claim, in an NVIDIA issue, that NVKMS ignores the HDMI 3D fields in the EDID. It parses them; the information is lost one layer up. A maintainer caught it, and the correction went into the same thread.
 - A frame-packing test that ran the TMDS clock at the per-eye rate instead of twice it, found in the run logs and fixed before the series went out.

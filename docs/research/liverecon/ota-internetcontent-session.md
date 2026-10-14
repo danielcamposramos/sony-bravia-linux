@@ -1,25 +1,13 @@
-# OTA capture 1 — internet content ("Descarregar o conteúdo da internet") 2026-09-13
+# OTA capture 1: internet content ("Descarregar o conteúdo da internet") 2026-09-13
 
-Owner re-ran the update on the EX725 (.22): **Rede → "Atualizar o Conteúdo
-da Internet" → "Descarregar o conteúdo da internet disponível"**. Screen
-result: content downloaded, "O conteúdo da internet está pronto".
+Owner re-ran the update on the EX725 (.22): **Rede → "Atualizar o Conteúdo da Internet" → "Descarregar o conteúdo da internet disponível"**.
+Screen result: content downloaded, "O conteúdo da internet está pronto".
 
 ## Vantage (the story of this capture)
 
-- Attempt 1 (tcpdump on workstation enp6s0) was **blind**: the switched
-  LAN delivers to the workstation only traffic addressed to it; the
-  TV→WAN unicast never crossed our port (28 packets, all broadcast;
-  sole fingerprint = the TV's ARP for gateway 192.168.0.1). This
-  invalidated the earlier "zero egress" claim (FINDINGS obs. 6).
-- The gateway is the owner's **OPNsense firewall (FreeBSD 15.1) at
-  192.168.0.1** — DHCP + DNS (Unbound) + PPPoE WAN. A dedicated SSH key
-  (~/.ssh/id_ed25519_bravia_lan on the workstation) was authorized on
-  root; LAN interface = `bce0`. Capture run ON the firewall:
-  `tcpdump -i bce0 -s0 -w /tmp/tv-ota-internetcontent.pcap 'host
-  192.168.0.22 and not udp port 7776'` — this sees everything.
-- Artifacts: `ota-internetcontent-wan.pcap` (firewall vantage, the real
-  capture) + `ota-internetcontent-full.pcap` (workstation vantage,
-  kept as the blind negative control).
+- Attempt 1 (tcpdump on workstation enp6s0) was **blind**: the switched LAN delivers to the workstation only traffic addressed to it; the TV→WAN unicast never crossed our port (28 packets, all broadcast; sole fingerprint = the TV's ARP for gateway 192.168.0.1). This invalidated the earlier "zero egress" claim (FINDINGS obs. 6).
+- The gateway is Daniel's **OPNsense firewall (FreeBSD 15.1) at 192.168.0.1**: DHCP + DNS (Unbound) + PPPoE WAN. A dedicated SSH key (~/.ssh/id_ed25519_bravia_lan on the workstation) was authorized on root; LAN interface = `bce0`. Capture run ON the firewall: `tcpdump -i bce0 -s0 -w /tmp/tv-ota-internetcontent.pcap 'host 192.168.0.22 and not udp port 7776'`: this sees everything.
+- Artifacts: `ota-internetcontent-wan.pcap` (firewall vantage, the real capture) + `ota-internetcontent-full.pcap` (workstation vantage, kept as the blind negative control).
 
 ## The three Sony endpoints (all DNS via OPNsense Unbound, round-robin)
 
@@ -29,138 +17,69 @@ result: content downloaded, "O conteúdo da internet está pronto".
 | `static.internet.sony.tv` | 23.46.244.177 | Akamai | **:80 plain HTTP** | `GET /bivl-ww/static/service/icons/service_120/x.png` (4×), `.../Registration/XmbRegistration.png` (2×) |
 | `applicast.ga.sony.net` | 13.225.205.87 | AWS CloudFront | **:80 plain HTTP** | `GET /WidgetBundles/SNY_WidgetGallery/icon-tiny.png`, `.../SNY_AudioControlApp/icon.png` → **304 Not Modified** |
 
-**User-Agent on all plain-HTTP requests** (URL-encoded, truncated by
-tcpdump display at the wire fragment):
-`User-Agent: SONY%20DTV%2F2010%3B%20PKG4` — decodes to
-`SONY DTV/2010; PKG4…` (PKG4.027BRA firmware family).
+**User-Agent on all plain-HTTP requests** (URL-encoded, truncated by tcpdump display at the wire fragment): `User-Agent: SONY%20DTV%2F2010%3B%20PKG4`: decodes to `SONY DTV/2010; PKG4…` (PKG4.027BRA firmware family).
 
 ## THE FINDING: the service manifest is a tombstone
 
-`GET /DTV/index.xml` on `ssm.internet.sony.tv:80` → **200 OK**, nginx,
-`Content-Type: text/xml`, `Last-Modified: 2026-05-04`, body verbatim:
+`GET /DTV/index.xml` on `ssm.internet.sony.tv:80` → **200 OK**, nginx, `Content-Type: text/xml`, `Last-Modified: 2026-05-04`, body verbatim:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <rule>We must use time as a tool, not as a crutch.</rule>
 ```
 
-A JFK quote where the service manifest used to be — a deliberate
-decommission marker someone placed (touched 2026-05-04). The TV fetched
-it 4× (one per round-robin IP — it retries the next A record when the
-result doesn't parse), then moved on. The "update succeeded" screen
-comes from what still works: the BIVL service icons on
-`static.internet.sony.tv` (Akamai, still serving) and the widget-bundle
-icon revalidations on `applicast.ga.sony.net` (CloudFront, 304s = the
-TV has the bundles cached locally and is just revalidating).
+A JFK quote where the service manifest used to be: a deliberate decommission marker someone placed (touched 2026-05-04).
+The TV fetched it 4× (one per round-robin IP: it retries the next A record when the result doesn't parse), then moved on.
+The "update succeeded" screen comes from what still works: the BIVL service icons on `static.internet.sony.tv` (Akamai, still serving) and the widget-bundle icon revalidations on `applicast.ga.sony.net` (CloudFront, 304s = the TV has the bundles cached locally and is just revalidating).
 
-## TLS auth sessions (ssm:443) — era TLS still works
+## TLS auth sessions (ssm:443): era TLS still works
 
-- TV ClientHello: `16 03 01` = **TLS 1.0**, era OpenSSL cipher list
-  (AES128/256-SHA, 3DES, etc.), 86-byte hello.
-- Server: full ServerHello + certificate chain (~1.4 KB) — **the AWS
-  endpoints still accept TLS 1.0 for this TV**; sessions ran ~5–6 KB
-  bidirectional and closed with clean FINs (both sides). The
-  authentication traffic is encrypted and was NOT intercepted (nor
-  needs to be for the applet lane).
-- The 443 retry cycling (resolve → connect → next IP) matches the
-  tombstone manifest failing to parse, not a TLS failure.
+- TV ClientHello: `16 03 01` = **TLS 1.0**, era OpenSSL cipher list (AES128/256-SHA, 3DES, etc.), 86-byte hello.
+- Server: full ServerHello + certificate chain (~1.4 KB): **the AWS endpoints still accept TLS 1.0 for this TV**; sessions ran ~5–6 KB bidirectional and closed with clean FINs (both sides). The authentication traffic is encrypted and was NOT intercepted (nor needs to be for the applet lane).
+- The 443 retry cycling (resolve → connect → next IP) matches the tombstone manifest failing to parse, not a TLS failure.
 
 ## Consequences for the plan
 
-1. **The applet-insertion lane is real and 2/3 unencrypted.** The
-   manifest, the BIVL static content, and the AppliCast WidgetBundles
-   paths are all plain HTTP port 80. With the owner's OPNsense we can
-   point any of these hostnames at a LAN server via a Unbound host
-   override — no ARP games, no TLS MITM. This is the clean testbed for
-   a portal-serving experiment (with the standing rule: DRM
-   license/key endpoints stay sink-holed).
-2. **The feature is orphaned, not merely EOL** — the live manifest is a
-   farewell quote. Any portal we serve wouldn't compete with Sony's;
-   we would be *resurrecting* a feature the vendor has already
-   replaced with a tombstone. Right-to-repair framing at its purest.
-3. **Widget bundle namespace confirmed live**: `/WidgetBundles/
-   SNY_<AppName>/…` on `applicast.ga.sony.net`. The bundle/catalog
-   protocol (how the TV discovers and installs bundles) is the next
-   research target — if the widget gallery fetches a bundle list we can
-   host, our own applet runs in the Opera engine without even the
-   browser lane.
-4. **UA for all our LAN-served content**: `SONY DTV/2010; PKG4…` — add
-   to the UA fingerprint set alongside the Presto browser UA.
+1. **The applet-insertion lane is real and 2/3 unencrypted.** The manifest, the BIVL static content, and the AppliCast WidgetBundles paths are all plain HTTP port 80. With Daniel's OPNsense we can point any of these hostnames at a LAN server via a Unbound host override: no ARP games, no TLS MITM. This is the clean testbed for a portal-serving experiment (with the standing rule: DRM license/key endpoints stay sink-holed).
+2. **The feature is orphaned, not merely EOL** — the live manifest is a farewell quote. Any portal we serve wouldn't compete with Sony's; we would be *resurrecting* a feature the vendor has already replaced with a tombstone. Right-to-repair framing at its purest.
+3. **Widget bundle namespace confirmed live**: `/WidgetBundles/ SNY_<AppName>/…` on `applicast.ga.sony.net`. The bundle/catalog protocol (how the TV discovers and installs bundles) is the next research target, if the widget gallery fetches a bundle list we can host, our own applet runs in the Opera engine without even the browser lane.
+4. **UA for all our LAN-served content**: `SONY DTV/2010; PKG4…`: add to the UA fingerprint set alongside the Presto browser UA.
 
 ## Open questions
 
-- **Autonomous background polling unresolved**: the captured traffic
-  was user-triggered (the owner acted as soon as the capture armed).
-  An idle-window capture (hours, no one at the remote) settles whether
-  the widget client phones home on its own.
-- What the TLS auth sessions carry (encrypted; not needed for the
-  lane, and intercepting auth is out of scope).
-- The full `/DTV/` and `/WidgetBundles/` namespace on the live hosts
-  (fetch the same URLs the TV fetches, from the workstation — plain
-  GETs, no probing beyond what the TV itself does).
-- Whether the HX855 (.21) does the same dance — capture when we do the
-  firmware-check round.
+- **Autonomous background polling unresolved**: the captured traffic was user-triggered (Daniel acted as soon as the capture armed). An idle-window capture (hours, no one at the remote) settles whether the widget client phones home on its own.
+- What the TLS auth sessions carry (encrypted; not needed for the lane, and intercepting auth is out of scope).
+- The full `/DTV/` and `/WidgetBundles/` namespace on the live hosts (fetch the same URLs the TV fetches, from the workstation: plain GETs, no probing beyond what the TV itself does).
+- Whether the HX855 (.21) does the same dance: capture when we do the firmware-check round.
 
-## Capture 2 — the actual firmware OTA check (same rig, fresh window)
+## Capture 2: the actual firmware OTA check (same rig, fresh window)
 
-Owner triggered the firmware update check via **"Suporte ao Produto" →
-"Atualização do Software" → "Atualizar o software da TV"** on the EX725.
+Owner triggered the firmware update check via **"Suporte ao Produto" → "Atualização do Software" → "Atualizar o software da TV"** on the EX725.
 
-**Result: byte-for-byte identical traffic to the internet-content
-update.** Same DNS (4× `ssm.internet.sony.tv`), same plain-HTTP
-`GET /DTV/index.xml` (4×, 113-byte request, same
-`SONY DTV/2010; PKG4…` UA, same headers), same TLS-1.0 auth sessions
-on :443 (76 packets), same tombstone manifest back (200 OK ×4), and
-NOT ONE other endpoint touched.
+**Result: byte-for-byte identical traffic to the internet-content update.**
+Same DNS (4× `ssm.internet.sony.tv`), same plain-HTTP `GET /DTV/index.xml` (4×, 113-byte request, same `SONY DTV/2010; PKG4…` UA, same headers), same TLS-1.0 auth sessions on :443 (76 packets), same tombstone manifest back (200 OK ×4), and NOT ONE other endpoint touched.
 
 Conclusions:
 
-1. **One shared client/service path serves both menus** — "ssm" is
-   Sony's service endpoint for software AND content. There is no
-   separate firmware-update server to find.
-2. **The firmware OTA check is permanently dead** — it reads the same
-   tombstone. No future update can ever be offered to this TV unless
-   Sony restores the manifest. This wire-proves the owner's earlier
-   statement that the installed PKGs are the final ones.
-3. For the DNS-override experiment: a single Unbound host override on
-   `ssm.internet.sony.tv` controls what BOTH menus see. Standing rule
-   applies with force: while overridden, the firmware path must never
-   be steered toward a download (no flash writes, no staging of fake
-   packages) — the override serves content/applet experiments only,
-   and the firmware menu stays untouched during any spoofed window.
+1. **One shared client/service path serves both menus** — "ssm" is Sony's service endpoint for software AND content. There is no separate firmware-update server to find.
+2. **The firmware OTA check is permanently dead** — it reads the same tombstone. No future update can ever be offered to this TV unless Sony restores the manifest. This wire-proves Daniel's earlier statement that the installed PKGs are the final ones.
+3. For the DNS-override experiment: a single Unbound host override on `ssm.internet.sony.tv` controls what BOTH menus see. Standing rule applies with force: while overridden, the firmware path must never be steered toward a download (no flash writes, no staging of fake packages): the override serves content/applet experiments only, and the firmware menu stays untouched during any spoofed window.
 
-Artifacts: `ota-firmware-wan.pcap` (38 KB, complete after buffer
-flush — see ops note below); `ota-internetcontent-wan.pcap` replaced
-with the complete 304 KB capture (the first committed copy was a
-128 KB buffer-prefix of the same session).
+Artifacts: `ota-firmware-wan.pcap` (38 KB, complete after buffer flush: see ops note below); `ota-internetcontent-wan.pcap` replaced with the complete 304 KB capture (the first committed copy was a 128 KB buffer-prefix of the same session).
 
-## Device identity (Suporte ao Produto screen, read by the owner)
+## Device identity (Suporte ao Produto screen, read by Daniel)
 
-Model: KDL-46EX725 · Serial: **1009840** · Software: **PKG4.027BRA**
-(on-screen confirmation) · **Device ID: 30:F9:ED:4D:61:DB** = the MAC
-(cross-checks the dmr.xml UDN tail). The support screen also lists
-Sony websites/phone numbers.
+Model: KDL-46EX725 · Serial: **1009840** · Software: **PKG4.027BRA** (on-screen confirmation) · **Device ID: 30:F9:ED:4D:61:DB** = the MAC (cross-checks the dmr.xml UDN tail).
+The support screen also lists Sony websites/phone numbers.
 
-**Identity-binding analysis:** the plain-HTTP requests carry NO device
-identity — the UA is literally `SONY DTV/2010; PKG4` (113-byte GET,
-byte-counted; not even the full firmware string). Any binding to
-MAC/serial/model happens inside the encrypted TLS-1.0 auth sessions;
-the `Registration/XmbRegistration.png` BIVL icon marks a registration
-flow as the likely carrier. Implication for the override experiment:
-auth failure does not gate the content flow (the tombstone proves it —
-the TV declares success on dead Sony infrastructure), and a spoofed
-`ssm` either receives the registration/auth protocol in cleartext
-(HTTP fallback) or terminates it with a self-signed cert (era embedded
-clients often skipped validation) — both outcomes document it.
+**Identity-binding analysis:** the plain-HTTP requests carry NO device identity: the UA is literally `SONY DTV/2010; PKG4` (113-byte GET, byte-counted; not even the full firmware string).
+Any binding to MAC/serial/model happens inside the encrypted TLS-1.0 auth sessions; the `Registration/XmbRegistration.png` BIVL icon marks a registration flow as the likely carrier.
+Implication for the override experiment: auth failure does not gate the content flow (the tombstone proves it: the TV declares success on dead Sony infrastructure), and a spoofed `ssm` either receives the registration/auth protocol in cleartext (HTTP fallback) or terminates it with a self-signed cert (era embedded clients often skipped validation): both outcomes document it.
 
-**Ops note (firewall capture procedure):** `TaskStop` on the local ssh
-kills only the ssh client — the remote tcpdump keeps running with its
-buffer in memory and the pcap file stays at 0 bytes. Correct teardown:
-`ssh root@fw 'kill -TERM <remote tcpdump pids>'` → graceful flush →
-then fetch. Also: tcpdump `-w` writes in ~128 KB buffer blocks, so
-mid-run reads of the file see only a prefix.
+**Ops note (firewall capture procedure):** `TaskStop` on the local ssh kills only the ssh client: the remote tcpdump keeps running with its buffer in memory and the pcap file stays at 0 bytes.
+Correct teardown: `ssh root@fw 'kill -TERM <remote tcpdump pids>'` → graceful flush → then fetch.
+Also: tcpdump `-w` writes in ~128 KB buffer blocks, so mid-run reads of the file see only a prefix.
 
 - Capture 2: the firmware update check (same rig, fresh window).
 - Idle-window capture on the firewall (settles autonomous polling).
-- Live-endpoint exploration + AppliCast bundle-format research
-  (workflow) → then the Unbound-override portal experiment design.
+- Live-endpoint exploration + AppliCast bundle-format research (workflow) → then the Unbound-override portal experiment design.

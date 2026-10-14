@@ -1,6 +1,8 @@
 # gamescope and stereo frames: what it delivers stock, and where our formats fit
 
-Read from gamescope's source on 2026-09-27 (upstream `master` at `ad2763d`, 2026-09-23, in our fork `danielcamposramos/gamescope`; the build we run is Debian's 3.16.24 with `nested-present-mode.patch`, so line numbers below are upstream's). Measurements referenced are our own runs, named where used. The Steam Frame figures are reported, not measured here.
+Read from gamescope's source on 2026-09-27 (upstream `master` at `ad2763d`, 2026-09-23, in our fork `danielcamposramos/gamescope`; the build we run is Debian's 3.16.24 with `nested-present-mode.patch`, so line numbers below are upstream's).
+Measurements referenced are our own runs, named where used.
+The Steam Frame figures are reported, not measured here.
 
 ## 1. The game's screen is the nested screen
 
@@ -37,7 +39,9 @@ The module makes one pair of eye surfaces per eye size, on first use, and keeps 
 | full top and bottom | 1920x1080 | 1920x2160 |
 | frame packing 1080p | 1920x1080 | 1920x2205 |
 
-The projection needs no change for the full formats: it is built on the displayed 16:9 aspect whatever the packing, and a full eye is 16:9. So the full formats already render full-resolution eyes; what fails is the destination, a frame that does not fit the screen gamescope gives the game. Daniel's q17 observations match: full top and bottom showed a single eye, full side by side with anaglyph went all red (the right eye outside the buffer). `SVRTV_EYE=WxH` remains the developer override for rendering eyes at another size.
+The projection needs no change for the full formats: it is built on the displayed 16:9 aspect whatever the packing, and a full eye is 16:9.
+So the full formats already render full-resolution eyes; what fails is the destination, a frame that does not fit the screen gamescope gives the game.
+Daniel's q17 observations match: full top and bottom showed a single eye, full side by side with anaglyph went all red (the right eye outside the buffer). `SVRTV_EYE=WxH` remains the developer override for rendering eyes at another size.
 
 ## 6. Steam Frame (reported)
 
@@ -54,4 +58,7 @@ In gamescope, each small and in the spirit of [ValveSoftware/gamescope#2438](htt
 2. **A stereo option for the OpenVR overlay** (for example `--vr-overlay-stereo sbs`, setting `VROverlayFlags_SideBySide_Parallel`), so a full side-by-side game shows in 3D on the virtual screen of any SteamVR headset, the Frame included.
 3. **The scale math after a resize:** use the live nested size, so the full formats map correctly without forcing `stretch`.
 
-**Resolved in the module instead (2026-09-28, run q24):** the full formats no longer need a bigger screen. Each eye is rendered at the whole 2D size and shrunk into the frame the screen already has, supersampled, so nothing in gamescope is resized or stretched and the mouse stays free. Daniel: full top and bottom is the new recommended default. A larger frame (a 4K passive set, the Steam Frame's overlay) comes from starting the game's screen at that size, never from a resize at run time; item 2 above is the path for the headset.
+**Resolved in the module instead (2026-09-28, run q24):** the full formats no longer need a bigger screen.
+Each eye is rendered at the whole 2D size and shrunk into the frame the screen already has, supersampled, so nothing in gamescope is resized or stretched and the mouse stays free.
+Daniel: full top and bottom is the new recommended default.
+A larger frame (a 4K passive set, the Steam Frame's overlay) comes from starting the game's screen at that size, never from a resize at run time; item 2 above is the path for the headset.

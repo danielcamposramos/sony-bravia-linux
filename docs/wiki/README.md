@@ -1,14 +1,16 @@
 # wiki
 
-The public wiki pages this project wrote, in the form they were submitted, plus the talk-page arguments behind them. These are the right-to-repair case told for a general audience, on wikis that exist for exactly that.
+The public wiki pages this project wrote, in the form they were submitted, plus the talk-page arguments behind them.
+These are the right-to-repair case told for a general audience, on wikis that exist for exactly that.
 
-Everything here was posted by Daniel from his own account (`Capitain jack`), through the reviewed client [tools/crwiki.py](../../tools/crwiki.py), which prints a diff of what the wiki holds after every save so the result is verified rather than trusted. The pages are grounded in this repo's measurements and in Sony's own dated notices; nothing is asserted that the docs do not back.
+Everything here was posted by Daniel from his own account (`Capitain jack`), through the reviewed client [tools/crwiki.py](../../tools/crwiki.py), which prints a diff of what the wiki holds after every save so the result is verified rather than trusted.
+The pages are grounded in this repo's measurements and in Sony's own dated notices; nothing is asserted that the docs do not back.
 
 ## What was posted, and where it stands
 
 - [POSTED.md](POSTED.md) — the running log: every page, its revision number, and the source file it came from, round by round. The baseline rule is recorded there and it governs every future edit: **pull the live article first, edit that, never paste a local copy over a reviewer's work.**
 
-## consumerrights.wiki — the rights story (FULU)
+## consumerrights.wiki: the rights story (FULU)
 
 The product-line article and the three theme articles it leans on.
 
@@ -20,11 +22,12 @@ The product-line article and the three theme articles it leans on.
 
 ## The AI-disclosure threads
 
-The wiki opened a discussion on requiring AI disclosure. Daniel, who would have to comply, argued for it, on the record.
+The wiki opened a discussion on requiring AI disclosure.
+Daniel, who would have to comply, argued for it, on the record.
 
 - `talk-ai-usage-policy-draft.txt`, `talk-ai-usage-policy-ps.txt`, `talk-signal-flare-reply.txt`, `talk-signal-flare-ps.txt` — the talk-page replies: support the rule, state plainly that the edits are directed and checked by him and that nothing runs unattended, and note the disclosure PS that came out of the citation work.
 
-## repair.wiki — the repair story (drafts)
+## repair.wiki: the repair story (drafts)
 
 Different shape from the rights story: how a future owner-repairer fixes the symptom on their own set.
 

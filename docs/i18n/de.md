@@ -2,7 +2,9 @@
 
 <!-- lang: de · canonical source: ../../README.md (English) · translated 2026-09-18 -->
 
-Dieses Projekt belebt die BRAVIA-Fernseher der Vor-Android-Zeit (KDL-Serie, 2010–2012) wieder, nachdem Sony ihre Online-Dienste abgeschaltet hat, und zwar vollständig im eigenen Heimnetz des Besitzers. Die Firmware wird nicht verändert, DRM wird nicht angetastet. **Recht auf Reparatur**, praktisch umgesetzt.
+Dieses Projekt belebt die BRAVIA-Fernseher der Vor-Android-Zeit (KDL-Serie, 2010–2012) wieder, nachdem Sony ihre Online-Dienste abgeschaltet hat, und zwar vollständig im eigenen Heimnetz des Besitzers.
+Die Firmware wird nicht verändert, DRM wird nicht angetastet.
+**Recht auf Reparatur**, praktisch umgesetzt.
 
 ## Haben Sie danach gesucht?
 
@@ -44,4 +46,6 @@ Diese Seite beantwortet Fragen wie:
 
 ---
 
-*Am 18. September 2026 aus dem Englischen übersetzt. Korrekturen von Muttersprachlern sind sehr willkommen, bitte ein Issue eröffnen.*
+*Am 18.
+September 2026 aus dem Englischen übersetzt.
+Korrekturen von Muttersprachlern sind sehr willkommen, bitte ein Issue eröffnen.*
