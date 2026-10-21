@@ -28,6 +28,8 @@ This folder is the evidence and the reasoning that produced them.
 
 ### The browser lane and its exposure
 
+- [EX720 independent compatibility report](ex720-opera-compatibility-2026-10-21.md) — ygtbsm’s model/firmware-specific key, AppCache, storage and loaded-page observations, with untested capabilities kept separate.
+
 - [presto-cve-2011-2628.md](presto-cve-2011-2628.md) — a study of whether the set's 2010-era Opera Presto browser is exposed to a known 2011 issue: an assessment of the risk an owner inherits from software that was frozen and abandoned, not an attack. Its partner reviews sit alongside it ([Kimi K3](partner-review-presto-kimi.md), [the four-model panel](partner-review-presto-panel.md)); mainstream classifiers refused the study on this owner-hardware work, and the open-weight fleet reviewed it without incident.
 
 ### Direction and synthesis
