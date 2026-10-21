@@ -68,6 +68,15 @@ Two further findings, neither predicted:
 The on-screen transport bar is not a stopgap until the media keys are mapped.
 **It is the only transport this platform can give an app**, and the eight guessed codes in `config.ini [keys]` are inert on this generation.
 
+## Independent EX720 confirmation, 2026-10-21
+
+[ygtbsm's KDL-40EX720 report](https://github.com/danielcamposramos/sony-bravia-linux/issues/22), firmware PKG4.027GAA-0104, independently measured OK=13, Left=37, Right=39, Up=38 and Down=40.
+Those five keydown mappings match our EX725 measurements.
+Green was observed navigating to previously visited pages, consistent with history Back.
+The report does not establish media-button mappings: additional 37/39 events and two keyup=115 events had uncertain physical-button origins.
+The contributor used independent diagnostics, not this repository's `/keys` page; MediaBrowser was not tested.
+See the [compatibility note](research/ex720-opera-compatibility-2026-10-21.md) for the browser/storage observations and limits.
+
 ## Font coverage, same session
 
 The glyph probe was run at the same time, and it corrected the rule this project had been using:
