@@ -1,5 +1,9 @@
 # Upstream 3D-signalling campaign: issue drafts and posted links
 
+**IANA registration, 20 October 2026:** [Matroska Track Plane Types](https://www.iana.org/assignments/matroska#matroska-track-plane-types) now assigns **3, 4 and 5** to the depth maps of the left-eye, right-eye and background planes, respectively, with Daniel Ramos as change controller and the [stereo-layer v1.9.0 specification](https://github.com/Sparky-OS/stereo-layer/blob/v1.9.0/docs/depth-marks.md) as reference.
+This gives separate picture and depth tracks shared identifiers through `TrackCombinePlanes`, so readers can preserve their relationship before rendering stereo views.
+The separate request for six packed-frame `StereoMode` values (proposed 15–20) remains under designated-expert review; those values are not assigned.
+
 Moved here from `tools/serviio/upstream-3d-issues/` on 2026-09-23: this is the media-stack side of the upstream work (encoders, muxers, players, servers), not Serviio tooling.
 The driver side lives one level up in `docs/upstream/`, and the running record of every thread is `docs/upstream/issue-tracker.md`.
 

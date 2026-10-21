@@ -1,5 +1,9 @@
 # Upstream issue tracker: every filed/planned touch of the campaign
 
+**IANA registration, 20 October 2026:** [Matroska Track Plane Types](https://www.iana.org/assignments/matroska#matroska-track-plane-types) now assigns **3, 4 and 5** to the depth maps of the left-eye, right-eye and background planes, respectively, with Daniel Ramos as change controller and the [stereo-layer v1.9.0 specification](https://github.com/Sparky-OS/stereo-layer/blob/v1.9.0/docs/depth-marks.md) as reference.
+This gives separate picture and depth tracks shared identifiers through `TrackCombinePlanes`, so readers can preserve their relationship before rendering stereo views.
+The separate request for six packed-frame `StereoMode` values (proposed 15–20) remains under designated-expert review; those values are not assigned.
+
 One row per upstream item.
 "Whose move" is always explicit.
 Rules in force for every row: no agent ever posts to any forge (Daniel posts everything himself); polling is gentle and content-checked, never past anti-bot controls; email-first where the forge mails us; never necro closed issues.
