@@ -10,8 +10,18 @@ The driver side lives one level up in `docs/upstream/`, and the running record o
 One draft per upstream target, built from the four verified research lanes (2026-09-15).
 Every draft follows the campaign framing: we bring the **diagnosis + a working fix**, not just a feature request.
 
+**UMS follow-ups merged, 25 October 2026:** SubJunk merged three further fixes into `main`.
+
+- [#6420](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6420), [f2810600](https://github.com/UniversalMediaServer/UniversalMediaServer/commit/f28106009e6e413c49415ca00c5c1d2019613b89): check the renderer's requested 3D layout for H.264 videos independently of the codec-level check, so a needed conversion is selected.
+- [#6421](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6421), [0122e90d](https://github.com/UniversalMediaServer/UniversalMediaServer/commit/0122e90de7a1a6797c8cb88d8c1a5f38cd7906aa): give nine specific Sony profiles priority over the generic profiles that previously won, including the EX725.
+- [#6422](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6422), [ec72da18](https://github.com/UniversalMediaServer/UniversalMediaServer/commit/ec72da189bd8969805b642b581000d843eb813f0): log the selected transcode's MIME type rather than the source's, with resource selection unchanged.
+
+SubJunk [welcomed the additional tests](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6420#issuecomment-6403112283).
+The separate subtitle-ownership change [#6423](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6423) remains open after his [Windows failure report](https://github.com/UniversalMediaServer/UniversalMediaServer/pull/6423#issuecomment-6402962331); it is not counted among these merges.
+These are upstream `main` merges; this update does not assign them a released version.
+
 **Status: all 9 original targets engaged + 4 more filed 2026-09-18 (see the ecosystem section below).**
-**4 merged** (HandBrake PR #8100; UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0` and released in 15.9.0 on 2026-10-05; MKVToolNix !6311, 2026-09-21, and !6312, 2026-10-11; mpv PR #18490, 2026-09-23 by kasper93), the rest posted/filed, including mkvmerge, whose Codeberg signup had read as a paywall but turned out to be the donate page wearing the same layout (account created; issue filed).
+**Earlier merged work** (HandBrake PR #8100; UMS PR #6330, merged 2026-09-19 by SubJunk as `bd032ab0` and released in 15.9.0 on 2026-10-05; MKVToolNix !6311, 2026-09-21, and !6312, 2026-10-11; mpv PR #18490, 2026-09-23 by kasper93), the rest posted/filed, including mkvmerge, whose Codeberg signup had read as a paywall but turned out to be the donate page wearing the same layout (account created; issue filed).
 First audience-facing target: the LTT forum post (target #9): the guide the theater video promised in its description and the thread spent two weeks asking for.
 The videohelp post cleared moderation 2026-09-16 (post #2803756); the mpv player-side pair (issue #18489 + PR #18490, from a parallel Opus session) completes the pipeline end to end: encode → remux → robustness → player → DLNA.
 PR #18490 was **merged on 2026-09-23 by kasper93**, mpv's lead maintainer, after a hostile start, 8 technical threads answered the same day, a second review round, and his own rewrite of the commit messages to mpv's rules (see the mpv review section below).
