@@ -6,7 +6,7 @@ This page asks the next question (*was it ever there, and can any of it be recov
 
 **Correction, 2026-11-03: all of it is recovered.**
 [uyjulian](https://github.com/uyjulian) showed us ([issue #27](https://github.com/danielcamposramos/sony-bravia-linux/issues/27)) that the Internet Archive collection [sony-gpl-source](https://archive.org/details/sony-gpl-source) holds Sony's whole `TV/Download/common/` folder.
-Every one of our group's 23 packages is in it, the patched `sony-target-dev-*` packages and the cross compiler included, and so are both kernels.
+Every file our two group pages link is in it (23 on the EX725 page, 26 on the HX855 page, 36 distinct), the patched `sony-target-dev-*` packages, Qt and the cross compiler included, and so are both kernels.
 They are in this repository, in [`gpl-sources/`](../gpl-sources/), and listed in [research/gpl-sources-mirror.md](research/gpl-sources-mirror.md); the kernels are surveyed in [research/gpl-kernels-2623-survey.md](research/gpl-kernels-2623-survey.md).
 The text below is kept as written on 2026-09-17.
 

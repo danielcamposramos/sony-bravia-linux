@@ -53,4 +53,4 @@ The one exception, `WOwv7AiHK3L4_VJvLaIKng/samba-3.0.37.tar.gz`, does not match 
 
 ## The rest of the sources
 
-The other 21 packages of our groups' pages, Sony's patched userland and cross compiler included, are recovered too: [gpl-sources-mirror.md](gpl-sources-mirror.md).
+The other files of our groups' pages, Sony's patched userland, Qt and cross compiler included, are recovered too: [gpl-sources-mirror.md](gpl-sources-mirror.md).
