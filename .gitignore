@@ -1,5 +1,7 @@
 # Sony-distributed material lives in the offline archive
-# (../sony-bravia-linux.private/), never in this repo — see README scope note
+# (../sony-bravia-linux.private/), never in this repo — see README scope note.
+# The one exception is gpl-sources/: Sony's GPL/LGPL source releases, which
+# their licences let anyone redistribute.
 firmware/
 manuals/
 docs/research/liverecon/playstation-archive/

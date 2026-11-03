@@ -7,7 +7,7 @@ This page asks the next question (*was it ever there, and can any of it be recov
 **Correction, 2026-11-03: all of it is recovered.**
 [uyjulian](https://github.com/uyjulian) showed us ([issue #27](https://github.com/danielcamposramos/sony-bravia-linux/issues/27)) that the Internet Archive collection [sony-gpl-source](https://archive.org/details/sony-gpl-source) holds Sony's whole `TV/Download/common/` folder.
 Every one of our group's 23 packages is in it, the patched `sony-target-dev-*` packages and the cross compiler included, and so are both kernels.
-They are mirrored at https://repo.sparkyos.org/sony-bravia-gpl/ and listed in [research/gpl-sources-mirror.md](research/gpl-sources-mirror.md); the kernels are surveyed in [research/gpl-kernels-2623-survey.md](research/gpl-kernels-2623-survey.md).
+They are in this repository, in [`gpl-sources/`](../gpl-sources/), and listed in [research/gpl-sources-mirror.md](research/gpl-sources-mirror.md); the kernels are surveyed in [research/gpl-kernels-2623-survey.md](research/gpl-kernels-2623-survey.md).
 The text below is kept as written on 2026-09-17.
 
 **Not legal advice.**
@@ -83,7 +83,7 @@ Practical position:
 
 - **Manifests: published here**, in `research/oss-manifests/`. They are our own extraction from public archived pages, they are small, and they are the part with lasting documentary value.
 - **The kernel tree: not committed to git.** 401 MB of source does not belong in a repository, and git is the wrong transport for it. It stays in Daniel's archive and can be supplied on request, which is precisely the arrangement the GPL contemplates, and the one Sony's own page describes for physical media.
-- **The `sony-target-dev-*` packages, once the gap worth filling:** a surviving mirror did exist, the Internet Archive's `sony-gpl-source`, and it restores the patched userland for this whole TV generation. Our copy, with checksums: https://repo.sparkyos.org/sony-bravia-gpl/ (2026-11-03, found by uyjulian).
+- **The `sony-target-dev-*` packages, once the gap worth filling:** a surviving mirror did exist, the Internet Archive's `sony-gpl-source`, and it restores the patched userland for this whole TV generation. Our copy, with checksums, is in this repository: [`gpl-sources/`](../gpl-sources/) (2026-11-03, found by uyjulian).
 
 ## What would it have cost to keep?
 

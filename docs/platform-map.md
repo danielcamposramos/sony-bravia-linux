@@ -62,7 +62,7 @@ Confidence markers: **[C]**onfirmed (read from primary source or live device), *
 
 Full 24-package GPL/LGPL list (license PDF, verbatim): linux-kernel, gcc-for-dev, alsa-lib, busybox, directfb, dosfstools, fuse, glib, glibc-for-dev, iptables, libmicrohttpd, pump-autoip, libjs, exceptionmonitor, crypto, cairo, pango, WebCore, JavaScriptCore, Linux UVC, V4L2, iconv, Webkit, Qt.
 
-The printed GPL offer points at `http://www.sony.net/Products/Linux/`: the same portal whose tarballs for our exact model groups Sony deleted (see `right-to-repair.md`); the Internet Archive kept them, and we mirror them ([research/gpl-sources-mirror.md](research/gpl-sources-mirror.md)).
+The printed GPL offer points at `http://www.sony.net/Products/Linux/`: the same portal whose tarballs for our exact model groups Sony deleted (see `right-to-repair.md`); the Internet Archive kept them, and they are in this repository ([`gpl-sources/`](../gpl-sources/), [research/gpl-sources-mirror.md](research/gpl-sources-mirror.md)).
 
 ## 4. Debug / service surface (AZ3F)
 

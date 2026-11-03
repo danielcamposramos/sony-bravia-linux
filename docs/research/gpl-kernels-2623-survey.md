@@ -18,7 +18,7 @@ The collection has them.
 | HX855 group `linux-kernel.tgz` | 49,654,174 | `a8d7b8150beada2fc1d2057c053b5e0b` | `14a6244cfb2a0a1256d82ddf2d595318db451954` |
 
 Both downloads match the hashes the Internet Archive publishes for them.
-Kept at `firmware/gpl-sources/archive-org/<folder>/` (gitignored), with a public mirror listed in [gpl-sources-mirror.md](gpl-sources-mirror.md).
+Both are in this repository, in [`gpl-sources/common/`](../../gpl-sources/common/) ([gpl-sources-mirror.md](gpl-sources-mirror.md)).
 
 ## The folder names are content hashes, not hiding
 

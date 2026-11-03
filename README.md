@@ -53,6 +53,7 @@ This is SDR transport, not an HDR claim; 16-bit and HDR are standards-backed fol
 
 This public repo contains **only our own work**: research notes, protocol captures from our own TVs, analysis, and tooling (the Serviio 3D fix, SEI injector, ffmpeg wrapper).
 **No Sony-distributed material is hosted here**: no firmware images, service manuals, widget packages, or Sony-server sweeps.
+The one exception is [`gpl-sources/`](gpl-sources/): the GPL and LGPL source Sony published for our two model groups, which those licences let anyone redistribute.
 Those resources were gathered for research and are kept offline by Daniel; the right-to-repair plan for that material is in [docs/right-to-repair.md](docs/right-to-repair.md).
 Some older research notes may still reference those filenames: they refer to Daniel's offline archive, not to anything in this repository.
 

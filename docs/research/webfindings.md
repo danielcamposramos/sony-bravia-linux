@@ -31,7 +31,7 @@ Confidence notes as reported by the research agents.
 
 ## GPL sources (the legal lever)
 
-- Sony's Source Code Distribution Service: now https://oss.sony.net/Products/Linux/ (TV category with regional pages). Historically www.sony.net/Products/Linux: our models' pages are archived (packages lists intact) but the tarballs are gone from Sony (404) and from the Wayback Machine, **but the Internet Archive collection `sony-gpl-source` holds them all** (found by uyjulian, issue #27, 2026-11-03; mirror: [gpl-sources-mirror.md](gpl-sources-mirror.md)).
+- Sony's Source Code Distribution Service: now https://oss.sony.net/Products/Linux/ (TV category with regional pages). Historically www.sony.net/Products/Linux: our models' pages are archived (packages lists intact) but the tarballs are gone from Sony (404) and from the Wayback Machine, **but the Internet Archive collection `sony-gpl-source` holds them all** (found by uyjulian, issue #27, 2026-11-03; now in [`gpl-sources/`](../../gpl-sources/), see [gpl-sources-mirror.md](gpl-sources-mirror.md)).
   - EX725 group page: "KDL-32CX520.html" (Wayback 2014-01-25/2014-02-26): kernel tarball URL `Download/common/zBiusZMzHFG8SB4KDXDP3A/linux-kernel.tgz` (dead on Sony and Wayback; recovered from `sony-gpl-source` 2026-11-03).
   - HX855 group page: "KDL-46HX750.html" (Wayback 2012-08-31): `Download/common/qNe4FQvq2i_B0gV8BTteCw/linux-kernel.tgz` (dead on Sony and Wayback; recovered from `sony-gpl-source` 2026-11-03).
 - Archived downloads that DO exist on Wayback: kernel2635.tar.gz (92 MB, 2.6.35 tree, capture 2013-08-26), kernel26.tgz (49 MB, 2.6-era MIPS), kernel2623-5.7.3.src.tgz, glibc-2.7, ffmpeg_20120709, gstreamer-0.10.22, directfb, wireless_tools.
