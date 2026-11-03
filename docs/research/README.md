@@ -22,7 +22,9 @@ This folder is the evidence and the reasoning that produced them.
 
 ### The recovered platform
 
-- [kernel2635-survey.md](kernel2635-survey.md) — what Sony's own GPL kernel drop (recovered from the Wayback capture) contains.
+- [kernel2635-survey.md](kernel2635-survey.md) — what Sony's shared 2.6.35 GPL kernel drop (recovered from the Wayback capture) contains.
+- [gpl-kernels-2623-survey.md](gpl-kernels-2623-survey.md) — the 2.6.23.17 kernels Sony published for our two groups, recovered from the Internet Archive (found by uyjulian).
+- [gpl-sources-mirror.md](gpl-sources-mirror.md) — all of our groups' GPL packages, Sony's patched userland and cross compiler included, and where to download them.
 - [appliwidget-programming.md](appliwidget-programming.md) — the AppliCast widget platform, reconstructed from the scavenged widget corpus.
 - [oss-manifests/](oss-manifests/) — the OSS package lists Sony published for these sets, and the group they belong to.
 

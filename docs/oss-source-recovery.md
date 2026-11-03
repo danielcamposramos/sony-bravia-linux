@@ -4,6 +4,12 @@
 A follow-up to [licence-basis.md](licence-basis.md), which established that Sony's Source Code Distribution Service is live in 2026 and that **no 2010–2012 EX/HX/NX/CX model appears in it**.
 This page asks the next question (*was it ever there, and can any of it be recovered*) and answers both with evidence.
 
+**Correction, 2026-11-03: all of it is recovered.**
+[uyjulian](https://github.com/uyjulian) showed us ([issue #27](https://github.com/danielcamposramos/sony-bravia-linux/issues/27)) that the Internet Archive collection [sony-gpl-source](https://archive.org/details/sony-gpl-source) holds Sony's whole `TV/Download/common/` folder.
+Every one of our group's 23 packages is in it, the patched `sony-target-dev-*` packages and the cross compiler included, and so are both kernels.
+They are mirrored at https://repo.sparkyos.org/sony-bravia-gpl/ and listed in [research/gpl-sources-mirror.md](research/gpl-sources-mirror.md); the kernels are surveyed in [research/gpl-kernels-2623-survey.md](research/gpl-kernels-2623-survey.md).
+The text below is kept as written on 2026-09-17.
+
 **Not legal advice.**
 Facts and dates; conclusions belong to people qualified to draw them.
 
@@ -54,11 +60,12 @@ Four avenues, all checked on 2026-09-17:
 | Avenue | Result |
 |---|---|
 | **Sony live server**: the tokenised `Download/common/<token>/<file>` URLs from the archived page | **404.** Delisted *and* deleted. |
-| **Internet Archive**: the binaries behind those URLs | **Not archived.** The Wayback Machine captured the HTML pages, never the payloads. |
+| **Internet Archive**: the binaries behind those URLs | **Not archived** by the Wayback Machine, which captured the HTML pages, never the payloads. **Corrected 2026-11-03:** the separate collection `sony-gpl-source` holds every one of them. |
 | **GitHub mirrors**: repo and code search for `sony-target-dev`, BRAVIA GPL drops, the oss.sony.net paths | **None found.** Only incidental references. |
 | **Our own archive** | **The kernel survives**: 35 727 files, with `COPYING` at the tree root, fetched while it was still offered. |
 
-So the position is: *the manifest is recovered, the kernel is held, and Sony's patched userland packages appear to be gone.*
+So the position was: *the manifest is recovered, the kernel is held, and Sony's patched userland packages appear to be gone.*
+Since 2026-11-03 the patched packages are recovered as well ([research/gpl-sources-mirror.md](research/gpl-sources-mirror.md)).
 
 ### What is still obtainable elsewhere
 
@@ -66,7 +73,7 @@ Many manifest entries are **stock upstream releases** and remain available from 
 A rebuild can start from upstream for those.
 
 What is **not** replaceable that way is anything carrying Sony's patches: the `sony-target-dev-*` and `sony-cross-*` RPMs specifically, whose whole value is the delta from upstream.
-Those are the losses.
+Those were the losses, and they are recovered now ([research/gpl-sources-mirror.md](research/gpl-sources-mirror.md)).
 
 ## On hosting the source here
 
@@ -76,7 +83,7 @@ Practical position:
 
 - **Manifests: published here**, in `research/oss-manifests/`. They are our own extraction from public archived pages, they are small, and they are the part with lasting documentary value.
 - **The kernel tree: not committed to git.** 401 MB of source does not belong in a repository, and git is the wrong transport for it. It stays in Daniel's archive and can be supplied on request, which is precisely the arrangement the GPL contemplates, and the one Sony's own page describes for physical media.
-- **If anyone holds the missing `sony-target-dev-*` packages**, they are the gap worth filling. A single surviving mirror would restore the patched userland for an entire TV generation.
+- **The `sony-target-dev-*` packages, once the gap worth filling:** a surviving mirror did exist, the Internet Archive's `sony-gpl-source`, and it restores the patched userland for this whole TV generation. Our copy, with checksums: https://repo.sparkyos.org/sony-bravia-gpl/ (2026-11-03, found by uyjulian).
 
 ## What would it have cost to keep?
 

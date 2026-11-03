@@ -152,7 +152,7 @@ They are also the fastest way for a new partner to understand the app's contract
 
 | Lane | State | Docs |
 |---|---|---|
-| Platform identification | DONE: MIPS mipsel "ATREYU", glibc 2.7, DirectFB/Qt/Opera, Linux 2.6.35-era | `platform-map.md` |
+| Platform identification | DONE: MIPS "ATREYU" (byte order open), glibc 2.7, DirectFB/Qt/Opera, Linux 2.6 (Sony's GPL kernels for our groups: 2.6.23.17) | `platform-map.md` |
 | Live CERS/IRCC remote API | DONE, tool `tools/bravia_ircc.py` | platform-map |
 | UPnP DMR playback | DONE: Serviio renders to both sets | liverecon notes |
 | LAN media MVP → full app | DONE: this stack, owner-verified | tv-mediabrowser README |
@@ -166,7 +166,8 @@ They are also the fastest way for a new partner to understand the app's contract
 | Applicast widget lane | ACTIVE: **Sony's CDN is still live (2026-09-17)**: preservation sweep recovered 5 never-archived bundles + a second namespace (`/WsIndexes`, `/WsCatalogs`, `/WidgetCatalogs` incl. AZ1) across 3 hosts, 137/168 URLs answering. Key finding in `withheld-by-catalog.md`; programming model documented publicly. **Fronts archived (2026-09-17):** the load-bearing Sony fronts (AZ3 EU/BR catalogs, AZ1 catalog, bundle manifests, OSS service) now have Internet Archive snapshots beside the live URLs: table in the repo README; archive links must use `https://` (the `http://` form returns 503) | `research/appliwidget-programming.md`, `withheld-by-catalog.md`, README "Live fronts and archive snapshots" |
 | Firmware decrypt | STALLED: whole-file AES, no public decryptor; 6-image corpus offline for differential work | platform-map, roadmap |
 | Presto engine CVEs | NOTED: 2011-2628 and era-adjacent, no exploit built; not the current focus | `research/presto-cve-2011-2628.md` |
-| Kernel survey | DONE: 2.6.35 era privesc surface mapped | `research/kernel2635-survey.md` |
+| Kernel survey | DONE: 2.6.35 era privesc surface mapped; our groups' own 2.6.23.17 kernels recovered and surveyed 2026-11-03 | `research/kernel2635-survey.md`, `research/gpl-kernels-2623-survey.md` |
+| GPL sources of our groups | DONE 2026-11-03: all 23 packages and both kernels recovered from the Internet Archive (found by uyjulian) and mirrored | `research/gpl-sources-mirror.md` |
 | Senior-partner reviews | DONE: 3 external reviews (Opus/DeepSeek/Kimi) folded into the roadmap | `partner-review.md` |
 | Right-to-repair sharing | **Wiki update POSTED 2026-09-18**: consumerrights.wiki (FULU) product-line page now carries the five dated Sony end-of-service notices (each naming both models, archived), the regional-documentation asymmetry, the browser-3D incident, the corrected firmware-removal claim (an overclaim of ours, narrowed to exactly what Sony's page supports), and a Brazil CDC context section flagged not-legal-advice. Noticeboard follow-up post drafted paste-ready alongside. Rossmann/repair.wiki outreach drafts queued, grounded in his own live Sony campaign (quotes pinned to source) | `right-to-repair.md`, `rossmann-outreach.md`, `wiki/`, `sony-end-of-service-statements.md` |
 | Era browser & media element | DONE 2026-09-18: the platform's input/render/storage model measured end to end: no media-key keydowns, colour keys are Opera's, glyph coverage (Arrows block = tofu), the `<video>` element's context rules, native controls + transform scaling, dated cookies, `timeupdate` only. The probe pages that produced it ship in the app (`/probe`, `/keys`) | `era-key-vocabulary.md`, `era-media-element.md`, `build-your-own-bravia-portal.md` |

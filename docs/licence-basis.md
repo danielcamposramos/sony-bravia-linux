@@ -12,7 +12,7 @@ Conclusions are for people qualified to draw them.
 
 ## 1. The platform is GPL software
 
-The sets run **Linux 2.6.35** with a GPL/LGPL userland (DirectFB, Qt, glibc-era components: see [platform-map.md](platform-map.md)).
+The sets run **Linux 2.6** (Sony's published kernels for both our groups are 2.6.23.17: [research/gpl-kernels-2623-survey.md](research/gpl-kernels-2623-survey.md)) with a GPL/LGPL userland (DirectFB, Qt, glibc-era components: see [platform-map.md](platform-map.md)).
 
 Sony's own source drop for this kernel is in Daniel's archive: **35,727 files**, with `COPYING`, the GNU General Public License, at the root of the tree, plus per-component licences throughout (`fs/jffs2/LICENCE`, `drivers/net/LICENSE.SRC`, and others).
 Sony shipped the licence text with the source, as the licence requires.

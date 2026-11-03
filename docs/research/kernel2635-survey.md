@@ -1,5 +1,8 @@
 # GPL kernel2635.tar.gz survey: 2026-09-13
 
+**Correction, 2026-11-03:** the kernels Sony published for our own two groups are recovered, and they are **Linux 2.6.23.17**, with Sony's MIPS board support ([gpl-kernels-2623-survey.md](gpl-kernels-2623-survey.md); found by [uyjulian](https://github.com/uyjulian) in issue #27).
+This 2.6.35 tree is a shared `common` tarball and does not tell which kernel our sets run.
+
 Source: Wayback capture of `sony.net/Products/Linux/TV/Download/common/xWJNYIdpxDBtyrtSrz_vLA/kernel2635.tar.gz` (2013-08-26).
 228 MB uncompressed-tar (NOT gzipped despite the name: Wayback served it plain; `tar tf` reads it directly).
 28,105 files, 459 MB unpacked.
@@ -7,7 +10,7 @@ Kept at `firmware/gpl-sources/kernel2635.tar.gz` (gitignored).
 
 ## What it is
 
-- **Linux 2.6.35.14** ("Yokohama") — Sony tracked upstream stable up to 2.6.35.14. Confirms the 2.6.35-era inference for this generation (this is the "common" TV OSS tarball; our exact groups' tarballs used different hash-dirs and are still unrecovered).
+- **Linux 2.6.35.14** ("Yokohama") — Sony tracked upstream stable up to 2.6.35.14. We read it as confirming a 2.6.35-era kernel for this generation; that was wrong for our groups (this is the "common" TV OSS tarball; our groups' own tarballs, recovered 2026-11-03, are 2.6.23.17).
 
 ## What it does NOT contain (the important part)
 

@@ -35,7 +35,7 @@ Confidence markers: **[C]**onfirmed (read from primary source or live device), *
 
 - **Main SoC: Sony codename "ATREYU"**: integrates video/TS processing, HDMI TMDS handling, DDR3 controller, NAND controller, USB host, Ethernet MAC, LVDS panel output, audio, SPDIF, SIRCS IR, I2C A/B/C, and **four UARTs**. The manual never prints a CXD part number or CPU architecture **[C:SM]**: **confirmed visually** by a vision model reading the block-diagram image (PDF p.130): no CXD#### anywhere on the page; UARTA/C/D TX/RX, JTAG (TCK/TMS/TDI/TDO), "One NAND" and DDR3 "1333 2Gb" / "Muxed 2Gb 4Gb" labels all verified **[C:SM+vision]**.
 - Part number **CXD4727GB** ("X-Reality Processor", IC9000) is attributed via board censuses of sibling models (KDL-46EX724, KDL-40HX853, KDL-55HX753): **upgraded to medium-high confidence 2026-09-13**: the Russian repair DB tel-spb.ru lists the same IC census for our **exact** board variant 1-885-388-52 (and the -51 sibling): CXD4727GB + K4B2G1646C-HCH9 DDR3 + KFM4G16Q4B OneNAND + SIL9287BCNU + GL850G + D2826ER + TPA6138 + PS54425 (forum-derived source, so not full [C]; final confirmation = reading the chip marking on the donor board or a photo). Board photo of the exact board: `https://tel-spb.ru/remont-tv-lcd/main/1-885-388-52.jpg` **[W→W+]**.
-- CPU: **MIPS little-endian**: confirmed by the TVs' own Opera user agents (`Linux mips; … InettvBrowser/2.2 … SonyDTV115`) **[C:live]**. The manual states neither core count nor clock **[C:SM]**.
+- CPU: **MIPS**: confirmed by the TVs' own Opera user agents (`Linux mips; … InettvBrowser/2.2 … SonyDTV115`) **[C:live]**. Byte order unconfirmed: the user agent does not show it, and the AYU board in Sony's kernels for our groups builds big-endian only ([research/gpl-kernels-2623-survey.md](research/gpl-kernels-2623-survey.md)) **[C:GPL]**. The manual states neither core count nor clock **[C:SM]**.
 - RAM: DDR3-1333, chip labels "1333 2Gb" and "1333 Muxed 2Gb 4Gb" (device capacities; exact vendor parts and total not printed) **[C:SM]**. Proxy-board census: Samsung K4B2G1646C-HCH9; AZ2F has 2× = 512 MB **[W]**.
 - Flash: "One NAND" device (OneNAND class, likely Samsung KFM2GN6Q2B-class) **[C:SM]**, part number not printed.
 - Ethernet: Realtek **RTL8201F** 10/100 PHY (MAC inside Atreyu) **[C:SM]** (proxy census said RTL8201E: F is what our manual shows).
@@ -49,7 +49,7 @@ Confidence markers: **[C]**onfirmed (read from primary source or live device), *
 
 | Layer | Component | Evidence |
 |---|---|---|
-| Kernel | Linux 2.6.x (likely 2.6.35-era) | live `Server: Linux/2.6` **[C:live]**; sibling GPL group ships 2.6.35 **[W]** |
+| Kernel | Linux 2.6.x; Sony's published kernels for both our groups are 2.6.23.17 | live `Server: Linux/2.6` **[C:live]**; our groups' GPL kernels, recovered 2026-11-03 ([research/gpl-kernels-2623-survey.md](research/gpl-kernels-2623-survey.md)) **[C:GPL]**; the running version is still to be read from the sets |
 | Libc | **glibc** 2.7 (`glibc-for-dev`), NOT uClibc | license PDF package list **[C]** + archived Sony GPL page **[W]** |
 | Base userland | busybox 1.4.2, iptables 1.4.0, fuse 2.7.4, dosfstools, pump-autoip | license PDF **[C]** + GPL page **[W]** |
 | Graphics | **DirectFB 1.3.0 + SaWMan** (no X11), cairo 1.8.6, pango 1.24.2, glib 2.22.5, Qt 4.7.0 | license PDF **[C]** + GPL page **[W]** |
@@ -62,7 +62,7 @@ Confidence markers: **[C]**onfirmed (read from primary source or live device), *
 
 Full 24-package GPL/LGPL list (license PDF, verbatim): linux-kernel, gcc-for-dev, alsa-lib, busybox, directfb, dosfstools, fuse, glib, glibc-for-dev, iptables, libmicrohttpd, pump-autoip, libjs, exceptionmonitor, crypto, cairo, pango, WebCore, JavaScriptCore, Linux UVC, V4L2, iconv, Webkit, Qt.
 
-The printed GPL offer points at `http://www.sony.net/Products/Linux/`: the same portal whose tarballs for our exact model groups are now deleted (see `right-to-repair.md`).
+The printed GPL offer points at `http://www.sony.net/Products/Linux/`: the same portal whose tarballs for our exact model groups Sony deleted (see `right-to-repair.md`); the Internet Archive kept them, and we mirror them ([research/gpl-sources-mirror.md](research/gpl-sources-mirror.md)).
 
 ## 4. Debug / service surface (AZ3F)
 
@@ -95,4 +95,5 @@ There is therefore **no known correctness oracle** for decryption key guesses, a
 - Physical UART/JTAG pad locations (block diagram only)
 - Bootloader/ABK details for AZ3F; the update-decryption keys
 - HW video decoder programming interface (the prize for VLC-class playback)
-- Exact kernel version for our two model groups (GPL tarballs deleted; 2.6.35 inferred from sibling groups)
+- Exact kernel version running on our two model groups (Sony's GPL kernels for them, recovered 2026-11-03, are 2.6.23.17; the sets' boot banner will confirm)
+- Byte order (the AYU board in those kernels is big-endian only)
