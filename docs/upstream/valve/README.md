@@ -1,3 +1,5 @@
+> This now lives at https://github.com/Sparky-OS/sparky-stereo-os/blob/main/docs/upstream/valve/README.md; this copy stays for the links already shared and is no longer updated.
+
 # Valve: stereo spectator drafts (2026-09-24)
 
 Raw material for Daniel, who reviews and approves each one before it is posted.
