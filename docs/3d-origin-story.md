@@ -95,7 +95,7 @@ It was a gift from a company founder to a man who had offered them his country f
 
 iZ3D folded around 2012, with the rest of the consumer-3D wave, and the monitors are collector's items now.
 The driver is **not** abandonware: Vadim and his team gave its source code to the community, and it is public under the MIT licence at [bo3b/iZ3D](https://github.com/bo3b/iZ3D) ("generously provided to us by Vadim and crew"), with the stated goal of replacing NVIDIA 3D Vision with an open, non-proprietary version.
-[wiz3D](https://github.com/effcol/wiz3D) carries it forward under the LGPL-2.1: side-by-side, top-and-bottom and anaglyph output, and stereo re-enabled in games that shipped AMD HD3D or 3D Vision support.
+[wiz3D](https://github.com/Stereopticon-Org/wiz3D) carries it forward under the LGPL-2.1: side-by-side, top-and-bottom and anaglyph output, and stereo re-enabled in games that shipped AMD HD3D or 3D Vision support.
 It is actively developed.
 
 Vadim Asadov's honest answer was right: a small company could not outspend Samsung in anyone's market, and the "big ones" won the round.

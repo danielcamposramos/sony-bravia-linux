@@ -129,7 +129,7 @@ Two modes:
 **First real playthrough, same day (build `ed278357…`, HX855, Vulkan, side by side):** Daniel loaded an old save and rode the airboat through the canals chased by the helicopter: "what a blast".
 In one launch: two save loads (`d1_town_01`, `d1_canals_10`) and two level transitions (`d1_canals_10` to `11` to `12`), no hang, no crash; shadows right; weapon selection, HUD, crosshair and menus whole.
 
-Compared with wiz3D's own record for Half-Life 2 (README compatibility table, `effcol/wiz3D`): "Mostly Working. `steam_legacy` beta branch.
+Compared with wiz3D's own record for Half-Life 2 (README compatibility table, `Stereopticon-Org/wiz3D`): "Mostly Working. `steam_legacy` beta branch.
 Use `-game` command line argument.
 Shadows have issues."
 Here: the current build, native Linux, shadows right, because the engine renders each eye itself. wiz3D is universal (one DX9 proxy for hundreds of games, HelixMod shader fixes); this module reaches only Source games that carry Valve's VR interface.

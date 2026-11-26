@@ -216,7 +216,7 @@ call for Daniel.
 | [x265 #970](https://github.com/Multicorewareinc/x265/issues/970) | write the SEI in HEVC | open |
 | [FFmpeg #24530](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24530), [#24531](https://code.ffmpeg.org/FFmpeg/FFmpeg/issues/24531) | encoder-side signalling | open |
 | [Jellyfin #18060](https://github.com/jellyfin/jellyfin/pull/18060) | comment on a Jellyfin developer's PR | commented |
-| [wiz3D #32](https://github.com/effcol/wiz3D/issues/32) | hardware testing of stereo output modes | offered |
+| [wiz3D #32](https://github.com/Stereopticon-Org/wiz3D/issues/32) | hardware testing of stereo output modes | offered |
 | [PhereoRoll3D #2](https://github.com/JackDesBwa/PhereoRoll3D/issues/2) | stereo photography, MPO finding | posted |
 | [StaxRip #1873](https://github.com/staxrip/staxrip/issues/1873) | answer on re-encoding frame-packed 3D | commented |
 
