@@ -17,7 +17,7 @@ This is the driver era aimed at a console, and it is only possible because there
 Worth stating plainly because a common objection confuses them: producing stereo from a 3D game does **not** require two scenes or duplicated geometry.
 It requires one scene and two camera positions.
 Vulkan multiview draws both eyes in a single pass and is an optimisation, not a precondition; rendering twice sequentially has always worked.
-The reference implementation is public and MIT licensed, since iZ3D's source was released ([bo3b/iZ3D](https://github.com/bo3b/iZ3D), modernised as [effcol/wiz3D](https://github.com/effcol/wiz3D)).
+The reference implementation is public and MIT licensed, since iZ3D's source was released ([bo3b/iZ3D](https://github.com/bo3b/iZ3D), modernised as [Stereopticon-Org/wiz3D](https://github.com/Stereopticon-Org/wiz3D)).
 
 That argument applies to PCSX2 and Dolphin-class emulators.
 It does **not** apply to 2D consoles, where there is no scene and no camera, and where the only route is the one 3dSen takes: a person authoring volume per game by hand.
@@ -70,7 +70,7 @@ This is the mechanism that makes the whole plan safe.
 
 1. **Stereo from a 3D game is one scene and two cameras.** Not two scenes, not duplicated geometry. Two view matrices offset along the camera's right vector, plus a convergence setting that decides where zero parallax sits. Separation without convergence gives depth that is either painful or invisible depending on scene scale, which is why both are exposed wherever this is done properly.
 2. **It is driver independent, and a sibling project proves it.** Dolphin implements stereoscopy inside the emulator and outputs side by side or top and bottom to any display that accepts a packed pair. Only its quad-buffered "HDMI 3D" mode needs driver cooperation, and that mode is optional. This matters most for PCSX2, whose thread ran six years on Direct3D 11 and 3D Vision constraints when the answer was to stop involving the driver.
-3. **The reference implementation is public.** iZ3D's source is MIT ([bo3b/iZ3D](https://github.com/bo3b/iZ3D)) and is being modernised as [effcol/wiz3D](https://github.com/effcol/wiz3D). Nobody has to take the geometry on trust.
+3. **The reference implementation is public.** iZ3D's source is MIT ([bo3b/iZ3D](https://github.com/bo3b/iZ3D)) and is being modernised as [Stereopticon-Org/wiz3D](https://github.com/Stereopticon-Org/wiz3D). Nobody has to take the geometry on trust.
 4. **Scope honestly.** This applies to emulators with a real 3D scene. It does not apply to 2D consoles, where there is no camera and the only route is per-game authoring by hand, as 3dSen does.
 
 ### Before anything is sent

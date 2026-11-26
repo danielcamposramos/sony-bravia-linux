@@ -1,6 +1,6 @@
 # wiz3D: offer of hardware testing on real 3D displays
 
-Target: https://github.com/effcol/wiz3D (LGPL-2.1, active 2026, built on the MIT-licensed iZ3D source at https://github.com/bo3b/iZ3D)
+Target: https://github.com/Stereopticon-Org/wiz3D (LGPL-2.1, active 2026, built on the MIT-licensed iZ3D source at https://github.com/bo3b/iZ3D)
 
 No AI policy in the repository (the only "AI" string is `immersity.ai`).
 Their CONTRIBUTING asks for exactly this: "Game testing" and "Output modes: test the various stereo output plugins (SBS, anaglyph, interlaced, shutter)", and says to open an issue before starting anything large.

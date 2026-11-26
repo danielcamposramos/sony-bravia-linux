@@ -190,6 +190,6 @@ sudo systemd-run --unit=nouveau-3d-test --collect sh /K3D/GitHub/sony-bravia-lin
 - i915 adjusted-mode handling: `drivers/gpu/drm/i915/display/intel_display.c`.
 - amdgpu DRM-to-DC translation: `drivers/gpu/drm/amd/display/amdgpu_dm/amdgpu_dm.c`.
 - DC stereo types and machinery: `drivers/gpu/drm/amd/display/dc/dc_types.h`, `dc/core/dc_resource.c`, `dc/opp/dcn10/dcn10_opp.c`, `display/modules/info_packet/info_packet.c`.
-- Existing dual-surface packer: [wiz3D SideBySideOutput](https://github.com/effcol/wiz3D/tree/main/OutputMethods/SideBySideOutput).
+- Existing dual-surface packer: [wiz3D SideBySideOutput](https://github.com/Stereopticon-Org/wiz3D/tree/main/OutputMethods/SideBySideOutput).
 - Candidate Linux compositor: [ValveSoftware/gamescope](https://github.com/ValveSoftware/gamescope).
 - Open OpenXR runtime: [Monado](https://gitlab.freedesktop.org/monado/monado).
